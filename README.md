@@ -1,2 +1,0 @@
-# PLIXORA.BO
-tienda virtual

@@ -1,0 +1,6 @@
+node_modules/
+.obsidian/
+deploy-netlify/
+whatsapp-bot/
+*.base
+*.canvas
