@@ -523,7 +523,7 @@ function setupForm() {
                 const messageText = `¡Hola! Aquí tienes los detalles de tu compra en PLIXORA.BO 🌟\n\n` + generateSaleDetailsText(newSale);
                 
                 try {
-                    const response = await fetch('https://cricket-toolkit-tri-hormone.trycloudflare.com/api/send-message', {
+                    const response = await fetch('https://plixora-bot.duckdns.org/api/send-message', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ phone: newSale.customer, message: messageText })
