@@ -429,7 +429,11 @@
 
         const perfilNombre = document.getElementById('nf-a-perfil-nombre').value.trim();
         const cliente = document.getElementById('nf-a-cliente').value.trim();
-        const wa      = document.getElementById('nf-a-wa').value.trim();
+        let wa      = document.getElementById('nf-a-wa').value.trim();
+        // Remove non-numeric chars and '591' prefix if present
+        wa = wa.replace(/[^0-9]/g, '');
+        if (wa.startsWith('591')) wa = wa.substring(3);
+        
         const inicio  = document.getElementById('nf-a-inicio').value;
         const venc    = document.getElementById('nf-a-venc').value;
         const plan    = document.getElementById('nf-a-plan').value;

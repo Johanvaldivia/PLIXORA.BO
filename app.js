@@ -499,6 +499,10 @@ function setupForm() {
         submitBtn.disabled = true;
         submitBtn.textContent = 'Guardando...';
 
+        let waVal = document.getElementById('sale-customer').value.trim();
+        waVal = waVal.replace(/[^0-9]/g, '');
+        if (waVal.startsWith('591')) waVal = waVal.substring(3);
+
         const newSale = {
             id:          Date.now().toString(),
             date:        new Date().toISOString(),
@@ -506,7 +510,7 @@ function setupForm() {
             price:       product.salePrice,
             profit:      product.profit,
             customerName:document.getElementById('sale-customer-name').value.trim() || '',
-            customer:    document.getElementById('sale-customer').value.trim() || 'Anónimo',
+            customer:    waVal || 'Anónimo',
             email:       document.getElementById('sale-email').value.trim()    || '',
             password:    document.getElementById('sale-password').value.trim() || '',
             expireDate:  calculateExpirationDate(product.duration)
