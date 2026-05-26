@@ -442,13 +442,14 @@ body {
 .btn-block { width:100%; }
 
 /* ── ACTION ICONS ── */
-.actions-cell { display:flex; gap:0.4rem; }
-.btn-icon { background:transparent; border:1.5px solid var(--border); color:var(--text-muted); width:32px; height:32px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; transition:var(--ease); }
+.actions-cell { display:flex; gap:0.4rem; flex-wrap:wrap; }
+.btn-icon { background:transparent; border:1.5px solid var(--border); color:var(--text-muted); width:32px; height:32px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; transition:var(--ease); flex-shrink:0; }
 .btn-icon svg { width:14px; height:14px; stroke:currentColor; stroke-width:2; fill:none; }
 .btn-icon:hover { transform:translateY(-2px); }
 .btn-icon.copy:hover   { color:#3b82f6; border-color:#3b82f6; background:rgba(59,130,246,0.06); }
 .btn-icon.notify:hover { color:#10b981; border-color:#10b981; background:rgba(16,185,129,0.06); }
 .btn-icon.delete:hover { color:#ef4444; border-color:#ef4444; background:rgba(239,68,68,0.06); }
+.btn-icon.send:hover   { color:#25d366; border-color:#25d366; background:rgba(37,211,102,0.06); }
 .profit-badge { color:#10b981; font-weight:700; }
 
 /* ── TOAST ── */

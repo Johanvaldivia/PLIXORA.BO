@@ -442,9 +442,10 @@
         <div class="nf-modal">
             <div class="nf-modal-header"><h3>Asignar Perfil <span id="nf-assign-profile-name" style="color:var(--orange)"></span></h3><button class="nf-close" onclick="closeNFAssign()">✕</button></div>
             <form id="nf-assign-form" onsubmit="event.preventDefault();submitNFAssign()">
-                <div class="form-row"><div class="form-group half"><label>Nombre del cliente *</label><input id="nf-a-cliente" type="text" placeholder="Ej: Juan Pérez" required></div><div class="form-group half"><label>WhatsApp *</label><input id="nf-a-wa" type="text" placeholder="Ej: 73651440" required></div></div>
+                <div class="form-row"><div class="form-group half"><label>Nombre del perfil *</label><input id="nf-a-perfil-nombre" type="text" placeholder="Ej: Juanito, Mamá..." required></div><div class="form-group half"><label>Nombre del cliente *</label><input id="nf-a-cliente" type="text" placeholder="Ej: Juan Pérez" required></div></div>
+                <div class="form-row"><div class="form-group half"><label>WhatsApp *</label><input id="nf-a-wa" type="text" placeholder="Ej: 73651440" required></div><div class="form-group half"><label>Plan *</label><select id="nf-a-plan" required><option value="" disabled selected>Selecciona un plan...</option><option value="1m">1 Mes (15 Bs)</option><option value="2m">2 Meses (29 Bs)</option></select></div></div>
                 <div class="form-row"><div class="form-group half"><label>Fecha inicio</label><input id="nf-a-inicio" type="date"></div><div class="form-group half"><label>Fecha vencimiento *</label><input id="nf-a-venc" type="date" required></div></div>
-                <div class="form-row"><div class="form-group half"><label>Plan *</label><select id="nf-a-plan" required><option value="" disabled selected>Selecciona un plan...</option><option value="1m">1 Mes (15 Bs)</option><option value="2m">2 Meses (29 Bs)</option></select></div><div class="form-group half"><label>Observación</label><input id="nf-a-obs" type="text" placeholder="Opcional..."></div></div>
+                <div class="form-row"><div class="form-group"><label>Observación</label><input id="nf-a-obs" type="text" placeholder="Opcional..."></div></div>
                 <div style="display:flex;gap:0.75rem;margin-top:0.5rem">
                     <button type="button" class="btn btn-outline" onclick="closeNFAssign()" style="flex:1">Cancelar</button>
                     <button type="submit" class="btn btn-primary" style="flex:2">Asignar Perfil</button>

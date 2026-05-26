@@ -318,6 +318,7 @@
         const svgWA  = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/></svg>`;
         const svgFree= `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 119 0v3.75M3.75 21.75h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H3.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>`;
         const svgPlus= `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>`;
+        const svgSend= `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/></svg>`;
 
         tbody.innerHTML = (acc.perfiles || []).map((p, i) => {
             const occ = p.estado === 'ocupado';
@@ -343,6 +344,7 @@
                 <td>
                     <div class="actions-cell">
                     ${occ ? `
+                        <button class="btn-icon send" style="color:#25d366;border-color:rgba(37,211,102,0.3)" title="Enviar datos por WhatsApp" onclick="window.nfSendAccess('${accountId}',${i})">${svgSend}</button>
                         <button class="btn-icon" style="color:#0ea5e9;border-color:rgba(14,165,233,0.3)" title="Ver Detalle" onclick="window.nfViewSale('${accountId}',${i})">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.641 0-8.574-3.007-9.964-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                         </button>
@@ -395,6 +397,7 @@
         const perfil = acc.perfiles[profileIndex];
         document.getElementById('nf-assign-profile-name').textContent = perfil.nombre;
         document.getElementById('nf-assign-form').reset();
+        document.getElementById('nf-a-perfil-nombre').value = '';
         const today = new Date().toISOString().slice(0, 10);
         document.getElementById('nf-a-inicio').value = today;
         // Default vencimiento = 1 mes
@@ -424,6 +427,7 @@
 
         if (hasError) return;
 
+        const perfilNombre = document.getElementById('nf-a-perfil-nombre').value.trim();
         const cliente = document.getElementById('nf-a-cliente').value.trim();
         const wa      = document.getElementById('nf-a-wa').value.trim();
         const inicio  = document.getElementById('nf-a-inicio').value;
@@ -445,7 +449,7 @@
         if (!acc) return;
 
         const perfiles = [...acc.perfiles];
-        perfiles[assignProfileIndex] = { ...perfiles[assignProfileIndex], estado: 'ocupado', cliente, whatsapp: wa, inicio, vencimiento: venc, plan, obs };
+        perfiles[assignProfileIndex] = { ...perfiles[assignProfileIndex], nombre: perfilNombre, estado: 'ocupado', cliente, whatsapp: wa, inicio, vencimiento: venc, plan, obs };
 
         // ── Optimistic update: apply locally BEFORE Firebase confirms ──
         acc.perfiles = perfiles;
@@ -491,6 +495,56 @@
         const p = acc.perfiles[idx];
         const text = `Netflix (PLAN PREMIUM)\n\nCorreo: ${acc.correo}\nContraseña: ${acc.password}\nPerfil: ${p.nombre}\n\n(LA CONTRASEÑA INCLUYE MÁS CON EL * )\nPOR FAVOR INGRESAR BIEN LA CONTRASEÑA\n\n(Puedes crear un PIN en tu perfil si deseas mayor privacidad.)\n\n(Está prohibido cambiar el nombre del perfil. Caso contrario, se dará de baja automáticamente el acceso.)\n\nPLIXORA.BO\n----------------------------`;
         navigator.clipboard.writeText(text).then(() => showNFToast('📋 Acceso copiado'));
+    };
+
+    // ── SEND ACCESS VIA WHATSAPP BOT ─────────────────────────
+    window.nfSendAccess = async function (accountId, idx) {
+        const acc = nfAccounts.find(a => a.id === accountId);
+        if (!acc) return;
+        const p = acc.perfiles[idx];
+        if (!p.whatsapp) { showNFToast('❌ Sin número de WhatsApp'); return; }
+
+        if (!confirm(`¿Enviar datos de la cuenta Netflix al cliente ${p.cliente} (${p.whatsapp}) por WhatsApp?`)) return;
+
+        showNFToast('📤 Enviando datos por WhatsApp...');
+
+        // Mensaje 1: Datos de la cuenta
+        const msg1 = `Netflix (PLAN PREMIUM) 🎬\n\n📧 *Correo:* ${acc.correo}\n🔑 *Contraseña:* ${acc.password}\n📺 *Perfil:* ${p.nombre}\n\n⚠️ LA CONTRASEÑA INCLUYE TODO, INGRESAR TAL CUAL\n\n🔒 Puedes crear un PIN en tu perfil si deseas mayor privacidad.\n\n🚫 Está prohibido cambiar el nombre del perfil. Caso contrario, se dará de baja automáticamente el acceso.\n\n✨ *PLIXORA.BO*`;
+
+        // Mensaje 2: Instrucciones de ingreso
+        const msg2 = `📌 *Momento de ingresar:*\nDar clic en *"OBTENER AYUDA"* y luego *"ACCEDER CON CONTRASEÑA"*`;
+
+        try {
+            // Enviar mensaje 1 - datos de la cuenta
+            const resp1 = await fetch('https://plixora-bot.duckdns.org/api/send-message', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone: p.whatsapp, message: msg1 })
+            });
+            const data1 = await resp1.json();
+            if (!data1.success) throw new Error(data1.error || 'Error enviando mensaje 1');
+
+            // Pequeña pausa para que lleguen en orden
+            await new Promise(r => setTimeout(r, 1500));
+
+            // Enviar mensaje 2 - instrucciones con imagen
+            const resp2 = await fetch('https://plixora-bot.duckdns.org/api/send-image', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    phone: p.whatsapp,
+                    imageUrl: window.location.origin + '/netflix-instrucciones.png',
+                    caption: msg2
+                })
+            });
+            const data2 = await resp2.json();
+            if (!data2.success) throw new Error(data2.error || 'Error enviando imagen');
+
+            showNFToast('✅ Datos enviados por WhatsApp a ' + p.cliente);
+        } catch (error) {
+            console.error('Error enviando por WhatsApp:', error);
+            showNFToast('❌ Error: ' + error.message);
+        }
     };
 
     window.nfNotify = function (accountId, idx) {
