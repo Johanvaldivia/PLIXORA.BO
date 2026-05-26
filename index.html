@@ -453,6 +453,21 @@
             </form>
         </div>
     </div>
+    <!-- Preview WhatsApp Modal -->
+    <div id="nf-preview-modal" class="nf-overlay" style="display:none; z-index:3010;">
+        <div class="nf-modal" style="max-width: 420px;">
+            <div class="nf-modal-header"><h3>Vista previa del mensaje</h3><button class="nf-close" onclick="closeNFPreview()">✕</button></div>
+            <div style="padding: 1.25rem 1.5rem;">
+                <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:0.75rem">Se enviará a: <strong id="nf-prev-cliente" style="color:var(--text-main)"></strong></p>
+                <div style="background:rgba(26,26,46,0.03);border:1px solid var(--border);border-radius:12px;padding:1rem;margin-bottom:0.75rem;font-size:0.82rem;white-space:pre-wrap;color:var(--text-main);max-height:180px;overflow-y:auto;" id="nf-prev-msg1"></div>
+                <div style="background:rgba(26,26,46,0.03);border:1px solid var(--border);border-radius:12px;padding:1rem;margin-bottom:1.25rem;font-size:0.82rem;white-space:pre-wrap;color:var(--text-main)" id="nf-prev-msg2"></div>
+                <div style="display:flex;gap:0.75rem;">
+                    <button type="button" class="btn btn-outline" onclick="closeNFPreview()" style="flex:1">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="confirmNFSend()" style="flex:2">Sí, enviar ahora</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- History Detail Modal -->
     <div id="history-detail-modal" class="nf-overlay" style="display:none;z-index:2000;">

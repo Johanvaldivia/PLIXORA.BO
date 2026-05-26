@@ -502,17 +502,19 @@
     };
 
     // ── SEND ACCESS VIA WHATSAPP BOT ─────────────────────────
-    window.nfSendAccess = async function (accountId, idx) {
+    let pendingWAPayload = null;
+
+    window.closeNFPreview = function() {
+        document.getElementById('nf-preview-modal').style.display = 'none';
+        pendingWAPayload = null;
+    };
+
+    window.nfSendAccess = function (accountId, idx) {
         const acc = nfAccounts.find(a => a.id === accountId);
         if (!acc) return;
         const p = acc.perfiles[idx];
         if (!p.whatsapp) { showNFToast('❌ Sin número de WhatsApp'); return; }
 
-        if (!confirm(`¿Enviar datos de la cuenta Netflix al cliente ${p.cliente} (${p.whatsapp}) por WhatsApp?`)) return;
-
-        showNFToast('📤 Enviando datos por WhatsApp...');
-
-        // Mensaje 1: Datos de la cuenta
         const msg1 = `*PLIXORA.BO* | 🎬 *Netflix Premium*\n\n` +
                      `📧 *Correo:* ${acc.correo}\n` +
                      `🔑 *Contraseña:* ${acc.password}\n` +
@@ -522,9 +524,24 @@
                      `🔒 _Puedes crear un PIN en tu perfil si deseas mayor privacidad._\n\n` +
                      `🚫 _Está prohibido cambiar el nombre del perfil. Caso contrario, se dará de baja automáticamente el acceso._`;
 
-        // Mensaje 2: Instrucciones de ingreso
         const msg2 = `📌 *Momento de ingresar:*\n` +
                      `Dar clic en *"OBTENER AYUDA"* y luego *"ACCEDER CON CONTRASEÑA"*`;
+
+        pendingWAPayload = { p, msg1, msg2 };
+
+        document.getElementById('nf-prev-cliente').textContent = `${p.cliente} (${p.whatsapp})`;
+        document.getElementById('nf-prev-msg1').textContent = msg1;
+        document.getElementById('nf-prev-msg2').textContent = msg2;
+        
+        document.getElementById('nf-preview-modal').style.display = 'flex';
+    };
+
+    window.confirmNFSend = async function() {
+        if (!pendingWAPayload) return;
+        const { p, msg1, msg2 } = pendingWAPayload;
+        closeNFPreview();
+
+        showNFToast('📤 Enviando datos por WhatsApp...');
 
         try {
             // Enviar mensaje 1 - datos de la cuenta
