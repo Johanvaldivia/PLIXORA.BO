@@ -509,10 +509,18 @@
         showNFToast('📤 Enviando datos por WhatsApp...');
 
         // Mensaje 1: Datos de la cuenta
-        const msg1 = `Netflix (PLAN PREMIUM) 🎬\n\n📧 *Correo:* ${acc.correo}\n🔑 *Contraseña:* ${acc.password}\n📺 *Perfil:* ${p.nombre}\n\n⚠️ LA CONTRASEÑA INCLUYE TODO, INGRESAR TAL CUAL\n\n🔒 Puedes crear un PIN en tu perfil si deseas mayor privacidad.\n\n🚫 Está prohibido cambiar el nombre del perfil. Caso contrario, se dará de baja automáticamente el acceso.\n\n✨ *PLIXORA.BO*`;
+        const msg1 = `*PLIXORA.BO* | 🎬 *Netflix Premium*\n\n` +
+                     `📧 *Correo:* ${acc.correo}\n` +
+                     `🔑 *Contraseña:* ${acc.password}\n` +
+                     `📺 *Perfil:* ${p.nombre}\n\n` +
+                     `⚠️ *(LA CONTRASEÑA INCLUYE MÁS CON EL * )*\n` +
+                     `*POR FAVOR INGRESAR BIEN LA CONTRASEÑA*\n\n` +
+                     `🔒 _Puedes crear un PIN en tu perfil si deseas mayor privacidad._\n\n` +
+                     `🚫 _Está prohibido cambiar el nombre del perfil. Caso contrario, se dará de baja automáticamente el acceso._`;
 
         // Mensaje 2: Instrucciones de ingreso
-        const msg2 = `📌 *Momento de ingresar:*\nDar clic en *"OBTENER AYUDA"* y luego *"ACCEDER CON CONTRASEÑA"*`;
+        const msg2 = `📌 *Momento de ingresar:*\n` +
+                     `Dar clic en *"OBTENER AYUDA"* y luego *"ACCEDER CON CONTRASEÑA"*`;
 
         try {
             // Enviar mensaje 1 - datos de la cuenta
