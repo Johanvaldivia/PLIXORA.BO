@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía de Configuración – PLIXORA.BO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f172a; --card: #1e293b; --border: rgba(255,255,255,0.1);
+            --primary: #0d9488; --text: #f8fafc; --muted: #94a3b8;
+            --green: #10b981; --yellow: #f59e0b; --red: #ef4444;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); padding:2rem; min-height:100vh; }
+        .container { max-width:780px; margin:0 auto; }
+        h1 { font-size:2rem; font-weight:700; margin-bottom:0.5rem;
+            background:linear-gradient(to right, #0d9488, #0ea5e9);
+            -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .subtitle { color:var(--muted); margin-bottom:2.5rem; }
+        
+        .section-title { font-size:1.4rem; font-weight:700; margin:2rem 0 1rem; display:flex; align-items:center; gap:0.7rem; }
+        .section-title .num { background:var(--primary); color:white; width:36px; height:36px;
+            border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:1rem; font-weight:700; flex-shrink:0; }
+        
+        .card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:1.5rem; margin-bottom:1rem; }
+        .step { display:flex; gap:1rem; align-items:flex-start; padding:1rem 0; border-bottom:1px solid var(--border); }
+        .step:last-child { border-bottom:none; padding-bottom:0; }
+        .step-num { background:rgba(13,148,136,0.15); color:var(--primary); width:32px; height:32px;
+            border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.95rem; flex-shrink:0; }
+        .step-content p { color:var(--muted); font-size:0.95rem; line-height:1.6; margin-top:0.25rem; }
+        .step-content strong { color:var(--text); }
+        
+        .alert { padding:1rem 1.5rem; border-radius:10px; margin-bottom:1.5rem; display:flex; gap:0.75rem; align-items:flex-start; font-size:0.95rem; }
+        .alert.yellow { background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.3); color:#fcd34d; }
+        .alert.green  { background:rgba(16,185,129,0.1);  border:1px solid rgba(16,185,129,0.3);  color:#6ee7b7; }
+        
+        code { background:rgba(0,0,0,0.4); padding:0.2rem 0.5rem; border-radius:5px; font-family:monospace; font-size:0.9rem; color:#7dd3fc; }
+        
+        .link-btn { display:inline-block; background:linear-gradient(135deg, var(--primary), #0ea5e9);
+            color:white; text-decoration:none; padding:0.75rem 1.75rem; border-radius:10px;
+            font-weight:600; margin-top:1rem; transition:opacity 0.2s; }
+        .link-btn:hover { opacity:0.85; }
+        .link-btn.outline { background:transparent; border:1px solid var(--border); color:var(--text); }
+        
+        .divider { border:none; border-top:1px solid var(--border); margin:2.5rem 0; }
+        
+        .config-box { background:rgba(0,0,0,0.3); border:1px solid var(--border); border-radius:10px;
+            padding:1.25rem; font-family:monospace; font-size:0.85rem; color:#7dd3fc; line-height:1.8; margin-top:1rem; }
+        .config-box .key { color:#f9a8d4; }
+        .config-box .val { color:#fbbf24; }
+        
+        .tag { display:inline-block; padding:0.2rem 0.6rem; border-radius:20px; font-size:0.75rem; font-weight:600; }
+        .tag.green { background:rgba(16,185,129,0.15); color:#6ee7b7; }
+        .tag.yellow { background:rgba(245,158,11,0.15); color:#fcd34d; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🔥 Guía de Configuración – PLIXORA.BO</h1>
+    <p class="subtitle">Sigue estos pasos para activar la sincronización en la nube. Solo lo haces una vez.</p>
+
+    <div class="alert yellow">
+        ⏱️ <span>Tiempo estimado: <strong>~10 minutos</strong>. No necesitas instalar nada. Todo se hace en el navegador.</span>
+    </div>
+
+    <!-- PARTE 1: FIREBASE -->
+    <div class="section-title"><span class="num">A</span> Crear tu proyecto en Firebase (base de datos gratuita)</div>
+
+    <div class="card">
+        <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+                <strong>Ir a Firebase Console</strong>
+                <p>Abre el siguiente enlace en tu navegador. Inicia sesión con tu cuenta de Google.</p>
+                <a class="link-btn" href="https://console.firebase.google.com/" target="_blank">Ir a Firebase →</a>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+                <strong>Crear un proyecto</strong>
+                <p>Haz clic en <code>+ Crear un proyecto</code>. Nómbralo <code>plixora-ventas</code>.<br>
+                En la siguiente pantalla <strong>desactiva Google Analytics</strong> (no lo necesitas) y haz clic en <strong>Crear proyecto</strong>.</p>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-content">
+                <strong>Registrar tu app Web</strong>
+                <p>Una vez dentro del proyecto, haz clic en el ícono <code>&lt;/&gt;</code> (Web).<br>
+                En el campo "Nombre de la app" escribe <code>plixora-bo</code> y haz clic en <strong>Registrar app</strong>.</p>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-content">
+                <strong>Copiar tu configuración</strong>
+                <p>Verás un bloque de código parecido a esto. <strong>No cierres esta pantalla todavía:</strong></p>
+                <div class="config-box">
+                    <span class="key">apiKey:</span> <span class="val">"AIzaSyXXXXXXXXXXXXXXXX"</span>,<br>
+                    <span class="key">authDomain:</span> <span class="val">"plixora-ventas.firebaseapp.com"</span>,<br>
+                    <span class="key">projectId:</span> <span class="val">"plixora-ventas"</span>,<br>
+                    <span class="key">storageBucket:</span> <span class="val">"plixora-ventas.appspot.com"</span>,<br>
+                    <span class="key">messagingSenderId:</span> <span class="val">"123456789"</span>,<br>
+                    <span class="key">appId:</span> <span class="val">"1:XXXXXX:web:XXXXXX"</span>
+                </div>
+                <p style="margin-top:0.75rem;">Abre el archivo <code>firebase-config.js</code> con el Bloc de Notas y pega cada valor en el campo correspondiente.</p>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num">5</div>
+            <div class="step-content">
+                <strong>Activar Firestore Database</strong>
+                <p>En el menú izquierdo de Firebase haz clic en <strong>Firestore Database</strong>.<br>
+                Luego en <strong>Crear base de datos</strong> → Selecciona <strong>"Comenzar en modo de prueba"</strong> → <strong>Siguiente</strong> → <strong>Listo</strong>.</p>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num" style="background:rgba(239,68,68,0.15);color:#ef4444;">6</div>
+            <div class="step-content">
+                <strong>⚠️ PASO CRÍTICO: Actualizar las Reglas de Firestore</strong>
+                <p>Sin este paso, la sincronización desde Netlify <strong>NO funcionará</strong> después de 30 días.<br><br>
+                1. En el menú de Firestore, haz clic en la pestaña <code>Reglas</code>.<br>
+                2. Borra todo el texto que hay y pega exactamente esto:</p>
+                <div class="config-box" style="color:#86efac;">
+rules_version = '2';<br>
+service cloud.firestore {<br>
+&nbsp;&nbsp;match /databases/{database}/documents {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;match /{document=**} {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allow read, write: if true;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
+}
+                </div>
+                <p style="margin-top:0.75rem;">3. Haz clic en el botón <strong>"Publicar"</strong> (o "Publish"). ¡Listo!</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="alert green">
+        ✅ <span>¡Listo con Firebase! Ahora actualiza tu sitio en Netlify arrastrando de nuevo la carpeta (con el <code>firebase-config.js</code> ya lleno). El indicador <strong>"☁️ Sincronizado"</strong> confirmará que funciona.</span>
+    </div>
+
+    <hr class="divider">
+
+    <!-- PARTE 2: NETLIFY -->
+    <div class="section-title"><span class="num">B</span> Publicar la app en Netlify (acceso desde el celular)</div>
+
+    <div class="card">
+        <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+                <strong>Crear cuenta gratis en Netlify</strong>
+                <p>Ve a Netlify e inicia sesión con tu cuenta de Google o crea una cuenta nueva. Es 100% gratis.</p>
+                <a class="link-btn" href="https://app.netlify.com/signup" target="_blank">Ir a Netlify →</a>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+                <strong>Subir tu carpeta (drag & drop)</strong>
+                <p>Una vez dentro, en la página principal verás una zona que dice:<br>
+                <code>Want to deploy a new site without connecting to Git? Drag and drop your site output folder here</code><br><br>
+                Arrastra la carpeta completa <code>SISTEMA PLIXORA</code> a esa zona y suéltala.</p>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-content">
+                <strong>¡Tu app ya tiene URL pública!</strong>
+                <p>En segundos, Netlify te dará una URL como <code>https://amazing-name-123.netlify.app</code><br>
+                Copia esa URL y ábrela en tu celular. ¡Ya puedes usar el sistema desde cualquier lugar!</p>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-content">
+                <strong>(Opcional) Personalizar la URL</strong>
+                <p>En la configuración del sitio en Netlify, puedes cambiar el nombre a algo como <code>plixora-ventas.netlify.app</code> para que sea más fácil de recordar.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="alert yellow">
+        🔄 <span><strong>Importante:</strong> Cada vez que hagas cambios al sistema (nuevas funciones, etc.), deberás volver a Netlify y arrastrar la carpeta actualizada para que se publique la versión nueva. Tus datos en Firebase se mantienen sin importar cuántas veces actualices el sitio.</span>
+    </div>
+
+    <a href="index.html" class="link-btn outline">← Volver al Sistema</a>
+    <br><br>
+</div>
+</body>
+</html>
