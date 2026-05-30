@@ -576,20 +576,59 @@
         }
     };
 
+    let pendingNotifyPayload = null;
+
+    window.closeNFNotify = function() {
+        document.getElementById('nf-notify-modal').style.display = 'none';
+        pendingNotifyPayload = null;
+    };
+
     window.nfNotify = function (accountId, idx) {
         const acc = nfAccounts.find(a => a.id === accountId);
         if (!acc) return;
         const p = acc.perfiles[idx];
         if (!p.whatsapp) { showNFToast('❌ Sin número de WhatsApp'); return; }
+
         const vencLabel = p.vencimiento
             ? new Date(p.vencimiento + 'T12:00:00').toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' })
             : 'próximamente';
-        const msg = encodeURIComponent(
-            `Hola ${p.cliente || ''}, te avisamos desde *PLIXORA.BO* 🌟\n\nTu cuenta de Netflix está por vencerse:\n\n` +
-            `📧 *Correo:* ${acc.correo}\n🔑 *Contraseña:* ${acc.password}\n📺 *Perfil:* ${p.nombre}\n📅 *Vence el:* ${vencLabel}\n\n` +
-            `Si deseas renovar, escríbenos 😊`
-        );
-        window.open(`https://wa.me/591${p.whatsapp}?text=${msg}`, '_blank');
+
+        const msg = `Hola ${p.cliente || ''}, te avisamos desde *PLIXORA.BO* 🌟\n\nTu cuenta de Netflix está por vencerse:\n\n` +
+                    `📧 *Correo:* ${acc.correo}\n🔑 *Contraseña:* ${acc.password}\n📺 *Perfil:* ${p.nombre}\n📅 *Vence el:* ${vencLabel}\n\n` +
+                    `Si deseas renovar, escríbenos 😊`;
+
+        pendingNotifyPayload = { phone: p.whatsapp, cliente: p.cliente };
+
+        document.getElementById('nf-notify-cliente').textContent = `${p.cliente} (${p.whatsapp})`;
+        document.getElementById('nf-notify-msg').value = msg;
+        
+        document.getElementById('nf-notify-modal').style.display = 'flex';
+    };
+
+    window.confirmNFNotifySend = async function() {
+        if (!pendingNotifyPayload) return;
+        const { phone, cliente } = pendingNotifyPayload;
+        const msg = document.getElementById('nf-notify-msg').value.trim();
+        
+        if (!msg) { showNFToast('❌ El mensaje no puede estar vacío'); return; }
+
+        closeNFNotify();
+        showNFToast('📤 Enviando aviso por WhatsApp...');
+
+        try {
+            const resp = await fetch('https://plixora-bot.duckdns.org/api/send-message', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone: phone, message: msg })
+            });
+            const data = await resp.json();
+            if (!data.success) throw new Error(data.error || 'Error enviando mensaje');
+
+            showNFToast('✅ Aviso enviado por WhatsApp a ' + cliente);
+        } catch (error) {
+            console.error('Error enviando aviso por WhatsApp:', error);
+            showNFToast('❌ Error: ' + error.message);
+        }
     };
 
     window.nfViewSale = function (accountId, idx) {
