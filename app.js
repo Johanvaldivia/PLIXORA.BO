@@ -823,28 +823,75 @@ window.copySaleDetail = function(id) {
     navigator.clipboard.writeText(text).then(() => showToast('📋 Detalle copiado'));
 };
 
+let pendingHistNotifyPayload = null;
+
+window.closeHistNotify = function() {
+    document.getElementById('hist-notify-modal').style.display = 'none';
+    pendingHistNotifyPayload = null;
+};
+
 window.notifyRenewal = function(id) {
     const sale = sales.find(s => s.id === id);
     if (!sale || sale.customer === 'Anónimo') { showToast('❌ Sin número de cliente válido'); return; }
 
-    let msg;
+    const meses = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
+    let vencLabel = 'próximamente';
     if (sale.expireDate) {
-        const today   = nowBolivia(); today.setHours(0,0,0,0);
         const expDate = new Date(sale.expireDate); expDate.setHours(0,0,0,0);
-        const diffDays = Math.ceil((expDate - today) / 86400000);
-        if (diffDays > 0) {
-            msg = `Te recordamos que tu suscripción de *${sale.productName}* vence el *${expDate.toLocaleDateString('es-ES')}* (en ${diffDays} días).`;
-        } else if (diffDays === 0) {
-            msg = `Te recordamos que tu suscripción de *${sale.productName}* vence *HOY*.`;
-        } else {
-            msg = `Te recordamos que tu suscripción de *${sale.productName}* venció hace ${Math.abs(diffDays)} días.`;
-        }
-    } else {
-        msg = `Te recordamos que tu suscripción de *${sale.productName}* está próxima a vencer.`;
+        vencLabel = `${expDate.getDate()} de ${meses[expDate.getMonth()]} de ${expDate.getFullYear()}`;
     }
 
-    const message = encodeURIComponent(`¡Hola! Te escribimos de PLIXORA.BO 🌟\n\n${msg}\n¿Te gustaría renovarla para seguir disfrutando del servicio? 😊`);
-    window.open(`https://wa.me/591${sale.customer}?text=${message}`, '_blank');
+    let extraData = '';
+    if (sale.email) {
+        extraData += `\uD83D\uDCE7 *Correo:* ${sale.email}\n`;
+    }
+    if (sale.password) {
+        extraData += `\uD83D\uDD11 *Contrase\u00F1a:* ${sale.password}\n`;
+    }
+
+    const msg = `\u26A0\uFE0F *AVISO DE VENCIMIENTO \u2013 PLIXORA.BO* \u26A0\uFE0F\n\n` +
+                `Hola ${sale.customerName || ''} \uD83D\uDC4B\n` +
+                `Tu suscripción de *${sale.productName}* est\u00E1 pr\u00F3xima a vencer.\n\n` +
+                extraData +
+                `\uD83D\uDCC5 *Vence el:* ${vencLabel}\n\n` +
+                `Para continuar, responde con una opci\u00F3n:\n\n` +
+                `\u2705 *RENOVAR*\n` +
+                `\u274C *NO RENOVAR*\n\n` +
+                `Quedamos atentos a tu respuesta \uD83D\uDE0A\n` +
+                `*PLIXORA.BO*`;
+
+    pendingHistNotifyPayload = { phone: sale.customer, cliente: sale.customerName || sale.customer };
+
+    document.getElementById('hist-notify-cliente').textContent = pendingHistNotifyPayload.cliente + ' (' + pendingHistNotifyPayload.phone + ')';
+    document.getElementById('hist-notify-msg').value = msg;
+    
+    document.getElementById('hist-notify-modal').style.display = 'flex';
+};
+
+window.confirmHistNotifySend = async function() {
+    if (!pendingHistNotifyPayload) return;
+    const { phone, cliente } = pendingHistNotifyPayload;
+    const msg = document.getElementById('hist-notify-msg').value.trim();
+    
+    if (!msg) { showToast('❌ El mensaje no puede estar vacío'); return; }
+
+    closeHistNotify();
+    showToast('📤 Enviando aviso por WhatsApp...');
+
+    try {
+        const resp = await fetch('https://plixora-bot.duckdns.org/api/send-message', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phone: phone, message: msg })
+        });
+        const data = await resp.json();
+        if (!data.success) throw new Error(data.error || 'Error enviando mensaje');
+
+        showToast('✅ Aviso enviado a ' + cliente);
+    } catch (error) {
+        console.error('Error enviando aviso:', error);
+        showToast('❌ Error: ' + error.message);
+    }
 };
 
 window.deleteSale = async function(id) {

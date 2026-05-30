@@ -482,6 +482,21 @@
             </div>
         </div>
     </div>
+    
+    <!-- History/Alerts Notify WhatsApp Modal -->
+    <div id="hist-notify-modal" class="nf-overlay" style="display:none; z-index:3010;">
+        <div class="nf-modal" style="max-width: 420px;">
+            <div class="nf-modal-header"><h3>Avisar Vencimiento (Historial)</h3><button class="nf-close" onclick="closeHistNotify()">✕</button></div>
+            <div style="padding: 1.25rem 1.5rem;">
+                <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:0.75rem">Se enviará a: <strong id="hist-notify-cliente" style="color:var(--text-main)"></strong></p>
+                <textarea id="hist-notify-msg" rows="11" style="width:100%; background:rgba(26,26,46,0.03); border:1.5px solid var(--border); color:var(--text-main); padding:1rem; border-radius:12px; font-family:inherit; font-size:0.85rem; resize:vertical; margin-bottom:1.25rem;"></textarea>
+                <div style="display:flex;gap:0.75rem;">
+                    <button type="button" class="btn btn-outline" onclick="closeHistNotify()" style="flex:1">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="confirmHistNotifySend()" style="flex:2">Enviar aviso</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- Netflix Client Detail Modal -->
     <div id="nf-client-detail-modal" class="nf-overlay" style="display:none; z-index:3010;">
         <div class="nf-modal" style="max-width: 400px;">
