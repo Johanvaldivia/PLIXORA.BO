@@ -31,6 +31,11 @@ const catalogData = [
     { id: 'cb-privado',name: 'Combo Privado',         type: 'combo',  duration: '1 mes',            salePrice: 45,  cost: 36,   profit: 9,  features: ['Express VPN', 'YouTube Premium'] }
 ];
 
+// ---- ZONA HORARIA BOLIVIA (UTC-4) ----
+function nowBolivia() {
+    return new Date(new Date().toLocaleString('en-US', { timeZone: 'America/La_Paz' }));
+}
+
 // ---- ESTADO ----
 let sales = JSON.parse(localStorage.getItem('plixora_sales')) || [];
 let db = null;
@@ -74,7 +79,7 @@ function setupPeriodTabs() {
 }
 
 function filterSalesByPeriod(salesArr) {
-    const now = new Date();
+    const now = nowBolivia();
     if (currentPeriod === 'all') return salesArr;
     return salesArr.filter(s => {
         const d = new Date(s.date);
@@ -94,7 +99,7 @@ function filterSalesByPeriod(salesArr) {
 function updateCurrentDate() {
     // Desktop
     const el = document.getElementById('current-date-display');
-    const dateStr = new Date().toLocaleDateString('es-ES', {
+    const dateStr = nowBolivia().toLocaleDateString('es-ES', {
         weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
     }).toUpperCase();
     if (el) el.textContent = dateStr;
@@ -102,7 +107,7 @@ function updateCurrentDate() {
     // Mobile header (short format)
     const elMobile = document.getElementById('current-date-display-mobile');
     if (elMobile) {
-        elMobile.textContent = new Date().toLocaleDateString('es-ES', {
+        elMobile.textContent = nowBolivia().toLocaleDateString('es-ES', {
             weekday: 'short', day: 'numeric', month: 'short'
         });
     }
@@ -319,7 +324,7 @@ window.removeSale = async function(id) {
 
 // ---- CALCULAR VENCIMIENTO ----
 function calculateExpirationDate(durationStr) {
-    const today = new Date();
+    const today = nowBolivia();
     if (durationStr.includes('35 días')) {
         today.setDate(today.getDate() + 35);
         return today.toISOString();
@@ -339,7 +344,7 @@ function calculateExpirationDate(durationStr) {
 function buildExpireBadge(expireDate) {
     if (!expireDate) return '<span style="color: var(--text-muted); font-size: 0.85rem;">Indefinido</span>';
 
-    const today = new Date(); today.setHours(0,0,0,0);
+    const today = nowBolivia(); today.setHours(0,0,0,0);
     const expDate = new Date(expireDate); expDate.setHours(0,0,0,0);
     const diffDays = Math.ceil((expDate - today) / 86400000);
 
@@ -505,7 +510,7 @@ function setupForm() {
 
         const newSale = {
             id:          Date.now().toString(),
-            date:        new Date().toISOString(),
+            date:        nowBolivia().toISOString(),
             productName: `${product.name} (${product.duration})`,
             price:       product.salePrice,
             profit:      product.profit,
@@ -692,7 +697,7 @@ function renderExpirationAlerts() {
     urgentList.innerHTML = '';
     soonList.innerHTML = '';
 
-    const today = new Date(); today.setHours(0,0,0,0);
+    const today = nowBolivia(); today.setHours(0,0,0,0);
     
     let urgentCount = 0;
     let soonCount = 0;
@@ -820,7 +825,7 @@ window.notifyRenewal = function(id) {
 
     let msg;
     if (sale.expireDate) {
-        const today   = new Date(); today.setHours(0,0,0,0);
+        const today   = nowBolivia(); today.setHours(0,0,0,0);
         const expDate = new Date(sale.expireDate); expDate.setHours(0,0,0,0);
         const diffDays = Math.ceil((expDate - today) / 86400000);
         if (diffDays > 0) {
