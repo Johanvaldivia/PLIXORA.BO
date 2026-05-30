@@ -512,8 +512,12 @@ function setupForm() {
         waVal = waVal.replace(/[^0-9]/g, '');
         if (waVal.startsWith('591')) waVal = waVal.substring(3);
 
+        const timestampId = Date.now().toString();
+        const code = 'PLX-' + Math.floor(1000 + Math.random() * 9000); // e.g. PLX-4829
+
         const newSale = {
-            id:          Date.now().toString(),
+            id:          timestampId,
+            orderCode:   code,
             date:        nowBolivia().toISOString(),
             productName: `${product.name} (${product.duration})`,
             price:       product.salePrice,
@@ -611,7 +615,10 @@ function renderSalesTable(filtered) {
         const date = new Date(sale.date).toLocaleDateString('es-ES', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
         tr.innerHTML = `
             <td>${date}</td>
-            <td style="font-weight:500">${sale.productName}</td>
+            <td>
+                <div style="font-weight:500">${sale.productName}</div>
+                ${sale.orderCode ? `<div style="font-size:0.75rem; color:var(--text-muted);">Ref: ${sale.orderCode}</div>` : ''}
+            </td>
             <td><a href="https://wa.me/591${sale.customer}" target="_blank" style="color:var(--accent-blue);text-decoration:none;">${sale.customer}</a></td>
             <td>${sale.price} Bs</td>
             <td class="profit-badge">+${sale.profit} Bs</td>
@@ -648,7 +655,8 @@ function renderHistoryTable() {
         filteredHistory = filteredHistory.filter(s => {
             const customerName = (s.customerName || '').toLowerCase();
             const customerWA = (s.customer || '').toLowerCase();
-            return customerName.includes(historySearchTerm) || customerWA.includes(historySearchTerm);
+            const orderCode = (s.orderCode || '').toLowerCase();
+            return customerName.includes(historySearchTerm) || customerWA.includes(historySearchTerm) || orderCode.includes(historySearchTerm);
         });
     }
 
@@ -663,7 +671,10 @@ function renderHistoryTable() {
         const date = new Date(sale.date).toLocaleDateString('es-ES', { day:'2-digit', month:'short', year:'numeric' });
         tr.innerHTML = `
             <td>${date}</td>
-            <td style="font-weight:500">${sale.productName}</td>
+            <td>
+                <div style="font-weight:500">${sale.productName}</div>
+                ${sale.orderCode ? `<div style="font-size:0.75rem; color:var(--text-muted);">Ref: ${sale.orderCode}</div>` : ''}
+            </td>
             <td>${sale.customer}</td>
             <td>${sale.price} Bs</td>
             <td>${buildExpireBadge(sale.expireDate)}</td>
@@ -759,6 +770,7 @@ function renderExpirationAlerts() {
 
 function generateSaleDetailsText(sale) {
     let text = sale.customerName ? `👤 Cliente: ${sale.customerName}\n\n` : '';
+    if (sale.orderCode) text += `🎫 *Ref:* ${sale.orderCode}\n\n`;
     const prodName = (sale.productName || '').toLowerCase();
 
     if (prodName.includes('capcut')) {
@@ -852,6 +864,7 @@ window.notifyRenewal = function(id) {
     const msg = `\u26A0\uFE0F *AVISO DE VENCIMIENTO \u2013 PLIXORA.BO* \u26A0\uFE0F\n\n` +
                 `Hola ${sale.customerName || ''} \uD83D\uDC4B\n` +
                 `Tu suscripción de *${sale.productName}* est\u00E1 pr\u00F3xima a vencer.\n\n` +
+                (sale.orderCode ? `\uD83C\uDFAB *Ref:* ${sale.orderCode}\n\n` : '') +
                 extraData +
                 `\uD83D\uDCC5 *Vence el:* ${vencLabel}\n\n` +
                 `Para continuar, responde con una opci\u00F3n:\n\n` +
