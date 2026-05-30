@@ -770,33 +770,18 @@ function renderExpirationAlerts() {
 
 function generateSaleDetailsText(sale) {
     let text = sale.customerName ? `👤 Cliente: ${sale.customerName}\n\n` : '';
-    if (sale.orderCode) text += `🎫 *Ref:* ${sale.orderCode}\n\n`;
     const prodName = (sale.productName || '').toLowerCase();
+    
+    const prodWithCode = sale.orderCode ? `${sale.productName} / ${sale.orderCode}` : sale.productName;
 
     if (prodName.includes('capcut')) {
-        text += `CapCut Pro\n\nCorreo: ${sale.email || ''}\nContraseña: ${sale.password || ''}\n\n(Prohibido cambiar o tocar la facturación mensual de CapCut. Prohibido cambiar la contraseña. Caso contrario, la cuenta será dada de baja automáticamente.)\n\nPLIXORA.BO`;
+        text += `*${prodWithCode}*\n\nCorreo: ${sale.email || ''}\nContraseña: ${sale.password || ''}\n\n(Prohibido cambiar o tocar la facturación mensual de CapCut. Prohibido cambiar la contraseña. Caso contrario, la cuenta será dada de baja automáticamente.)\n\nPLIXORA.BO`;
     } else if (prodName.includes('spotify')) {
-        text += `Spotify Premium\n\nCorreo: ${sale.email || ''}\nContraseña: ${sale.password || ''}\n\n(Prohibido cambiar la contraseña. Caso contrario, la cuenta será dada de baja automáticamente.)\n\nPLIXORA.BO`;
+        text += `*${prodWithCode}*\n\nCorreo: ${sale.email || ''}\nContraseña: ${sale.password || ''}\n\n(Prohibido cambiar la contraseña. Caso contrario, la cuenta será dada de baja automáticamente.)\n\nPLIXORA.BO`;
     } else if (prodName.includes('netflix')) {
-        let perfil = '';
-        const match = sale.productName.match(/Perfil (.*?) \(/i);
-        if (match && match[1]) {
-            perfil = match[1];
-        } else {
-            perfil = '(Sin especificar)';
-        }
-
-        text += `Netflix (PLAN PREMIUM)\n\nCorreo: ${sale.email || ''}\nContraseña: ${sale.password || ''}\nPerfil: ${perfil}\n\n(LA CONTRASEÑA INCLUYE MÁS CON EL * )\nPOR FAVOR INGRESAR BIEN LA CONTRASEÑA\n\n(Puedes crear un PIN en tu perfil si deseas mayor privacidad.)\n\n(Está prohibido cambiar el nombre del perfil. Caso contrario, se dará de baja automáticamente el acceso.)\n\nPLIXORA.BO\n----------------------------`;
-    } else if (prodName.includes('hbo max')) {
-        let perfil = '';
-        const match = sale.productName.match(/Perfil (.*?) \(/i);
-        if (match && match[1]) {
-            perfil = match[1];
-        } else {
-            perfil = '(Sin especificar)';
-        }
-
-        text += `HBO MAX PLATINO\n\nCorreo: ${sale.email || ''}\nContraseña: ${sale.password || ''}\nPerfil: ${perfil}\n\n(LA CONTRASEÑA INCLUYE MÁS CON EL * )\nPOR FAVOR INGRESAR BIEN LA CONTRASEÑA\n\n(Puedes crear un PIN en tu perfil si deseas mayor privacidad.)\n\n(Está prohibido cambiar el nombre del perfil. Caso contrario, se dará de baja automáticamente el acceso.)\n\nPLIXORA.BO\n----------------------------`;
+        text += `*${prodWithCode}*\n\nCorreo: ${sale.email || ''}\nContraseña: ${sale.password || ''}\n\n(Prohibido cambiar la contraseña y prohibido entrar a otros perfiles. Caso contrario, la cuenta será dada de baja automáticamente.)\n\nPLIXORA.BO`;
+    } else if (prodName.includes('disney')) {
+        text += `*${prodWithCode}*\n\nCorreo: ${sale.email || ''}\nContraseña: ${sale.password || ''}\n\n(Prohibido cambiar la contraseña y correo. Caso contrario, la cuenta será dada de baja automáticamente.)\n\nPLIXORA.BO`;
     } else if (prodName.includes('crunchyroll')) {
         const isAnual = prodName.includes('anual');
         text += `🍥 *INFORMACIÓN – CRUNCHYROLL FAN${isAnual ? ' ANUAL' : ''}*
@@ -861,10 +846,10 @@ window.notifyRenewal = function(id) {
         extraData += `\uD83D\uDD11 *Contrase\u00F1a:* ${sale.password}\n`;
     }
 
+    const prodWithCode = sale.orderCode ? `${sale.productName} / ${sale.orderCode}` : sale.productName;
     const msg = `\u26A0\uFE0F *AVISO DE VENCIMIENTO \u2013 PLIXORA.BO* \u26A0\uFE0F\n\n` +
                 `Hola ${sale.customerName || ''} \uD83D\uDC4B\n` +
-                `Tu suscripción de *${sale.productName}* est\u00E1 pr\u00F3xima a vencer.\n\n` +
-                (sale.orderCode ? `\uD83C\uDFAB *Ref:* ${sale.orderCode}\n\n` : '') +
+                `Tu suscripción de *${prodWithCode}* est\u00E1 pr\u00F3xima a vencer.\n\n` +
                 extraData +
                 `\uD83D\uDCC5 *Vence el:* ${vencLabel}\n\n` +
                 `Para continuar, responde con una opci\u00F3n:\n\n` +

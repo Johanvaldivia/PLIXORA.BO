@@ -453,7 +453,8 @@
         if (!acc) return;
 
         const perfiles = [...acc.perfiles];
-        perfiles[assignProfileIndex] = { ...perfiles[assignProfileIndex], nombre: perfilNombre, estado: 'ocupado', cliente, whatsapp: wa, inicio, vencimiento: venc, plan, obs };
+        const newCode = 'PLX-' + Math.floor(1000 + Math.random() * 9000);
+        perfiles[assignProfileIndex] = { ...perfiles[assignProfileIndex], nombre: perfilNombre, estado: 'ocupado', cliente, whatsapp: wa, inicio, vencimiento: venc, plan, obs, orderCode: newCode };
 
         // ── Optimistic update: apply locally BEFORE Firebase confirms ──
         acc.perfiles = perfiles;
@@ -470,6 +471,7 @@
                 if (precio > 0) {
                     const sale = {
                         id: Date.now().toString(),
+                        orderCode: newCode,
                         date: new Date().toISOString(),
                         productName: `Netflix Perfil ${perfiles[assignProfileIndex].nombre} (${acc.codigo})${plan === '2m' ? ' [2 Meses]' : ''}`,
                         price: precio,
@@ -497,7 +499,8 @@
         const acc = nfAccounts.find(a => a.id === accountId);
         if (!acc) return;
         const p = acc.perfiles[idx];
-        const text = `Netflix (PLAN PREMIUM)\n\nCorreo: ${acc.correo}\nContraseña: ${acc.password}\nPerfil: ${p.nombre}\n\n(LA CONTRASEÑA INCLUYE MÁS CON EL * )\nPOR FAVOR INGRESAR BIEN LA CONTRASEÑA\n\n(Puedes crear un PIN en tu perfil si deseas mayor privacidad.)\n\n(Está prohibido cambiar el nombre del perfil. Caso contrario, se dará de baja automáticamente el acceso.)\n\nPLIXORA.BO\n----------------------------`;
+        const codeDisplay = p.orderCode ? ` / ${p.orderCode}` : '';
+        const text = `Netflix Perfil ${p.nombre}${codeDisplay}\n\nCorreo: ${acc.correo}\nContraseña: ${acc.password}\n\n(LA CONTRASEÑA INCLUYE MÁS CON EL * )\nPOR FAVOR INGRESAR BIEN LA CONTRASEÑA\n\n(Puedes crear un PIN en tu perfil si deseas mayor privacidad.)\n\n(Está prohibido cambiar el nombre del perfil. Caso contrario, se dará de baja automáticamente el acceso.)\n\nPLIXORA.BO\n----------------------------`;
         navigator.clipboard.writeText(text).then(() => showNFToast('📋 Acceso copiado'));
     };
 
@@ -515,10 +518,12 @@
         const p = acc.perfiles[idx];
         if (!p.whatsapp) { showNFToast('❌ Sin número de WhatsApp'); return; }
 
+        const codeDisplay = p.orderCode ? ` / ${p.orderCode}` : '';
+
         const msg1 = `*PLIXORA.BO* | 🎬 *Netflix Premium*\n\n` +
                      `📧 *Correo:* ${acc.correo}\n` +
                      `🔑 *Contraseña:* ${acc.password}\n` +
-                     `📺 *Perfil:* ${p.nombre}\n\n` +
+                     `📺 *Perfil:* ${p.nombre}${codeDisplay}\n\n` +
                      `⚠️ *(LA CONTRASEÑA INCLUYE MÁS CON EL * )*\n` +
                      `*POR FAVOR INGRESAR BIEN LA CONTRASEÑA*\n\n` +
                      `🔒 _Puedes crear un PIN en tu perfil si deseas mayor privacidad._\n\n` +
@@ -596,12 +601,12 @@
             vencLabel = `${d.getDate()} de ${meses[d.getMonth()]} de ${d.getFullYear()}`;
         }
 
+        const codeDisplay = p.orderCode ? ` / ${p.orderCode}` : '';
         const msg = `\u26A0\uFE0F *AVISO DE VENCIMIENTO \u2013 PLIXORA.BO* \u26A0\uFE0F\n\n` +
                     `Hola ${p.cliente || ''} \uD83D\uDC4B\n` +
-                    `Tu cuenta de *Netflix* est\u00E1 pr\u00F3xima a vencer.\n\n` +
+                    `Tu suscripción de *Netflix Perfil ${p.nombre}${codeDisplay}* est\u00E1 pr\u00F3xima a vencer.\n\n` +
                     `\uD83D\uDCE7 *Correo:* ${acc.correo}\n` +
                     `\uD83D\uDD11 *Contrase\u00F1a:* ${acc.password}\n` +
-                    `\uD83D\uDCFA *Perfil:* ${p.nombre}\n` +
                     `\uD83D\uDCC5 *Vence el:* ${vencLabel}\n\n` +
                     `Para continuar, responde con una opci\u00F3n:\n\n` +
                     `\u2705 *RENOVAR*\n` +
