@@ -349,7 +349,7 @@
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.641 0-8.574-3.007-9.964-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                         </button>
                         <button class="btn-icon copy"   title="Copiar acceso"     onclick="window.nfCopyAccess('${accountId}',${i})">${svgCopy}</button>
-                        <button class="btn-icon notify" title="Avisar renovación" onclick="window.nfNotify('${accountId}',${i})">${svgWA}</button>
+                        <button class="btn-icon notify" title="${p.notifiedRenewal ? 'Aviso Enviado' : 'Avisar renovación'}" onclick="window.nfNotify('${accountId}',${i})" style="color:${p.notifiedRenewal ? '#fff' : ''};background:${p.notifiedRenewal ? '#10b981' : ''};border-color:${p.notifiedRenewal ? '#10b981' : ''};">${svgWA}</button>
                         <button class="btn-icon delete" title="Liberar perfil"    onclick="window.nfFree('${accountId}',${i})">${svgFree}</button>
                     ` : `
                         <button class="btn-icon" style="color:#10b981;border-color:rgba(16,185,129,0.3)" title="Asignar perfil" onclick="window.nfOpenAssign('${accountId}',${i})">${svgPlus}</button>
@@ -609,7 +609,7 @@
                     `Quedamos atentos a tu respuesta \uD83D\uDE0A\n` +
                     `*PLIXORA.BO*`;
 
-        pendingNotifyPayload = { phone: p.whatsapp, cliente: p.cliente };
+        pendingNotifyPayload = { accountId, idx, phone: p.whatsapp, cliente: p.cliente };
 
         document.getElementById('nf-notify-cliente').textContent = `${p.cliente} (${p.whatsapp})`;
         document.getElementById('nf-notify-msg').value = msg;
@@ -635,6 +635,13 @@
             });
             const data = await resp.json();
             if (!data.success) throw new Error(data.error || 'Error enviando mensaje');
+
+            const acc = nfAccounts.find(a => a.id === pendingNotifyPayload.accountId);
+            if (acc && acc.perfiles[pendingNotifyPayload.idx]) {
+                acc.perfiles[pendingNotifyPayload.idx].notifiedRenewal = true;
+                saveNFToStorage();
+                renderNetflixTable();
+            }
 
             showNFToast('✅ Aviso enviado por WhatsApp a ' + cliente);
         } catch (error) {

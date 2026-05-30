@@ -675,7 +675,7 @@ function renderHistoryTable() {
                     <button class="btn-icon copy"   title="Copiar Detalle"     onclick="copySaleDetail('${sale.id}')">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184"/></svg>
                     </button>
-                    <button class="btn-icon notify" title="Aviso Renovación WA" onclick="notifyRenewal('${sale.id}')">
+                    <button class="btn-icon notify" title="${sale.notifiedRenewal ? 'Aviso Enviado' : 'Aviso Renovación WA'}" onclick="notifyRenewal('${sale.id}')" style="color:${sale.notifiedRenewal ? '#fff' : ''};background:${sale.notifiedRenewal ? '#10b981' : ''};border-color:${sale.notifiedRenewal ? '#10b981' : ''};">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/></svg>
                     </button>
                     <button class="btn-icon delete" title="Eliminar Venta"      onclick="deleteSale('${sale.id}')">
@@ -724,7 +724,7 @@ function renderExpirationAlerts() {
                     </div>
                     <div style="display:flex; gap:0.6rem; align-items:center;">
                         <span style="color:${diffDays <= 3 ? '#ef4444' : '#d97706'}; font-weight:700; font-size: 0.8rem; background: ${diffDays <= 3 ? 'rgba(239,68,68,0.1)' : 'rgba(245,158,11,0.1)'}; padding: 0.2rem 0.4rem; border-radius: 4px;">${diffDays <= 0 ? (diffDays === 0 ? 'Vence HOY' : 'Vencido') : `En ${diffDays} d`}</span>
-                        <button class="btn-icon notify" onclick="notifyRenewal('${sale.id}')" style="width:30px;height:30px;border-color:rgba(16,185,129,0.3);color:#10b981;" title="Notificar a Cliente"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:16px;height:16px;"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/></svg></button>
+                        <button class="btn-icon notify" onclick="notifyRenewal('${sale.id}')" style="width:30px;height:30px;border-color:${sale.notifiedRenewal ? '#10b981' : 'rgba(16,185,129,0.3)'};color:${sale.notifiedRenewal ? '#fff' : '#10b981'};background:${sale.notifiedRenewal ? '#10b981' : 'transparent'};" title="${sale.notifiedRenewal ? 'Aviso Enviado' : 'Notificar a Cliente'}"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:16px;height:16px;"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/></svg></button>
                     </div>
                 </div>
             `;
@@ -860,7 +860,7 @@ window.notifyRenewal = function(id) {
                 `Quedamos atentos a tu respuesta \uD83D\uDE0A\n` +
                 `*PLIXORA.BO*`;
 
-    pendingHistNotifyPayload = { phone: sale.customer, cliente: sale.customerName || sale.customer };
+    pendingHistNotifyPayload = { id: sale.id, phone: sale.customer, cliente: sale.customerName || sale.customer };
 
     document.getElementById('hist-notify-cliente').textContent = pendingHistNotifyPayload.cliente + ' (' + pendingHistNotifyPayload.phone + ')';
     document.getElementById('hist-notify-msg').value = msg;
@@ -886,6 +886,18 @@ window.confirmHistNotifySend = async function() {
         });
         const data = await resp.json();
         if (!data.success) throw new Error(data.error || 'Error enviando mensaje');
+
+        const saleId = pendingHistNotifyPayload.id;
+        if (db) {
+            await db.collection('plixora_sales').doc(saleId).update({ notifiedRenewal: true });
+        } else {
+            const idx = sales.findIndex(s => s.id === saleId);
+            if (idx !== -1) {
+                sales[idx].notifiedRenewal = true;
+                localStorage.setItem('plixora_sales', JSON.stringify(sales));
+            }
+        }
+        updateDashboard(); // Re-render tables to show green button
 
         showToast('✅ Aviso enviado a ' + cliente);
     } catch (error) {
