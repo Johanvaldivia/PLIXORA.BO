@@ -647,14 +647,32 @@
         const acc = nfAccounts.find(a => a.id === accountId);
         if (!acc) return;
         const p = acc.perfiles[idx];
-        if (typeof sales !== 'undefined') {
-            const sale = sales.find(s => s.productName && s.productName.includes(`Perfil ${p.nombre}`) && s.productName.includes(acc.codigo) && s.customer === p.whatsapp);
-            if (sale && typeof window.openSaleDetail === 'function') {
-                window.openSaleDetail(sale.id, { isNetflix: true, accountId, profileIndex: idx });
-            } else {
-                alert('No se encontró el registro de venta exacto para este perfil. Verifica que no haya sido borrado.');
-            }
-        }
+
+        const meses = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
+        const fmtDate = (d) => {
+            if (!d) return '—';
+            const dt = new Date(d + 'T12:00:00');
+            return `${dt.getDate()} de ${meses[dt.getMonth()]} de ${dt.getFullYear()}`;
+        };
+
+        const row = (label, value) => `<div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);padding-bottom:0.5rem">
+            <span style="color:var(--text-muted);font-size:0.8rem;font-weight:600">${label}</span>
+            <span style="font-size:0.88rem;font-weight:600;color:var(--text-main);text-align:right;max-width:60%;word-break:break-all">${value}</span>
+        </div>`;
+
+        const body = document.getElementById('nf-client-detail-body');
+        body.innerHTML =
+            row('👤 Cliente', p.cliente || '—') +
+            row('📺 Perfil', p.nombre) +
+            row('📱 WhatsApp', p.whatsapp ? `<a href="https://wa.me/591${p.whatsapp}" target="_blank" style="color:var(--accent-blue);text-decoration:none">${p.whatsapp}</a>` : '—') +
+            row('📧 Correo', acc.correo) +
+            row('🔑 Contraseña', acc.password) +
+            row('📅 Inicio', fmtDate(p.inicio)) +
+            row('📅 Vencimiento', fmtDate(p.vencimiento)) +
+            row('📋 Plan', p.plan === '2m' ? '2 Meses' : p.plan === '1m' ? '1 Mes' : (p.plan || '—')) +
+            row('💬 Observación', p.obs || '—');
+
+        document.getElementById('nf-client-detail-modal').style.display = 'flex';
     };
 
     window.nfFree = async function (accountId, idx) {

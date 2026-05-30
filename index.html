@@ -482,6 +482,18 @@
             </div>
         </div>
     </div>
+    <!-- Netflix Client Detail Modal -->
+    <div id="nf-client-detail-modal" class="nf-overlay" style="display:none; z-index:3010;">
+        <div class="nf-modal" style="max-width: 400px;">
+            <div class="nf-modal-header"><h3>Detalle del Cliente</h3><button class="nf-close" onclick="document.getElementById('nf-client-detail-modal').style.display='none'">✕</button></div>
+            <div style="padding: 1.25rem 1.5rem;">
+                <div style="display:flex;flex-direction:column;gap:0.65rem;" id="nf-client-detail-body"></div>
+                <div style="margin-top:1.25rem;">
+                    <button type="button" class="btn btn-outline btn-block" onclick="document.getElementById('nf-client-detail-modal').style.display='none'">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- History Detail Modal -->
     <div id="history-detail-modal" class="nf-overlay" style="display:none;z-index:2000;">
