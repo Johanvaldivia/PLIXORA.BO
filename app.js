@@ -12,7 +12,7 @@ const catalogData = [
     { id: 'nf-cc',    name: 'Netflix (Cuenta Completa)',type: 'single', duration: '1 mes',          salePrice: 65,  cost: 42,  profit: 23, features: ['Cuenta completa', 'Hasta 5 dispositivos'] },
     { id: 'hb-1m',    name: 'HBO MAX PLATINO',        type: 'single', duration: '1 mes',            salePrice: 10,  cost: 5,   profit: 5,  features: ['Cuenta individual', 'Contenido premium'] },
     { id: 'hb-2m',    name: 'HBO MAX PLATINO',        type: 'single', duration: '2 meses',          salePrice: 18,  cost: 10,  profit: 8,  features: ['Cuenta individual', 'Contenido premium'] },
-    { id: 'hb-3m',    name: 'HBO MAX PLATINO',        type: 'single', duration: '3 meses',          salePrice: 70,  cost: 15,  profit: 55, features: ['2 dispositivos', 'Contenido premium'] },
+    { id: 'hb-3m',    name: 'HBO MAX PLATINO',        type: 'single', duration: '3 meses',          salePrice: 70,  cost: 50,  profit: 20, features: ['2 dispositivos', 'Contenido premium'] },
     { id: 'ds-1m',    name: 'Disney Plus Estándar',   type: 'single', duration: '1 mes',            salePrice: 10,  cost: 6.2, profit: 3.8,features: ['Sin ESPN'] },
     { id: 'pv-1m',    name: 'Prime Video',            type: 'single', duration: '1 mes',            salePrice: 30,  cost: 20,  profit: 10, features: ['Cuenta completa', '4 a 5 dispositivos'] },
     { id: 'pv-3m',    name: 'Prime Video',            type: 'single', duration: '3 meses',          salePrice: 75,  cost: 50,  profit: 25, features: ['Cuenta completa', '4 a 5 dispositivos'] },
