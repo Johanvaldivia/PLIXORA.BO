@@ -589,13 +589,25 @@
         const p = acc.perfiles[idx];
         if (!p.whatsapp) { showNFToast('❌ Sin número de WhatsApp'); return; }
 
-        const vencLabel = p.vencimiento
-            ? new Date(p.vencimiento + 'T12:00:00').toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' })
-            : 'próximamente';
+        const meses = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
+        let vencLabel = 'próximamente';
+        if (p.vencimiento) {
+            const d = new Date(p.vencimiento + 'T12:00:00');
+            vencLabel = `${d.getDate()} de ${meses[d.getMonth()]} de ${d.getFullYear()}`;
+        }
 
-        const msg = `Hola ${p.cliente || ''}, te avisamos desde *PLIXORA.BO* 🌟\n\nTu cuenta de Netflix está por vencerse:\n\n` +
-                    `📧 *Correo:* ${acc.correo}\n🔑 *Contraseña:* ${acc.password}\n📺 *Perfil:* ${p.nombre}\n📅 *Vence el:* ${vencLabel}\n\n` +
-                    `Si deseas renovar, escríbenos 😊`;
+        const msg = `\u26A0\uFE0F *AVISO DE VENCIMIENTO \u2013 PLIXORA.BO* \u26A0\uFE0F\n\n` +
+                    `Hola ${p.cliente || ''} \uD83D\uDC4B\n` +
+                    `Tu cuenta de *Netflix* est\u00E1 pr\u00F3xima a vencer.\n\n` +
+                    `\uD83D\uDCE7 *Correo:* ${acc.correo}\n` +
+                    `\uD83D\uDD11 *Contrase\u00F1a:* ${acc.password}\n` +
+                    `\uD83D\uDCFA *Perfil:* ${p.nombre}\n` +
+                    `\uD83D\uDCC5 *Vence el:* ${vencLabel}\n\n` +
+                    `Para continuar, responde con una opci\u00F3n:\n\n` +
+                    `\u2705 *RENOVAR*\n` +
+                    `\u274C *NO RENOVAR*\n\n` +
+                    `Quedamos atentos a tu respuesta \uD83D\uDE0A\n` +
+                    `*PLIXORA.BO*`;
 
         pendingNotifyPayload = { phone: p.whatsapp, cliente: p.cliente };
 
