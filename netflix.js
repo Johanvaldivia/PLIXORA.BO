@@ -518,6 +518,9 @@
         const p = acc.perfiles[idx];
         if (!p.whatsapp) { showNFToast('❌ Sin número de WhatsApp'); return; }
 
+        // Capturar valores como strings primitivos para evitar que una actualización de Firebase cambie la referencia
+        const phone = String(p.whatsapp);
+        const clienteName = String(p.cliente || '');
         const codeDisplay = p.orderCode ? ` / ${p.orderCode}` : '';
 
         const msg1 = `*PLIXORA.BO* | 🎬 *Netflix Premium*\n\n` +
@@ -532,9 +535,9 @@
         const msg2 = `📌 *Momento de ingresar:*\n` +
                      `Dar clic en *"OBTENER AYUDA"* y luego *"ACCEDER CON CONTRASEÑA"*`;
 
-        pendingWAPayload = { p, msg1, msg2 };
+        pendingWAPayload = { phone, clienteName, msg1, msg2 };
 
-        document.getElementById('nf-prev-cliente').textContent = `${p.cliente} (${p.whatsapp})`;
+        document.getElementById('nf-prev-cliente').textContent = `${clienteName} (${phone})`;
         document.getElementById('nf-prev-msg1').textContent = msg1;
         document.getElementById('nf-prev-msg2').textContent = msg2;
         
@@ -543,7 +546,7 @@
 
     window.confirmNFSend = async function() {
         if (!pendingWAPayload) return;
-        const { p, msg1, msg2 } = pendingWAPayload;
+        const { phone, clienteName, msg1, msg2 } = pendingWAPayload;
         closeNFPreview();
 
         showNFToast('📤 Enviando datos por WhatsApp...');
@@ -553,7 +556,7 @@
             const resp1 = await fetch('https://plixora-bot.duckdns.org/api/send-message', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ phone: p.whatsapp, message: msg1 })
+                body: JSON.stringify({ phone: phone, message: msg1 })
             });
             const data1 = await resp1.json();
             if (!data1.success) throw new Error(data1.error || 'Error enviando mensaje 1');
@@ -561,12 +564,12 @@
             // Pequeña pausa para que lleguen en orden
             await new Promise(r => setTimeout(r, 1500));
 
-            // Enviar mensaje 2 - instrucciones con imagen
+            // Enviar mensaje 2 - instrucciones con imagen (usa el MISMO phone capturado)
             const resp2 = await fetch('https://plixora-bot.duckdns.org/api/send-image', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    phone: p.whatsapp,
+                    phone: phone,
                     imageUrl: window.location.origin + '/netflix-instrucciones.png',
                     caption: msg2
                 })
@@ -574,7 +577,7 @@
             const data2 = await resp2.json();
             if (!data2.success) throw new Error(data2.error || 'Error enviando imagen');
 
-            showNFToast('✅ Datos enviados por WhatsApp a ' + p.cliente);
+            showNFToast('✅ Datos enviados por WhatsApp a ' + clienteName);
         } catch (error) {
             console.error('Error enviando por WhatsApp:', error);
             showNFToast('❌ Error: ' + error.message);
