@@ -783,6 +783,8 @@ function generateSaleDetailsText(sale) {
         text += `*${sale.productName}*\n${codeLine}\nCorreo: ${sale.email || ''}\nContraseña: ${sale.password || ''}\n\n(Prohibido cambiar la contraseña y prohibido entrar a otros perfiles. Caso contrario, la cuenta será dada de baja automáticamente.)\n\nPLIXORA.BO`;
     } else if (prodName.includes('disney')) {
         text += `*${sale.productName}*\n${codeLine}\nCorreo: ${sale.email || ''}\nContraseña: ${sale.password || ''}\n\n(Prohibido cambiar la contraseña y correo. Caso contrario, la cuenta será dada de baja automáticamente.)\n\nPLIXORA.BO`;
+    } else if (prodName.includes('canva')) {
+        text += `*${sale.productName}*\n${codeLine}\nHola ${sale.customerName || 'Cliente'} 👋,\n\nTu cuenta de Canva Pro Edu ya se encuentra activada.\n\nPor favor, ingresa a tu cuenta y asegúrate de unirte al equipo llamado *PLIXORA (CLASS)* para disfrutar de todos los beneficios Pro.\n\nCorreo: ${sale.email || ''}\nContraseña: ${sale.password || ''}\n\nPLIXORA.BO`;
     } else if (prodName.includes('crunchyroll')) {
         const isAnual = prodName.includes('anual');
         text += `🍥 *INFORMACIÓN – CRUNCHYROLL FAN${isAnual ? ' ANUAL' : ''}*
