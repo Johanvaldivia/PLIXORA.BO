@@ -565,6 +565,23 @@
         </div>
     </div>
 
+    <!-- Sale Preview Modal -->
+    <div id="sale-preview-modal" class="nf-overlay" style="display:none; z-index:3010;">
+        <div class="nf-modal" style="max-width: 420px;">
+            <div class="nf-modal-header"><h3>Vista previa del envío</h3><button class="nf-close" onclick="closeSalePreview()">✕</button></div>
+            <div class="nf-modal-body" style="padding: 1rem;">
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">Se registrará la venta y se enviará este mensaje a: <strong id="sale-prev-cliente" style="color:var(--text-light)"></strong></p>
+                <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 1rem;">
+                    <pre id="sale-prev-msg" style="white-space: pre-wrap; font-family: 'Inter', sans-serif; font-size: 0.85rem; line-height: 1.4; margin: 0; color: #e2e8f0;"></pre>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn btn-outline" style="flex: 1;" onclick="confirmSaleOnly()">Solo Guardar</button>
+                    <button class="btn btn-primary" style="flex: 1; background: var(--orange); border-color: var(--orange);" onclick="confirmSaleAndSend()">Guardar y Enviar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>

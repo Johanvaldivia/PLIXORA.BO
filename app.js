@@ -529,43 +529,84 @@ function setupForm() {
             expireDate:  calculateExpirationDate(product.duration)
         };
 
-        try {
-            await saveSale(newSale);
-            formNewSale.reset();
-            saleSummary.style.display = 'none';
-            showToast('✅ Venta registrada y sincronizada');
-            
-            // INTENTO DE ENVIAR WHATSAPP AUTOMÁTICO AL CLIENTE (Si es que el bot está encendido y tiene número)
-            if (newSale.customer && newSale.customer !== 'Anónimo') {
-                const messageText = `¡Hola! Aquí tienes los detalles de tu compra en PLIXORA.BO 🌟\n\n` + generateSaleDetailsText(newSale);
-                
-                try {
-                    const response = await fetch('https://plixora-bot.duckdns.org/api/send-message', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ phone: newSale.customer, message: messageText })
-                    });
-                    const resData = await response.json();
-                    if (resData.success) {
-                        showToast('💬 Mensaje enviado por WhatsApp');
-                    } else {
-                        console.warn('Bot de WhatsApp no listo o no pudo enviar:', resData.error);
-                    }
-                } catch (apiErr) {
-                    console.log('Bot de WhatsApp apagado o no disponible.');
-                }
-            }
+        let pendingSaleData = newSale;
+        let pendingSaleMsg = '';
+        const hasPhone = newSale.customer && newSale.customer !== 'Anónimo';
 
-            navigateTo('dashboard');
-        } catch (err) {
-            console.error(err);
-            showToast('❌ Error al guardar. Reintentando...');
-        } finally {
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Registrar Venta';
+        if (hasPhone) {
+            pendingSaleMsg = `¡Hola! Aquí tienes los detalles de tu compra en PLIXORA.BO 🌟\n\n` + generateSaleDetailsText(newSale);
+            window.pendingSaleContext = { sale: newSale, messageText: pendingSaleMsg, formNewSale, selectProduct, saleSummary };
+            
+            document.getElementById('sale-prev-cliente').textContent = `${newSale.customerName || 'Cliente'} (${newSale.customer})`;
+            document.getElementById('sale-prev-msg').textContent = pendingSaleMsg;
+            document.getElementById('sale-preview-modal').style.display = 'flex';
+        } else {
+            // Si no hay número de WhatsApp, simplemente guardar directamente
+            await executeSaveSale(newSale, false);
         }
     });
 }
+
+async function executeSaveSale(newSale, sendWhatsApp) {
+    const submitBtn = formNewSale.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Guardando...';
+
+    try {
+        await saveSale(newSale);
+        formNewSale.reset();
+        document.getElementById('sale-summary').style.display = 'none';
+        showToast('✅ Venta registrada y sincronizada');
+        
+        if (sendWhatsApp && newSale.customer && newSale.customer !== 'Anónimo' && window.pendingSaleContext) {
+            try {
+                const response = await fetch('https://plixora-bot.duckdns.org/api/send-message', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone: newSale.customer, message: window.pendingSaleContext.messageText })
+                });
+                const resData = await response.json();
+                if (resData.success) {
+                    showToast('💬 Mensaje enviado por WhatsApp');
+                } else {
+                    console.warn('Bot de WhatsApp no listo o no pudo enviar:', resData.error);
+                }
+            } catch (apiErr) {
+                console.log('Bot de WhatsApp apagado o no disponible.');
+            }
+        }
+
+        navigateTo('dashboard');
+    } catch (err) {
+        console.error('Error guardando venta:', err);
+        showToast('❌ Error guardando venta');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Registrar Venta';
+    }
+}
+
+window.closeSalePreview = function() {
+    document.getElementById('sale-preview-modal').style.display = 'none';
+    window.pendingSaleContext = null;
+    const submitBtn = formNewSale.querySelector('button[type="submit"]');
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Registrar Venta';
+};
+
+window.confirmSaleOnly = function() {
+    document.getElementById('sale-preview-modal').style.display = 'none';
+    if (window.pendingSaleContext) {
+        executeSaveSale(window.pendingSaleContext.sale, false);
+    }
+};
+
+window.confirmSaleAndSend = function() {
+    document.getElementById('sale-preview-modal').style.display = 'none';
+    if (window.pendingSaleContext) {
+        executeSaveSale(window.pendingSaleContext.sale, true);
+    }
+};
 
 // ---- DASHBOARD ----
 function updateDashboard() {
