@@ -523,10 +523,12 @@
         const clienteName = String(p.cliente || '');
         const codeDisplay = p.orderCode ? ` / ${p.orderCode}` : '';
 
-        const msg1 = `*PLIXORA.BO* | 🎬 *Netflix Premium*\n\n` +
+        const msg1 = `*PLIXORA.BO* | 🎬 *Netflix Premium*\n` +
+                     (p.orderCode ? `🎫 *Pedido:* ${p.orderCode}\n` : '') +
+                     `\n` +
                      `📧 *Correo:* ${acc.correo}\n` +
                      `🔑 *Contraseña:* ${acc.password}\n` +
-                     `📺 *Perfil:* ${p.nombre}${codeDisplay}\n\n` +
+                     `📺 *Perfil:* ${p.nombre}\n\n` +
                      `⚠️ *(LA CONTRASEÑA INCLUYE MÁS CON EL * )*\n` +
                      `*POR FAVOR INGRESAR BIEN LA CONTRASEÑA*\n\n` +
                      `🔒 _Puedes crear un PIN en tu perfil si deseas mayor privacidad._\n\n` +

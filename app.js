@@ -773,15 +773,16 @@ function generateSaleDetailsText(sale) {
     const prodName = (sale.productName || '').toLowerCase();
     
     const prodWithCode = sale.orderCode ? `${sale.productName} / ${sale.orderCode}` : sale.productName;
+    const codeLine = sale.orderCode ? `🎫 *Pedido:* ${sale.orderCode}\n` : '';
 
     if (prodName.includes('capcut')) {
-        text += `*${prodWithCode}*\n\nCorreo: ${sale.email || ''}\nContraseña: ${sale.password || ''}\n\n(Prohibido cambiar o tocar la facturación mensual de CapCut. Prohibido cambiar la contraseña. Caso contrario, la cuenta será dada de baja automáticamente.)\n\nPLIXORA.BO`;
+        text += `*${sale.productName}*\n${codeLine}\nCorreo: ${sale.email || ''}\nContraseña: ${sale.password || ''}\n\n(Prohibido cambiar o tocar la facturación mensual de CapCut. Prohibido cambiar la contraseña. Caso contrario, la cuenta será dada de baja automáticamente.)\n\nPLIXORA.BO`;
     } else if (prodName.includes('spotify')) {
-        text += `*${prodWithCode}*\n\nCorreo: ${sale.email || ''}\nContraseña: ${sale.password || ''}\n\n(Prohibido cambiar la contraseña. Caso contrario, la cuenta será dada de baja automáticamente.)\n\nPLIXORA.BO`;
+        text += `*${sale.productName}*\n${codeLine}\nCorreo: ${sale.email || ''}\nContraseña: ${sale.password || ''}\n\n(Prohibido cambiar la contraseña. Caso contrario, la cuenta será dada de baja automáticamente.)\n\nPLIXORA.BO`;
     } else if (prodName.includes('netflix')) {
-        text += `*${prodWithCode}*\n\nCorreo: ${sale.email || ''}\nContraseña: ${sale.password || ''}\n\n(Prohibido cambiar la contraseña y prohibido entrar a otros perfiles. Caso contrario, la cuenta será dada de baja automáticamente.)\n\nPLIXORA.BO`;
+        text += `*${sale.productName}*\n${codeLine}\nCorreo: ${sale.email || ''}\nContraseña: ${sale.password || ''}\n\n(Prohibido cambiar la contraseña y prohibido entrar a otros perfiles. Caso contrario, la cuenta será dada de baja automáticamente.)\n\nPLIXORA.BO`;
     } else if (prodName.includes('disney')) {
-        text += `*${prodWithCode}*\n\nCorreo: ${sale.email || ''}\nContraseña: ${sale.password || ''}\n\n(Prohibido cambiar la contraseña y correo. Caso contrario, la cuenta será dada de baja automáticamente.)\n\nPLIXORA.BO`;
+        text += `*${sale.productName}*\n${codeLine}\nCorreo: ${sale.email || ''}\nContraseña: ${sale.password || ''}\n\n(Prohibido cambiar la contraseña y correo. Caso contrario, la cuenta será dada de baja automáticamente.)\n\nPLIXORA.BO`;
     } else if (prodName.includes('crunchyroll')) {
         const isAnual = prodName.includes('anual');
         text += `🍥 *INFORMACIÓN – CRUNCHYROLL FAN${isAnual ? ' ANUAL' : ''}*
