@@ -520,9 +520,7 @@
 
         // Capturar valores como strings primitivos para evitar que una actualización de Firebase cambie la referencia
         const phone = String(p.whatsapp);
-        const clienteName = String(p.cliente || '');
-        const codeDisplay = p.orderCode ? ` / ${p.orderCode}` : '';
-
+        const clienteName = String(p.cliente || '');\n
         const msg1 = `*PLIXORA.BO* | 🎬 *Netflix Premium*\n` +
                      (p.orderCode ? `🎫 *Pedido:* ${p.orderCode}\n` : '') +
                      `\n` +
@@ -649,8 +647,15 @@
             const acc = nfAccounts.find(a => a.id === pendingNotifyPayload.accountId);
             if (acc && acc.perfiles[pendingNotifyPayload.idx]) {
                 acc.perfiles[pendingNotifyPayload.idx].notifiedRenewal = true;
-                saveNFToStorage();
-                renderNetflixTable();
+                const perfiles = [...acc.perfiles];
+                try {
+                    if (db) {
+                        await db.collection('netflix_accounts').doc(acc.id).update({ perfiles });
+                    } else {
+                        localStorage.setItem('nf_accounts', JSON.stringify(nfAccounts));
+                        renderAll();
+                    }
+                } catch(e) { console.error('Error guardando notifiedRenewal:', e); }
             }
 
             showNFToast('✅ Aviso enviado por WhatsApp a ' + cliente);

@@ -263,11 +263,6 @@ function showSetupBanner() {
 
 // Actualiza el indicador de estado en la barra superior
 function setCloudStatus(status, detail) {
-    const el = document.getElementById('cloud-status-indicator');
-    if (!el) return;
-
-    el.dataset.status = status;
-
     const configs = {
         connecting: { text: '⏳ Conectando...', cls: 'status-connecting' },
         online:     { text: '☁️ Sincronizado', cls: 'status-online' },
@@ -275,9 +270,15 @@ function setCloudStatus(status, detail) {
         error:      { text: '❌ Sin sync',     cls: 'status-error' },
     };
     const cfg = configs[status] || configs.error;
-    el.innerHTML = cfg.text;
-    el.className = 'cloud-status-indicator ' + cfg.cls;
-    if (detail) el.title = `Error: ${detail}. Haz clic para reintentar.`;
+    const ids = ['cloud-status-indicator', 'cloud-status-indicator-mobile'];
+    ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.dataset.status = status;
+        el.innerHTML = cfg.text;
+        el.className = 'cloud-status-indicator ' + cfg.cls;
+        if (detail) el.title = `Error: ${detail}. Haz clic para reintentar.`;
+    });
 }
 
 // Re-suscribir el listener (útil para reintentar)
@@ -529,7 +530,6 @@ function setupForm() {
             expireDate:  calculateExpirationDate(product.duration)
         };
 
-        let pendingSaleData = newSale;
         let pendingSaleMsg = '';
         const hasPhone = newSale.customer && newSale.customer !== 'Anónimo';
 
@@ -813,7 +813,7 @@ function generateSaleDetailsText(sale) {
     let text = sale.customerName ? `👤 Cliente: ${sale.customerName}\n\n` : '';
     const prodName = (sale.productName || '').toLowerCase();
     
-    const prodWithCode = sale.orderCode ? `${sale.productName} / ${sale.orderCode}` : sale.productName;
+
     const codeLine = sale.orderCode ? `🎫 *Pedido:* ${sale.orderCode}\n` : '';
 
     if (prodName.includes('capcut')) {
