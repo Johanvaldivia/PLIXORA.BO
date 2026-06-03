@@ -520,7 +520,7 @@
 
         // Capturar valores como strings primitivos para evitar que una actualización de Firebase cambie la referencia
         const phone = String(p.whatsapp);
-        const clienteName = String(p.cliente || '');\n
+        const clienteName = String(p.cliente || '');
         const msg1 = `*PLIXORA.BO* | 🎬 *Netflix Premium*\n` +
                      (p.orderCode ? `🎫 *Pedido:* ${p.orderCode}\n` : '') +
                      `\n` +
