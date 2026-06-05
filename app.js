@@ -810,49 +810,156 @@ function renderExpirationAlerts() {
 }
 
 function generateSaleDetailsText(sale) {
-    let text = sale.customerName ? `👤 Cliente: ${sale.customerName}\n\n` : '';
     const prodName = (sale.productName || '').toLowerCase();
-    
-
     const codeLine = sale.orderCode ? `🎫 *Pedido:* ${sale.orderCode}\n` : '';
+    const clienteName = sale.customerName || 'Cliente';
 
-    if (prodName.includes('capcut')) {
-        text += `*${sale.productName}*\n${codeLine}\nCorreo: ${sale.email || ''}\nContraseña: ${sale.password || ''}\n\n(Prohibido cambiar o tocar la facturación mensual de CapCut. Prohibido cambiar la contraseña. Caso contrario, la cuenta será dada de baja automáticamente.)\n\nPLIXORA.BO`;
-    } else if (prodName.includes('spotify')) {
-        text += `*${sale.productName}*\n${codeLine}\nCorreo: ${sale.email || ''}\nContraseña: ${sale.password || ''}\n\n(Prohibido cambiar la contraseña. Caso contrario, la cuenta será dada de baja automáticamente.)\n\nPLIXORA.BO`;
-    } else if (prodName.includes('netflix')) {
-        text += `*${sale.productName}*\n${codeLine}\nCorreo: ${sale.email || ''}\nContraseña: ${sale.password || ''}\n\n(Prohibido cambiar la contraseña y prohibido entrar a otros perfiles. Caso contrario, la cuenta será dada de baja automáticamente.)\n\nPLIXORA.BO`;
-    } else if (prodName.includes('disney')) {
-        text += `*${sale.productName}*\n${codeLine}\nCorreo: ${sale.email || ''}\nContraseña: ${sale.password || ''}\n\n(Prohibido cambiar la contraseña y correo. Caso contrario, la cuenta será dada de baja automáticamente.)\n\nPLIXORA.BO`;
-    } else if (prodName.includes('canva')) {
-        text += `*${sale.productName}*\n${codeLine}\nHola ${sale.customerName || 'Cliente'} 👋,\n\nSe ha activado y mandado la invitación vía correo al siguiente email:\n📧 ${sale.email || ''}\n\nPor favor, revisar y aceptar la invitación. Luego, asegurarse de estar en el equipo *PLIXORA (CLASS)* para que tenga acceso siempre a los beneficios Pro.\n\nPLIXORA.BO`;
-    } else if (prodName.includes('crunchyroll')) {
-        const isAnual = prodName.includes('anual');
-        text += `🍥 *INFORMACIÓN – CRUNCHYROLL FAN${isAnual ? ' ANUAL' : ''}*
-
-Crunchyroll Fan${isAnual ? ' Anual' : ''} se entrega como cuenta completa individual, lista para usar.
-
-📌 *Duración:* ${isAnual ? '1 año' : '1 mes'}
-💰 *Precio:* ${isAnual ? '140 Bs' : '34 Bs'}
-👤 *Tipo:* Cuenta completa individual
-📺 *Plan:* Fan
-📱 *Dispositivos:* Solo 1 dispositivo
-📩 *Entrega:* Correo y contraseña de la cuenta
-⚡ *Entrega:* Inmediata, según disponibilidad
-
-Correo: ${sale.email || ''}
-Contraseña: ${sale.password || ''}
-
-Ideal para ${isAnual ? 'tener acceso por largo tiempo sin renovar cada mes' : 'disfrutar anime desde tu dispositivo'}.
-
-✅ Garantía completa incluida en PLIXORA.BO`;
-    } else {
-        text += `Venta: ${sale.productName}\nPrecio: ${sale.price} Bs\nFecha: ${new Date(sale.date).toLocaleDateString('es-ES')}\nCliente WA: ${sale.customer}`;
-        if (sale.email)      text += `\nCorreo: ${sale.email}`;
-        if (sale.password)   text += `\nContraseña: ${sale.password}`;
-        if (sale.expireDate) text += `\nVencimiento: ${new Date(sale.expireDate).toLocaleDateString('es-ES')}`;
+    // Format expiration date
+    const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+    let vencLine = '';
+    if (sale.expireDate) {
+        const d = new Date(sale.expireDate);
+        vencLine = `📅 *Vencimiento:* ${d.getDate()} de ${meses[d.getMonth()]} de ${d.getFullYear()}\n`;
     }
-    return text;
+
+    // Standard prohibition (applies to ALL products)
+    const prohibicion = `\n⚠️ _Prohibido cambiar la contraseña, correo o tocar la facturación. Caso contrario, se dará de baja automáticamente._`;
+    const footer = `\n_PLIXORA.BO — Gracias por tu compra 🧡_`;
+
+    // ── CapCut Pro ──
+    if (prodName.includes('capcut')) {
+        return `*PLIXORA.BO* | 🎬 *CapCut Pro*\n` +
+               codeLine + `\n` +
+               `📧 *Correo:* ${sale.email || ''}\n` +
+               `🔑 *Contraseña:* ${sale.password || ''}\n` +
+               vencLine +
+               prohibicion + `\n` + footer;
+    }
+
+    // ── Spotify Premium ──
+    if (prodName.includes('spotify')) {
+        return `*PLIXORA.BO* | 🎵 *Spotify Premium*\n` +
+               codeLine + `\n` +
+               `📧 *Correo:* ${sale.email || ''}\n` +
+               `🔑 *Contraseña:* ${sale.password || ''}\n` +
+               vencLine +
+               prohibicion + `\n` + footer;
+    }
+
+    // ── Netflix (from history, matches module style) ──
+    if (prodName.includes('netflix')) {
+        return `*PLIXORA.BO* | 🎬 *Netflix Premium*\n` +
+               codeLine + `\n` +
+               `📧 *Correo:* ${sale.email || ''}\n` +
+               `🔑 *Contraseña:* ${sale.password || ''}\n` +
+               vencLine + `\n` +
+               `⚠️ *(LA CONTRASEÑA INCLUYE MÁS CON EL * )*\n` +
+               `*POR FAVOR INGRESAR BIEN LA CONTRASEÑA*\n\n` +
+               `🔒 _Puedes crear un PIN en tu perfil si deseas mayor privacidad._\n\n` +
+               `🚫 _Está prohibido cambiar el nombre del perfil. Caso contrario, se dará de baja automáticamente el acceso._`;
+    }
+
+    // ── Disney Plus ──
+    if (prodName.includes('disney')) {
+        return `*PLIXORA.BO* | 🏰 *Disney Plus Estándar*\n` +
+               codeLine + `\n` +
+               `📧 *Correo:* ${sale.email || ''}\n` +
+               `🔑 *Contraseña:* ${sale.password || ''}\n` +
+               vencLine +
+               prohibicion + `\n` + footer;
+    }
+
+    // ── Canva Pro EDU (NO TOCAR) ──
+    if (prodName.includes('canva') && (prodName.includes('edu') || prodName.includes('class'))) {
+        return `*${sale.productName}*\n${codeLine}\nHola ${clienteName} 👋,\n\nSe ha activado y mandado la invitación vía correo al siguiente email:\n📧 ${sale.email || ''}\n\nPor favor, revisar y aceptar la invitación. Luego, asegurarse de estar en el equipo *PLIXORA (CLASS)* para que tenga acceso siempre a los beneficios Pro.\n\nPLIXORA.BO`;
+    }
+
+    // ── Canva Pro Individual ──
+    if (prodName.includes('canva')) {
+        return `*PLIXORA.BO* | 🎨 *Canva Pro Individual*\n` +
+               codeLine + `\n` +
+               `📧 *Correo:* ${sale.email || ''}\n` +
+               `🔑 *Contraseña:* ${sale.password || ''}\n` +
+               vencLine +
+               prohibicion + `\n` + footer;
+    }
+
+    // ── Crunchyroll (Fan / Fan Anual / Mega Fan) ──
+    if (prodName.includes('crunchyroll')) {
+        const isAnual = prodName.includes('anual');
+        const isMega = prodName.includes('mega');
+        let duracion = '1 mes';
+        if (isAnual) duracion = '1 año';
+        else if (isMega) duracion = '6 meses';
+
+        return `*PLIXORA.BO* | 🍥 *${sale.productName}*\n` +
+               codeLine + `\n` +
+               `📌 *Duración:* ${duracion}\n` +
+               `📧 *Correo:* ${sale.email || ''}\n` +
+               `🔑 *Contraseña:* ${sale.password || ''}\n` +
+               prohibicion + `\n\n` +
+               `✅ _Garantía completa incluida en PLIXORA.BO_`;
+    }
+
+    // ── HBO MAX PLATINO ──
+    if (prodName.includes('hbo')) {
+        return `*PLIXORA.BO* | 📺 *HBO MAX PLATINO*\n` +
+               codeLine + `\n` +
+               `📧 *Correo:* ${sale.email || ''}\n` +
+               `🔑 *Contraseña:* ${sale.password || ''}\n` +
+               vencLine +
+               prohibicion + `\n` + footer;
+    }
+
+    // ── YouTube Premium (invitación vía correo) ──
+    if (prodName.includes('youtube')) {
+        return `*PLIXORA.BO* | ▶️ *YouTube Premium*\n` +
+               codeLine + `\n` +
+               `Hola *${clienteName}* 👋\n\n` +
+               `Ya se le activó su cuenta de *YouTube Premium* y se encuentra ya su invitación enviada al siguiente correo:\n` +
+               `📧 *${sale.email || ''}*\n\n` +
+               `Por favor, revise su correo de Gmail para aceptar y unirse al plan familiar de YouTube Premium y disfrutar sin anuncios 🎉\n` +
+               prohibicion + `\n` + footer;
+    }
+
+    // ── Prime Video ──
+    if (prodName.includes('prime')) {
+        return `*PLIXORA.BO* | 🎬 *Prime Video*\n` +
+               codeLine + `\n` +
+               `📧 *Correo:* ${sale.email || ''}\n` +
+               `🔑 *Contraseña:* ${sale.password || ''}\n` +
+               vencLine +
+               prohibicion + `\n` + footer;
+    }
+
+    // ── Adobe Creative Cloud ──
+    if (prodName.includes('adobe')) {
+        return `*PLIXORA.BO* | 🎨 *Adobe Creative Cloud*\n` +
+               codeLine + `\n` +
+               `📧 *Correo:* ${sale.email || ''}\n` +
+               `🔑 *Contraseña:* ${sale.password || ''}\n\n` +
+               `⚠️ *POR FAVOR INGRESAR BIEN LA CONTRASEÑA*\n` +
+               vencLine +
+               prohibicion + `\n` + footer;
+    }
+
+    // ── Express VPN ──
+    if (prodName.includes('vpn') || prodName.includes('express')) {
+        return `*PLIXORA.BO* | 🔐 *Express VPN*\n` +
+               codeLine + `\n` +
+               `📧 *Correo:* ${sale.email || ''}\n` +
+               `🔑 *Contraseña:* ${sale.password || ''}\n` +
+               vencLine +
+               prohibicion + `\n` + footer;
+    }
+
+    // ── Combos y cualquier otro producto ──
+    return `*PLIXORA.BO* | 🛒 *${sale.productName}*\n` +
+           codeLine + `\n` +
+           (sale.email ? `📧 *Correo:* ${sale.email}\n` : '') +
+           (sale.password ? `🔑 *Contraseña:* ${sale.password}\n` : '') +
+           vencLine +
+           prohibicion + `\n` + footer;
 }
 
 // ---- ACCIONES HISTORIAL ----

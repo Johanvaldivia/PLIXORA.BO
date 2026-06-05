@@ -500,7 +500,7 @@
         if (!acc) return;
         const p = acc.perfiles[idx];
         const codeDisplay = p.orderCode ? ` / ${p.orderCode}` : '';
-        const text = `Netflix Perfil ${p.nombre}${codeDisplay}\n\nCorreo: ${acc.correo}\nContraseña: ${acc.password}\n\n(LA CONTRASEÑA INCLUYE MÁS CON EL * )\nPOR FAVOR INGRESAR BIEN LA CONTRASEÑA\n\n(Puedes crear un PIN en tu perfil si deseas mayor privacidad.)\n\n(Está prohibido cambiar el nombre del perfil. Caso contrario, se dará de baja automáticamente el acceso.)\n\nPLIXORA.BO\n----------------------------`;
+        const text = `Netflix Perfil *${p.nombre.toUpperCase()}*${codeDisplay}\n\nCorreo: ${acc.correo}\nContraseña: ${acc.password}\n\n(LA CONTRASEÑA INCLUYE MÁS CON EL * )\nPOR FAVOR INGRESAR BIEN LA CONTRASEÑA\n\n(Puedes crear un PIN en tu perfil si deseas mayor privacidad.)\n\n(Está prohibido cambiar el nombre del perfil. Caso contrario, se dará de baja automáticamente el acceso.)\n\nPLIXORA.BO\n----------------------------`;
         navigator.clipboard.writeText(text).then(() => showNFToast('📋 Acceso copiado'));
     };
 
@@ -526,7 +526,7 @@
                      `\n` +
                      `📧 *Correo:* ${acc.correo}\n` +
                      `🔑 *Contraseña:* ${acc.password}\n` +
-                     `📺 *Perfil:* ${p.nombre}\n\n` +
+                     `📺 *Perfil:* *${p.nombre.toUpperCase()}*\n\n` +
                      `⚠️ *(LA CONTRASEÑA INCLUYE MÁS CON EL * )*\n` +
                      `*POR FAVOR INGRESAR BIEN LA CONTRASEÑA*\n\n` +
                      `🔒 _Puedes crear un PIN en tu perfil si deseas mayor privacidad._\n\n` +
@@ -607,7 +607,7 @@
         const codeDisplay = p.orderCode ? ` / ${p.orderCode}` : '';
         const msg = `\u26A0\uFE0F *AVISO DE VENCIMIENTO \u2013 PLIXORA.BO* \u26A0\uFE0F\n\n` +
                     `Hola ${p.cliente || ''} \uD83D\uDC4B\n` +
-                    `Tu suscripción de *Netflix Perfil ${p.nombre}${codeDisplay}* est\u00E1 pr\u00F3xima a vencer.\n\n` +
+                    `Tu suscripción de *Netflix Perfil *${p.nombre.toUpperCase()}*${codeDisplay}* est\u00E1 pr\u00F3xima a vencer.\n\n` +
                     `\uD83D\uDCE7 *Correo:* ${acc.correo}\n` +
                     `\uD83D\uDD11 *Contrase\u00F1a:* ${acc.password}\n` +
                     `\uD83D\uDCC5 *Vence el:* ${vencLabel}\n\n` +
