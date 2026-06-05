@@ -85,14 +85,13 @@
     // ── STATS ────────────────────────────────────────────────
     function renderStats() {
         try {
-            let occupied = 0, expiring = 0;
+            let occupied = 0;
             const activeAccounts = nfAccounts.filter(a => a.estado !== 'cerrada');
+            const closedAccountsCount = nfAccounts.length - activeAccounts.length;
             activeAccounts.forEach(a => {
                 (a.perfiles || []).forEach(p => {
                     if (p && p.estado === 'ocupado') {
                         occupied++;
-                        const d = daysTo(p.vencimiento);
-                        if (d !== null && d >= 0 && d <= 5) expiring++;
                     }
                 });
             });
@@ -101,7 +100,7 @@
             setText('nf-stat-total', total);
             setText('nf-stat-occupied', occupied);
             setText('nf-stat-free', total - occupied);
-            setText('nf-stat-expiring', expiring);
+            setText('nf-stat-closed', closedAccountsCount);
         } catch (e) {
             console.error('Error in renderStats:', e);
         }
@@ -137,7 +136,9 @@
                 const barColor = occ === 5 ? '#ef4444' : occ >= 3 ? '#f59e0b' : '#10b981';
                 
                 let estadoBadge = '<span class="nf-badge inactive-badge">Inactiva</span>';
-                if (acc.estado === 'activa' || !acc.estado) {
+                if (acc.estado === 'cerrada') {
+                    estadoBadge = '<span class="nf-badge" style="background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3)">Cerrada</span>';
+                } else if (acc.estado === 'activa' || !acc.estado) {
                     estadoBadge = '<span class="nf-badge active-badge">Activa</span>';
                     
                     if (acc.fecha_creada) {
@@ -307,9 +308,13 @@
         passEl.dataset.pass = acc.password;
         passEl.dataset.visible = 'false';
 
-        document.getElementById('nf-detail-estado').innerHTML = acc.estado === 'activa'
-            ? '<span class="nf-badge active-badge">Activa</span>'
-            : '<span class="nf-badge inactive-badge">Inactiva</span>';
+        let estadoBadge = '<span class="nf-badge inactive-badge">Inactiva</span>';
+        if (acc.estado === 'cerrada') {
+            estadoBadge = '<span class="nf-badge" style="background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3)">Cerrada</span>';
+        } else if (acc.estado === 'activa' || !acc.estado) {
+            estadoBadge = '<span class="nf-badge active-badge">Activa</span>';
+        }
+        document.getElementById('nf-detail-estado').innerHTML = estadoBadge;
         document.getElementById('nf-detail-obs').textContent = acc.observacion || '—';
 
         // Profiles table
@@ -366,6 +371,28 @@
         el.textContent = isVisible ? '••••••••' : el.dataset.pass;
         el.dataset.visible = isVisible ? 'false' : 'true';
         el.title = isVisible ? 'Clic para mostrar' : 'Clic para ocultar';
+    };
+
+    // Cerrar account
+    window.nfCloseAccount = async function () {
+        if (!currentDetailId) return;
+        const acc = nfAccounts.find(a => a.id === currentDetailId);
+        if (!acc) return;
+        if (!confirm(`¿Marcar la cuenta ${acc.codigo} como CERRADA? Ya no contará en los activos.`)) return;
+        try {
+            acc.estado = 'cerrada';
+            if (db) {
+                await db.collection('netflix_accounts').doc(currentDetailId).update({ estado: 'cerrada' });
+            } else {
+                localStorage.setItem('nf_accounts', JSON.stringify(nfAccounts));
+            }
+            window.nfRenderAll();
+            closeNFDetail();
+            showNFToast('🔒 Cuenta cerrada');
+        } catch (e) {
+            console.error(e);
+            alert('Error al cerrar la cuenta');
+        }
     };
 
     // Delete account
