@@ -653,9 +653,13 @@
                         await db.collection('netflix_accounts').doc(acc.id).update({ perfiles });
                     } else {
                         localStorage.setItem('nf_accounts', JSON.stringify(nfAccounts));
-                        renderAll();
                     }
                 } catch(e) { console.error('Error guardando notifiedRenewal:', e); }
+                // Re-render the detail modal immediately so the button turns green
+                renderAll();
+                if (currentDetailId && document.getElementById('nf-detail-modal').style.display !== 'none') {
+                    renderDetailModal(currentDetailId);
+                }
             }
 
             showNFToast('✅ Aviso enviado por WhatsApp a ' + cliente);
