@@ -115,11 +115,13 @@
             const badge = document.getElementById('nf-accounts-badge');
             if (!tbody) return;
 
-            let data = [...nfAccounts].filter(a => a.estado !== 'cerrada');
+            let data = [...nfAccounts];
             if (nfFilter === 'activa') data = data.filter(a => a.estado === 'activa' || !a.estado);
-            else if (nfFilter === 'free') data = data.filter(a => (a.perfiles || []).some(p => p && p.estado === 'libre'));
-            else if (nfFilter === 'full') data = data.filter(a => (a.perfiles || []).every(p => p && p.estado === 'ocupado'));
-
+            else if (nfFilter === 'free') data = data.filter(a => a.estado !== 'cerrada' && (a.perfiles || []).some(p => p && p.estado === 'libre'));
+            else if (nfFilter === 'full') data = data.filter(a => a.estado !== 'cerrada' && (a.perfiles || []).every(p => p && p.estado === 'ocupado'));
+            else if (nfFilter === 'cerrada') data = data.filter(a => a.estado === 'cerrada');
+            else if (nfFilter === 'all') { /* shows all including cerradas */ }
+            
             if (badge) badge.textContent = data.length + ' cuentas';
 
             if (!data.length) {
