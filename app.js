@@ -55,8 +55,52 @@ const saleSummary   = document.getElementById('sale-summary');
 const formNewSale   = document.getElementById('form-new-sale');
 const btnGenerateWA = document.getElementById('btn-generate-wa');
 
+// ---- THEME LOGIC ----
+function getSavedTheme() {
+    return localStorage.getItem("theme") || "light";
+}
+
+function applyTheme(theme) {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+    syncThemeButtons(theme);
+}
+
+function toggleTheme() {
+    const current = document.documentElement.getAttribute("data-theme") || "light";
+    const next = current === "dark" ? "light" : "dark";
+    applyTheme(next);
+}
+
+function syncThemeButtons(theme) {
+    const isDark = theme === "dark";
+    const label = document.getElementById("themeLabel");
+    const thumb = document.getElementById("themeThumb");
+    const switchBtn = document.getElementById("themeSwitch");
+    const mobileBtn = document.getElementById("themeSwitchMobile");
+
+    if (label) label.textContent = isDark ? "Modo noche" : "Modo claro";
+    if (thumb) thumb.textContent = isDark ? "🌙" : "☀️";
+    if (switchBtn) switchBtn.classList.toggle("active", isDark);
+
+    if (mobileBtn) {
+        mobileBtn.textContent = isDark ? "🌙" : "☀️";
+        mobileBtn.classList.toggle("active", isDark);
+    }
+}
+
+function initTheme() {
+    const saved = getSavedTheme();
+    applyTheme(saved);
+    const switchBtn = document.getElementById("themeSwitch");
+    const mobileBtn = document.getElementById("themeSwitchMobile");
+    if (switchBtn) switchBtn.addEventListener("click", toggleTheme);
+    if (mobileBtn) mobileBtn.addEventListener("click", toggleTheme);
+}
+
 // ---- INICIALIZACIÓN ----
 document.addEventListener('DOMContentLoaded', () => {
+    initTheme();
     setupNavigation();
     renderCatalog('all');
     populateSelect();
