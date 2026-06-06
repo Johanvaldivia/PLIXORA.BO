@@ -465,7 +465,7 @@
             <div class="nf-modal-header"><h3>Asignar Perfil <span id="nf-assign-profile-name" style="color:var(--orange)"></span></h3><button class="nf-close" onclick="closeNFAssign()">✕</button></div>
             <form id="nf-assign-form" onsubmit="event.preventDefault();submitNFAssign()">
                 <div class="form-row"><div class="form-group half"><label>Nombre del perfil *</label><input id="nf-a-perfil-nombre" type="text" placeholder="Ej: Juanito, Mamá..." required></div><div class="form-group half"><label>Nombre del cliente *</label><input id="nf-a-cliente" type="text" placeholder="Ej: Juan Pérez" required></div></div>
-                <div class="form-row"><div class="form-group half"><label>WhatsApp *</label><input id="nf-a-wa" type="text" placeholder="Ej: 73651440" required></div><div class="form-group half"><label>Plan *</label><select id="nf-a-plan" required><option value="" disabled selected>Selecciona un plan...</option><option value="1m">1 Mes (15 Bs)</option><option value="2m">2 Meses (29 Bs)</option></select></div></div>
+                <div class="form-row"><div class="form-group half"><label>WhatsApp *</label><input id="nf-a-wa" type="text" placeholder="Ej: 73651440" required></div><div class="form-group half"><label>Plan *</label><select id="nf-a-plan" required><option value="" disabled selected>Selecciona un plan...</option><option value="1m">1 Mes (15 Bs)</option><option value="2m">2 Meses (29 Bs)</option><option value="3m">3 Meses (40 Bs)</option><option value="4m">4 Meses (55 Bs)</option></select></div></div>
                 <div class="form-row"><div class="form-group half"><label>Fecha inicio</label><input id="nf-a-inicio" type="date"></div><div class="form-group half"><label>Fecha vencimiento *</label><input id="nf-a-venc" type="date" required></div></div>
                 <div class="form-row"><div class="form-group"><label>Observación</label><input id="nf-a-obs" type="text" placeholder="Opcional..."></div></div>
                 <div style="display:flex;gap:0.75rem;margin-top:0.5rem">
@@ -473,6 +473,37 @@
                     <button type="submit" class="btn btn-primary" style="flex:2">Asignar Perfil</button>
                 </div>
             </form>
+        </div>
+    <!-- Transfer Profile Modal -->
+    <div id="nf-transfer-modal" class="nf-overlay" style="display:none; z-index:3010;">
+        <div class="nf-modal" style="max-width: 460px;">
+            <div class="nf-modal-header"><h3>🔄 Transferir Perfil</h3><button class="nf-close" onclick="closeNFTransfer()">✕</button></div>
+            <div style="padding: 1.25rem 1.5rem;">
+                <div style="background:rgba(255,107,53,0.08);border:1px solid rgba(255,107,53,0.2);border-radius:12px;padding:1rem;margin-bottom:1rem;">
+                    <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:0.35rem;">Transfiriendo desde:</p>
+                    <p style="font-weight:700;color:var(--text-main);font-size:0.95rem;" id="nf-transfer-source"></p>
+                </div>
+                <div class="form-group" style="margin-bottom:1rem;">
+                    <label>Cuenta destino *</label>
+                    <select id="nf-transfer-dest" required style="width:100%;background:var(--bg-card);border:1.5px solid var(--border);color:var(--text-main);padding:0.85rem 1rem;border-radius:10px;font-family:inherit;font-size:0.92rem;">
+                        <option value="" disabled selected>Selecciona cuenta destino...</option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin-bottom:1rem;">
+                    <label>Duración del plan *</label>
+                    <select id="nf-transfer-plan" required style="width:100%;background:var(--bg-card);border:1.5px solid var(--border);color:var(--text-main);padding:0.85rem 1rem;border-radius:10px;font-family:inherit;font-size:0.92rem;">
+                        <option value="" disabled selected>Selecciona duración...</option>
+                        <option value="1m">1 Mes (15 Bs)</option>
+                        <option value="2m">2 Meses (29 Bs)</option>
+                        <option value="3m">3 Meses (40 Bs)</option>
+                        <option value="4m">4 Meses (55 Bs)</option>
+                    </select>
+                </div>
+                <div style="display:flex;gap:0.75rem;margin-top:1rem;">
+                    <button type="button" class="btn btn-outline" onclick="closeNFTransfer()" style="flex:1">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="confirmNFTransfer()" style="flex:2">🔄 Transferir</button>
+                </div>
+            </div>
         </div>
     </div>
     <!-- Preview WhatsApp Modal -->

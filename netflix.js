@@ -10,6 +10,8 @@
     let nfFilter = 'all';
     let currentDetailId = null;
     let assignProfileIndex = null;
+    let transferSourceAccountId = null;
+    let transferSourceProfileIdx = null;
 
     // ── Exponer db desde app.js ──────────────────────────────
     window.nfSetDb = function (firebaseDb) {
@@ -204,13 +206,12 @@
         if (planSelect) {
             planSelect.addEventListener('change', (e) => {
                 const val = e.target.value;
+                const months = parseInt(val.replace('m', ''));
                 const inicioStr = document.getElementById('nf-a-inicio').value;
                 const inicioDate = inicioStr ? new Date(inicioStr) : new Date();
-                inicioDate.setHours(12,0,0,0); // Avoid timezone issues
-                if (val === '1m') {
-                    inicioDate.setMonth(inicioDate.getMonth() + 1);
-                } else if (val === '2m') {
-                    inicioDate.setMonth(inicioDate.getMonth() + 2);
+                inicioDate.setHours(12,0,0,0);
+                if (months) {
+                    inicioDate.setMonth(inicioDate.getMonth() + months);
                 }
                 document.getElementById('nf-a-venc').value = inicioDate.toISOString().slice(0, 10);
             });
@@ -321,7 +322,7 @@
 
         // Profiles table
         const tbody = document.getElementById('nf-profiles-tbody');
-        const svgCopy = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184"/></svg>`;
+        const svgTransfer = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"/></svg>`;
         const svgWA  = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/></svg>`;
         const svgFree= `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 119 0v3.75M3.75 21.75h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H3.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>`;
         const svgPlus= `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>`;
@@ -334,8 +335,9 @@
             if (occ) {
                 statusBadge = '<div style="display:flex; flex-direction:column; gap:0.25rem; align-items:flex-start;">';
                 statusBadge += '<span class="nf-badge occupied-badge">Ocupado</span>';
-                if (p.plan === '2m') {
-                    statusBadge += '<span class="nf-badge" style="background:#fef08a;color:#854d0e;border:1px solid #facc15;font-weight:600;font-size:0.7rem;padding:0.1rem 0.4rem;">2 Meses</span>';
+                const planMonths = parseInt((p.plan || '').replace('m',''));
+                if (planMonths >= 2) {
+                    statusBadge += `<span class="nf-badge" style="background:#fef08a;color:#854d0e;border:1px solid #facc15;font-weight:600;font-size:0.7rem;padding:0.1rem 0.4rem;">${planMonths} Meses</span>`;
                 }
                 statusBadge += '</div>';
             } else {
@@ -355,7 +357,7 @@
                         <button class="btn-icon" style="color:#0ea5e9;border-color:rgba(14,165,233,0.3)" title="Ver Detalle" onclick="window.nfViewSale('${accountId}',${i})">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.641 0-8.574-3.007-9.964-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                         </button>
-                        <button class="btn-icon copy"   title="Copiar acceso"     onclick="window.nfCopyAccess('${accountId}',${i})">${svgCopy}</button>
+                        <button class="btn-icon" style="color:#8b5cf6;border-color:rgba(139,92,246,0.3)" title="Transferir perfil" onclick="window.nfOpenTransfer('${accountId}',${i})">${svgTransfer}</button>
                         <button class="btn-icon notify" title="${p.notifiedRenewal ? 'Aviso Enviado' : 'Avisar renovación'}" onclick="window.nfNotify('${accountId}',${i})" style="color:${p.notifiedRenewal ? '#fff' : ''};background:${p.notifiedRenewal ? '#10b981' : ''};border-color:${p.notifiedRenewal ? '#10b981' : ''};">${svgWA}</button>
                         <button class="btn-icon delete" title="Liberar perfil"    onclick="window.nfFree('${accountId}',${i})">${svgFree}</button>
                     ` : `
@@ -470,13 +472,10 @@
 
         let precio = 0;
         let profit = 0;
-        if (plan === '1m') {
-            precio = 15;
-            profit = 7;
-        } else if (plan === '2m') {
-            precio = 29;
-            profit = 13;
-        }
+        if (plan === '1m') { precio = 15; profit = 7; }
+        else if (plan === '2m') { precio = 29; profit = 13; }
+        else if (plan === '3m') { precio = 40; profit = 16; }
+        else if (plan === '4m') { precio = 55; profit = 32; }
 
         const acc = nfAccounts.find(a => a.id === currentDetailId);
         if (!acc) return;
@@ -502,7 +501,7 @@
                         id: Date.now().toString(),
                         orderCode: newCode,
                         date: new Date().toISOString(),
-                        productName: `Netflix Perfil ${perfiles[assignProfileIndex].nombre} (${acc.codigo})${plan === '2m' ? ' [2 Meses]' : ''}`,
+                        productName: `Netflix Perfil ${perfiles[assignProfileIndex].nombre} (${acc.codigo})${plan !== '1m' ? ' [' + plan.replace('m',' Meses') + ']' : ''}`,
                         price: precio,
                         profit: profit,
                         customerName: cliente,
@@ -523,14 +522,137 @@
         }
     };
 
-    // ── PROFILE ACTIONS ──────────────────────────────────────
-    window.nfCopyAccess = function (accountId, idx) {
+    // ── TRANSFER PROFILE ─────────────────────────────────────
+    window.nfOpenTransfer = function (accountId, idx) {
         const acc = nfAccounts.find(a => a.id === accountId);
         if (!acc) return;
         const p = acc.perfiles[idx];
-        const codeDisplay = p.orderCode ? ` / ${p.orderCode}` : '';
-        const text = `Netflix Perfil *${p.nombre.toUpperCase()}*${codeDisplay}\n\nCorreo: ${acc.correo}\nContraseña: ${acc.password}\n\n(LA CONTRASEÑA INCLUYE MÁS CON EL * )\nPOR FAVOR INGRESAR BIEN LA CONTRASEÑA\n\n(Puedes crear un PIN en tu perfil si deseas mayor privacidad.)\n\n(Está prohibido cambiar el nombre del perfil. Caso contrario, se dará de baja automáticamente el acceso.)\n\nPLIXORA.BO\n----------------------------`;
-        navigator.clipboard.writeText(text).then(() => showNFToast('📋 Acceso copiado'));
+
+        transferSourceAccountId = accountId;
+        transferSourceProfileIdx = idx;
+
+        // Show source info
+        document.getElementById('nf-transfer-source').textContent =
+            `${p.cliente} — ${p.nombre.toUpperCase()} — ${p.whatsapp}`;
+
+        // Populate destination accounts (active with free profiles, excluding current)
+        const destSelect = document.getElementById('nf-transfer-dest');
+        destSelect.innerHTML = '<option value="" disabled selected>Selecciona cuenta destino...</option>';
+
+        nfAccounts
+            .filter(a => a.id !== accountId && a.estado !== 'cerrada')
+            .filter(a => (a.perfiles || []).some(pr => pr && pr.estado === 'libre'))
+            .forEach(a => {
+                const freeCount = (a.perfiles || []).filter(pr => pr && pr.estado === 'libre').length;
+                const opt = document.createElement('option');
+                opt.value = a.id;
+                opt.textContent = `${a.codigo} — ${a.correo} (${freeCount} perfil${freeCount > 1 ? 'es' : ''} libre${freeCount > 1 ? 's' : ''})`;
+                destSelect.appendChild(opt);
+            });
+
+        // Reset plan
+        document.getElementById('nf-transfer-plan').value = '';
+
+        document.getElementById('nf-transfer-modal').style.display = 'flex';
+    };
+
+    window.closeNFTransfer = function () {
+        document.getElementById('nf-transfer-modal').style.display = 'none';
+        transferSourceAccountId = null;
+        transferSourceProfileIdx = null;
+    };
+
+    window.confirmNFTransfer = async function () {
+        const destAccountId = document.getElementById('nf-transfer-dest').value;
+        const plan = document.getElementById('nf-transfer-plan').value;
+
+        if (!destAccountId) { showNFToast('❌ Selecciona una cuenta destino'); return; }
+        if (!plan) { showNFToast('❌ Selecciona la duración del plan'); return; }
+
+        const srcAcc = nfAccounts.find(a => a.id === transferSourceAccountId);
+        const destAcc = nfAccounts.find(a => a.id === destAccountId);
+        if (!srcAcc || !destAcc) return;
+
+        const srcProfile = srcAcc.perfiles[transferSourceProfileIdx];
+
+        // Find first free profile in destination
+        const destIdx = destAcc.perfiles.findIndex(p => p && p.estado === 'libre');
+        if (destIdx === -1) { showNFToast('❌ No hay perfiles libres en esa cuenta'); return; }
+
+        // Calculate dates
+        const today = new Date();
+        const inicio = today.toISOString().slice(0, 10);
+        const vencDate = new Date(today);
+        vencDate.setHours(12, 0, 0, 0);
+        const months = parseInt(plan.replace('m', ''));
+        vencDate.setMonth(vencDate.getMonth() + months);
+        const venc = vencDate.toISOString().slice(0, 10);
+
+        // Price/profit
+        let precio = 0, profit = 0;
+        if (plan === '1m') { precio = 15; profit = 7; }
+        else if (plan === '2m') { precio = 29; profit = 13; }
+        else if (plan === '3m') { precio = 40; profit = 16; }
+        else if (plan === '4m') { precio = 55; profit = 32; }
+
+        const newCode = 'PLX-' + Math.floor(1000 + Math.random() * 9000);
+
+        // Update destination profile with transferred data
+        const destPerfiles = [...destAcc.perfiles];
+        destPerfiles[destIdx] = {
+            ...destPerfiles[destIdx],
+            nombre: srcProfile.nombre,
+            estado: 'ocupado',
+            cliente: srcProfile.cliente,
+            whatsapp: srcProfile.whatsapp,
+            inicio: inicio,
+            vencimiento: venc,
+            plan: plan,
+            obs: `Transferido desde ${srcAcc.codigo}`,
+            orderCode: newCode
+        };
+
+        // Optimistic update
+        destAcc.perfiles = destPerfiles;
+        localStorage.setItem('nf_accounts', JSON.stringify(nfAccounts));
+        window.nfRenderAll();
+        closeNFTransfer();
+
+        // Re-render detail modal if open
+        if (currentDetailId && document.getElementById('nf-detail-modal').style.display !== 'none') {
+            window.nfRenderDetailModal(currentDetailId);
+        }
+
+        showNFToast(`✅ ${srcProfile.cliente} transferido a ${destAcc.codigo} — Perfil ${destPerfiles[destIdx].nombre}`);
+
+        try {
+            if (db) {
+                await db.collection('netflix_accounts').doc(destAccountId).update({ perfiles: destPerfiles });
+                // Register sale
+                if (precio > 0) {
+                    const sale = {
+                        id: Date.now().toString(),
+                        orderCode: newCode,
+                        date: new Date().toISOString(),
+                        productName: `Netflix Perfil ${destPerfiles[destIdx].nombre} (${destAcc.codigo})${plan !== '1m' ? ' [' + plan.replace('m', ' Meses') + ']' : ''}`,
+                        price: precio,
+                        profit: profit,
+                        customerName: srcProfile.cliente,
+                        customer: srcProfile.whatsapp,
+                        email: destAcc.correo,
+                        password: destAcc.password,
+                        expireDate: new Date(venc).toISOString()
+                    };
+                    await db.collection('plixora_sales').doc(sale.id).set(sale);
+                }
+            }
+        } catch (e) {
+            // Rollback on error
+            destAcc.perfiles[destIdx] = { nombre: destPerfiles[destIdx].nombre, estado: 'libre', cliente: '', whatsapp: '', inicio: '', vencimiento: '', plan: '', obs: '' };
+            localStorage.setItem('nf_accounts', JSON.stringify(nfAccounts));
+            window.nfRenderAll();
+            alert('Error al transferir: ' + e.message);
+        }
     };
 
     // ── SEND ACCESS VIA WHATSAPP BOT ─────────────────────────
@@ -724,7 +846,7 @@
             row('🔑 Contraseña', acc.password) +
             row('📅 Inicio', fmtDate(p.inicio)) +
             row('📅 Vencimiento', fmtDate(p.vencimiento)) +
-            row('📋 Plan', p.plan === '2m' ? '2 Meses' : p.plan === '1m' ? '1 Mes' : (p.plan || '—')) +
+            row('📋 Plan', {'1m':'1 Mes','2m':'2 Meses','3m':'3 Meses','4m':'4 Meses'}[p.plan] || p.plan || '—') +
             row('💬 Observación', p.obs || '—');
 
         document.getElementById('nf-client-detail-modal').style.display = 'flex';
