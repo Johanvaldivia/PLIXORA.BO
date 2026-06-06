@@ -84,6 +84,38 @@
         return dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
     }
 
+    // Delete sale(s) from history by orderCode — robust cross-module helper
+    async function deleteSaleByOrderCode(orderCode) {
+        if (!orderCode) return;
+        try {
+            if (db) {
+                const snap = await db.collection('plixora_sales').where('orderCode', '==', orderCode).get();
+                const batch = db.batch();
+                snap.forEach(doc => batch.delete(doc.ref));
+                await batch.commit();
+            }
+            // Also remove from local sales array if accessible
+            if (typeof window.removeSale === 'function') {
+                const localSales = JSON.parse(localStorage.getItem('plixora_sales') || '[]');
+                const match = localSales.find(s => s.orderCode === orderCode);
+                if (match) await window.removeSale(match.id);
+            }
+        } catch (e) { console.error('Error eliminando venta:', e); }
+    }
+
+    // Delete ALL sales for a given account (by matching account code in productName)
+    async function deleteAllSalesForAccount(acc) {
+        if (!acc) return;
+        try {
+            // Delete by orderCode for each occupied profile
+            for (const p of (acc.perfiles || [])) {
+                if (p && p.orderCode) {
+                    await deleteSaleByOrderCode(p.orderCode);
+                }
+            }
+        } catch (e) { console.error('Error eliminando ventas de cuenta:', e); }
+    }
+
     // ── RENDER ALL ───────────────────────────────────────────
     window.nfRenderAll = function renderAll() {
         renderStats();
@@ -410,8 +442,11 @@
         if (!currentDetailId) return;
         const acc = nfAccounts.find(a => a.id === currentDetailId);
         if (!acc) return;
-        if (!confirm(`¿Eliminar la cuenta ${acc.codigo} (${acc.correo}) y todos sus perfiles?`)) return;
+        if (!confirm(`¿Eliminar la cuenta ${acc.codigo} (${acc.correo}) y todos sus perfiles? También se eliminarán los registros de venta asociados.`)) return;
         try {
+            // Delete all associated sales first
+            await deleteAllSalesForAccount(acc);
+
             if (db) {
                 await db.collection('netflix_accounts').doc(currentDetailId).delete();
             } else {
@@ -420,7 +455,7 @@
                 window.nfRenderAll();
             }
             closeNFDetail();
-            showNFToast('🗑️ Cuenta eliminada');
+            showNFToast('🗑️ Cuenta eliminada y ventas asociadas borradas');
         } catch (e) { alert('Error: ' + e.message); }
     };
 
@@ -865,14 +900,9 @@
         const perfiles = [...acc.perfiles];
         const p = perfiles[idx];
 
-        // Eliminar del historial de ventas automáticamente
-        if (typeof sales !== 'undefined' && typeof window.removeSale === 'function') {
-            const sale = sales.find(s => s.productName && s.productName.includes(`Perfil ${p.nombre}`) && s.productName.includes(acc.codigo) && s.customer === p.whatsapp);
-            if (sale) {
-                try {
-                    await window.removeSale(sale.id);
-                } catch(e) { console.error('Error al eliminar venta asociada', e); }
-            }
+        // Eliminar del historial de ventas usando orderCode
+        if (p.orderCode) {
+            await deleteSaleByOrderCode(p.orderCode);
         }
 
         perfiles[idx] = { nombre: perfiles[idx].nombre, estado: 'libre', cliente: '', whatsapp: '', inicio: '', vencimiento: '', plan: '', obs: '' };
