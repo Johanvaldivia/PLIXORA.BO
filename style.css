@@ -22,17 +22,19 @@
 }
 
 [data-theme="dark"] {
-    --bg-main:      #0b0f19;
-    --bg-card:      #131b2c;
-    --text-main:    #e2e8f0;
-    --text-muted:   #94a3b8;
-    --text-sidebar: #cbd5e1;
-    --border:       rgba(255,255,255,0.06);
-    --sidebar-bg:   #0f172a;
-    --sidebar-hover:#1e293b;
-    --shadow-sm:    0 2px 12px rgba(0,0,0,0.4);
-    --shadow-md:    0 6px 28px rgba(0,0,0,0.5);
-    --shadow-lg:    0 12px 40px rgba(0,0,0,0.6);
+    --bg-main:      #000000;
+    --bg-card:      #0a0a0a;
+    --text-main:    #f5f5f5;
+    --text-muted:   #a3a3a3;
+    --text-sidebar: #a3a3a3;
+    --border:       rgba(255,255,255,0.08);
+    --sidebar-bg:   #000000;
+    --sidebar-hover:#0d0d0d;
+    --shadow-sm:    0 2px 12px rgba(0,0,0,0.65);
+    --shadow-md:    0 6px 28px rgba(0,0,0,0.65);
+    --shadow-lg:    0 12px 40px rgba(0,0,0,0.65);
+    --surface:      #080808;
+    --surface-2:    #0d0d0d;
 }
 
 *,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
@@ -376,12 +378,14 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
 /* ── METRICS ── */
 .metrics-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px,1fr)); gap:1rem; margin-bottom:1.5rem; }
 .metric-card {
-    background:var(--bg-card); border:1px solid var(--border);
-    border-radius:var(--radius-lg); padding:1.25rem 1.5rem;
-    display:flex; align-items:center; gap:1rem;
-    transition:var(--ease); box-shadow:var(--shadow-sm);
+    background:var(--bg-card);
+    border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.25rem 1.5rem; display:flex; align-items:center; gap:1.2rem;
+    box-shadow:var(--shadow-sm); transition:var(--ease);
 }
-.metric-card:hover { transform:translateY(-3px); box-shadow:var(--shadow-md); }
+[data-theme="dark"] .metric-card {
+    background: linear-gradient(180deg, #0d0d0d, #080808);
+}
+.metric-card:hover { transform:translateY(-2px); box-shadow:var(--shadow-md); }
 .metric-card.highlight {
     background:linear-gradient(135deg, var(--orange-light), var(--orange));
     border-color:transparent; box-shadow:var(--shadow-orange);
@@ -412,9 +416,13 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
 .standalone .table-container { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); }
 .sales-table { width:100%; border-collapse:collapse; text-align:left; }
 .sales-table th,.sales-table td { padding:1rem 1.5rem; border-bottom:1px solid var(--border); }
-.sales-table th { background:rgba(26,26,46,0.02); color:var(--text-muted); font-weight:600; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.5px; }
+.sales-table th { background:var(--bg-main); color:var(--text-muted); font-weight:600; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.5px; }
 .sales-table tr:last-child td { border-bottom:none; }
-.sales-table tbody tr:hover { background:rgba(254,91,41,0.02); }
+.sales-table tbody tr:hover { background:var(--bg-main); }
+
+[data-theme="dark"] .sales-table th { background: #0a0a0a; }
+[data-theme="dark"] .sales-table tbody tr { background: #080808; border-bottom: 1px solid var(--border); }
+[data-theme="dark"] .sales-table tbody tr:hover { background: #111111; }
 .empty-state { padding:2.5rem; text-align:center; color:var(--text-muted); font-size:0.9rem; }
 
 /* ── CATALOG ── */
