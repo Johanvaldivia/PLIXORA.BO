@@ -78,6 +78,12 @@
 
     function setText(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
 
+    // Local date string (YYYY-MM-DD) — avoids UTC shift from toISOString()
+    function toLocalDateStr(d) {
+        const dt = d || new Date();
+        return dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
+    }
+
     // ── RENDER ALL ───────────────────────────────────────────
     window.nfRenderAll = function renderAll() {
         renderStats();
@@ -213,7 +219,7 @@
                 if (months) {
                     inicioDate.setMonth(inicioDate.getMonth() + months);
                 }
-                document.getElementById('nf-a-venc').value = inicioDate.toISOString().slice(0, 10);
+                document.getElementById('nf-a-venc').value = toLocalDateStr(inicioDate);
             });
         }
     });
@@ -221,7 +227,7 @@
     // ── ADD ACCOUNT MODAL ────────────────────────────────────
     window.openNFAddModal = function () {
         document.getElementById('nf-form').reset();
-        document.getElementById('nf-fecha').value = new Date().toISOString().slice(0, 10);
+        document.getElementById('nf-fecha').value = toLocalDateStr();
         document.getElementById('nf-add-modal').style.display = 'flex';
     };
 
@@ -257,7 +263,7 @@
             id: Date.now().toString(),
             codigo: generateCode(),
             correo, password, estado, prefijo,
-            fecha_creada: fecha || new Date().toISOString().slice(0, 10),
+            fecha_creada: fecha || toLocalDateStr(),
             observacion: obs,
             perfiles: generateProfiles(prefijo),
             createdAt: new Date().toISOString()
@@ -429,11 +435,11 @@
         document.getElementById('nf-assign-profile-name').textContent = perfil.nombre;
         document.getElementById('nf-assign-form').reset();
         document.getElementById('nf-a-perfil-nombre').value = '';
-        const today = new Date().toISOString().slice(0, 10);
+        const today = toLocalDateStr();
         document.getElementById('nf-a-inicio').value = today;
         // Default vencimiento = 1 mes
         const nextMonth = new Date(); nextMonth.setMonth(nextMonth.getMonth() + 1);
-        document.getElementById('nf-a-venc').value = nextMonth.toISOString().slice(0, 10);
+        document.getElementById('nf-a-venc').value = toLocalDateStr(nextMonth);
         document.getElementById('nf-assign-modal').style.display = 'flex';
     };
 
@@ -581,12 +587,12 @@
 
         // Calculate dates
         const today = new Date();
-        const inicio = today.toISOString().slice(0, 10);
+        const inicio = toLocalDateStr(today);
         const vencDate = new Date(today);
         vencDate.setHours(12, 0, 0, 0);
         const months = parseInt(plan.replace('m', ''));
         vencDate.setMonth(vencDate.getMonth() + months);
-        const venc = vencDate.toISOString().slice(0, 10);
+        const venc = toLocalDateStr(vencDate);
 
         // Price/profit
         let precio = 0, profit = 0;
