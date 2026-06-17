@@ -32,7 +32,9 @@ const catalogData = [
     { id: 'cb-creator',name: 'Combo Creator Pro',     type: 'combo',  duration: '1 mes',            salePrice: 125, cost: 110,  profit: 15, features: ['CapCut Pro', 'Adobe Creative Cloud'] },
     { id: 'cb-office', name: 'Combo Office',          type: 'combo',  duration: '1 año',            salePrice: 160, cost: 100,  profit: 60, features: ['Microsoft 365', 'Canva EDU'] },
     { id: 'cb-ultra',  name: 'Combo Ultra',           type: 'combo',  duration: 'Mix',              salePrice: 210, cost: 150,  profit: 60, features: ['Microsoft 365', 'Adobe', 'Canva EDU'] },
-    { id: 'cb-privado',name: 'Combo Privado',         type: 'combo',  duration: '1 mes',            salePrice: 45,  cost: 36,   profit: 9,  features: ['Express VPN', 'YouTube Premium'] }
+    { id: 'cb-privado',name: 'Combo Privado',         type: 'combo',  duration: '1 mes',            salePrice: 45,  cost: 36,   profit: 9,  features: ['Express VPN', 'YouTube Premium'] },
+    // YOUTUBE PREMIUM FAMILIAR
+    { id: 'ytf-1m',   name: 'YouTube Premium Familiar',type: 'single', duration: '1 mes',            salePrice: 35,  cost: 0,   profit: 35, features: ['Cuenta con correo y contraseña', 'Plan Familiar (4 invitaciones extra)', 'Sin anuncios + Segundo plano'] }
 ];
 
 // ---- ZONA HORARIA BOLIVIA (UTC-4) ----
@@ -955,7 +957,41 @@ function generateSaleDetailsText(sale) {
                prohibicion + `\n` + footer;
     }
 
-    // ── YouTube Premium (invitación vía correo) ──
+    // ── YouTube Premium Familiar (cuenta completa con invitaciones) ──
+    if (prodName.includes('youtube') && prodName.includes('familiar')) {
+        return `━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+               `      *PLIXORA.BO* 🌟\n` +
+               `  ▶️ *YOUTUBE PREMIUM FAMILIAR*\n` +
+               `━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+               codeLine +
+               `Hola *${clienteName}* 👋\n\n` +
+               `¡Tu cuenta de *YouTube Premium Familiar* ya está *activa* y lista para usar! 🎉\n\n` +
+               `📌 *DATOS DE ACCESO:*\n` +
+               `┌─────────────────────────\n` +
+               `│ 📧 *Correo:* ${sale.email || ''}\n` +
+               `│ 🔑 *Contraseña:* ${sale.password || ''}\n` +
+               `│ ${vencLine ? vencLine : ''}` +
+               `└─────────────────────────\n\n` +
+               `📋 *PASOS PARA ACTIVAR:*\n\n` +
+               `1️⃣ Ingresa a *youtube.com* o abre la app de YouTube.\n` +
+               `2️⃣ Inicia sesión en Google con el *correo y contraseña* que se te proporcionó arriba.\n` +
+               `3️⃣ ¡Listo! Tu cuenta ya está activa y funcionando con todos los beneficios Premium. ✅\n\n` +
+               `━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+               `👨‍👩‍👧‍👦 *PLAN FAMILIAR — 4 INVITACIONES*\n` +
+               `━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+               `Tu plan incluye la posibilidad de activar *YouTube Premium* en *4 correos adicionales* mediante invitación.\n\n` +
+               `✉️ *¿Cómo activar las invitaciones?*\n` +
+               `• Desde la cuenta, ve a *Ajustes > Plan Familiar* y envía las invitaciones a los correos que desees.\n` +
+               `• O si prefieres, *nosotros te ayudamos* con mucho gusto. Solo envíanos los correos de Gmail y nos encargamos de enviar las invitaciones por ti. 😊\n\n` +
+               `⚠️ *IMPORTANTE:*\n` +
+               `• _Prohibido cambiar la contraseña, correo o tocar la facturación del plan. Caso contrario, se dará de baja automáticamente._\n` +
+               `• _Los correos invitados deben aceptar la invitación desde su Gmail para que se active correctamente._\n\n` +
+               `━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+               `_PLIXORA.BO — Gracias por tu compra 🧡_\n` +
+               `_Ante cualquier consulta, estamos para ayudarte._`;
+    }
+
+    // ── YouTube Premium Individual (invitación vía correo) ──
     if (prodName.includes('youtube')) {
         return `*PLIXORA.BO* | ▶️ *YouTube Premium*\n` +
                codeLine + `\n` +
