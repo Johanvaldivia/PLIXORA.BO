@@ -161,7 +161,7 @@
             else if (nfFilter === 'full') data = data.filter(a => a.estado !== 'cerrada' && (a.perfiles || []).every(p => p && p.estado === 'ocupado'));
             else if (nfFilter === 'cerrada') data = data.filter(a => a.estado === 'cerrada');
             else if (nfFilter === 'all') { /* shows all including cerradas */ }
-            
+
             if (badge) badge.textContent = data.length + ' cuentas';
 
             if (!data.length) {
@@ -176,13 +176,13 @@
                 const occ = (acc.perfiles || []).filter(p => p && p.estado === 'ocupado').length;
                 const pct = (occ / 5) * 100;
                 const barColor = occ === 5 ? '#ef4444' : occ >= 3 ? '#f59e0b' : '#10b981';
-                
+
                 let estadoBadge = '<span class="nf-badge inactive-badge">Inactiva</span>';
                 if (acc.estado === 'cerrada') {
                     estadoBadge = '<span class="nf-badge" style="background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3)">Cerrada</span>';
                 } else if (acc.estado === 'activa' || !acc.estado) {
                     estadoBadge = '<span class="nf-badge active-badge">Activa</span>';
-                    
+
                     if (acc.fecha_creada) {
                         const hoy = new Date();
                         hoy.setHours(0,0,0,0);
@@ -190,18 +190,18 @@
                         const fechaCreada = new Date(parseInt(yyyy), parseInt(mm) - 1, parseInt(dd));
                         fechaCreada.setHours(0,0,0,0);
                         const diaCreada = parseInt(dd, 10);
-                        
+
                         let proxPago = new Date(hoy.getFullYear(), hoy.getMonth(), diaCreada);
                         if (proxPago < hoy) proxPago = new Date(hoy.getFullYear(), hoy.getMonth() + 1, diaCreada);
                         if (proxPago.getTime() === fechaCreada.getTime()) proxPago = new Date(proxPago.getFullYear(), proxPago.getMonth() + 1, diaCreada);
-                        
+
                         const diasFaltantes = Math.ceil((proxPago - hoy) / 86400000);
                         if (diasFaltantes <= 3 && diasFaltantes >= 0) {
                             estadoBadge = `<span class="nf-badge" style="background:#fef3c7;color:#d97706;border:1px solid #fcd34d;">Por Vencer</span>`;
                         }
                     }
                 }
-                
+
                 const fecha = acc.fecha_creada
                     ? new Date(acc.fecha_creada + 'T12:00:00').toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })
                     : '—';
@@ -270,7 +270,7 @@
     window.submitNFAccount = async function () {
         let hasError = false;
         const requiredInputs = document.querySelectorAll('#nf-form input[required], #nf-form select[required]');
-        
+
         requiredInputs.forEach(input => {
             if (!input.value.trim()) {
                 input.classList.remove('shake-error');
@@ -368,7 +368,7 @@
 
         tbody.innerHTML = (acc.perfiles || []).map((p, i) => {
             const occ = p.estado === 'ocupado';
-            
+
             let statusBadge = '';
             if (occ) {
                 statusBadge = '<div style="display:flex; flex-direction:column; gap:0.25rem; align-items:flex-start;">';
@@ -485,7 +485,7 @@
     window.submitNFAssign = async function () {
         let hasError = false;
         const requiredInputs = document.querySelectorAll('#nf-assign-form input[required], #nf-assign-form select[required]');
-        
+
         requiredInputs.forEach(input => {
             if (!input.value.trim()) {
                 input.classList.remove('shake-error');
@@ -505,7 +505,7 @@
         // Remove non-numeric chars and '591' prefix if present
         wa = wa.replace(/[^0-9]/g, '');
         if (wa.startsWith('591')) wa = wa.substring(3);
-        
+
         const inicio  = document.getElementById('nf-a-inicio').value;
         const venc    = document.getElementById('nf-a-venc').value;
         const plan    = document.getElementById('nf-a-plan').value;
@@ -732,7 +732,7 @@
         document.getElementById('nf-prev-cliente').textContent = `${clienteName} (${phone})`;
         document.getElementById('nf-prev-msg1').textContent = msg1;
         document.getElementById('nf-prev-msg2').textContent = msg2;
-        
+
         document.getElementById('nf-preview-modal').style.display = 'flex';
     };
 
@@ -813,7 +813,7 @@
 
         document.getElementById('nf-notify-cliente').textContent = `${p.cliente} (${p.whatsapp})`;
         document.getElementById('nf-notify-msg').value = msg;
-        
+
         document.getElementById('nf-notify-modal').style.display = 'flex';
     };
 
@@ -821,7 +821,7 @@
         if (!pendingNotifyPayload) return;
         const { phone, cliente } = pendingNotifyPayload;
         const msg = document.getElementById('nf-notify-msg').value.trim();
-        
+
         if (!msg) { showNFToast('❌ El mensaje no puede estar vacío'); return; }
 
         closeNFNotify();

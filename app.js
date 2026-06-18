@@ -406,7 +406,7 @@ function calculateExpirationDate(durationStr) {
         today.setDate(today.getDate() + 35);
         return today.toISOString();
     }
-    
+
     const monthMatch = durationStr.match(/(\d+)\s*mes(es)?/i);
     if (monthMatch) {
         const months = parseInt(monthMatch[1], 10);
@@ -551,9 +551,9 @@ function populateSelect() {
 function setupForm() {
     formNewSale.addEventListener('submit', async e => {
         e.preventDefault();
-        
+
         let hasError = false;
-        
+
         const productId = selectProduct.value;
         if (!productId) {
             selectProduct.classList.remove('shake-error');
@@ -607,7 +607,7 @@ function setupForm() {
         if (hasPhone) {
             pendingSaleMsg = `¡Hola! Aquí tienes los detalles de tu compra en PLIXORA.BO 🌟\n\n` + generateSaleDetailsText(newSale);
             window.pendingSaleContext = { sale: newSale, messageText: pendingSaleMsg, formNewSale, selectProduct, saleSummary };
-            
+
             document.getElementById('sale-prev-cliente').textContent = `${newSale.customerName || 'Cliente'} (${newSale.customer})`;
             document.getElementById('sale-prev-msg').textContent = pendingSaleMsg;
             document.getElementById('sale-preview-modal').style.display = 'flex';
@@ -633,7 +633,7 @@ async function executeSaveSale(newSale, sendWhatsApp) {
         if (contactSel) contactSel.value = '';
         document.getElementById('sale-summary').style.display = 'none';
         showToast('✅ Venta registrada y sincronizada');
-        
+
         if (sendWhatsApp && newSale.customer && newSale.customer !== 'Anónimo' && window.pendingSaleContext) {
             try {
                 const response = await fetch('https://plixora-bot.duckdns.org/api/send-message', {
@@ -704,7 +704,7 @@ function updateDashboard() {
 
     // Trigger reflow and re-add animation
     void mSales.offsetWidth;
-    
+
     mSales.classList.add('pop-in');
     mRev.classList.add('pop-in');
     mProf.classList.add('pop-in');
@@ -751,7 +751,7 @@ function renderHistoryTable() {
     if (!tbody || !empty || !table) return;
 
     tbody.innerHTML = '';
-    
+
     let filteredHistory = sales;
 
     // Apply product filter
@@ -826,7 +826,7 @@ function renderExpirationAlerts() {
     const soonList = document.getElementById('expiring-soon-list');
     const badge = document.getElementById('expiration-badge');
     const badgeCount = document.getElementById('expiration-badge-count');
-    
+
     if (!urgentList || !soonList) return;
 
     urgentList.innerHTML = '';
@@ -1172,7 +1172,7 @@ window.notifyRenewal = function(id) {
 
     document.getElementById('hist-notify-cliente').textContent = pendingHistNotifyPayload.cliente + ' (' + pendingHistNotifyPayload.phone + ')';
     document.getElementById('hist-notify-msg').value = msg;
-    
+
     document.getElementById('hist-notify-modal').style.display = 'flex';
 };
 
@@ -1180,7 +1180,7 @@ window.confirmHistNotifySend = async function() {
     if (!pendingHistNotifyPayload) return;
     const { phone, cliente } = pendingHistNotifyPayload;
     const msg = document.getElementById('hist-notify-msg').value.trim();
-    
+
     if (!msg) { showToast('❌ El mensaje no puede estar vacío'); return; }
 
     closeHistNotify();
@@ -1264,11 +1264,11 @@ window.saveCustomerEdit = async function() {
                 customer: wa
             });
             showToast('✅ Datos del cliente actualizados');
-            
+
             if (oldSale && oldSale.productName && oldSale.productName.includes('Netflix Perfil')) {
                 await syncNetflixProfileEdit(oldSale, name, wa);
             }
-            
+
             closeSaleDetail();
         } catch(e) {
             console.error(e);
@@ -1281,7 +1281,7 @@ window.saveCustomerEdit = async function() {
             sales[idx].customer = wa;
             localStorage.setItem('plixora_sales', JSON.stringify(sales));
             updateDashboard();
-            
+
             if (oldSale && oldSale.productName && oldSale.productName.includes('Netflix Perfil')) {
                 syncNetflixProfileEdit(oldSale, name, wa);
             }
@@ -1294,23 +1294,23 @@ window.saveCustomerEdit = async function() {
 
 async function syncNetflixProfileEdit(sale, newName, newWa) {
     if (typeof nfAccounts === 'undefined') return;
-    
+
     const match = sale.productName.match(/Perfil (.*?) \((.*?)\)/);
     if (!match) return;
     const pNombre = match[1];
     const accCodigo = match[2];
-    
+
     const acc = nfAccounts.find(a => a.codigo === accCodigo);
     if (!acc) return;
-    
+
     const pIdx = acc.perfiles.findIndex(p => p.nombre === pNombre);
     if (pIdx !== -1) {
         const perfiles = [...acc.perfiles];
         perfiles[pIdx].cliente = newName;
         perfiles[pIdx].whatsapp = newWa;
-        
+
         acc.perfiles = perfiles;
-        
+
         try {
             if (db) {
                 await db.collection('netflix_accounts').doc(acc.id).update({ perfiles });
@@ -1469,7 +1469,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const s = doc.data();
                 let newName = s.productName || '';
                 let changed = false;
-                
+
                 if (s.customer === '75650364' && newName.includes('Netflix (Perfil)')) {
                     newName = 'Netflix Perfil P3 (NF-001)';
                     changed = true;
@@ -1489,7 +1489,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             if (count > 0) b.commit().then(() => console.log('Historial reparado', count));
         }).catch(e => console.error(e));
-        
+
         // One-time fix for Netflix account '2 Meses' bug for Jhulian
         db.collection('netflix_accounts').where('codigo', '==', 'NF-001').get().then(snap => {
             if (!snap.empty) {
@@ -1508,7 +1508,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         }).catch(e => console.error(e));
-        
+
     }, 4000);
 });
 

@@ -89,7 +89,7 @@ h1, h2, h3, .brand-logo {
   backdrop-filter: blur(50px);
   -webkit-backdrop-filter: blur(50px);
   border: 1px solid rgba(0, 0, 0, 0.1);
-  box-shadow: inset 0px 4px 4px 0px rgba(255, 255, 255, 0.25), 
+  box-shadow: inset 0px 4px 4px 0px rgba(255, 255, 255, 0.25),
               0 10px 30px -10px rgba(0, 0, 0, 0.05);
   z-index: 100;
 }
@@ -223,7 +223,7 @@ h1, h2, h3, .brand-logo {
   border-radius: 16px;
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
-  box-shadow: inset 0px 4px 4px 0px rgba(255, 255, 255, 0.35), 
+  box-shadow: inset 0px 4px 4px 0px rgba(255, 255, 255, 0.35),
               0 15px 35px rgba(0, 132, 255, 0.3);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
   border: none;
@@ -232,7 +232,7 @@ h1, h2, h3, .brand-logo {
 
 .cta-button:hover {
   transform: scale(1.02);
-  box-shadow: inset 0px 4px 4px 0px rgba(255, 255, 255, 0.45), 
+  box-shadow: inset 0px 4px 4px 0px rgba(255, 255, 255, 0.45),
               0 20px 40px rgba(0, 132, 255, 0.4);
 }
 

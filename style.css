@@ -150,15 +150,15 @@
 
 /* P9: Number Pop-in */
 @keyframes number-pop-in {
-  0% { 
-    opacity: 0; 
-    transform: translateY(var(--p9-distance)) scale(0.95); 
-    filter: blur(var(--p9-blur)); 
+  0% {
+    opacity: 0;
+    transform: translateY(var(--p9-distance)) scale(0.95);
+    filter: blur(var(--p9-blur));
   }
-  100% { 
-    opacity: 1; 
-    transform: translateY(0) scale(1); 
-    filter: blur(0); 
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
   }
 }
 .pop-in {
@@ -484,7 +484,7 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
 .profit-badge { color:#10b981; font-weight:700; }
 
 /* ── TOAST ── */
-.toast { position:fixed; bottom:-80px; left:50%; transform:translateX(-50%); background:var(--text-main); color:var(--bg-main); padding:0.8rem 1.5rem; border-radius:100px; font-weight:500; font-size:0.9rem; box-shadow:0 10px 25px rgba(0,0,0,0.2); z-index:9999; 
+.toast { position:fixed; bottom:-80px; left:50%; transform:translateX(-50%); background:var(--text-main); color:var(--bg-main); padding:0.8rem 1.5rem; border-radius:100px; font-weight:500; font-size:0.9rem; box-shadow:0 10px 25px rgba(0,0,0,0.2); z-index:9999;
     opacity: 0; filter: blur(var(--p6-blur)); transition: bottom var(--p6-dur) var(--p6-ease), opacity var(--p6-dur) var(--p6-ease), filter var(--p6-dur) var(--p6-ease); }
 .toast.show { bottom:90px; opacity: 1; filter: blur(0); }
 

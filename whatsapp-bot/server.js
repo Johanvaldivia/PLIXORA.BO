@@ -75,13 +75,13 @@ app.post('/api/send-message', async (req, res) => {
         if (!formattedPhone.startsWith('591') && formattedPhone.length === 8) {
             formattedPhone = `591${formattedPhone}`;
         }
-        
+
         const chatId = `${formattedPhone}@c.us`;
 
         // Enviar el mensaje
         await client.sendMessage(chatId, message);
         console.log(`✅ Mensaje enviado exitosamente a ${formattedPhone}`);
-        
+
         return res.status(200).json({ success: true, message: 'Mensaje enviado.' });
 
     } catch (error) {
