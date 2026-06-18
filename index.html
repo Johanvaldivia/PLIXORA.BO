@@ -645,10 +645,13 @@
         <div class="nf-modal" style="max-width: 440px;">
             <div class="nf-modal-header"><h3>📇 Gestionar Contactos</h3><button class="nf-close" onclick="closeContactsModal()">✕</button></div>
             <div style="padding: 1.25rem 1.5rem;">
-                <div style="display:flex;gap:0.5rem;margin-bottom:1rem;">
-                    <input type="text" id="contact-name-input" placeholder="Nombre" style="flex:1;padding:0.6rem 0.8rem;border-radius:8px;border:1.5px solid var(--border);background:var(--bg-card);color:var(--text-main);font-family:inherit;font-size:0.85rem;">
-                    <input type="text" id="contact-wa-input" placeholder="WhatsApp" style="flex:1;padding:0.6rem 0.8rem;border-radius:8px;border:1.5px solid var(--border);background:var(--bg-card);color:var(--text-main);font-family:inherit;font-size:0.85rem;">
-                    <button type="button" class="btn btn-primary" style="padding:0.6rem 1rem;font-size:0.85rem;white-space:nowrap;" onclick="addContactManual()">➕ Agregar</button>
+                <div style="display:flex;flex-direction:column;gap:0.6rem;margin-bottom:1.25rem;background:var(--bg-card);border:1.5px solid var(--border);border-radius:12px;padding:1rem;">
+                    <label style="font-size:0.8rem;font-weight:600;color:var(--text-muted);">Nombre del contacto</label>
+                    <input type="text" id="contact-name-input" placeholder="Ej: Nicolay" style="width:100%;padding:0.7rem 0.9rem;border-radius:8px;border:1.5px solid var(--border);background:var(--bg-main);color:var(--text-main);font-family:inherit;font-size:0.9rem;box-sizing:border-box;">
+                    <label style="font-size:0.8rem;font-weight:600;color:var(--text-muted);">Número de WhatsApp</label>
+                    <input type="text" id="contact-wa-input" placeholder="Ej: 73651440 o +591 73651440" style="width:100%;padding:0.7rem 0.9rem;border-radius:8px;border:1.5px solid var(--border);background:var(--bg-main);color:var(--text-main);font-family:inherit;font-size:0.9rem;box-sizing:border-box;">
+                    <p style="font-size:0.72rem;color:var(--text-muted);margin:0.2rem 0 0 0;">Se detecta automáticamente el código de Bolivia (+591)</p>
+                    <button type="button" class="btn btn-primary btn-block" style="margin-top:0.3rem;" onclick="addContactManual()">Agregar Contacto</button>
                 </div>
                 <div id="contacts-list" style="max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:0.5rem;"></div>
                 <div id="contacts-empty" style="text-align:center;padding:2rem 0;color:var(--text-muted);font-size:0.85rem;">No hay contactos guardados aún.</div>

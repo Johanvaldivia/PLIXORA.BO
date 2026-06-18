@@ -42,6 +42,27 @@ function nowBolivia() {
     return new Date(new Date().toLocaleString('en-US', { timeZone: 'America/La_Paz' }));
 }
 
+// ---- SANITIZAR TELÉFONO BOLIVIA ----
+// Limpia cualquier formato: +591 73651440, 59173651440, 073651440, etc.
+// Siempre devuelve los últimos 8 dígitos (formato boliviano)
+function sanitizeBoliviaPhone(raw) {
+    if (!raw) return '';
+    let digits = raw.replace(/[^0-9]/g, '');
+    // Quitar código de país 591 si está al inicio
+    if (digits.startsWith('591') && digits.length > 8) {
+        digits = digits.substring(3);
+    }
+    // Quitar 0 inicial si tiene (ej: 073651440)
+    if (digits.startsWith('0') && digits.length > 8) {
+        digits = digits.substring(1);
+    }
+    // Tomar los últimos 8 dígitos como número boliviano
+    if (digits.length > 8) {
+        digits = digits.slice(-8);
+    }
+    return digits;
+}
+
 // ---- ESTADO ----
 let sales = JSON.parse(localStorage.getItem('plixora_sales')) || [];
 let db = null;
@@ -561,8 +582,7 @@ function setupForm() {
         submitBtn.textContent = 'Guardando...';
 
         let waVal = document.getElementById('sale-customer').value.trim();
-        waVal = waVal.replace(/[^0-9]/g, '');
-        if (waVal.startsWith('591')) waVal = waVal.substring(3);
+        waVal = sanitizeBoliviaPhone(waVal);
 
         const timestampId = Date.now().toString();
         const code = 'PLX-' + Math.floor(1000 + Math.random() * 9000); // e.g. PLX-4829
@@ -1523,8 +1543,7 @@ function renderContactSelect() {
 
 async function autoSaveContact(name, phone) {
     if (!name || !phone || phone === 'Anónimo') return;
-    phone = phone.replace(/[^0-9]/g, '');
-    if (phone.startsWith('591')) phone = phone.substring(3);
+    phone = sanitizeBoliviaPhone(phone);
     if (!phone) return;
 
     // Check if already exists
@@ -1585,8 +1604,7 @@ window.addContactManual = async function() {
     const nameInput = document.getElementById('contact-name-input');
     const waInput = document.getElementById('contact-wa-input');
     const name = nameInput.value.trim();
-    let phone = waInput.value.trim().replace(/[^0-9]/g, '');
-    if (phone.startsWith('591')) phone = phone.substring(3);
+    let phone = sanitizeBoliviaPhone(waInput.value.trim());
 
     if (!name || !phone) { showToast('❌ Ingresa nombre y número'); return; }
 
