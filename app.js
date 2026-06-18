@@ -834,18 +834,33 @@ function renderExpirationAlerts() {
 
     const today = nowBolivia(); today.setHours(0,0,0,0);
     
+    // Load dismissed alerts from localStorage
+    let dismissedAlerts = JSON.parse(localStorage.getItem('plixora_dismissed_alerts')) || [];
+    
     let urgentCount = 0;
     let soonCount = 0;
+    let expiredToAutoDelete = [];
 
-    // Filter valid sales and process them
     sales.forEach(sale => {
         if (!sale.expireDate) return;
+        // EXCLUIR Netflix de las alertas
+        const prodName = (sale.productName || '').toLowerCase();
+        if (prodName.includes('netflix')) return;
+        // Skip dismissed alerts
+        if (dismissedAlerts.includes(sale.id)) return;
+
         const expDate = new Date(sale.expireDate); expDate.setHours(0,0,0,0);
         const diffDays = Math.ceil((expDate - today) / 86400000);
 
+        // Auto-eliminar ventas vencidas hace 2+ dias de las alertas
+        if (diffDays <= -2) {
+            dismissedAlerts.push(sale.id);
+            return;
+        }
+
         if (diffDays <= 7) {
             const itemHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.7); padding:0.6rem; border-radius:8px; border:1px solid var(--border); font-size:0.85rem; box-shadow: 0 1px 3px rgba(0,0,0,0.02); transition: var(--ease);">
+                <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-card); padding:0.6rem; border-radius:8px; border:1px solid var(--border); font-size:0.85rem; box-shadow: var(--shadow-sm); transition: var(--ease);">
                     <div>
                         <strong style="display:block; color:var(--text-main); margin-bottom: 0.2rem;">${sale.productName}</strong>
                         <span style="color:var(--text-muted); font-size: 0.8rem; display: flex; align-items: center; gap: 0.2rem;">
@@ -853,9 +868,10 @@ function renderExpirationAlerts() {
                             ${sale.customerName || sale.customer}
                         </span>
                     </div>
-                    <div style="display:flex; gap:0.6rem; align-items:center;">
+                    <div style="display:flex; gap:0.4rem; align-items:center;">
                         <span style="color:${diffDays <= 3 ? '#ef4444' : '#d97706'}; font-weight:700; font-size: 0.8rem; background: ${diffDays <= 3 ? 'rgba(239,68,68,0.1)' : 'rgba(245,158,11,0.1)'}; padding: 0.2rem 0.4rem; border-radius: 4px;">${diffDays <= 0 ? (diffDays === 0 ? 'Vence HOY' : 'Vencido') : `En ${diffDays} d`}</span>
-                        <button class="btn-icon notify" onclick="notifyRenewal('${sale.id}')" style="width:30px;height:30px;border-color:${sale.notifiedRenewal ? '#10b981' : 'rgba(16,185,129,0.3)'};color:${sale.notifiedRenewal ? '#fff' : '#10b981'};background:${sale.notifiedRenewal ? '#10b981' : 'transparent'};" title="${sale.notifiedRenewal ? 'Aviso Enviado' : 'Notificar a Cliente'}"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:16px;height:16px;"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/></svg></button>
+                        <button class="btn-icon notify" onclick="notifyRenewal('${sale.id}')" style="width:28px;height:28px;border-color:${sale.notifiedRenewal ? '#10b981' : 'rgba(16,185,129,0.3)'};color:${sale.notifiedRenewal ? '#fff' : '#10b981'};background:${sale.notifiedRenewal ? '#10b981' : 'transparent'};" title="${sale.notifiedRenewal ? 'Aviso Enviado' : 'Notificar'}"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:14px;height:14px;"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/></svg></button>
+                        <button onclick="dismissAlert('${sale.id}')" style="width:28px;height:28px;background:none;border:1px solid rgba(239,68,68,0.25);color:#ef4444;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.7rem;transition:var(--ease);" title="Descartar alerta">&times;</button>
                     </div>
                 </div>
             `;
@@ -870,12 +886,19 @@ function renderExpirationAlerts() {
         }
     });
 
+    // Save auto-dismissed
+    localStorage.setItem('plixora_dismissed_alerts', JSON.stringify(dismissedAlerts));
+
     if (urgentCount === 0) urgentList.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem; padding:0.5rem; text-align: center; border: 1px dashed var(--border); border-radius: 8px;">✅ Sin urgencias.</div>';
     if (soonCount === 0) soonList.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem; padding:0.5rem; text-align: center; border: 1px dashed var(--border); border-radius: 8px;">✅ Sin vencimientos próximos.</div>';
 
     const totalAlerts = urgentCount + soonCount;
     const badgeDesktop = document.getElementById('nav-badge-desktop');
     const badgeMobile = document.getElementById('nav-badge-mobile');
+
+    // Update dismiss all button visibility
+    const dismissAllBtn = document.getElementById('dismiss-all-alerts-btn');
+    if (dismissAllBtn) dismissAllBtn.style.display = totalAlerts > 0 ? 'inline-block' : 'none';
 
     if (totalAlerts > 0) {
         badgeCount.textContent = totalAlerts;
@@ -887,6 +910,30 @@ function renderExpirationAlerts() {
         if (badgeDesktop) badgeDesktop.dataset.open = "false";
     }
 }
+
+// Dismiss individual alert
+window.dismissAlert = function(saleId) {
+    let dismissed = JSON.parse(localStorage.getItem('plixora_dismissed_alerts')) || [];
+    if (!dismissed.includes(saleId)) dismissed.push(saleId);
+    localStorage.setItem('plixora_dismissed_alerts', JSON.stringify(dismissed));
+    renderHistoryTable();
+    showToast('✅ Alerta descartada');
+};
+
+// Dismiss all alerts
+window.dismissAllAlerts = function() {
+    if (!confirm('¿Descartar todas las alertas de vencimiento?')) return;
+    const dismissed = JSON.parse(localStorage.getItem('plixora_dismissed_alerts')) || [];
+    sales.forEach(sale => {
+        if (!sale.expireDate) return;
+        const prodName = (sale.productName || '').toLowerCase();
+        if (prodName.includes('netflix')) return;
+        if (!dismissed.includes(sale.id)) dismissed.push(sale.id);
+    });
+    localStorage.setItem('plixora_dismissed_alerts', JSON.stringify(dismissed));
+    renderHistoryTable();
+    showToast('✅ Todas las alertas descartadas');
+};
 
 function generateSaleDetailsText(sale) {
     const prodName = (sale.productName || '').toLowerCase();
@@ -1508,6 +1555,24 @@ function initContacts() {
             openContactsModal();
         });
     }
+
+    // Netflix assign contact selector
+    const nfContactSelect = document.getElementById('nf-a-contact');
+    if (nfContactSelect) {
+        nfContactSelect.addEventListener('change', (e) => {
+            const val = e.target.value;
+            if (!val) {
+                document.getElementById('nf-a-cliente').value = '';
+                document.getElementById('nf-a-wa').value = '';
+                return;
+            }
+            const contact = plixoraContacts.find(c => c.id === val);
+            if (contact) {
+                document.getElementById('nf-a-cliente').value = contact.name;
+                document.getElementById('nf-a-wa').value = contact.phone;
+            }
+        });
+    }
 }
 
 function initContactsFirebase() {
@@ -1538,6 +1603,19 @@ function renderContactSelect() {
     // Restore selection if still exists
     if (currentVal && [...sel.options].some(o => o.value === currentVal)) {
         sel.value = currentVal;
+    }
+    // Also populate Netflix assign contact selector
+    const nfSel = document.getElementById('nf-a-contact');
+    if (nfSel) {
+        const nfVal = nfSel.value;
+        nfSel.innerHTML = '<option value="">Escribir datos manualmente</option>';
+        plixoraContacts.forEach(c => {
+            const o = document.createElement('option');
+            o.value = c.id;
+            o.textContent = c.name + ' - ' + c.phone;
+            nfSel.appendChild(o);
+        });
+        if (nfVal && [...nfSel.options].some(o => o.value === nfVal)) nfSel.value = nfVal;
     }
 }
 
