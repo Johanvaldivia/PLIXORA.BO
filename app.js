@@ -110,6 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateCurrentDate();
     setupPeriodTabs();
     setupHistoryControls();
+    initContacts();
     initFirebase();
 });
 
@@ -214,6 +215,10 @@ function initFirebase() {
 
                     if (fromServer) {
                         setCloudStatus('online');
+                        if (!window.contactsFirebaseInit) {
+                            window.contactsFirebaseInit = true;
+                            initContactsFirebase();
+                        }
                         if (!window.netflixProfitFixed) {
                             fixNetflixProfits();
                             window.netflixProfitFixed = true;
@@ -600,7 +605,12 @@ async function executeSaveSale(newSale, sendWhatsApp) {
 
     try {
         await saveSale(newSale);
+        // Auto-save contact
+        autoSaveContact(newSale.customerName, newSale.customer);
         formNewSale.reset();
+        // Reset contact selector
+        const contactSel = document.getElementById('sale-contact');
+        if (contactSel) contactSel.value = '';
         document.getElementById('sale-summary').style.display = 'none';
         showToast('✅ Venta registrada y sincronizada');
         
@@ -775,6 +785,9 @@ function renderHistoryTable() {
                     </button>
                     <button class="btn-icon notify" title="${sale.notifiedRenewal ? 'Aviso Enviado' : 'Aviso Renovación WA'}" onclick="notifyRenewal('${sale.id}')" style="color:${sale.notifiedRenewal ? '#fff' : ''};background:${sale.notifiedRenewal ? '#10b981' : ''};border-color:${sale.notifiedRenewal ? '#10b981' : ''};">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/></svg>
+                    </button>
+                    <button class="btn-icon" title="Reemplazar Cuenta" onclick="openReplaceAccount('${sale.id}')" style="color:#3b82f6;">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182"/></svg>
                     </button>
                     <button class="btn-icon delete" title="Eliminar Venta"      onclick="deleteSale('${sale.id}')">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
@@ -1327,6 +1340,12 @@ btnGenerateWA.addEventListener('click', () => {
 
 🛡️ Combo Privado (Express VPN + YouTube Premium) → 45 Bs
 
+▶️ *YOUTUBE PREMIUM FAMILIAR*
+• 1 mes → 35 Bs
+• Cuenta con correo y contraseña
+• Plan Familiar (4 invitaciones extra)
+• Sin anuncios + Segundo plano
+
 🛡️ *Garantía incluida*
 ⚡ *Entrega inmediata*
 
@@ -1426,3 +1445,273 @@ document.addEventListener('DOMContentLoaded', () => {
         
     }, 4000);
 });
+
+// ============================================================
+// MÓDULO: CLIENTES FRECUENTES (Contactos)
+// ============================================================
+let plixoraContacts = [];
+let contactsUnsubscribe = null;
+
+function initContacts() {
+    // Load from localStorage first
+    plixoraContacts = JSON.parse(localStorage.getItem('plixora_contacts')) || [];
+    renderContactSelect();
+
+    // Setup contact selector change listener
+    const contactSelect = document.getElementById('sale-contact');
+    if (contactSelect) {
+        contactSelect.addEventListener('change', (e) => {
+            const val = e.target.value;
+            if (!val) {
+                // "Nuevo cliente" selected — clear fields
+                document.getElementById('sale-customer-name').value = '';
+                document.getElementById('sale-customer').value = '';
+                document.getElementById('sale-customer-name').readOnly = false;
+                document.getElementById('sale-customer').readOnly = false;
+                return;
+            }
+            const contact = plixoraContacts.find(c => c.id === val);
+            if (contact) {
+                document.getElementById('sale-customer-name').value = contact.name;
+                document.getElementById('sale-customer').value = contact.phone;
+                document.getElementById('sale-customer-name').readOnly = false;
+                document.getElementById('sale-customer').readOnly = false;
+            }
+        });
+    }
+
+    // Manage contacts button
+    const manageBtn = document.getElementById('btn-manage-contacts');
+    if (manageBtn) {
+        manageBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            openContactsModal();
+        });
+    }
+}
+
+function initContactsFirebase() {
+    if (!db) return;
+    contactsUnsubscribe = db.collection('plixora_contacts')
+        .orderBy('name')
+        .onSnapshot(snap => {
+            plixoraContacts = snap.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+            localStorage.setItem('plixora_contacts', JSON.stringify(plixoraContacts));
+            renderContactSelect();
+            renderContactsList();
+        }, err => {
+            console.error('Error contacts snapshot:', err);
+        });
+}
+
+function renderContactSelect() {
+    const sel = document.getElementById('sale-contact');
+    if (!sel) return;
+    const currentVal = sel.value;
+    sel.innerHTML = '<option value="" selected>✍️ Nuevo cliente (escribir datos)</option>';
+    plixoraContacts.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.id;
+        opt.textContent = `${c.name} — ${c.phone}`;
+        sel.appendChild(opt);
+    });
+    // Restore selection if still exists
+    if (currentVal && [...sel.options].some(o => o.value === currentVal)) {
+        sel.value = currentVal;
+    }
+}
+
+async function autoSaveContact(name, phone) {
+    if (!name || !phone || phone === 'Anónimo') return;
+    phone = phone.replace(/[^0-9]/g, '');
+    if (phone.startsWith('591')) phone = phone.substring(3);
+    if (!phone) return;
+
+    // Check if already exists
+    const exists = plixoraContacts.some(c => c.phone === phone);
+    if (exists) return;
+
+    const newContact = { name, phone, createdAt: nowBolivia().toISOString() };
+
+    if (db) {
+        try {
+            await db.collection('plixora_contacts').add(newContact);
+        } catch(e) { console.error('Error auto-saving contact:', e); }
+    } else {
+        newContact.id = 'c_' + Date.now();
+        plixoraContacts.push(newContact);
+        localStorage.setItem('plixora_contacts', JSON.stringify(plixoraContacts));
+        renderContactSelect();
+    }
+}
+
+// --- Manage Contacts Modal ---
+function openContactsModal() {
+    renderContactsList();
+    document.getElementById('contacts-modal').style.display = 'flex';
+}
+
+window.closeContactsModal = function() {
+    document.getElementById('contacts-modal').style.display = 'none';
+};
+
+function renderContactsList() {
+    const list = document.getElementById('contacts-list');
+    const empty = document.getElementById('contacts-empty');
+    if (!list || !empty) return;
+
+    list.innerHTML = '';
+    if (plixoraContacts.length === 0) {
+        empty.style.display = 'block';
+        return;
+    }
+    empty.style.display = 'none';
+
+    plixoraContacts.forEach(c => {
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0.8rem;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;';
+        row.innerHTML = `
+            <div style="display:flex;flex-direction:column;">
+                <span style="font-weight:600;font-size:0.9rem;color:var(--text-main)">${c.name}</span>
+                <span style="font-size:0.8rem;color:var(--text-muted)">${c.phone}</span>
+            </div>
+            <button onclick="deleteContact('${c.id}')" style="background:none;border:1px solid rgba(239,68,68,0.3);color:#ef4444;padding:0.3rem 0.6rem;border-radius:6px;cursor:pointer;font-size:0.75rem;transition:var(--ease);">🗑️</button>
+        `;
+        list.appendChild(row);
+    });
+}
+
+window.addContactManual = async function() {
+    const nameInput = document.getElementById('contact-name-input');
+    const waInput = document.getElementById('contact-wa-input');
+    const name = nameInput.value.trim();
+    let phone = waInput.value.trim().replace(/[^0-9]/g, '');
+    if (phone.startsWith('591')) phone = phone.substring(3);
+
+    if (!name || !phone) { showToast('❌ Ingresa nombre y número'); return; }
+
+    const exists = plixoraContacts.some(c => c.phone === phone);
+    if (exists) { showToast('⚠️ Ese número ya existe en tus contactos'); return; }
+
+    const newContact = { name, phone, createdAt: nowBolivia().toISOString() };
+
+    if (db) {
+        try {
+            await db.collection('plixora_contacts').add(newContact);
+            showToast('✅ Contacto guardado');
+        } catch(e) { showToast('❌ Error guardando contacto'); }
+    } else {
+        newContact.id = 'c_' + Date.now();
+        plixoraContacts.push(newContact);
+        localStorage.setItem('plixora_contacts', JSON.stringify(plixoraContacts));
+        renderContactSelect();
+        renderContactsList();
+        showToast('✅ Contacto guardado (local)');
+    }
+
+    nameInput.value = '';
+    waInput.value = '';
+};
+
+window.deleteContact = async function(id) {
+    if (!confirm('¿Eliminar este contacto?')) return;
+    if (db) {
+        try {
+            await db.collection('plixora_contacts').doc(id).delete();
+            showToast('🗑️ Contacto eliminado');
+        } catch(e) { showToast('❌ Error eliminando contacto'); }
+    } else {
+        plixoraContacts = plixoraContacts.filter(c => c.id !== id);
+        localStorage.setItem('plixora_contacts', JSON.stringify(plixoraContacts));
+        renderContactSelect();
+        renderContactsList();
+        showToast('🗑️ Contacto eliminado (local)');
+    }
+};
+
+// ============================================================
+// MÓDULO: REEMPLAZAR CUENTA
+// ============================================================
+let pendingReplaceSaleId = null;
+
+window.openReplaceAccount = function(id) {
+    const sale = sales.find(s => s.id === id);
+    if (!sale) return;
+    pendingReplaceSaleId = id;
+
+    const clienteLabel = sale.customerName ? `${sale.customerName} (${sale.customer})` : sale.customer;
+    document.getElementById('replace-sale-info').textContent = `${sale.productName} — ${clienteLabel}`;
+    document.getElementById('replace-email').value = sale.email || '';
+    document.getElementById('replace-password').value = sale.password || '';
+
+    document.getElementById('replace-account-modal').style.display = 'flex';
+};
+
+window.closeReplaceAccount = function() {
+    document.getElementById('replace-account-modal').style.display = 'none';
+    pendingReplaceSaleId = null;
+};
+
+async function executeReplace(sendWA) {
+    if (!pendingReplaceSaleId) return;
+    const sale = sales.find(s => s.id === pendingReplaceSaleId);
+    if (!sale) return;
+
+    const newEmail = document.getElementById('replace-email').value.trim();
+    const newPassword = document.getElementById('replace-password').value.trim();
+
+    if (!newEmail || !newPassword) { showToast('❌ Ingresa correo y contraseña'); return; }
+
+    const updates = { email: newEmail, password: newPassword };
+
+    if (db) {
+        try {
+            await db.collection('plixora_sales').doc(pendingReplaceSaleId).update(updates);
+            showToast('✅ Cuenta reemplazada correctamente');
+        } catch(e) {
+            console.error(e);
+            showToast('❌ Error al reemplazar cuenta');
+            return;
+        }
+    } else {
+        const idx = sales.findIndex(s => s.id === pendingReplaceSaleId);
+        if (idx !== -1) {
+            sales[idx].email = newEmail;
+            sales[idx].password = newPassword;
+            localStorage.setItem('plixora_sales', JSON.stringify(sales));
+            updateDashboard();
+        }
+        showToast('✅ Cuenta reemplazada (local)');
+    }
+
+    if (sendWA && sale.customer && sale.customer !== 'Anónimo') {
+        // Create a temporary sale object with new credentials for message generation
+        const updatedSale = { ...sale, email: newEmail, password: newPassword };
+        const msgText = `🔄 *ACTUALIZACIÓN DE CUENTA — PLIXORA.BO*\n\n` +
+                        `Hola ${sale.customerName || ''} 👋\n\n` +
+                        `Se ha actualizado tu cuenta de *${sale.productName}*. Aquí están tus nuevos datos de acceso:\n\n` +
+                        generateSaleDetailsText(updatedSale);
+
+        try {
+            const resp = await fetch('https://plixora-bot.duckdns.org/api/send-message', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone: sale.customer, message: msgText })
+            });
+            const data = await resp.json();
+            if (data.success) {
+                showToast('💬 Mensaje enviado al cliente');
+            } else {
+                showToast('⚠️ Cuenta guardada pero no se pudo enviar WA');
+            }
+        } catch(e) {
+            console.log('Bot de WhatsApp no disponible.');
+            showToast('⚠️ Cuenta guardada. Bot WA no disponible.');
+        }
+    }
+
+    closeReplaceAccount();
+}
+
+window.confirmReplaceOnly = function() { executeReplace(false); };
+window.confirmReplaceAndSend = function() { executeReplace(true); };

@@ -221,6 +221,12 @@
                                 <option value="" disabled selected>Selecciona un producto...</option>
                             </select>
                         </div>
+                        <div class="form-group">
+                            <label for="sale-contact" style="display:flex;align-items:center;justify-content:space-between;">📇 Cliente frecuente <button type="button" id="btn-manage-contacts" style="background:none;border:1px solid var(--border);color:var(--orange);padding:0.2rem 0.6rem;border-radius:6px;font-size:0.75rem;cursor:pointer;font-family:inherit;transition:var(--ease);" title="Gestionar contactos">⚙️ Gestionar</button></label>
+                            <select id="sale-contact">
+                                <option value="" selected>✍️ Nuevo cliente (escribir datos)</option>
+                            </select>
+                        </div>
                         <div class="form-row">
                             <div class="form-group half">
                                 <label for="sale-customer-name">Nombre del Cliente (Opcional)</label>
@@ -629,6 +635,47 @@
                 <div style="display:flex;gap:0.75rem;">
                     <button class="btn btn-outline" style="flex:1" onclick="confirmSaleOnly()">Solo Guardar</button>
                     <button class="btn btn-primary" style="flex:2; background:var(--orange); border-color:var(--orange);" onclick="confirmSaleAndSend()">Guardar y Enviar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manage Contacts Modal -->
+    <div id="contacts-modal" class="nf-overlay" style="display:none; z-index:3010;">
+        <div class="nf-modal" style="max-width: 440px;">
+            <div class="nf-modal-header"><h3>📇 Gestionar Contactos</h3><button class="nf-close" onclick="closeContactsModal()">✕</button></div>
+            <div style="padding: 1.25rem 1.5rem;">
+                <div style="display:flex;gap:0.5rem;margin-bottom:1rem;">
+                    <input type="text" id="contact-name-input" placeholder="Nombre" style="flex:1;padding:0.6rem 0.8rem;border-radius:8px;border:1.5px solid var(--border);background:var(--bg-card);color:var(--text-main);font-family:inherit;font-size:0.85rem;">
+                    <input type="text" id="contact-wa-input" placeholder="WhatsApp" style="flex:1;padding:0.6rem 0.8rem;border-radius:8px;border:1.5px solid var(--border);background:var(--bg-card);color:var(--text-main);font-family:inherit;font-size:0.85rem;">
+                    <button type="button" class="btn btn-primary" style="padding:0.6rem 1rem;font-size:0.85rem;white-space:nowrap;" onclick="addContactManual()">➕ Agregar</button>
+                </div>
+                <div id="contacts-list" style="max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:0.5rem;"></div>
+                <div id="contacts-empty" style="text-align:center;padding:2rem 0;color:var(--text-muted);font-size:0.85rem;">No hay contactos guardados aún.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Replace Account Modal -->
+    <div id="replace-account-modal" class="nf-overlay" style="display:none; z-index:3010;">
+        <div class="nf-modal" style="max-width: 440px;">
+            <div class="nf-modal-header"><h3>🔄 Reemplazar Cuenta</h3><button class="nf-close" onclick="closeReplaceAccount()">✕</button></div>
+            <div style="padding: 1.25rem 1.5rem;">
+                <div style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);border-radius:12px;padding:1rem;margin-bottom:1rem;">
+                    <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:0.35rem;">Reemplazando cuenta de:</p>
+                    <p style="font-weight:700;color:var(--text-main);font-size:0.95rem;" id="replace-sale-info"></p>
+                </div>
+                <div class="form-group" style="margin-bottom:1rem;">
+                    <label>Nuevo Correo *</label>
+                    <input type="email" id="replace-email" placeholder="nuevo-correo@gmail.com" style="width:100%;background:var(--bg-card);border:1.5px solid var(--border);color:var(--text-main);padding:0.85rem 1rem;border-radius:10px;font-family:inherit;font-size:0.92rem;">
+                </div>
+                <div class="form-group" style="margin-bottom:1rem;">
+                    <label>Nueva Contraseña *</label>
+                    <input type="text" id="replace-password" placeholder="nueva-contraseña" style="width:100%;background:var(--bg-card);border:1.5px solid var(--border);color:var(--text-main);padding:0.85rem 1rem;border-radius:10px;font-family:inherit;font-size:0.92rem;">
+                </div>
+                <div style="display:flex;gap:0.75rem;margin-top:1rem;">
+                    <button type="button" class="btn btn-outline" onclick="confirmReplaceOnly()" style="flex:1">Solo Guardar</button>
+                    <button type="button" class="btn btn-primary" onclick="confirmReplaceAndSend()" style="flex:2; background:var(--orange); border-color:var(--orange);">💬 Guardar y Enviar</button>
                 </div>
             </div>
         </div>
