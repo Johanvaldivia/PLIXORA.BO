@@ -833,13 +833,12 @@ function renderExpirationAlerts() {
     soonList.innerHTML = '';
 
     const today = nowBolivia(); today.setHours(0,0,0,0);
-    
+
     // Load dismissed alerts from localStorage
     let dismissedAlerts = JSON.parse(localStorage.getItem('plixora_dismissed_alerts')) || [];
-    
+
     let urgentCount = 0;
     let soonCount = 0;
-    let expiredToAutoDelete = [];
 
     sales.forEach(sale => {
         if (!sale.expireDate) return;
