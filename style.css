@@ -479,13 +479,49 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
 
 /* ── ACTION ICONS ── */
 .actions-cell { display:flex; gap:0.3rem; flex-wrap:nowrap; align-items:center; }
-.btn-icon { background:transparent; border:1.5px solid var(--border); color:var(--text-muted); width:32px; height:32px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; transition:var(--ease); flex-shrink:0; }
-.btn-icon svg { width:14px; height:14px; stroke:currentColor; stroke-width:2; fill:none; }
-.btn-icon:hover { transform:translateY(-2px); }
-.btn-icon.copy:hover   { color:#3b82f6; border-color:#3b82f6; background:rgba(59,130,246,0.06); }
-.btn-icon.notify:hover { color:#10b981; border-color:#10b981; background:rgba(16,185,129,0.06); }
-.btn-icon.delete:hover { color:#ef4444; border-color:#ef4444; background:rgba(239,68,68,0.06); }
-.btn-icon.send:hover   { color:#25d366; border-color:#25d366; background:rgba(37,211,102,0.06); }
+.btn-icon { 
+    background:transparent; border:1.5px solid var(--border); color:var(--text-muted); 
+    width:32px; height:32px; border-radius:8px; display:inline-flex; align-items:center; 
+    justify-content:center; cursor:pointer; transition:all 0.3s ease-in-out; flex-shrink:0; 
+    position: relative; overflow: hidden;
+}
+.btn-icon svg { 
+    width:14px; height:14px; stroke:currentColor; stroke-width:2; fill:none; 
+    position: relative; z-index: 1; transition: color 0.3s ease-in-out;
+}
+.btn-icon::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 0;
+    background-color: var(--icon-color, #000);
+    transition: all 0.3s ease-in-out;
+    z-index: 0;
+}
+.btn-icon:hover::before {
+    height: 100%;
+}
+.btn-icon:hover { 
+    transform:translateY(-2px); 
+    color: #fff !important; 
+    border-color: var(--icon-color, transparent) !important; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Action button color variants */
+.btn-icon.view     { --icon-color: #0ea5e9; color: #0ea5e9; border-color: rgba(14,165,233,0.3); }
+.btn-icon.copy     { --icon-color: #6366f1; color: #6366f1; border-color: rgba(99,102,241,0.3); }
+.btn-icon.notify   { --icon-color: #64748b; color: #64748b; border-color: rgba(100,116,139,0.3); }
+.btn-icon.notify.active { --icon-color: #10b981; color: #fff !important; background: #10b981; border-color: #10b981; }
+.btn-icon.replace  { --icon-color: #8b5cf6; color: #8b5cf6; border-color: rgba(139,92,246,0.3); }
+.btn-icon.transfer { --icon-color: #8b5cf6; color: #8b5cf6; border-color: rgba(139,92,246,0.3); }
+.btn-icon.delete   { --icon-color: #ef4444; color: #ef4444; border-color: rgba(239,68,68,0.3); }
+.btn-icon.send     { --icon-color: #10b981; color: #10b981; border-color: rgba(16,185,129,0.3); }
+.btn-icon.free     { --icon-color: #64748b; color: #64748b; border-color: rgba(100,116,139,0.3); }
+.btn-icon.assign   { --icon-color: #10b981; color: #10b981; border-color: rgba(16,185,129,0.3); }
+
 .profit-badge { color:#10b981; font-weight:700; }
 
 /* ── TOAST ── */

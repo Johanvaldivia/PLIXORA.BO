@@ -217,7 +217,7 @@
                     </td>
                     <td style="font-size:0.8rem;color:var(--text-muted)">${fecha}</td>
                     <td>
-                        <button class="btn-icon" onclick="window.nfOpenDetail('${acc.id}')" title="Ver detalle" style="width:34px;height:34px">
+                        <button class="btn-icon view" onclick="window.nfOpenDetail('${acc.id}')" title="Ver detalle" style="width:34px;height:34px">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.641 0-8.574-3.007-9.964-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                         </button>
                     </td>
@@ -391,15 +391,15 @@
                 <td>
                     <div class="actions-cell">
                     ${occ ? `
-                        <button class="btn-icon send" style="color:#25d366;border-color:rgba(37,211,102,0.3)" title="Enviar datos por WhatsApp" onclick="window.nfSendAccess('${accountId}',${i})">${svgSend}</button>
-                        <button class="btn-icon" style="color:#0ea5e9;border-color:rgba(14,165,233,0.3)" title="Ver Detalle" onclick="window.nfViewSale('${accountId}',${i})">
+                        <button class="btn-icon send" title="Enviar datos por WhatsApp" onclick="window.nfSendAccess('${accountId}',${i})">${svgSend}</button>
+                        <button class="btn-icon view" title="Ver Detalle" onclick="window.nfViewSale('${accountId}',${i})">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.641 0-8.574-3.007-9.964-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                         </button>
-                        <button class="btn-icon" style="color:#8b5cf6;border-color:rgba(139,92,246,0.3)" title="Transferir perfil" onclick="window.nfOpenTransfer('${accountId}',${i})">${svgTransfer}</button>
-                        <button class="btn-icon notify" title="${p.notifiedRenewal ? 'Aviso Enviado' : 'Avisar renovación'}" onclick="window.nfNotify('${accountId}',${i})" style="color:${p.notifiedRenewal ? '#fff' : ''};background:${p.notifiedRenewal ? '#10b981' : ''};border-color:${p.notifiedRenewal ? '#10b981' : ''};">${svgWA}</button>
-                        <button class="btn-icon delete" title="Liberar perfil"    onclick="window.nfFree('${accountId}',${i})">${svgFree}</button>
+                        <button class="btn-icon transfer" title="Transferir perfil" onclick="window.nfOpenTransfer('${accountId}',${i})">${svgTransfer}</button>
+                        <button class="btn-icon notify ${p.notifiedRenewal ? 'active' : ''}" title="${p.notifiedRenewal ? 'Aviso Enviado' : 'Avisar renovación'}" onclick="window.nfNotify('${accountId}',${i})">${svgWA}</button>
+                        <button class="btn-icon free" title="Liberar perfil" onclick="window.nfFree('${accountId}',${i})">${svgFree}</button>
                     ` : `
-                        <button class="btn-icon" style="color:#10b981;border-color:rgba(16,185,129,0.3)" title="Asignar perfil" onclick="window.nfOpenAssign('${accountId}',${i})">${svgPlus}</button>
+                        <button class="btn-icon assign" title="Asignar perfil" onclick="window.nfOpenAssign('${accountId}',${i})">${svgPlus}</button>
                     `}
                     </div>
                 </td>
