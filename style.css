@@ -308,11 +308,11 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
 .main-content::before {
     content: '';
     position: absolute;
-    top: -30px;
-    right: -30px;
-    width: 320px;
-    height: 320px;
-    --s: 60px;
+    top: -40px;
+    right: -40px;
+    width: 500px;
+    height: 500px;
+    --s: 80px;
     --c1: #f8b195;
     --c2: #355c7d;
     --_g: var(--c2) 6% 14%, var(--c1) 16% 24%, var(--c2) 26% 34%,
@@ -327,7 +327,7 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
             #0000, #0008 4%, var(--_g), var(--c1) 96%
         ) var(--c1);
     background-size: var(--s) var(--s);
-    opacity: 0.08;
+    opacity: 0.18;
     border-radius: 0 0 0 50%;
     pointer-events: none;
     z-index: 0;
@@ -336,7 +336,7 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
 [data-theme="dark"] .main-content::before {
     --c1: #f8b195;
     --c2: #355c7d;
-    opacity: 0.04;
+    opacity: 0.10;
 }
 
 /* Page Topbar */
