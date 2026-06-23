@@ -64,7 +64,7 @@ function sanitizeBoliviaPhone(raw) {
 }
 
 // ---- ESTADO ----
-let sales = JSON.parse(localStorage.getItem('plixora_sales')) || [];
+var sales = JSON.parse(localStorage.getItem('plixora_sales')) || [];
 let db = null;
 let unsubscribe = null;
 
@@ -742,6 +742,10 @@ function renderSalesTable(filtered) {
         `;
         tbody.appendChild(tr);
     });
+
+    if (typeof window.renderAnalytics === 'function') {
+        window.renderAnalytics();
+    }
 }
 
 function renderHistoryTable() {
