@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ---- PERIOD TABS ----
 let currentPeriod = 'today';
-const PAGE_TITLES = { dashboard:'Dashboard', catalog:'Catálogo', newsale:'Nueva Venta', history:'Historial', netflix:'Netflix' };
+const PAGE_TITLES = { dashboard:'Dashboard', catalog:'Catálogo', newsale:'Nueva Venta', history:'Historial', netflix:'Netflix', analytics:'Analíticas' };
 
 function setupPeriodTabs() {
     document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -1453,6 +1453,10 @@ function navigateTo(target) {
 
     const titleEl = document.getElementById('page-title');
     if (titleEl && PAGE_TITLES[target]) titleEl.textContent = PAGE_TITLES[target];
+
+    if (target === 'analytics' && typeof window.renderAnalytics === 'function') {
+        window.renderAnalytics();
+    }
 
     try { document.querySelector('.main-content').scrollTo({ top:0, behavior:'smooth' }); } catch(e){}
 }
