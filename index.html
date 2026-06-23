@@ -7,6 +7,7 @@
     <link rel="icon" href="logo.jpg">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css?v=1.1">
+    <link rel="stylesheet" href="login.css?v=1.0">
     <script>
         (function () {
             try {
@@ -19,6 +20,80 @@
     </script>
 </head>
 <body>
+
+    <!-- ========================
+         LOGIN SCREEN
+         ======================== -->
+    <div id="login-screen" class="login-screen">
+        <div class="login-container">
+            <!-- Left: Form -->
+            <div class="login-left">
+                <div class="login-form-wrapper">
+                    <div class="login-logo login-anim login-anim-d1">
+                        <img src="logo.jpg" alt="PLIXORA.BO">
+                        <span class="login-logo-text">PLIXORA<span>.BO</span></span>
+                    </div>
+
+                    <h1 class="login-title login-anim login-anim-d2">Bienvenido</h1>
+                    <p class="login-subtitle login-anim login-anim-d3">Ingresa a tu panel de control para gestionar tus ventas y cuentas de streaming.</p>
+
+                    <form id="login-form">
+                        <div class="login-field login-anim login-anim-d4">
+                            <label>Correo electrónico</label>
+                            <div class="login-input-wrap">
+                                <input type="email" id="login-email" placeholder="admin@plixora.bo" autocomplete="email">
+                            </div>
+                        </div>
+
+                        <div class="login-field login-anim login-anim-d5">
+                            <label>Contraseña</label>
+                            <div class="login-input-wrap">
+                                <input type="password" id="login-password" placeholder="Tu contraseña" autocomplete="current-password">
+                                <button type="button" id="toggle-password" class="toggle-pass-btn" title="Mostrar/Ocultar contraseña">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.641 0-8.574-3.007-9.964-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="login-options login-anim login-anim-d6">
+                            <label class="remember-me">
+                                <input type="checkbox" id="remember-me" checked>
+                                <span>Mantener sesión activa</span>
+                            </label>
+                        </div>
+
+                        <button type="submit" id="login-submit" class="login-submit-btn login-anim login-anim-d7">
+                            <span class="btn-text">Iniciar Sesión</span>
+                            <div class="btn-spinner"></div>
+                        </button>
+                    </form>
+
+                    <div id="login-error" class="login-error login-anim login-anim-d8"></div>
+
+                    <p class="login-anim login-anim-d8" style="text-align:center;margin-top:1.5rem;font-size:0.8rem;color:var(--text-muted);">
+                        🔒 Acceso exclusivo para administradores
+                    </p>
+                </div>
+            </div>
+
+            <!-- Right: Hero -->
+            <div class="login-right login-right-anim">
+                <div class="login-circle login-circle-1"></div>
+                <div class="login-circle login-circle-2"></div>
+                <div class="login-circle login-circle-3"></div>
+                <div class="login-hero-content">
+                    <img src="logo.jpg" alt="PLIXORA.BO" class="login-hero-logo">
+                    <h2 class="login-hero-title">PLIXORA.BO</h2>
+                    <p class="login-hero-sub">Sistema de Gestión de Ventas &amp; Streaming</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================
+         APP CONTENT (hidden until auth)
+         ======================== -->
+    <div id="app-content" style="display:none;">
     <div class="app-container">
 
         <!-- ========================
@@ -91,6 +166,10 @@
                 <button id="btn-generate-wa" class="btn btn-wa">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/></svg>
                     Menú WhatsApp
+                </button>
+                <button class="btn-logout" onclick="plixoraLogout()">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/></svg>
+                    Cerrar Sesión
                 </button>
             </div>
 
@@ -688,11 +767,14 @@
             </div>
         </div>
     </div>
+    </div><!-- /app-content -->
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="firebase-config.js"></script>
+    <script src="auth.js?v=1.0"></script>
     <script src="app.js?v=1.1"></script>
     <script src="netflix.js?v=1.1"></script>
     <script src="shader-bg.js?v=1.0"></script>
