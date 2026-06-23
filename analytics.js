@@ -59,17 +59,12 @@
         Chart.defaults.plugins.legend.labels.usePointStyle = true;
     }
 
+    // Export global render function
+    window.renderAnalytics = renderAll;
+
     // Initialize module
     function init() {
-        if (typeof window.sales === 'undefined') {
-            console.warn('Analytics: global sales array not found.');
-            return;
-        }
-        
         setupMonthSelector();
-        
-        // Export global render function
-        window.renderAnalytics = renderAll;
     }
 
     function setupMonthSelector() {
@@ -95,6 +90,13 @@
         // Sort descending
         const sortedMonths = Array.from(months).sort().reverse();
         
+        // Only update DOM if the options changed to avoid losing focus/flicker
+        const newOptionsStr = sortedMonths.join(',');
+        if (select.dataset.loadedMonths === newOptionsStr) {
+            return;
+        }
+        select.dataset.loadedMonths = newOptionsStr;
+        
         select.innerHTML = '';
         sortedMonths.forEach(m => {
             const opt = document.createElement('option');
@@ -111,14 +113,15 @@
         });
 
         // Set initial value
-        if (!currentMonthStr) {
+        if (!currentMonthStr || !sortedMonths.includes(currentMonthStr)) {
             currentMonthStr = sortedMonths[0];
-            select.value = currentMonthStr;
-        } else {
-            select.value = currentMonthStr;
         }
+        select.value = currentMonthStr;
 
-        select.addEventListener('change', (e) => {
+        // Remove old listener to avoid duplicates
+        const newSelect = select.cloneNode(true);
+        select.parentNode.replaceChild(newSelect, select);
+        newSelect.addEventListener('change', (e) => {
             currentMonthStr = e.target.value;
             renderAll();
         });
@@ -130,6 +133,8 @@
             setTimeout(renderAll, 100); // Wait for Chart.js to load
             return;
         }
+
+        setupMonthSelector();
 
         updateColorsForTheme();
         destroyCharts();
