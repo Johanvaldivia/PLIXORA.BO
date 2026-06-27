@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="style.css?v=1.1">
     <link rel="stylesheet" href="login.css?v=1.0">
     <link rel="stylesheet" href="analytics.css?v=1.0">
+    <link rel="stylesheet" href="group-accounts.css?v=1.0">
     <script>
         (function () {
             try {
@@ -154,6 +155,10 @@
                 <button class="nav-item" data-target="analytics">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg>
                     Analíticas
+                </button>
+                <button class="nav-item" data-target="group-accounts">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"/></svg>
+                    Cuentas Grupales
                 </button>
             </nav>
 
@@ -568,6 +573,29 @@
                 </div>
             </section>
 
+            <!-- ========================
+                 CUENTAS GRUPALES
+                 ======================== -->
+            <section id="group-accounts" class="view">
+                <div class="nf-view-header">
+                    <div>
+                        <h2>👥 Cuentas Grupales</h2>
+                        <p class="subtitle">Gestiona cuentas compartidas y notifica cambios automáticamente</p>
+                    </div>
+                    <button class="ga-btn-add-account-main" id="ga-btn-add-account">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                        Nueva Cuenta
+                    </button>
+                </div>
+
+                <div id="ga-empty-state" class="ga-empty-state">
+                    <span>📦</span>
+                    <p>Aún no tienes cuentas grupales.<br>Presiona <strong>"Nueva Cuenta"</strong> para empezar.</p>
+                </div>
+
+                <div id="ga-accounts-grid" class="ga-accounts-grid"></div>
+            </section>
+
         </main>
     </div>
 
@@ -604,6 +632,10 @@
         <button class="mobile-nav-item" data-target="analytics">
             <span class="mobile-nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg></span>
             <span class="mobile-nav-label">Analíticas</span>
+        </button>
+        <button class="mobile-nav-item" data-target="group-accounts">
+            <span class="mobile-nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"/></svg></span>
+            <span class="mobile-nav-label">Grupales</span>
         </button>
         <button class="mobile-nav-item" id="btn-generate-wa-mobile">
             <span class="mobile-nav-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/></svg></span>
@@ -872,6 +904,112 @@
     </div>
     </div><!-- /app-content -->
 
+    <!-- ===== MODALS CUENTAS GRUPALES ===== -->
+    <!-- Modal: Nueva Cuenta Grupal -->
+    <div id="ga-add-account-modal" class="ga-overlay" style="display:none">
+        <div class="ga-modal">
+            <div class="ga-modal-header">
+                <h3>➕ Nueva Cuenta Grupal</h3>
+                <button class="ga-close" onclick="gaCloseAddAccountModal()">✕</button>
+            </div>
+            <div class="ga-form-group">
+                <label>Nombre del Servicio *</label>
+                <input type="text" id="ga-new-service-name" placeholder="Ej: Disney Plus + HBO Max">
+            </div>
+            <div class="ga-form-row">
+                <div class="ga-form-group">
+                    <label>Correo *</label>
+                    <input type="email" id="ga-new-email" placeholder="correo@gmail.com">
+                </div>
+                <div class="ga-form-group">
+                    <label>Contraseña *</label>
+                    <input type="text" id="ga-new-password" placeholder="contraseña">
+                </div>
+            </div>
+            <div class="ga-form-group">
+                <label>Máximo de Perfiles</label>
+                <select id="ga-new-max-slots">
+                    <option value="3">3 perfiles</option>
+                    <option value="4">4 perfiles</option>
+                    <option value="5" selected>5 perfiles</option>
+                    <option value="6">6 perfiles</option>
+                    <option value="7">7 perfiles</option>
+                    <option value="8">8 perfiles</option>
+                    <option value="10">10 perfiles</option>
+                </select>
+            </div>
+            <button class="ga-btn-submit" onclick="gaSubmitNewAccount()">🚀 Crear Cuenta Grupal</button>
+        </div>
+    </div>
+
+    <!-- Modal: Agregar Miembro -->
+    <div id="ga-add-member-modal" class="ga-overlay" style="display:none">
+        <div class="ga-modal">
+            <div class="ga-modal-header">
+                <h3>👤 Agregar Cliente</h3>
+                <button class="ga-close" onclick="gaCloseAddMemberModal()">✕</button>
+            </div>
+            <input type="hidden" id="ga-member-account-id">
+            <div class="ga-service-label" id="ga-member-service-label"></div>
+            <div class="ga-form-group">
+                <label>Nombre del Cliente *</label>
+                <input type="text" id="ga-member-name" placeholder="Nombre completo">
+            </div>
+            <div class="ga-form-row">
+                <div class="ga-form-group">
+                    <label>Número WhatsApp *</label>
+                    <input type="tel" id="ga-member-phone" placeholder="7XXXXXXX">
+                </div>
+                <div class="ga-form-group">
+                    <label>Duración (meses) *</label>
+                    <select id="ga-member-duration">
+                        <option value="1">1 mes</option>
+                        <option value="2">2 meses</option>
+                        <option value="3">3 meses</option>
+                        <option value="6">6 meses</option>
+                        <option value="12">12 meses</option>
+                    </select>
+                </div>
+            </div>
+            <div class="ga-form-row">
+                <div class="ga-form-group">
+                    <label>Costo (lo que te costó) *</label>
+                    <input type="number" id="ga-member-cost" placeholder="0.00" step="0.01" min="0">
+                </div>
+                <div class="ga-form-group">
+                    <label>Precio de Venta (al cliente) *</label>
+                    <input type="number" id="ga-member-price" placeholder="0.00" step="0.01" min="0">
+                </div>
+            </div>
+            <button class="ga-btn-submit" onclick="gaSubmitNewMember()">✅ Agregar y Enviar por WhatsApp</button>
+        </div>
+    </div>
+
+    <!-- Modal: Reemplazar Cuenta -->
+    <div id="ga-replace-modal" class="ga-overlay" style="display:none">
+        <div class="ga-modal">
+            <div class="ga-modal-header">
+                <h3>🔄 Reemplazar Cuenta</h3>
+                <button class="ga-close" onclick="gaCloseReplaceModal()">✕</button>
+            </div>
+            <input type="hidden" id="ga-replace-account-id">
+            <div class="ga-service-label" id="ga-replace-service-label"></div>
+            <div class="ga-form-group">
+                <label>Nuevo Correo *</label>
+                <input type="email" id="ga-replace-email" placeholder="nuevo-correo@gmail.com">
+            </div>
+            <div class="ga-form-group">
+                <label>Nueva Contraseña *</label>
+                <input type="text" id="ga-replace-password" placeholder="nueva-contraseña">
+            </div>
+            <div class="ga-notify-section">
+                <h4>📱 Se notificará a estos clientes:</h4>
+                <div id="ga-replace-notify-list"></div>
+            </div>
+            <button class="ga-btn-submit ga-btn-submit-blue" onclick="gaSubmitReplace()">🔄 Reemplazar y Notificar por WhatsApp</button>
+        </div>
+    </div>
+
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -882,6 +1020,7 @@
     <script src="app.js?v=1.1"></script>
     <script src="netflix.js?v=1.1"></script>
     <script src="analytics.js?v=1.0"></script>
+    <script src="group-accounts.js?v=1.0"></script>
     <script src="shader-bg.js?v=1.0"></script>
 </body>
 </html>

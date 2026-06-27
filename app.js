@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ---- PERIOD TABS ----
 let currentPeriod = 'today';
-const PAGE_TITLES = { dashboard:'Dashboard', catalog:'Catálogo', newsale:'Nueva Venta', history:'Historial', netflix:'Netflix', analytics:'Analíticas' };
+const PAGE_TITLES = { dashboard:'Dashboard', catalog:'Catálogo', newsale:'Nueva Venta', history:'Historial', netflix:'Netflix', analytics:'Analíticas', 'group-accounts':'Cuentas Grupales' };
 
 function setupPeriodTabs() {
     document.querySelectorAll('.tab-btn').forEach(btn => {

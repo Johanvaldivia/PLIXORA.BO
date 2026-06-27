@@ -1,0 +1,490 @@
+/* =============================================================
+   CUENTAS GRUPALES — Styles
+   ============================================================= */
+
+/* Grid de Cuentas */
+.ga-accounts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+@media (max-width: 500px) {
+    .ga-accounts-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Card */
+.ga-card {
+    background: var(--bg-card);
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+    transition: var(--ease);
+    animation: gaFadeIn 0.5s ease backwards;
+}
+.ga-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-3px);
+}
+
+/* Card Header */
+.ga-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+}
+.ga-card-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+.ga-card-icon {
+    font-size: 2rem;
+}
+.ga-card-title h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 0;
+}
+.ga-card-subtitle {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+/* Status Badge */
+.ga-card-status {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.3rem 0.75rem;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.ga-available {
+    background: rgba(16, 185, 129, 0.12);
+    color: #10b981;
+}
+.ga-full {
+    background: rgba(239, 68, 68, 0.12);
+    color: #ef4444;
+}
+
+/* Credentials */
+.ga-card-creds {
+    background: var(--bg-main);
+    border-radius: 14px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.ga-cred-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+.ga-cred-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    min-width: 110px;
+}
+.ga-cred-value {
+    font-size: 0.9rem;
+    color: var(--text-main);
+    font-weight: 500;
+    word-break: break-all;
+}
+.ga-password {
+    cursor: pointer;
+    background: var(--bg-card);
+    padding: 0.2rem 0.6rem;
+    border-radius: 8px;
+    font-family: 'Inter', monospace;
+    transition: var(--ease);
+    user-select: none;
+}
+.ga-password:hover {
+    background: var(--orange-glow);
+}
+
+/* Stats Row */
+.ga-card-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+.ga-stat {
+    text-align: center;
+    padding: 0.6rem;
+    background: var(--bg-main);
+    border-radius: 12px;
+}
+.ga-stat-label {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.25rem;
+}
+.ga-stat-value {
+    display: block;
+    font-size: 1rem;
+    font-weight: 800;
+}
+.ga-cost { color: #ef4444; }
+.ga-revenue { color: #3b82f6; }
+.ga-profit-pos { color: #10b981; }
+.ga-profit-neg { color: #ef4444; }
+
+/* Members */
+.ga-card-members-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 0.75rem;
+}
+.ga-members-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    max-height: 280px;
+    overflow-y: auto;
+}
+.ga-no-members {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    text-align: center;
+    padding: 0.75rem;
+}
+.ga-member-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg-main);
+    border-radius: 12px;
+    padding: 0.75rem;
+    transition: var(--ease);
+    gap: 0.5rem;
+}
+.ga-member-row:hover {
+    background: var(--orange-glow);
+}
+.ga-member-info {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex: 1;
+    min-width: 0;
+}
+.ga-member-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--orange);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 800;
+    flex-shrink: 0;
+}
+.ga-member-name {
+    display: block;
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: var(--text-main);
+}
+.ga-member-phone {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+.ga-member-duration {
+    display: block;
+    font-size: 0.72rem;
+    color: var(--accent-blue);
+    font-weight: 600;
+}
+.ga-member-prices {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.15rem;
+    flex-shrink: 0;
+}
+.ga-member-cost {
+    font-size: 0.72rem;
+    color: #ef4444;
+    font-weight: 600;
+}
+.ga-member-sale {
+    font-size: 0.72rem;
+    color: #10b981;
+    font-weight: 600;
+}
+.ga-btn-remove-member {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 0.25rem;
+    border-radius: 6px;
+    transition: var(--ease);
+    flex-shrink: 0;
+}
+.ga-btn-remove-member:hover {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+}
+
+/* Action Buttons */
+.ga-card-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+.ga-btn {
+    padding: 0.55rem 1rem;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 0.82rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: var(--ease);
+}
+.ga-btn-add-member {
+    background: var(--orange);
+    color: #fff;
+    flex: 1;
+}
+.ga-btn-add-member:hover {
+    filter: brightness(1.1);
+    transform: translateY(-2px);
+}
+.ga-btn-replace {
+    background: rgba(59, 130, 246, 0.12);
+    color: #3b82f6;
+}
+.ga-btn-replace:hover {
+    background: rgba(59, 130, 246, 0.25);
+    transform: translateY(-2px);
+}
+.ga-btn-delete {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    padding: 0.55rem 0.75rem;
+}
+.ga-btn-delete:hover {
+    background: rgba(239, 68, 68, 0.2);
+    transform: translateY(-2px);
+}
+
+/* Add Account Button */
+.ga-btn-add-account-main {
+    background: linear-gradient(135deg, #FE5B29, #ff7e5f);
+    color: #fff;
+    border: none;
+    padding: 0.65rem 1.25rem;
+    border-radius: 14px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: var(--ease);
+    box-shadow: 0 4px 15px rgba(254, 91, 41, 0.3);
+}
+.ga-btn-add-account-main:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(254, 91, 41, 0.45);
+}
+
+/* Empty State */
+.ga-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    color: var(--text-muted);
+    text-align: center;
+}
+.ga-empty-state span {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+.ga-empty-state p {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+/* Modals */
+.ga-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    padding: 1rem;
+    animation: gaFadeIn 0.3s ease;
+}
+.ga-modal {
+    background: var(--bg-card);
+    border-radius: 20px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 480px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+    animation: gaSlideUp 0.35s ease;
+}
+.ga-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+}
+.ga-modal-header h3 {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--text-main);
+    margin: 0;
+}
+.ga-close {
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 8px;
+    transition: var(--ease);
+}
+.ga-close:hover {
+    background: rgba(239,68,68,0.1);
+    color: #ef4444;
+}
+.ga-form-group {
+    margin-bottom: 1rem;
+}
+.ga-form-group label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 0.35rem;
+}
+.ga-form-group input,
+.ga-form-group select {
+    width: 100%;
+    padding: 0.65rem 0.9rem;
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    background: var(--bg-main);
+    color: var(--text-main);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.92rem;
+    transition: var(--ease);
+    box-sizing: border-box;
+}
+.ga-form-group input:focus,
+.ga-form-group select:focus {
+    outline: none;
+    border-color: var(--orange);
+    box-shadow: 0 0 0 3px rgba(254, 91, 41, 0.15);
+}
+.ga-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+.ga-btn-submit {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 14px;
+    border: none;
+    background: linear-gradient(135deg, #FE5B29, #ff7e5f);
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: var(--ease);
+    margin-top: 0.5rem;
+}
+.ga-btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(254, 91, 41, 0.4);
+}
+.ga-btn-submit-blue {
+    background: linear-gradient(135deg, #3b82f6, #60a5fa);
+}
+.ga-btn-submit-blue:hover {
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+}
+
+/* Notify List in Replace Modal */
+.ga-notify-section {
+    background: var(--bg-main);
+    border-radius: 12px;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+}
+.ga-notify-section h4 {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 0 0 0.5rem 0;
+}
+.ga-notify-item {
+    font-size: 0.85rem;
+    color: var(--text-main);
+    padding: 0.3rem 0;
+}
+
+/* Service Label in Modals */
+.ga-service-label {
+    display: inline-block;
+    background: var(--orange-glow);
+    color: var(--orange);
+    padding: 0.3rem 0.75rem;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+}
+
+@keyframes gaFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+@keyframes gaSlideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
