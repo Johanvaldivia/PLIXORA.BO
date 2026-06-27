@@ -8,6 +8,7 @@
     grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
     gap: 1.5rem;
     margin-top: 1.5rem;
+    padding: 0 0.25rem;
 }
 @media (max-width: 500px) {
     .ga-accounts-grid {
@@ -57,7 +58,13 @@
     margin: 0;
 }
 
-/* Status Badge */
+/* Status Badge & Expiry */
+.ga-header-badges {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.35rem;
+}
 .ga-card-status {
     font-size: 0.75rem;
     font-weight: 700;
@@ -73,6 +80,26 @@
 .ga-full {
     background: rgba(239, 68, 68, 0.12);
     color: #ef4444;
+}
+
+/* Expiration Date Badge */
+.ga-card-expiry {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.25rem 0.65rem;
+    border-radius: 20px;
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    letter-spacing: 0.3px;
+}
+.ga-expired {
+    background: rgba(239, 68, 68, 0.25);
+    color: #dc2626;
+    animation: gaPulse 2s infinite;
+}
+@keyframes gaPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
 }
 
 /* Credentials */

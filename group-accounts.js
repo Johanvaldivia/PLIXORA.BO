@@ -1,5 +1,5 @@
 // =============================================================
-// PLIXORA.BO — Módulo de Cuentas Grupales
+// PLIXORA.BO — Módulo de Cuentas Grupales v2
 // Gestión de cuentas compartidas con reemplazo y notificación WA
 // =============================================================
 
@@ -8,8 +8,11 @@
 
     const WA_BOT_URL = 'https://plixora-bot.duckdns.org/api/send-message';
     let gaDB = null;
-    let gaAccounts = []; // All group accounts from Firestore
+    let gaAccounts = [];
     let gaUnsubscribe = null;
+
+    // Abreviaciones de meses
+    const MONTH_NAMES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 
     // ── INIT ──────────────────────────────────────────────────────
     function init() {
@@ -17,11 +20,8 @@
             gaDB = firebase.firestore();
             listenAccounts();
         }
-
-        // Bind events
         const addBtn = document.getElementById('ga-btn-add-account');
         if (addBtn) addBtn.addEventListener('click', openAddAccountModal);
-
         window.renderGroupAccounts = renderAll;
     }
 
@@ -29,7 +29,6 @@
     function listenAccounts() {
         if (!gaDB) return;
         if (gaUnsubscribe) gaUnsubscribe();
-
         gaUnsubscribe = gaDB.collection('group_accounts').orderBy('createdAt', 'desc')
             .onSnapshot(snapshot => {
                 gaAccounts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -37,6 +36,21 @@
             }, err => {
                 console.error('GA Firestore error:', err);
             });
+    }
+
+    // ── FORMAT EXPIRATION DATE ─────────────────────────────────────
+    function formatExpDate(isoDate) {
+        if (!isoDate) return '—';
+        const created = new Date(isoDate);
+        const exp = new Date(created.getFullYear(), created.getMonth() + 1, created.getDate());
+        return `${exp.getDate()}/${MONTH_NAMES[exp.getMonth()]}`;
+    }
+
+    function isExpired(isoDate) {
+        if (!isoDate) return false;
+        const created = new Date(isoDate);
+        const exp = new Date(created.getFullYear(), created.getMonth() + 1, created.getDate());
+        return new Date() > exp;
     }
 
     // ── RENDER ALL ────────────────────────────────────────────────
@@ -55,11 +69,13 @@
 
         gaAccounts.forEach(acc => {
             const members = acc.members || [];
-            const totalCost = members.reduce((s, m) => s + (parseFloat(m.cost) || 0), 0);
+            const accountCost = parseFloat(acc.accountCost) || 0;
             const totalRevenue = members.reduce((s, m) => s + (parseFloat(m.price) || 0), 0);
-            const profit = totalRevenue - totalCost;
+            const profit = totalRevenue - accountCost;
             const slotsUsed = members.length;
             const maxSlots = acc.maxSlots || 5;
+            const expDate = formatExpDate(acc.createdAt);
+            const expired = isExpired(acc.createdAt);
 
             const card = document.createElement('div');
             card.className = 'ga-card';
@@ -72,8 +88,13 @@
                             <p class="ga-card-subtitle">${slotsUsed}/${maxSlots} perfiles ocupados</p>
                         </div>
                     </div>
-                    <div class="ga-card-status ${slotsUsed >= maxSlots ? 'ga-full' : 'ga-available'}">
-                        ${slotsUsed >= maxSlots ? 'Llena' : 'Disponible'}
+                    <div class="ga-header-badges">
+                        <div class="ga-card-status ${slotsUsed >= maxSlots ? 'ga-full' : 'ga-available'}">
+                            ${slotsUsed >= maxSlots ? 'Llena' : 'Disponible'}
+                        </div>
+                        <div class="ga-card-expiry ${expired ? 'ga-expired' : ''}">
+                            📅 Vence: ${expDate}
+                        </div>
                     </div>
                 </div>
                 <div class="ga-card-creds">
@@ -89,7 +110,7 @@
                 <div class="ga-card-stats">
                     <div class="ga-stat">
                         <span class="ga-stat-label">Invertido</span>
-                        <span class="ga-stat-value ga-cost">${totalCost.toFixed(2)} Bs</span>
+                        <span class="ga-stat-value ga-cost">${accountCost.toFixed(2)} Bs</span>
                     </div>
                     <div class="ga-stat">
                         <span class="ga-stat-label">Recaudado</span>
@@ -112,11 +133,9 @@
                                     <div>
                                         <span class="ga-member-name">${m.name}</span>
                                         <span class="ga-member-phone">📱 ${m.phone}</span>
-                                        <span class="ga-member-duration">⏱ ${m.duration} ${m.duration === 1 ? 'mes' : 'meses'}</span>
                                     </div>
                                 </div>
                                 <div class="ga-member-prices">
-                                    <span class="ga-member-cost">Costo: ${(parseFloat(m.cost) || 0).toFixed(2)} Bs</span>
                                     <span class="ga-member-sale">Venta: ${(parseFloat(m.price) || 0).toFixed(2)} Bs</span>
                                 </div>
                                 <button class="ga-btn-remove-member" onclick="window.gaRemoveMember('${acc.id}', ${i})" title="Eliminar miembro">✕</button>
@@ -148,6 +167,7 @@
         document.getElementById('ga-new-email').value = '';
         document.getElementById('ga-new-password').value = '';
         document.getElementById('ga-new-max-slots').value = '5';
+        document.getElementById('ga-new-account-cost').value = '';
     }
 
     window.gaCloseAddAccountModal = function () {
@@ -159,8 +179,9 @@
         const email = document.getElementById('ga-new-email').value.trim();
         const password = document.getElementById('ga-new-password').value.trim();
         const maxSlots = parseInt(document.getElementById('ga-new-max-slots').value) || 5;
+        const accountCost = document.getElementById('ga-new-account-cost').value.trim();
 
-        if (!serviceName || !email || !password) {
+        if (!serviceName || !email || !password || !accountCost) {
             showToast('❌ Completa todos los campos obligatorios.');
             return;
         }
@@ -171,6 +192,7 @@
                 email,
                 password,
                 maxSlots,
+                accountCost: parseFloat(accountCost),
                 members: [],
                 createdAt: new Date().toISOString()
             });
@@ -192,8 +214,6 @@
         document.getElementById('ga-member-service-label').textContent = serviceName;
         document.getElementById('ga-member-name').value = '';
         document.getElementById('ga-member-phone').value = '';
-        document.getElementById('ga-member-duration').value = '1';
-        document.getElementById('ga-member-cost').value = '';
         document.getElementById('ga-member-price').value = '';
     };
 
@@ -205,11 +225,9 @@
         const accountId = document.getElementById('ga-member-account-id').value;
         const name = document.getElementById('ga-member-name').value.trim();
         const phone = document.getElementById('ga-member-phone').value.trim();
-        const duration = parseInt(document.getElementById('ga-member-duration').value) || 1;
-        const cost = document.getElementById('ga-member-cost').value.trim();
         const price = document.getElementById('ga-member-price').value.trim();
 
-        if (!name || !phone || !cost || !price) {
+        if (!name || !phone || !price) {
             showToast('❌ Completa todos los campos.');
             return;
         }
@@ -220,17 +238,34 @@
 
             const members = account.members || [];
             const profileNum = members.length + 1;
+            const salePrice = parseFloat(price);
 
             members.push({
                 name,
                 phone,
-                duration,
-                cost: parseFloat(cost),
-                price: parseFloat(price),
+                price: salePrice,
                 addedAt: new Date().toISOString()
             });
 
             await gaDB.collection('group_accounts').doc(accountId).update({ members });
+
+            // Register sale in main sales history
+            try {
+                const saleData = {
+                    productName: account.serviceName + ' (Perfil ' + profileNum + ')',
+                    price: salePrice,
+                    profit: salePrice - ((parseFloat(account.accountCost) || 0) / (account.maxSlots || 5)),
+                    customer: phone,
+                    customerName: name,
+                    date: new Date().toISOString(),
+                    orderCode: 'GA-' + accountId.substring(0, 6).toUpperCase(),
+                    expireDate: new Date(new Date().getFullYear(), new Date().getMonth() + 1, new Date().getDate()).toISOString(),
+                    source: 'group-account'
+                };
+                await gaDB.collection('sales').add(saleData);
+            } catch (saleErr) {
+                console.error('Error registering sale:', saleErr);
+            }
 
             // Send WhatsApp message (first time)
             const msg = `🎬 *PLIXORA.BO — Cuenta de Streaming*\n\nHola *${name}* 👋\n\nTu cuenta de *${account.serviceName}* ya está lista para que la disfrutes. Aquí están tus datos de acceso:\n\n📧 *Correo:* ${account.email}\n🔑 *Contraseña:* ${account.password}\n👤 *Perfil:* Perfil ${profileNum}\n\n⚠️ *Importante:*\n• No cambies la contraseña ni el correo.\n• No compartas estos datos con nadie.\n• No elimines ni modifiques otros perfiles.\n\nSi tienes alguna duda, escríbenos por aquí. ¡Disfruta tu cuenta! 🍿✨`;
@@ -241,10 +276,10 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ phone, message: msg })
                 });
-                showToast('✅ Cliente agregado y mensaje enviado por WhatsApp.');
+                showToast('✅ Cliente agregado, venta registrada y mensaje enviado por WhatsApp.');
             } catch (waErr) {
                 console.error('WA send error:', waErr);
-                showToast('✅ Cliente agregado. ⚠️ No se pudo enviar el mensaje de WhatsApp.');
+                showToast('✅ Cliente agregado y venta registrada. ⚠️ No se pudo enviar el mensaje de WhatsApp.');
             }
 
             window.gaCloseAddMemberModal();
@@ -256,7 +291,6 @@
     // ── REMOVE MEMBER ─────────────────────────────────────────────
     window.gaRemoveMember = async function (accountId, memberIndex) {
         if (!confirm('¿Estás seguro de eliminar este miembro?')) return;
-
         try {
             const account = gaAccounts.find(a => a.id === accountId);
             if (!account) return;
@@ -277,7 +311,6 @@
         document.getElementById('ga-replace-email').value = '';
         document.getElementById('ga-replace-password').value = '';
 
-        // Show members that will be notified
         const account = gaAccounts.find(a => a.id === accountId);
         const listEl = document.getElementById('ga-replace-notify-list');
         if (account && listEl) {
@@ -310,13 +343,13 @@
             const account = gaAccounts.find(a => a.id === accountId);
             if (!account) { showToast('❌ Cuenta no encontrada.'); return; }
 
-            // Update credentials in Firestore
+            // Update credentials and reset expiration date
             await gaDB.collection('group_accounts').doc(accountId).update({
                 email: newEmail,
-                password: newPassword
+                password: newPassword,
+                createdAt: new Date().toISOString() // Reset 1 month timer
             });
 
-            // Send WhatsApp replacement message to ALL members
             const members = account.members || [];
             let sent = 0;
             let failed = 0;
@@ -353,7 +386,6 @@
     // ── DELETE ACCOUNT ────────────────────────────────────────────
     window.gaDeleteAccount = async function (accountId, serviceName) {
         if (!confirm(`¿Estás seguro de eliminar la cuenta grupal "${serviceName}"? Se perderán todos los miembros.`)) return;
-
         try {
             await gaDB.collection('group_accounts').doc(accountId).delete();
             showToast('✅ Cuenta grupal eliminada.');

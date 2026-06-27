@@ -926,17 +926,23 @@
                     <input type="text" id="ga-new-password" placeholder="contraseña">
                 </div>
             </div>
-            <div class="ga-form-group">
-                <label>Máximo de Perfiles</label>
-                <select id="ga-new-max-slots">
-                    <option value="3">3 perfiles</option>
-                    <option value="4">4 perfiles</option>
-                    <option value="5" selected>5 perfiles</option>
-                    <option value="6">6 perfiles</option>
-                    <option value="7">7 perfiles</option>
-                    <option value="8">8 perfiles</option>
-                    <option value="10">10 perfiles</option>
-                </select>
+            <div class="ga-form-row">
+                <div class="ga-form-group">
+                    <label>Máximo de Perfiles</label>
+                    <select id="ga-new-max-slots">
+                        <option value="3">3 perfiles</option>
+                        <option value="4">4 perfiles</option>
+                        <option value="5" selected>5 perfiles</option>
+                        <option value="6">6 perfiles</option>
+                        <option value="7">7 perfiles</option>
+                        <option value="8">8 perfiles</option>
+                        <option value="10">10 perfiles</option>
+                    </select>
+                </div>
+                <div class="ga-form-group">
+                    <label>💰 Costo Total de la Cuenta (Bs) *</label>
+                    <input type="number" id="ga-new-account-cost" placeholder="Ej: 30" step="0.01" min="0">
+                </div>
             </div>
             <button class="ga-btn-submit" onclick="gaSubmitNewAccount()">🚀 Crear Cuenta Grupal</button>
         </div>
@@ -961,24 +967,8 @@
                     <input type="tel" id="ga-member-phone" placeholder="7XXXXXXX">
                 </div>
                 <div class="ga-form-group">
-                    <label>Duración (meses) *</label>
-                    <select id="ga-member-duration">
-                        <option value="1">1 mes</option>
-                        <option value="2">2 meses</option>
-                        <option value="3">3 meses</option>
-                        <option value="6">6 meses</option>
-                        <option value="12">12 meses</option>
-                    </select>
-                </div>
-            </div>
-            <div class="ga-form-row">
-                <div class="ga-form-group">
-                    <label>Costo (lo que te costó) *</label>
-                    <input type="number" id="ga-member-cost" placeholder="0.00" step="0.01" min="0">
-                </div>
-                <div class="ga-form-group">
-                    <label>Precio de Venta (al cliente) *</label>
-                    <input type="number" id="ga-member-price" placeholder="0.00" step="0.01" min="0">
+                    <label>💵 Precio de Venta (Bs) *</label>
+                    <input type="number" id="ga-member-price" placeholder="Ej: 15" step="0.01" min="0">
                 </div>
             </div>
             <button class="ga-btn-submit" onclick="gaSubmitNewMember()">✅ Agregar y Enviar por WhatsApp</button>
