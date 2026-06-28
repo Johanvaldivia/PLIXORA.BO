@@ -27,6 +27,7 @@ const catalogData = [
     { id: 'ad-1m',    name: 'Adobe Creative Cloud',   type: 'single', duration: '1 mes',            salePrice: 65,  cost: 50,  profit: 15, features: ['Todas las Apps', 'Hasta 2 dispositivos'] },
     { id: 'vpn-1m',   name: 'Express VPN',            type: 'single', duration: '1 mes',            salePrice: 25,  cost: 18,  profit: 7,  features: ['De 4 a 8 dispositivos'] },
     { id: 'gp-1m',    name: 'Gemini Pro',             type: 'single', duration: '1 mes',            salePrice: 15,  cost: 0,   profit: 15, features: ['Inteligencia artificial premium', 'Directo a correo'] },
+    { id: 'gp-2m',    name: 'Gemini Pro',             type: 'single', duration: '2 meses',          salePrice: 30,  cost: 0,   profit: 30, features: ['Inteligencia artificial premium', 'Directo a correo'] },
     // COMBOS PRINCIPALES
     { id: 'cb-stream', name: 'Combo Stream',          type: 'combo',  duration: '1 mes',            salePrice: 32,  cost: 24.2, profit: 7.8, features: ['Disney+', 'YouTube Premium'] },
     { id: 'cb-diseno', name: 'Combo Diseño',          type: 'combo',  duration: '1 mes',            salePrice: 80,  cost: 50,   profit: 30, features: ['Canva EDU', 'Adobe Creative Cloud'] },
