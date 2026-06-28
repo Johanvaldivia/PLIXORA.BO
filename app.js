@@ -26,6 +26,7 @@ const catalogData = [
     { id: 'sp-12m',   name: 'Spotify Premium',        type: 'single', duration: '12 meses',         salePrice: 150, cost: 100, profit: 50, features: ['Sin anuncios', 'Música offline'] },
     { id: 'ad-1m',    name: 'Adobe Creative Cloud',   type: 'single', duration: '1 mes',            salePrice: 65,  cost: 50,  profit: 15, features: ['Todas las Apps', 'Hasta 2 dispositivos'] },
     { id: 'vpn-1m',   name: 'Express VPN',            type: 'single', duration: '1 mes',            salePrice: 25,  cost: 18,  profit: 7,  features: ['De 4 a 8 dispositivos'] },
+    { id: 'gp-1m',    name: 'Gemini Pro',             type: 'single', duration: '1 mes',            salePrice: 15,  cost: 0,   profit: 15, features: ['Inteligencia artificial premium', 'Directo a correo'] },
     // COMBOS PRINCIPALES
     { id: 'cb-stream', name: 'Combo Stream',          type: 'combo',  duration: '1 mes',            salePrice: 32,  cost: 24.2, profit: 7.8, features: ['Disney+', 'YouTube Premium'] },
     { id: 'cb-diseno', name: 'Combo Diseño',          type: 'combo',  duration: '1 mes',            salePrice: 80,  cost: 50,   profit: 30, features: ['Canva EDU', 'Adobe Creative Cloud'] },
@@ -1001,6 +1002,18 @@ function generateSaleDetailsText(sale) {
     // ── Canva Pro EDU (NO TOCAR) ──
     if (prodName.includes('canva') && (prodName.includes('edu') || prodName.includes('class'))) {
         return `*${sale.productName}*\n${codeLine}\nHola ${clienteName} 👋,\n\nSe ha activado y mandado la invitación vía correo al siguiente email:\n📧 ${sale.email || ''}\n\nPor favor, revisar y aceptar la invitación. Luego, asegurarse de estar en el equipo *PLIXORA (CLASS)* para que tenga acceso siempre a los beneficios Pro.\n\nPLIXORA.BO`;
+    }
+
+    // ── Gemini Pro ──
+    if (prodName.toLowerCase().includes('gemini pro')) {
+        return `*PLIXORA.BO* | 🚀 *Gemini Advanced (Pro)*\n` +
+               codeLine + `\n` +
+               `Hola *${clienteName}* 👋,\n\n` +
+               `Se ha activado su suscripción y se le ha enviado la invitación oficial de Google al siguiente correo electrónico:\n` +
+               `📧 *${sale.email || ''}*\n\n` +
+               `Por favor, revise su bandeja de entrada (o spam) y acepte la invitación para comenzar a disfrutar de todos los beneficios de la inteligencia artificial.\n\n` +
+               `✅ _Activación directa en su cuenta personal y 100% privada._\n` +
+               footer;
     }
 
     // ── Canva Pro Individual ──
