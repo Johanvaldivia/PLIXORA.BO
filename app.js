@@ -994,7 +994,10 @@ function generateSaleDetailsText(sale) {
                `⚠️ *(LA CONTRASEÑA INCLUYE MÁS CON EL * )*\n` +
                `*POR FAVOR INGRESAR BIEN LA CONTRASEÑA*\n\n` +
                `🔒 _Puedes crear un PIN en tu perfil si deseas mayor privacidad._\n\n` +
-               `🚫 _Está prohibido cambiar el nombre del perfil. Caso contrario, se dará de baja automáticamente el acceso._`;
+               `🚫 *REGLAS ESTRICTAS DE USO:*\n` +
+               `• *Prohibido cambiar el nombre del perfil.*\n` +
+               `• 📺 *LÍMITE DE PANTALLA:* Solo se permite reproducir contenido en *1 dispositivo a la vez*.\n` +
+               `_Si el sistema detecta reproducción simultánea en 2 o más pantallas, tu perfil será suspendido automáticamente sin derecho a reembolso o se aplicará una multa por incumplimiento de términos y condiciones._`;
     }
 
     // ── Disney Plus ──
