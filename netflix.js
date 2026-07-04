@@ -840,17 +840,16 @@
             if (acc && acc.perfiles[pendingNotifyPayload.idx]) {
                 acc.perfiles[pendingNotifyPayload.idx].notifiedRenewal = true;
                 const perfiles = [...acc.perfiles];
+                localStorage.setItem('nf_accounts', JSON.stringify(nfAccounts));
                 try {
                     if (db) {
                         await db.collection('netflix_accounts').doc(acc.id).update({ perfiles });
-                    } else {
-                        localStorage.setItem('nf_accounts', JSON.stringify(nfAccounts));
                     }
                 } catch(e) { console.error('Error guardando notifiedRenewal:', e); }
                 // Re-render the detail modal immediately so the button turns green
-                renderAll();
+                window.nfRenderAll();
                 if (currentDetailId && document.getElementById('nf-detail-modal').style.display !== 'none') {
-                    renderDetailModal(currentDetailId);
+                    window.nfRenderDetailModal(currentDetailId);
                 }
             }
 
