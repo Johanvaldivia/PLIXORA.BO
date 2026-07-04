@@ -979,8 +979,15 @@ function generateSaleDetailsText(sale) {
 
     // ── Netflix (from history, matches module style) ──
     if (prodName.includes('netflix')) {
+        let duracionAdicional = '';
+        const matchMeses = (sale.productName || '').match(/\[(\d+\s*Meses)\]/i);
+        if (matchMeses) {
+            duracionAdicional = `📌 *Duración:* ${matchMeses[1]}\n`;
+        }
+
         return `*PLIXORA.BO* | 🎬 *Netflix Premium*\n` +
                codeLine + `\n` +
+               duracionAdicional +
                `📧 *Correo:* ${sale.email || ''}\n` +
                `🔑 *Contraseña:* ${sale.password || ''}\n` +
                vencLine + `\n` +
