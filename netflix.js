@@ -53,8 +53,9 @@
     }
 
     function generateProfiles(prefix) {
+        const p = prefix || 'Perfil ';
         return [1, 2, 3, 4, 5].map(n => ({
-            nombre: prefix + n, estado: 'libre',
+            nombre: p + n, estado: 'libre',
             cliente: '', whatsapp: '', inicio: '', vencimiento: '', obs: ''
         }));
     }
@@ -126,8 +127,8 @@
     function renderStats() {
         try {
             let occupied = 0;
-            const activeAccounts = nfAccounts.filter(a => a.estado !== 'cerrada');
-            const closedAccountsCount = nfAccounts.length - activeAccounts.length;
+            const activeAccounts = nfAccounts.filter(a => (a.estado || '').toLowerCase() !== 'cerrada');
+            const closedAccountsCount = nfAccounts.filter(a => (a.estado || '').toLowerCase() === 'cerrada').length;
             activeAccounts.forEach(a => {
                 (a.perfiles || []).forEach(p => {
                     if (p && p.estado === 'ocupado') {
@@ -157,9 +158,9 @@
 
             let data = [...nfAccounts];
             if (nfFilter === 'activa') data = data.filter(a => a.estado === 'activa' || !a.estado);
-            else if (nfFilter === 'free') data = data.filter(a => a.estado !== 'cerrada' && (a.perfiles || []).some(p => p && p.estado === 'libre'));
-            else if (nfFilter === 'full') data = data.filter(a => a.estado !== 'cerrada' && (a.perfiles || []).every(p => p && p.estado === 'ocupado'));
-            else if (nfFilter === 'cerrada') data = data.filter(a => a.estado === 'cerrada');
+            else if (nfFilter === 'free') data = data.filter(a => (a.estado || '').toLowerCase() !== 'cerrada' && (a.perfiles || []).some(p => p && p.estado === 'libre'));
+            else if (nfFilter === 'full') data = data.filter(a => (a.estado || '').toLowerCase() !== 'cerrada' && (a.perfiles || []).every(p => p && p.estado === 'ocupado'));
+            else if (nfFilter === 'cerrada') data = data.filter(a => (a.estado || '').toLowerCase() === 'cerrada');
             else if (nfFilter === 'all') { /* shows all including cerradas */ }
 
             if (badge) badge.textContent = data.length + ' cuentas';
@@ -178,7 +179,7 @@
                 const barColor = occ === 5 ? '#ef4444' : occ >= 3 ? '#f59e0b' : '#10b981';
 
                 let estadoBadge = '<span class="nf-badge inactive-badge">Inactiva</span>';
-                if (acc.estado === 'cerrada') {
+                if ((acc.estado || '').toLowerCase() === 'cerrada') {
                     estadoBadge = '<span class="nf-badge" style="background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3)">Cerrada</span>';
                 } else if (acc.estado === 'activa' || !acc.estado) {
                     estadoBadge = '<span class="nf-badge active-badge">Activa</span>';
@@ -287,17 +288,16 @@
         const correo  = document.getElementById('nf-correo').value.trim();
         const password= document.getElementById('nf-password').value.trim();
         const estado  = document.getElementById('nf-estado').value;
-        const prefijo = document.getElementById('nf-prefijo').value;
         const fecha   = document.getElementById('nf-fecha').value;
         const obs     = document.getElementById('nf-obs').value.trim();
 
         const account = {
             id: Date.now().toString(),
             codigo: generateCode(),
-            correo, password, estado, prefijo,
+            correo, password, estado,
             fecha_creada: fecha || toLocalDateStr(),
             observacion: obs,
-            perfiles: generateProfiles(prefijo),
+            perfiles: generateProfiles(),
             createdAt: new Date().toISOString()
         };
 
@@ -350,7 +350,7 @@
         passEl.dataset.visible = 'false';
 
         let estadoBadge = '<span class="nf-badge inactive-badge">Inactiva</span>';
-        if (acc.estado === 'cerrada') {
+        if ((acc.estado || '').toLowerCase() === 'cerrada') {
             estadoBadge = '<span class="nf-badge" style="background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3)">Cerrada</span>';
         } else if (acc.estado === 'activa' || !acc.estado) {
             estadoBadge = '<span class="nf-badge active-badge">Activa</span>';
@@ -581,7 +581,7 @@
         destSelect.innerHTML = '<option value="" disabled selected>Selecciona cuenta destino...</option>';
 
         nfAccounts
-            .filter(a => a.id !== accountId && a.estado !== 'cerrada')
+            .filter(a => a.id !== accountId && (a.estado || '').toLowerCase() !== 'cerrada')
             .filter(a => (a.perfiles || []).some(pr => pr && pr.estado === 'libre'))
             .forEach(a => {
                 const freeCount = (a.perfiles || []).filter(pr => pr && pr.estado === 'libre').length;
