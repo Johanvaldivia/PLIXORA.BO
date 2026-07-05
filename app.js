@@ -26,7 +26,7 @@ const catalogData = [
     { id: 'cc-1m',    name: 'CapCut Pro',             type: 'single', category: 'completa',   duration: '1 mes',    salePrice: 25,  cost: 15,  profit: 10, features: ['1 dispositivo'] },
     { id: 'pv-1m',    name: 'Prime Video',            type: 'single', category: 'completa',   duration: '1 mes',    salePrice: 30,  cost: 20,  profit: 10, features: ['Cuenta completa', '4 a 5 dispositivos'] },
     { id: 'pv-3m',    name: 'Prime Video',            type: 'single', category: 'completa',   duration: '3 meses',  salePrice: 75,  cost: 50,  profit: 25, features: ['Cuenta completa', '4 a 5 dispositivos'] },
-    { id: 'ap-6m',    name: 'Amazon Prime',           type: 'single', category: 'completa',   duration: '6 meses',  salePrice: 0,   cost: 0,   profit: 0,  features: ['A pedido', 'Autopay mensual', 'Cuenta privada bajo nuestro dominio', 'Acceso completo a películas y series'] },
+    { id: 'ap-6m',    name: 'Amazon Prime',           type: 'single', category: 'completa',   duration: '6 meses',  salePrice: 75,  cost: 60,  profit: 15, features: ['Autopay mensual', 'Cuenta privada bajo nuestro dominio', 'Acceso completo a películas y series'] },
     { id: 'cr-1m',    name: 'Crunchyroll Fan',        type: 'single', category: 'completa',   duration: '1 mes',    salePrice: 34,  cost: 26,  profit: 8,  features: ['Cuenta completa', '1 dispositivo'] },
     { id: 'cr-1y',    name: 'Crunchyroll Fan Anual',  type: 'single', category: 'completa',   duration: '1 año',    salePrice: 140, cost: 100, profit: 40, features: ['Cuenta completa', '1 dispositivo'] },
     { id: 'cr-6m',    name: 'Crunchyroll Mega Fan',   type: 'single', category: 'completa',   duration: '6 meses',  salePrice: 70,  cost: 50,  profit: 20, features: ['Cuenta completa', '2 dispositivos'] },
@@ -1007,12 +1007,66 @@ function generateSaleDetailsText(sale) {
 
     // ── CapCut Pro ──
     if (prodName.includes('capcut')) {
-        return `*PLIXORA.BO* | 🎬 *CapCut Pro*\n` +
+        let duracionAdicional = '';
+        const matchMeses = (sale.productName || '').match(/\[(\d+\s*Meses?)\]/i);
+        if (matchMeses) {
+            duracionAdicional = `📌 *Duración:* ${matchMeses[1]}\n`;
+        }
+
+        return `━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+               `      *PLIXORA.BO* 🌟\n` +
+               `  ✂️ *CAPCUT PRO*\n` +
+               `━━━━━━━━━━━━━━━━━━━━━━━━\n` +
                codeLine + `\n` +
+               `Hola *${clienteName}* 👋\n\n` +
+               `¡Tu cuenta de *CapCut Pro* ya está *activa* y lista para usar! 🎉\n\n` +
+               duracionAdicional +
+               `┌─────────────────────────\n` +
+               `│ 📧 *Correo:* ${sale.email || ''}\n` +
+               `│ 🔑 *Contraseña:* ${sale.password || ''}\n` +
+               `│ ` + vencLine +
+               `└─────────────────────────\n\n` +
+               `🛡️ *PARA EVITAR BLOQUEOS:*\n` +
+               `✅ Usa la cuenta solo en tu dispositivo.\n` +
+               `✅ No cambies la contraseña.\n` +
+               `✅ No cierres la sesión de otros usuarios.\n` +
+               `✅ No compartas el acceso con otra persona.\n` +
+               `✅ Ingresa con cuidado los datos de acceso.\n\n` +
+               `❌ _Si la cuenta se bloquea por mal uso, no hay cambio, devolución ni garantía._\n\n` +
+               `✅ _La garantía solo aplica si la cuenta deja de funcionar por problema de facturación._\n\n` +
+               `🔧 _En caso de que la cuenta se caiga o esté fuera de servicio, el reemplazo o restablecimiento se realiza en un plazo máximo de *24 horas*._\n\n` +
+               `━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+               `_PLIXORA.BO — Gracias por tu compra 🧡_\n` +
+               `_Ante cualquier consulta, estamos para ayudarte._`;
+    }
+
+    // ── Amazon Prime ──
+    if (prodName.includes('amazon prime')) {
+        let duracionAdicional = '';
+        const matchMeses = (sale.productName || '').match(/\[(\d+\s*Meses?)\]/i);
+        if (matchMeses) {
+            duracionAdicional = `📌 *Duración:* ${matchMeses[1]}\n`;
+        } else {
+            duracionAdicional = `📌 *Duración:* 6 Meses\n`;
+        }
+
+        return `*PLIXORA.BO* | 📦 *Amazon Prime Video*\n` +
+               codeLine + `\n` +
+               `Hola *${clienteName}* 👋\n\n` +
+               `¡Tu cuenta de *Amazon Prime Video* ya está activa y lista para usar! 🎉\n\n` +
+               duracionAdicional +
                `📧 *Correo:* ${sale.email || ''}\n` +
                `🔑 *Contraseña:* ${sale.password || ''}\n` +
-               vencLine +
-               prohibicion + `\n` + footer;
+               vencLine + `\n` +
+               `📋 *DETALLES DE TU CUENTA:*\n` +
+               `✅ Cuenta personal registrada y gestionada exclusivamente bajo nuestro dominio.\n` +
+               `✅ Autopay mensual: cada mes se renueva automáticamente.\n` +
+               `✅ Acceso completo a películas, series y funciones Prime.\n` +
+               `✅ Cuenta privada y personal, no compartida ni EDU.\n\n` +
+               `ℹ️ _Las cuentas son autopay mensuales (se cobran cada mes), no facturadas por 6 meses._\n\n` +
+               `⚠️ _Prohibido cambiar la contraseña, correo o tocar la facturación. Caso contrario, se dará de baja automáticamente._\n\n` +
+               `🔧 _En caso de que la cuenta se caiga o esté fuera de servicio, el reemplazo o restablecimiento se realiza en un plazo máximo de *24 horas*._\n\n` +
+               `_PLIXORA.BO — Gracias por tu compra 🧡_`;
     }
 
     // ── Spotify Premium ──

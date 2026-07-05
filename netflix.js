@@ -127,8 +127,14 @@
     function renderStats() {
         try {
             let occupied = 0;
-            const activeAccounts = nfAccounts.filter(a => (a.estado || '').toLowerCase() !== 'cerrada');
-            const closedAccountsCount = nfAccounts.filter(a => (a.estado || '').toLowerCase() === 'cerrada').length;
+            const activeAccounts = nfAccounts.filter(a => {
+                const st = (a.estado || '').trim().toLowerCase();
+                return st === 'activa' || st === '';
+            });
+            const closedAccountsCount = nfAccounts.filter(a => {
+                const st = (a.estado || '').trim().toLowerCase();
+                return st !== 'activa' && st !== '';
+            }).length;
             activeAccounts.forEach(a => {
                 (a.perfiles || []).forEach(p => {
                     if (p && p.estado === 'ocupado') {
@@ -157,11 +163,27 @@
             if (!tbody) return;
 
             let data = [...nfAccounts];
-            if (nfFilter === 'activa') data = data.filter(a => a.estado === 'activa' || !a.estado);
-            else if (nfFilter === 'free') data = data.filter(a => (a.estado || '').toLowerCase() !== 'cerrada' && (a.perfiles || []).some(p => p && p.estado === 'libre'));
-            else if (nfFilter === 'full') data = data.filter(a => (a.estado || '').toLowerCase() !== 'cerrada' && (a.perfiles || []).every(p => p && p.estado === 'ocupado'));
-            else if (nfFilter === 'cerrada') data = data.filter(a => (a.estado || '').toLowerCase() === 'cerrada');
-            else if (nfFilter === 'all') { /* shows all including cerradas */ }
+            if (nfFilter === 'activa') {
+                data = data.filter(a => {
+                    const st = (a.estado || '').trim().toLowerCase();
+                    return st === 'activa' || st === '';
+                });
+            } else if (nfFilter === 'free') {
+                data = data.filter(a => {
+                    const st = (a.estado || '').trim().toLowerCase();
+                    return (st === 'activa' || st === '') && (a.perfiles || []).some(p => p && p.estado === 'libre');
+                });
+            } else if (nfFilter === 'full') {
+                data = data.filter(a => {
+                    const st = (a.estado || '').trim().toLowerCase();
+                    return (st === 'activa' || st === '') && (a.perfiles || []).every(p => p && p.estado === 'ocupado');
+                });
+            } else if (nfFilter === 'cerrada') {
+                data = data.filter(a => {
+                    const st = (a.estado || '').trim().toLowerCase();
+                    return st !== 'activa' && st !== '';
+                });
+            } else if (nfFilter === 'all') { /* shows all including cerradas */ }
 
             if (badge) badge.textContent = data.length + ' cuentas';
 
