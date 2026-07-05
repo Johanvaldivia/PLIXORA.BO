@@ -23,7 +23,7 @@ const catalogData = [
     { id: 'sp-6m',    name: 'Spotify Premium',        type: 'single', category: 'completa',   duration: '6 meses',  salePrice: 80,  cost: 55,  profit: 25, features: ['Sin anuncios', 'Música offline'] },
     { id: 'sp-12m',   name: 'Spotify Premium',        type: 'single', category: 'completa',   duration: '12 meses', salePrice: 150, cost: 100, profit: 50, features: ['Sin anuncios', 'Música offline'] },
     { id: 'nf-cc',    name: 'Netflix (Cuenta Completa)',type: 'single',category: 'completa',   duration: '1 mes',    salePrice: 65,  cost: 42,  profit: 23, features: ['Cuenta completa', 'Hasta 5 dispositivos'] },
-    { id: 'cc-1m',    name: 'CapCut Pro',             type: 'single', category: 'completa',   duration: '1 mes',    salePrice: 25,  cost: 0,   profit: 25, features: ['1 dispositivo'] },
+    { id: 'cc-1m',    name: 'CapCut Pro',             type: 'single', category: 'completa',   duration: '1 mes',    salePrice: 25,  cost: 15,  profit: 10, features: ['1 dispositivo'] },
     { id: 'pv-1m',    name: 'Prime Video',            type: 'single', category: 'completa',   duration: '1 mes',    salePrice: 30,  cost: 20,  profit: 10, features: ['Cuenta completa', '4 a 5 dispositivos'] },
     { id: 'pv-3m',    name: 'Prime Video',            type: 'single', category: 'completa',   duration: '3 meses',  salePrice: 75,  cost: 50,  profit: 25, features: ['Cuenta completa', '4 a 5 dispositivos'] },
     { id: 'ap-6m',    name: 'Amazon Prime',           type: 'single', category: 'completa',   duration: '6 meses',  salePrice: 0,   cost: 0,   profit: 0,  features: ['A pedido', 'Autopay mensual', 'Cuenta privada bajo nuestro dominio', 'Acceso completo a películas y series'] },
