@@ -993,12 +993,11 @@ function generateSaleDetailsText(sale) {
     const codeLine = sale.orderCode ? `🎫 *Pedido:* ${sale.orderCode}\n` : '';
     const clienteName = sale.customerName || 'Cliente';
 
-    // Format expiration date
-    const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-    let vencLine = '';
-    if (sale.expireDate) {
-        const d = new Date(sale.expireDate);
-        vencLine = `📅 *Vencimiento:* ${d.getDate()} de ${meses[d.getMonth()]} de ${d.getFullYear()}\n`;
+    // Format duration instead of expiration
+    let duracionLine = '';
+    const matchDuracion = (sale.productName || '').match(/\[(.*?)\]/);
+    if (matchDuracion) {
+        duracionLine = `📌 *Duración:* ${matchDuracion[1]}\n`;
     }
 
     // Standard prohibition (applies to ALL products)
@@ -1007,12 +1006,6 @@ function generateSaleDetailsText(sale) {
 
     // ── CapCut Pro ──
     if (prodName.includes('capcut')) {
-        let duracionAdicional = '';
-        const matchMeses = (sale.productName || '').match(/\[(\d+\s*Meses?)\]/i);
-        if (matchMeses) {
-            duracionAdicional = `📌 *Duración:* ${matchMeses[1]}\n`;
-        }
-
         return `━━━━━━━━━━━━━━━━━━━━━━━━\n` +
                `      *PLIXORA.BO* 🌟\n` +
                `  ✂️ *CAPCUT PRO*\n` +
@@ -1020,11 +1013,10 @@ function generateSaleDetailsText(sale) {
                codeLine + `\n` +
                `Hola *${clienteName}* 👋\n\n` +
                `¡Tu cuenta de *CapCut Pro* ya está *activa* y lista para usar! 🎉\n\n` +
-               duracionAdicional +
+               duracionLine +
                `┌─────────────────────────\n` +
                `│ 📧 *Correo:* ${sale.email || ''}\n` +
                `│ 🔑 *Contraseña:* ${sale.password || ''}\n` +
-               `│ ` + vencLine +
                `└─────────────────────────\n\n` +
                `🛡️ *PARA EVITAR BLOQUEOS:*\n` +
                `✅ Usa la cuenta solo en tu dispositivo.\n` +
@@ -1042,22 +1034,15 @@ function generateSaleDetailsText(sale) {
 
     // ── Amazon Prime ──
     if (prodName.includes('amazon prime')) {
-        let duracionAdicional = '';
-        const matchMeses = (sale.productName || '').match(/\[(\d+\s*Meses?)\]/i);
-        if (matchMeses) {
-            duracionAdicional = `📌 *Duración:* ${matchMeses[1]}\n`;
-        } else {
-            duracionAdicional = `📌 *Duración:* 6 Meses\n`;
-        }
+        let duracionFinal = duracionLine || `📌 *Duración:* 6 Meses\n`;
 
         return `*PLIXORA.BO* | 📦 *Amazon Prime Video*\n` +
                codeLine + `\n` +
                `Hola *${clienteName}* 👋\n\n` +
                `¡Tu cuenta de *Amazon Prime Video* ya está activa y lista para usar! 🎉\n\n` +
-               duracionAdicional +
+               duracionFinal +
                `📧 *Correo:* ${sale.email || ''}\n` +
-               `🔑 *Contraseña:* ${sale.password || ''}\n` +
-               vencLine + `\n` +
+               `🔑 *Contraseña:* ${sale.password || ''}\n\n` +
                `📋 *DETALLES DE TU CUENTA:*\n` +
                `✅ Cuenta personal registrada y gestionada exclusivamente bajo nuestro dominio.\n` +
                `✅ Autopay mensual: cada mes se renueva automáticamente.\n` +
@@ -1073,26 +1058,19 @@ function generateSaleDetailsText(sale) {
     if (prodName.includes('spotify')) {
         return `*PLIXORA.BO* | 🎵 *Spotify Premium*\n` +
                codeLine + `\n` +
+               duracionLine +
                `📧 *Correo:* ${sale.email || ''}\n` +
                `🔑 *Contraseña:* ${sale.password || ''}\n` +
-               vencLine +
                prohibicion + `\n` + footer;
     }
 
     // ── Netflix (from history, matches module style) ──
     if (prodName.includes('netflix')) {
-        let duracionAdicional = '';
-        const matchMeses = (sale.productName || '').match(/\[(\d+\s*Meses)\]/i);
-        if (matchMeses) {
-            duracionAdicional = `📌 *Duración:* ${matchMeses[1]}\n`;
-        }
-
         return `*PLIXORA.BO* | 🎬 *Netflix Premium*\n` +
                codeLine + `\n` +
-               duracionAdicional +
+               duracionLine +
                `📧 *Correo:* ${sale.email || ''}\n` +
-               `🔑 *Contraseña:* ${sale.password || ''}\n` +
-               vencLine + `\n` +
+               `🔑 *Contraseña:* ${sale.password || ''}\n\n` +
                `⚠️ *(LA CONTRASEÑA INCLUYE MÁS CON EL * )*\n` +
                `*POR FAVOR INGRESAR BIEN LA CONTRASEÑA*\n\n` +
                `🔒 _Puedes crear un PIN en tu perfil si deseas mayor privacidad._\n\n` +
@@ -1106,9 +1084,9 @@ function generateSaleDetailsText(sale) {
     if (prodName.includes('disney')) {
         return `*PLIXORA.BO* | 🏰 *Disney Plus Estándar*\n` +
                codeLine + `\n` +
+               duracionLine +
                `📧 *Correo:* ${sale.email || ''}\n` +
                `🔑 *Contraseña:* ${sale.password || ''}\n` +
-               vencLine +
                prohibicion + `\n` + footer;
     }
 
@@ -1133,23 +1111,17 @@ function generateSaleDetailsText(sale) {
     if (prodName.includes('canva')) {
         return `*PLIXORA.BO* | 🎨 *Canva Pro Individual*\n` +
                codeLine + `\n` +
+               duracionLine +
                `📧 *Correo:* ${sale.email || ''}\n` +
                `🔑 *Contraseña:* ${sale.password || ''}\n` +
-               vencLine +
                prohibicion + `\n` + footer;
     }
 
     // ── Crunchyroll (Fan / Fan Anual / Mega Fan) ──
     if (prodName.includes('crunchyroll')) {
-        const isAnual = prodName.includes('anual');
-        const isMega = prodName.includes('mega');
-        let duracion = '1 mes';
-        if (isAnual) duracion = '1 año';
-        else if (isMega) duracion = '6 meses';
-
         return `*PLIXORA.BO* | 🍥 *${sale.productName}*\n` +
                codeLine + `\n` +
-               `📌 *Duración:* ${duracion}\n` +
+               duracionLine +
                `📧 *Correo:* ${sale.email || ''}\n` +
                `🔑 *Contraseña:* ${sale.password || ''}\n` +
                prohibicion + `\n\n` +
@@ -1160,9 +1132,9 @@ function generateSaleDetailsText(sale) {
     if (prodName.includes('hbo')) {
         return `*PLIXORA.BO* | 📺 *HBO MAX PLATINO*\n` +
                codeLine + `\n` +
+               duracionLine +
                `📧 *Correo:* ${sale.email || ''}\n` +
                `🔑 *Contraseña:* ${sale.password || ''}\n` +
-               vencLine +
                prohibicion + `\n` + footer;
     }
 
@@ -1179,7 +1151,6 @@ function generateSaleDetailsText(sale) {
                `┌─────────────────────────\n` +
                `│ 📧 *Correo:* ${sale.email || ''}\n` +
                `│ 🔑 *Contraseña:* ${sale.password || ''}\n` +
-               `│ ${vencLine ? vencLine : ''}` +
                `└─────────────────────────\n\n` +
                `📋 *PASOS PARA ACTIVAR:*\n\n` +
                `1️⃣ Ingresa a *youtube.com* o abre la app de YouTube.\n` +
@@ -1215,9 +1186,9 @@ function generateSaleDetailsText(sale) {
     if (prodName.includes('prime')) {
         return `*PLIXORA.BO* | 🎬 *Prime Video*\n` +
                codeLine + `\n` +
+               duracionLine +
                `📧 *Correo:* ${sale.email || ''}\n` +
                `🔑 *Contraseña:* ${sale.password || ''}\n` +
-               vencLine +
                prohibicion + `\n` + footer;
     }
 
@@ -1225,10 +1196,10 @@ function generateSaleDetailsText(sale) {
     if (prodName.includes('adobe')) {
         return `*PLIXORA.BO* | 🎨 *Adobe Creative Cloud*\n` +
                codeLine + `\n` +
+               duracionLine +
                `📧 *Correo:* ${sale.email || ''}\n` +
                `🔑 *Contraseña:* ${sale.password || ''}\n\n` +
                `⚠️ *POR FAVOR INGRESAR BIEN LA CONTRASEÑA*\n` +
-               vencLine +
                prohibicion + `\n` + footer;
     }
 
@@ -1236,18 +1207,18 @@ function generateSaleDetailsText(sale) {
     if (prodName.includes('vpn') || prodName.includes('express')) {
         return `*PLIXORA.BO* | 🔐 *Express VPN*\n` +
                codeLine + `\n` +
+               duracionLine +
                `📧 *Correo:* ${sale.email || ''}\n` +
                `🔑 *Contraseña:* ${sale.password || ''}\n` +
-               vencLine +
                prohibicion + `\n` + footer;
     }
 
     // ── Combos y cualquier otro producto ──
     return `*PLIXORA.BO* | 🛒 *${sale.productName}*\n` +
            codeLine + `\n` +
+           duracionLine +
            (sale.email ? `📧 *Correo:* ${sale.email}\n` : '') +
            (sale.password ? `🔑 *Contraseña:* ${sale.password}\n` : '') +
-           vencLine +
            prohibicion + `\n` + footer;
 }
 
