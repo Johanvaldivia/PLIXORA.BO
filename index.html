@@ -797,24 +797,24 @@
                 <h3>Detalle de Venta</h3>
                 <button class="nf-close" onclick="closeSaleDetail()">✕</button>
             </div>
-            <div class="nf-info-strip" style="flex-direction:column;gap:0.75rem;padding:1rem;background:var(--bg-card);border:1px solid var(--border-color);border-radius:8px;margin-bottom:1rem">
-                <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border-color);padding-bottom:0.5rem">
+            <div class="nf-info-strip" style="flex-direction:column;gap:0.75rem;padding:1rem;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;margin-bottom:1rem">
+                <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:0.5rem">
                     <span style="color:var(--text-muted);font-size:0.85rem">Producto</span>
                     <strong id="hd-product" style="font-size:0.9rem"></strong>
                 </div>
-                <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border-color);padding-bottom:0.5rem">
+                <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:0.5rem">
                     <span style="color:var(--text-muted);font-size:0.85rem">Precio / Ganancia</span>
                     <span style="font-size:0.9rem"><span id="hd-price"></span> Bs / <span id="hd-profit" style="color:var(--accent-green);font-weight:600"></span> Bs</span>
                 </div>
-                <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border-color);padding-bottom:0.5rem">
+                <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:0.5rem">
                     <span style="color:var(--text-muted);font-size:0.85rem">Fecha de Venta</span>
                     <span id="hd-date" style="font-size:0.9rem"></span>
                 </div>
-                <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border-color);padding-bottom:0.5rem">
+                <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:0.5rem">
                     <span style="color:var(--text-muted);font-size:0.85rem">Vencimiento</span>
                     <span id="hd-expire" style="font-size:0.9rem"></span>
                 </div>
-                <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border-color);padding-bottom:0.5rem">
+                <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:0.5rem">
                     <span style="color:var(--text-muted);font-size:0.85rem">Correo</span>
                     <span id="hd-email" style="font-size:0.9rem"></span>
                 </div>
@@ -823,8 +823,8 @@
                     <span id="hd-password" style="font-size:0.9rem;font-family:monospace"></span>
                 </div>
             </div>
-            <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:8px;padding:1rem;">
-                <h4 style="margin-top:0;margin-bottom:1rem;font-size:0.95rem;border-bottom:1px solid var(--border-color);padding-bottom:0.5rem;">Datos del Cliente</h4>
+            <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+                <h4 style="margin-top:0;margin-bottom:1rem;font-size:0.95rem;border-bottom:1px solid var(--border);padding-bottom:0.5rem;">Datos del Cliente</h4>
                 <form id="hd-customer-form" onsubmit="event.preventDefault();saveCustomerEdit()">
                     <div class="form-row">
                         <div class="form-group half">
@@ -972,7 +972,10 @@
                     <input type="number" id="ga-member-price" placeholder="Ej: 15" step="0.01" min="0">
                 </div>
             </div>
-            <button class="ga-btn-submit" onclick="gaSubmitNewMember()">✅ Agregar y Enviar por WhatsApp</button>
+            <div style="display:flex;gap:0.75rem;margin-top:0.5rem;">
+                <button id="ga-btn-save-only" class="ga-btn-submit" style="background:#374151;flex:1;" onclick="gaSaveOnlyMember()">💾 Solo Guardar</button>
+                <button id="ga-btn-save-send" class="ga-btn-submit" style="flex:1;" onclick="gaSubmitNewMember()">✅ Agregar y Enviar por WhatsApp</button>
+            </div>
         </div>
     </div>
 

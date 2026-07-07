@@ -221,7 +221,8 @@
         document.getElementById('ga-add-member-modal').style.display = 'none';
     };
 
-    window.gaSubmitNewMember = async function () {
+    // Core function: save member + optionally send WhatsApp
+    async function saveNewMember(sendWhatsApp) {
         const accountId = document.getElementById('ga-member-account-id').value;
         const name = document.getElementById('ga-member-name').value.trim();
         const phone = document.getElementById('ga-member-phone').value.trim();
@@ -232,11 +233,18 @@
             return;
         }
 
+        // Disable buttons to prevent double-click
+        const btnSave = document.getElementById('ga-btn-save-only');
+        const btnSend = document.getElementById('ga-btn-save-send');
+        if (btnSave) btnSave.disabled = true;
+        if (btnSend) btnSend.disabled = true;
+
         try {
             const account = gaAccounts.find(a => a.id === accountId);
             if (!account) { showToast('❌ Cuenta no encontrada.'); return; }
 
-            const members = account.members || [];
+            // Use spread to avoid mutating cached data
+            const members = [...(account.members || [])];
             const profileNum = members.length + 1;
             const salePrice = parseFloat(price);
 
@@ -249,44 +257,90 @@
 
             await gaDB.collection('group_accounts').doc(accountId).update({ members });
 
-            // Register sale in main sales history
+            // Register sale in main sales history (FIXED: correct collection + ID)
             try {
+                const saleId = Date.now().toString();
                 const saleData = {
+                    id: saleId,
                     productName: account.serviceName + ' (Perfil ' + profileNum + ')',
                     price: salePrice,
                     profit: salePrice - ((parseFloat(account.accountCost) || 0) / (account.maxSlots || 5)),
                     customer: phone,
                     customerName: name,
                     date: new Date().toISOString(),
-                    orderCode: 'GA-' + accountId.substring(0, 6).toUpperCase(),
+                    orderCode: 'GA-' + accountId.substring(0, 6).toUpperCase() + '-' + profileNum,
                     expireDate: new Date(new Date().getFullYear(), new Date().getMonth() + 1, new Date().getDate()).toISOString(),
                     source: 'group-account'
                 };
-                await gaDB.collection('sales').add(saleData);
+                await gaDB.collection('plixora_sales').doc(saleId).set(saleData);
             } catch (saleErr) {
                 console.error('Error registering sale:', saleErr);
             }
 
-            // Send WhatsApp message (first time)
-            const msg = `🎬 *PLIXORA.BO — Cuenta de Streaming*\n\nHola *${name}* 👋\n\nTu cuenta de *${account.serviceName}* ya está lista para que la disfrutes. Aquí están tus datos de acceso:\n\n📧 *Correo:* ${account.email}\n🔑 *Contraseña:* ${account.password}\n👤 *Perfil:* Perfil ${profileNum}\n\n⚠️ *Importante:*\n• No cambies la contraseña ni el correo.\n• No compartas estos datos con nadie.\n• No elimines ni modifiques otros perfiles.\n\nSi tienes alguna duda, escríbenos por aquí. ¡Disfruta tu cuenta! 🍿✨`;
+            if (sendWhatsApp) {
+                // Build delivery message based on service type
+                const svcLower = (account.serviceName || '').toLowerCase();
+                let msg = '';
 
-            try {
-                await fetch(WA_BOT_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ phone, message: msg })
-                });
-                showToast('✅ Cliente agregado, venta registrada y mensaje enviado por WhatsApp.');
-            } catch (waErr) {
-                console.error('WA send error:', waErr);
-                showToast('✅ Cliente agregado y venta registrada. ⚠️ No se pudo enviar el mensaje de WhatsApp.');
+                if (svcLower.includes('disney') || svcLower.includes('hbo')) {
+                    // Disney + HBO Max combo message
+                    msg = `🎬 *PLIXORA.BO — Cuenta de Streaming*\n\n` +
+                          `Hola *${name}* 👋\n\n` +
+                          `Tu cuenta de *${account.serviceName}* ya está lista. Aquí están tus datos de acceso:\n\n` +
+                          `📧 *Correo:* ${account.email}\n` +
+                          `🔑 *Contraseña:* ${account.password}\n` +
+                          `👤 *Perfil:* Perfil ${profileNum}\n\n` +
+                          `📌 *NOTA:* Estos mismos datos te sirven para iniciar sesión tanto en *Disney Plus* como en *HBO Max*.\n\n` +
+                          `⚠️ *Importante:*\n` +
+                          `• No cambies la contraseña ni el correo.\n` +
+                          `• No compartas estos datos con nadie.\n` +
+                          `• No elimines ni modifiques otros perfiles.\n\n` +
+                          `🔧 _En caso de que la cuenta se caiga o esté fuera de servicio, el reemplazo se realiza en un plazo máximo de *24 horas*._\n\n` +
+                          `_PLIXORA.BO — Gracias por tu compra 🧡_`;
+                } else {
+                    // Generic streaming message
+                    msg = `🎬 *PLIXORA.BO — Cuenta de Streaming*\n\n` +
+                          `Hola *${name}* 👋\n\n` +
+                          `Tu cuenta de *${account.serviceName}* ya está lista para que la disfrutes. Aquí están tus datos de acceso:\n\n` +
+                          `📧 *Correo:* ${account.email}\n` +
+                          `🔑 *Contraseña:* ${account.password}\n` +
+                          `👤 *Perfil:* Perfil ${profileNum}\n\n` +
+                          `⚠️ *Importante:*\n` +
+                          `• No cambies la contraseña ni el correo.\n` +
+                          `• No compartas estos datos con nadie.\n` +
+                          `• No elimines ni modifiques otros perfiles.\n\n` +
+                          `🔧 _En caso de que la cuenta se caiga o esté fuera de servicio, el reemplazo se realiza en un plazo máximo de *24 horas*._\n\n` +
+                          `_PLIXORA.BO — Gracias por tu compra 🧡_`;
+                }
+
+                try {
+                    await fetch(WA_BOT_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ phone, message: msg })
+                    });
+                    showToast('✅ Cliente agregado, venta registrada y mensaje enviado por WhatsApp.');
+                } catch (waErr) {
+                    console.error('WA send error:', waErr);
+                    showToast('✅ Cliente agregado y venta registrada. ⚠️ No se pudo enviar el mensaje de WhatsApp.');
+                }
+            } else {
+                showToast('✅ Cliente agregado y venta registrada correctamente.');
             }
 
             window.gaCloseAddMemberModal();
         } catch (e) {
             showToast('❌ Error: ' + e.message);
+        } finally {
+            // Re-enable buttons
+            if (btnSave) btnSave.disabled = false;
+            if (btnSend) btnSend.disabled = false;
         }
-    };
+    }
+
+    // Two public functions for the two buttons
+    window.gaSubmitNewMember = function () { return saveNewMember(true); };
+    window.gaSaveOnlyMember = function () { return saveNewMember(false); };
 
     // ── REMOVE MEMBER ─────────────────────────────────────────────
     window.gaRemoveMember = async function (accountId, memberIndex) {
@@ -356,7 +410,10 @@
 
             for (let i = 0; i < members.length; i++) {
                 const m = members[i];
-                const msg = `🔄 *PLIXORA.BO — Actualización de Cuenta*\n\nHola *${m.name}* 👋\n\nTe informamos que los datos de acceso de tu cuenta de *${account.serviceName}* han sido actualizados. Aquí tienes las nuevas credenciales:\n\n📧 *Nuevo Correo:* ${newEmail}\n🔑 *Nueva Contraseña:* ${newPassword}\n👤 *Tu Perfil:* Perfil ${i + 1}\n\n⚠️ *Importante:*\n• Los datos anteriores ya no funcionan.\n• No cambies la contraseña ni el correo.\n• No compartas estos datos con nadie.\n\nDisculpa las molestias. Si tienes alguna duda, escríbenos. 🙏`;
+                const svcLower = (account.serviceName || '').toLowerCase();
+                const isDisneyHbo = svcLower.includes('disney') || svcLower.includes('hbo');
+                const notaCombo = isDisneyHbo ? `\n\n📌 *NOTA:* Estos mismos datos te sirven para iniciar sesión tanto en *Disney Plus* como en *HBO Max*. Por favor, cierra sesión en tu cuenta antigua e inicia sesión con los datos nuevos.` : '';
+                const msg = `🔄 *PLIXORA.BO — Actualización de Cuenta*\n\nHola *${m.name}* 👋\n\nTe informamos que los datos de acceso de tu cuenta de *${account.serviceName}* han sido actualizados. Aquí tienes las nuevas credenciales:\n\n📧 *Nuevo Correo:* ${newEmail}\n🔑 *Nueva Contraseña:* ${newPassword}\n👤 *Tu Perfil:* Perfil ${i + 1}${notaCombo}\n\n⚠️ *Importante:*\n• Los datos anteriores ya no funcionan.\n• No cambies la contraseña ni el correo.\n• No compartas estos datos con nadie.\n\n🔧 _El reemplazo o restablecimiento de cuenta se realiza en un plazo máximo de *24 horas*._\n\n_PLIXORA.BO — Disculpa las molestias. Si tienes alguna duda, escríbenos. 🙏_`;
 
                 try {
                     await fetch(WA_BOT_URL, {

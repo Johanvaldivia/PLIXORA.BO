@@ -821,7 +821,7 @@
         const codeDisplay = p.orderCode ? ` / ${p.orderCode}` : '';
         const msg = `\u26A0\uFE0F *AVISO DE VENCIMIENTO \u2013 PLIXORA.BO* \u26A0\uFE0F\n\n` +
                     `Hola ${p.cliente || ''} \uD83D\uDC4B\n` +
-                    `Tu suscripción de *Netflix Perfil *${p.nombre.toUpperCase()}*${codeDisplay}* est\u00E1 pr\u00F3xima a vencer.\n\n` +
+                    `Tu suscripción de *Netflix Perfil ${p.nombre.toUpperCase()}*${codeDisplay}* est\u00E1 pr\u00F3xima a vencer.\n\n` +
                     `\uD83D\uDCE7 *Correo:* ${acc.correo}\n` +
                     `\uD83D\uDD11 *Contrase\u00F1a:* ${acc.password}\n` +
                     `\uD83D\uDCC5 *Vence el:* ${vencLabel}\n\n` +
@@ -945,5 +945,20 @@
         const t = document.getElementById('toast');
         if (t) { t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3500); }
     }
+
+    // Expose sync function for app.js to call
+    window.nfSyncProfileEdit = function(accCodigo, profileIndex, newName, newPhone) {
+        try {
+            const acc = nfAccounts.find(a => a.codigo === accCodigo);
+            if (!acc) return;
+            const perfil = (acc.perfiles || [])[profileIndex];
+            if (!perfil) return;
+            if (newName) perfil.cliente = newName;
+            if (newPhone) perfil.whatsapp = newPhone;
+            saveToFirebase();
+        } catch(e) {
+            console.error('nfSyncProfileEdit error:', e);
+        }
+    };
 
 })();

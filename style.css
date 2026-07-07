@@ -19,6 +19,9 @@
     --radius-lg:    22px;
     --radius-pill:  999px;
     --ease:         all 0.28s cubic-bezier(0.4,0,0.2,1);
+    --accent-red:   #ef4444;
+    --accent-green: #10b981;
+    --accent-blue:  #3b82f6;
 }
 
 [data-theme="dark"] {
@@ -355,11 +358,13 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
 @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
 
 /* Inner padding wrapper for views */
-#dashboard  { padding:1.5rem 2rem; }
-#catalog    { padding:1.5rem 2rem; }
-#newsale    { padding:1.5rem 2rem; }
-#history    { padding:1.5rem 2rem; }
-#netflix    { padding:1.5rem 2rem; }
+#dashboard       { padding:1.5rem 2rem; }
+#catalog         { padding:1.5rem 2rem; }
+#newsale         { padding:1.5rem 2rem; }
+#history         { padding:1.5rem 2rem; }
+#netflix         { padding:1.5rem 2rem; }
+#analytics       { padding:1.5rem 2rem; }
+#group-accounts  { padding:1.5rem 2rem; }
 
 /* View Header */
 .view-header { margin-bottom:1.5rem; }
@@ -476,6 +481,21 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
 .btn-primary { background:linear-gradient(135deg,var(--orange-light),var(--orange)); color:#fff; box-shadow:var(--shadow-orange); }
 .btn-primary:hover { box-shadow:0 8px 28px rgba(254,91,41,0.4); transform:translateY(-2px) scale(1.02); }
 .btn-block { width:100%; }
+.btn-outline {
+    background: transparent;
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+}
+.btn-outline:hover {
+    background: var(--card);
+    border-color: var(--primary);
+    color: var(--primary);
+}
 
 /* ── ACTION ICONS ── */
 .actions-cell { display:flex; gap:0.3rem; flex-wrap:nowrap; align-items:center; }
@@ -541,7 +561,7 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
     .main-content { flex:1; overflow:visible; }
     .view.active { height:auto; overflow:visible; padding-bottom:5.5rem; }
     /* All views: consistent horizontal + bottom padding for fixed nav */
-    #dashboard,#catalog,#newsale,#history,#netflix { padding:0 1rem 6rem; }
+    #dashboard,#catalog,#newsale,#history,#netflix,#analytics,#group-accounts { padding:0 1rem 6rem; }
 
     .mobile-header { display:flex; align-items:center; justify-content:space-between; padding:1rem 1rem 0.75rem; border-bottom:1px solid var(--border); background:var(--bg-card); backdrop-filter:blur(16px); position:sticky; top:0; z-index:50; flex-wrap:wrap; gap:0.5rem; }
     .mobile-brand { font-size:1.15rem; font-weight:800; background:linear-gradient(135deg,var(--orange-light),var(--orange)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }

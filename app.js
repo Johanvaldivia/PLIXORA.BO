@@ -334,7 +334,7 @@ function showSetupBanner() {
     banner.style.cssText = `background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);
         color:#fcd34d;padding:0.75rem 1.5rem;font-size:0.9rem;border-radius:10px;
         margin-bottom:1rem;display:flex;align-items:center;flex-wrap:wrap;gap:0.5rem;`;
-    const topBar = document.querySelector('.top-bar');
+    const topBar = document.querySelector('.page-topbar');
     if (topBar) topBar.insertAdjacentElement('afterend', banner);
     updateDashboard();
 }
@@ -417,6 +417,12 @@ function calculateExpirationDate(durationStr) {
     if (monthMatch) {
         const months = parseInt(monthMatch[1], 10);
         today.setMonth(today.getMonth() + months);
+        return today.toISOString();
+    }
+
+    const yearMatch = durationStr.match(/(\d+)\s*año/i);
+    if (yearMatch) {
+        today.setFullYear(today.getFullYear() + parseInt(yearMatch[1], 10));
         return today.toISOString();
     }
 
@@ -574,17 +580,25 @@ function setupHistoryControls() {
 // ---- FORMULARIO NUEVA VENTA ----
 function populateSelect() {
     selectProduct.innerHTML = '<option value="" disabled selected>Selecciona un producto...</option>';
-    const grpSingle = document.createElement('optgroup'); grpSingle.label = 'Cuentas Individuales';
-    const grpCombo  = document.createElement('optgroup'); grpCombo.label  = 'Combos 🔥';
+    const grpIndividual = document.createElement('optgroup'); grpIndividual.label = '👤 Cuentas Individuales';
+    const grpCompleta   = document.createElement('optgroup'); grpCompleta.label   = '🔑 Cuentas Completas';
+    const grpCombo      = document.createElement('optgroup'); grpCombo.label      = '🔥 Combos';
 
     catalogData.forEach(p => {
         if (p.id.startsWith('nf-')) return; // Ocultar Netflix del formulario genérico
         const opt = document.createElement('option');
         opt.value = p.id;
         opt.textContent = `${p.name} (${p.duration}) - ${p.salePrice} Bs`;
-        (p.type === 'single' ? grpSingle : grpCombo).appendChild(opt);
+        if (p.type === 'combo') {
+            grpCombo.appendChild(opt);
+        } else if (p.category === 'completa') {
+            grpCompleta.appendChild(opt);
+        } else {
+            grpIndividual.appendChild(opt);
+        }
     });
-    selectProduct.appendChild(grpSingle);
+    selectProduct.appendChild(grpIndividual);
+    selectProduct.appendChild(grpCompleta);
     selectProduct.appendChild(grpCombo);
 
     selectProduct.addEventListener('change', e => {
@@ -1394,37 +1408,18 @@ window.saveCustomerEdit = async function() {
 };
 
 async function syncNetflixProfileEdit(sale, newName, newWa) {
-    if (typeof nfAccounts === 'undefined') return;
+    // Delegate to netflix.js exposed function
+    if (typeof window.nfSyncProfileEdit !== 'function') return;
 
     const match = sale.productName.match(/Perfil (.*?) \((.*?)\)/);
     if (!match) return;
     const pNombre = match[1];
     const accCodigo = match[2];
 
-    const acc = nfAccounts.find(a => a.codigo === accCodigo);
-    if (!acc) return;
-
-    const pIdx = acc.perfiles.findIndex(p => p.nombre === pNombre);
-    if (pIdx !== -1) {
-        const perfiles = [...acc.perfiles];
-        perfiles[pIdx].cliente = newName;
-        perfiles[pIdx].whatsapp = newWa;
-
-        acc.perfiles = perfiles;
-
-        try {
-            if (db) {
-                await db.collection('netflix_accounts').doc(acc.id).update({ perfiles });
-            } else {
-                localStorage.setItem('nf_accounts', JSON.stringify(nfAccounts));
-            }
-            if (typeof window.nfRenderAll === 'function') window.nfRenderAll();
-            if (typeof window.nfRenderDetailModal === 'function' && typeof window.nfGetCurrentDetailId === 'function') {
-                const currentId = window.nfGetCurrentDetailId();
-                if (currentId === acc.id) window.nfRenderDetailModal(acc.id);
-            }
-        } catch(e) { console.error('Error syncing netflix edit', e); }
-    }
+    // Find profile index by name
+    try {
+        window.nfSyncProfileEdit(accCodigo, pNombre, newName, newWa);
+    } catch(e) { console.error('Error syncing netflix edit', e); }
 }
 
 // ---- GENERAR MENÚ WA ----
@@ -1432,8 +1427,8 @@ btnGenerateWA.addEventListener('click', () => {
     const text = `🏪 *PLIXORA.BO – CATÁLOGO GENERAL*
 
 🎬 *CAPCUT PRO*
-• 1 mes → 70 Bs
-• Hasta 2 dispositivos
+• 1 mes → 25 Bs
+• 1 dispositivo
 
 ▶️ *YOUTUBE PREMIUM*
 • 1 mes → 25 Bs
@@ -1454,7 +1449,7 @@ btnGenerateWA.addEventListener('click', () => {
 • 2 meses → 18 Bs
 
 🍿 *DISNEY PLUS ESTÁNDAR + HBO MAX – CUENTA COMPLETA*
-• 1 mes → 49 Bs
+• 1 mes → 23 Bs
 • Cuentas completas
 • Hasta 5 dispositivos simultáneos en cada cuenta
 
@@ -1471,6 +1466,7 @@ btnGenerateWA.addEventListener('click', () => {
 🎧 *SPOTIFY PREMIUM*
 • 1 mes → 20 Bs
 • 3 meses → 55 Bs
+• 6 meses → 80 Bs
 • 12 meses → 150 Bs
 
 🅰️ *ADOBE CREATIVE CLOUD*
@@ -1499,7 +1495,7 @@ btnGenerateWA.addEventListener('click', () => {
 
 🎨 Combo Diseño (Canva EDU + Adobe Creative Cloud) → 80 Bs
 
-🚀 Combo Creator Pro (CapCut Pro + Adobe Creative Cloud) → 125 Bs
+🚀 Combo Creator Pro (CapCut Pro + Adobe Creative Cloud) → 80 Bs
 
 💻 Combo Office (Microsoft 365 + Canva EDU) → 160 Bs
 
