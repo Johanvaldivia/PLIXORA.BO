@@ -108,8 +108,7 @@ function syncThemeButtons(theme) {
     const switchBtn = document.getElementById("themeSwitch");
     const mobileBtn = document.getElementById("themeSwitchMobile");
 
-    if (label) label.textContent = isDark ? "Modo noche" : "Modo claro";
-    if (thumb) thumb.textContent = isDark ? "🌙" : "☀️";
+    if (switchBtn) switchBtn.classList.toggle("active", isDark);
     if (switchBtn) switchBtn.classList.toggle("active", isDark);
 
     if (mobileBtn) {
