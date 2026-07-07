@@ -96,75 +96,43 @@
          APP CONTENT (hidden until auth)
          ======================== -->
     <div id="app-content" style="display:none;">
-    <div class="app-container">
-
         <!-- ========================
-             SIDEBAR
+             TOP NAVBAR
              ======================== -->
-        <aside class="sidebar">
-
-            <!-- Brand -->
-            <div class="brand">
-                <div class="brand-logo" style="overflow: hidden; padding: 0;">
-                    <img src="logo.jpg" alt="Logo" style="width: 100%; height: 100%; object-fit: cover;">
+        <header class="top-navbar">
+            <div class="top-navbar-left">
+                <div class="brand-logo">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
                 </div>
                 <div class="brand-text">
                     <h1>PLIXORA.BO</h1>
-                    <p>Streaming &amp; Design</p>
                 </div>
             </div>
 
-            <!-- Owner Badge -->
-            <div class="owner-badge">
-                <div class="owner-avatar">JV</div>
-                <div class="owner-info">
-                    <span class="owner-role">Propietario</span>
-                    <span class="owner-name">Johan Valdivia</span>
-                </div>
-            </div>
-
-            <!-- Divider -->
-            <div class="sidebar-divider"></div>
-
-            <!-- Nav -->
-            <nav class="nav-menu">
-                <p class="nav-section-label">Menú Principal</p>
-                <button class="nav-item active" data-target="dashboard">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>
-                    Dashboard
-                </button>
-                <button class="nav-item" data-target="catalog">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"/></svg>
-                    Catálogo
-                </button>
-                <button class="nav-item" data-target="newsale">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-                    Nueva Venta
-                </button>
+            <nav class="top-nav-menu">
+                <button class="nav-item active" data-target="dashboard">Inicio</button>
+                <button class="nav-item" data-target="catalog">Catálogo</button>
+                <button class="nav-item" data-target="newsale">Nueva Venta</button>
                 <button class="nav-item" data-target="history" style="position: relative;">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     Historial
                     <span class="t-badge" id="nav-badge-desktop" data-open="false">
                         <span class="t-badge-dot" style="background: #ef4444; width: 8px; height: 8px; border-radius: 50%;"></span>
                     </span>
                 </button>
-                <button class="nav-item" data-target="netflix">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/></svg>
-                    Netflix
-                </button>
-                <button class="nav-item" data-target="analytics">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg>
-                    Analíticas
-                </button>
-                <button class="nav-item" data-target="group-accounts">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"/></svg>
-                    Cuentas Grupales
-                </button>
+                <button class="nav-item" data-target="netflix">Netflix</button>
+                <button class="nav-item" data-target="analytics">Analítica</button>
+                <button class="nav-item" data-target="group-accounts">Cuentas</button>
             </nav>
 
-            <!-- Sidebar Footer -->
-            <div class="sidebar-footer">
-                <div class="theme-switch-wrapper" style="margin-bottom: 1rem; align-self: flex-start; margin-left: 0.5rem;">
+            <div class="top-navbar-right">
+                <button id="btn-generate-wa" class="top-nav-btn icon-btn" title="Menú WhatsApp">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/></svg>
+                </button>
+                <button class="top-nav-btn icon-btn" title="Notificaciones">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/></svg>
+                </button>
+                
+                <div class="theme-switch-wrapper" style="margin: 0;">
                     <button class="theme-switch" id="themeSwitch" type="button" aria-label="Cambiar tema">
                         <span class="theme-switch-thumb" id="themeThumb"></span>
                     </button>
@@ -175,45 +143,24 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
                     </span>
                 </div>
-                <div class="sidebar-divider"></div>
-                <button id="btn-generate-wa" class="btn btn-wa">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/></svg>
-                    Menú WhatsApp
-                </button>
-                <button class="btn-logout" onclick="plixoraLogout()">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/></svg>
-                    Cerrar Sesión
-                </button>
+                
+                <div class="owner-badge top-nav-profile" onclick="if(confirm('¿Deseas cerrar sesión?')) { plixoraLogout(); }" title="Cerrar Sesión">
+                    <div class="owner-avatar">JV</div>
+                    <div class="owner-info">
+                        <span class="owner-name">Johan V.</span>
+                    </div>
+                </div>
             </div>
-
-        </aside>
+        </header>
 
         <!-- ========================
              MAIN CONTENT
              ======================== -->
         <main class="main-content">
+            <h2 id="page-title" style="display:none;">Dashboard</h2>
+            <div id="current-date-display" style="display:none;"></div>
+            <div id="cloud-status-indicator" style="display:none;" class="status-connecting">⏳ Conectando...</div>
             <canvas id="shader-bg"></canvas>
-
-            <!-- Mobile Header -->
-            <header class="mobile-header">
-                <div class="mobile-brand">PLIXORA.BO</div>
-                <button class="theme-switch-mobile" id="themeSwitchMobile" type="button" aria-label="Cambiar tema" title="Cambiar tema">☀️</button>
-                <div id="current-date-display-mobile" class="current-date mobile-date"></div>
-                <div id="cloud-status-indicator-mobile" class="cloud-status-indicator status-connecting" title="Estado de Sincronización" onclick="if(typeof db !== 'undefined' && db){setCloudStatus('connecting');initSnapshot();}">⏳ Conectando...</div>
-            </header>
-
-            <!-- Page Top Bar -->
-            <div class="page-topbar">
-                <div class="page-topbar-left">
-                    <h2 id="page-title">Dashboard</h2>
-                    <div id="current-date-display" class="current-date"></div>
-                </div>
-                <div class="page-topbar-right">
-                    <div id="cloud-status-indicator" class="cloud-status-indicator status-connecting" title="Estado de Sincronización" onclick="if(typeof db !== 'undefined' && db){setCloudStatus('connecting');initSnapshot();}">
-                        ⏳ Conectando...
-                    </div>
-                </div>
-            </div>
 
             <!-- ====== DASHBOARD VIEW ====== -->
             <section id="dashboard" class="view active">
