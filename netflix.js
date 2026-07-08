@@ -268,14 +268,30 @@
             planSelect.addEventListener('change', (e) => {
                 const val = e.target.value;
                 const months = parseInt(val.replace('m', ''));
-                const inicioStr = document.getElementById('nf-a-inicio').value;
-                const inicioDate = inicioStr ? new Date(inicioStr) : new Date();
-                inicioDate.setHours(12,0,0,0);
-                if (months) {
+                if (!months) return;
+
+                if (typeof currentAssignAcc !== 'undefined' && currentAssignAcc && currentAssignAcc.fecha_creada) {
+                    const baseDate = new Date(currentAssignAcc.fecha_creada + 'T12:00:00');
+                    const accDay = baseDate.getDate();
+                    
+                    const inicioStr = document.getElementById('nf-a-inicio').value;
+                    const inicioDate = inicioStr ? new Date(inicioStr + 'T12:00:00') : new Date();
+                    
+                    let billing = new Date(inicioDate);
+                    billing.setDate(accDay);
+                    if (billing <= inicioDate) {
+                        billing.setMonth(billing.getMonth() + 1);
+                    }
+                    billing.setMonth(billing.getMonth() + (months - 1));
+                    billing.setDate(billing.getDate() - 1);
+                    document.getElementById('nf-a-venc').value = toLocalDateStr(billing);
+                } else {
+                    const inicioStr = document.getElementById('nf-a-inicio').value;
+                    const inicioDate = inicioStr ? new Date(inicioStr + 'T12:00:00') : new Date();
                     inicioDate.setMonth(inicioDate.getMonth() + months);
-                    inicioDate.setDate(inicioDate.getDate() - 1); // Aviso 1 día antes del corte
+                    inicioDate.setDate(inicioDate.getDate() - 1);
+                    document.getElementById('nf-a-venc').value = toLocalDateStr(inicioDate);
                 }
-                document.getElementById('nf-a-venc').value = toLocalDateStr(inicioDate);
             });
         }
     });
@@ -484,21 +500,21 @@
 
 
     // ── ASSIGN PROFILE MODAL ─────────────────────────────────
+    let currentAssignAcc = null;
+
     window.nfOpenAssign = function (accountId, profileIndex) {
-        currentDetailId = accountId;
-        assignProfileIndex = profileIndex;
         const acc = nfAccounts.find(a => a.id === accountId);
         if (!acc) return;
+        currentAssignAcc = acc;
+        assignProfileIndex = profileIndex;
         const perfil = acc.perfiles[profileIndex];
         document.getElementById('nf-assign-profile-name').textContent = perfil.nombre;
         document.getElementById('nf-assign-form').reset();
         document.getElementById('nf-a-perfil-nombre').value = '';
         const today = toLocalDateStr();
         document.getElementById('nf-a-inicio').value = today;
-        // Default vencimiento = 1 mes
-        const nextMonth = new Date(); nextMonth.setMonth(nextMonth.getMonth() + 1);
-        nextMonth.setDate(nextMonth.getDate() - 1); // Aviso 1 día antes del corte
-        document.getElementById('nf-a-venc').value = toLocalDateStr(nextMonth);
+        document.getElementById('nf-a-plan').value = '1m';
+        document.getElementById('nf-a-plan').dispatchEvent(new Event('change'));
         document.getElementById('nf-assign-modal').style.display = 'flex';
     };
 
@@ -824,7 +840,7 @@
         const codeDisplay = p.orderCode ? ` / ${p.orderCode}` : '';
         const msg = `\u26A0\uFE0F *AVISO DE VENCIMIENTO \u2013 PLIXORA.BO* \u26A0\uFE0F\n\n` +
                     `Hola ${p.cliente || ''} \uD83D\uDC4B\n` +
-                    `Tu suscripción de *Netflix Perfil ${p.nombre.toUpperCase()}*${codeDisplay}* est\u00E1 pr\u00F3xima a vencer.\n\n` +
+                    `Tu suscripción de *Netflix Perfil ${p.nombre.toUpperCase()}${codeDisplay}* est\u00E1 pr\u00F3xima a vencer.\n\n` +
                     `\uD83D\uDCE7 *Correo:* ${acc.correo}\n` +
                     `\uD83D\uDD11 *Contrase\u00F1a:* ${acc.password}\n` +
                     `\uD83D\uDCC5 *Vence el:* ${vencLabel}\n\n` +
