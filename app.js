@@ -130,6 +130,7 @@ function initTheme() {
 document.addEventListener('DOMContentLoaded', () => {
     initTheme();
     setupNavigation();
+    setupNotificationBell();
     renderCatalog('all');
     populateSelect();
     setupForm();
@@ -139,6 +140,32 @@ document.addEventListener('DOMContentLoaded', () => {
     initContacts();
     initFirebase();
 });
+
+// ---- NOTIFICATION BELL ----
+function setupNotificationBell() {
+    const bellBtn = document.getElementById('notif-bell-btn');
+    const dropdown = document.getElementById('notif-dropdown');
+    
+    if (bellBtn && dropdown) {
+        // Toggle dropdown on bell click
+        bellBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdown.classList.toggle('hidden');
+        });
+        
+        // Prevent clicks inside dropdown from closing it
+        dropdown.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', () => {
+            if (!dropdown.classList.contains('hidden')) {
+                dropdown.classList.add('hidden');
+            }
+        });
+    }
+}
 
 // ---- PERIOD TABS ----
 let currentPeriod = 'today';
@@ -416,6 +443,7 @@ function calculateExpirationDate(durationStr) {
     if (monthMatch) {
         const months = parseInt(monthMatch[1], 10);
         today.setMonth(today.getMonth() + months);
+        today.setDate(today.getDate() - 1); // Aviso 1 día antes del corte
         return today.toISOString();
     }
 
@@ -953,8 +981,23 @@ function renderExpirationAlerts() {
     const totalAlerts = urgentCount + soonCount;
     const badgeDesktop = document.getElementById('nav-badge-desktop');
     const badgeMobile = document.getElementById('nav-badge-mobile');
+    const notifBellBadge = document.getElementById('notif-bell-badge');
+    const notifBellCount = document.getElementById('notif-bell-count');
+    const notifList = document.getElementById('notif-list');
+    const notifDismissAll = document.getElementById('notif-dismiss-all');
 
-    // Update dismiss all button visibility
+    // Populate the dropdown
+    if (notifList) {
+        if (totalAlerts > 0) {
+            notifList.innerHTML = urgentList.innerHTML + soonList.innerHTML;
+            if (notifDismissAll) notifDismissAll.style.display = 'block';
+        } else {
+            notifList.innerHTML = '<div class="notif-empty">No hay alertas de vencimiento.</div>';
+            if (notifDismissAll) notifDismissAll.style.display = 'none';
+        }
+    }
+
+    // Update dismiss all button visibility in History
     const dismissAllBtn = document.getElementById('dismiss-all-alerts-btn');
     if (dismissAllBtn) dismissAllBtn.style.display = totalAlerts > 0 ? 'inline-block' : 'none';
 
@@ -963,9 +1006,15 @@ function renderExpirationAlerts() {
         badge.dataset.open = "true";
         if (badgeDesktop) badgeDesktop.dataset.open = "true";
         if (badgeMobile) badgeMobile.dataset.open = "true";
+        if (notifBellBadge) {
+            notifBellBadge.dataset.open = "true";
+            if (notifBellCount) notifBellCount.textContent = totalAlerts;
+        }
     } else {
         badge.dataset.open = "false";
         if (badgeDesktop) badgeDesktop.dataset.open = "false";
+        if (badgeMobile) badgeMobile.dataset.open = "false";
+        if (notifBellBadge) notifBellBadge.dataset.open = "false";
     }
 }
 

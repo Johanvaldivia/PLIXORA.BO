@@ -202,17 +202,33 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
 /* ── LAYOUT ── */
 .app-container { display:flex; flex-direction:column; height:100vh; overflow: hidden; }
 
-/* ── TOP NAVBAR ── */
+/* ── TOP NAVBAR (Floating Pill) ── */
 .top-navbar {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 70px;
-    padding: 0 1.5rem;
-    background: var(--sidebar-bg); /* Use same dark bg */
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    position: fixed;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 40px);
+    max-width: 1280px;
+    height: 56px;
+    padding: 0 1rem 0 1.25rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     flex-shrink: 0;
-    z-index: 100;
+    z-index: 150;
+    animation: pillEntrance 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+[data-theme="dark"] .top-navbar {
+    background: rgba(30, 30, 36, 0.92);
+    border-color: rgba(255,255,255,0.06);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.35), 0 2px 8px rgba(0,0,0,0.18);
 }
 
 .top-navbar-left {
@@ -249,18 +265,17 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
     display: flex;
     align-items: center;
     gap: 0.4rem;
-    height: 100%;
-    padding: 0 1rem;
+    height: 38px;
+    padding: 0 0.9rem;
     font-size: 0.82rem;
     font-weight: 600;
     font-family: inherit;
     color: var(--text-sidebar);
-    border-radius: 0;
+    border-radius: 50px;
     background: transparent;
     border: none;
     cursor: pointer;
     transition: all 0.2s ease;
-    border-bottom: 2px solid transparent;
 }
 .nav-item svg {
     width: 18px;
@@ -275,12 +290,14 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
 .nav-item.active svg { opacity: 1; }
 .nav-item:hover {
     color: #fff;
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(255, 255, 255, 0.05);
 }
 .nav-item.active {
-    color: var(--orange-light);
-    border-bottom-color: var(--orange);
-    background: linear-gradient(180deg, transparent 50%, rgba(254, 91, 41, 0.05));
+    background: rgba(254, 91, 41, 0.1);
+    color: var(--orange);
+}
+[data-theme="dark"] .nav-item.active {
+    background: rgba(254, 91, 41, 0.15);
 }
 
 /* Top Navbar Right */
@@ -306,6 +323,75 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
     background: rgba(255,255,255,0.08);
     color: #fff;
 }
+
+/* Notification Dropdown */
+.notif-dropdown {
+    position: absolute;
+    top: 56px; /* Below navbar */
+    right: -10px; /* Align near the edge */
+    width: 340px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 200;
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    transform-origin: top right;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: flex;
+    flex-direction: column;
+}
+.notif-dropdown.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-10px) scale(0.95);
+}
+.notif-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+}
+.notif-header h4 {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--text-main);
+    font-weight: 600;
+}
+.notif-header button {
+    font-size: 0.75rem;
+    color: var(--orange);
+    background: rgba(254, 91, 41, 0.1);
+    border: none;
+    padding: 0.3rem 0.6rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: var(--ease);
+    font-family: inherit;
+    font-weight: 500;
+}
+.notif-header button:hover {
+    background: rgba(254, 91, 41, 0.2);
+}
+.notif-list {
+    max-height: 380px;
+    overflow-y: auto;
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.notif-empty {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+/* Individual notif card styles will be inline from JS */
 
 /* Owner Profile */
 .owner-badge.top-nav-profile {
@@ -338,7 +424,7 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
 }
 
 /* Background Shader positioning */
-.main-content { flex:1; display:flex; flex-direction:column; overflow:hidden; position:relative; }
+.main-content { flex:1; display:flex; flex-direction:column; overflow:hidden; position:relative; padding-top: 86px; }
 
 /* Canvas shader background */
 #shader-bg {
@@ -678,7 +764,11 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
     .sidebar { display:none; }
     .app-container { flex-direction:column; height:auto; min-height:100vh; }
     .top-nav-menu { display:none; }
-    .top-navbar { padding: 0 1rem; }
+    .top-navbar { 
+        width: calc(100% - 32px);
+        top: 16px;
+        padding: 0 0.75rem 0 1rem; 
+    }
     .owner-name { display: none; }
     .owner-badge.top-nav-profile { padding: 0; background: transparent !important; border: none !important; }
     .owner-badge.top-nav-profile:hover { background: transparent !important; }

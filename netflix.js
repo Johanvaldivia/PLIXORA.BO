@@ -273,6 +273,7 @@
                 inicioDate.setHours(12,0,0,0);
                 if (months) {
                     inicioDate.setMonth(inicioDate.getMonth() + months);
+                    inicioDate.setDate(inicioDate.getDate() - 1); // Aviso 1 día antes del corte
                 }
                 document.getElementById('nf-a-venc').value = toLocalDateStr(inicioDate);
             });
@@ -496,6 +497,7 @@
         document.getElementById('nf-a-inicio').value = today;
         // Default vencimiento = 1 mes
         const nextMonth = new Date(); nextMonth.setMonth(nextMonth.getMonth() + 1);
+        nextMonth.setDate(nextMonth.getDate() - 1); // Aviso 1 día antes del corte
         document.getElementById('nf-a-venc').value = toLocalDateStr(nextMonth);
         document.getElementById('nf-assign-modal').style.display = 'flex';
     };
@@ -649,6 +651,7 @@
         vencDate.setHours(12, 0, 0, 0);
         const months = parseInt(plan.replace('m', ''));
         vencDate.setMonth(vencDate.getMonth() + months);
+        vencDate.setDate(vencDate.getDate() - 1); // Aviso 1 día antes del corte
         const venc = toLocalDateStr(vencDate);
 
         // Price/profit
