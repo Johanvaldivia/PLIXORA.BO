@@ -288,7 +288,11 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
 }
 .nav-item:hover svg { opacity: 1; }
 .nav-item.active svg { opacity: 1; }
-.nav-item:hover {
+.nav-item:hover:not(.active) {
+    color: var(--text-main);
+    background: rgba(0, 0, 0, 0.04);
+}
+[data-theme="dark"] .nav-item:hover:not(.active) {
     color: #fff;
     background: rgba(255, 255, 255, 0.05);
 }
@@ -752,8 +756,11 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
 
 /* Hover on non-active */
 .pill-nav-item:not(.active):hover {
-    background: var(--sidebar-hover, rgba(255,255,255,0.05));
+    background: rgba(0, 0, 0, 0.04);
     color: var(--text-main);
+}
+[data-theme="dark"] .pill-nav-item:not(.active):hover {
+    background: rgba(255, 255, 255, 0.05);
 }
 
 /* Override old mobile-bottom-nav (compatibility) */
