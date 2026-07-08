@@ -248,10 +248,12 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
 .nav-item {
     display: flex;
     align-items: center;
+    gap: 0.4rem;
     height: 100%;
     padding: 0 1rem;
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     font-weight: 600;
+    font-family: inherit;
     color: var(--text-sidebar);
     border-radius: 0;
     background: transparent;
@@ -260,6 +262,17 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
     transition: all 0.2s ease;
     border-bottom: 2px solid transparent;
 }
+.nav-item svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    stroke: currentColor;
+    fill: none;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+}
+.nav-item:hover svg { opacity: 1; }
+.nav-item.active svg { opacity: 1; }
 .nav-item:hover {
     color: #fff;
     background: rgba(255, 255, 255, 0.03);
@@ -543,9 +556,122 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
     opacity: 0; filter: blur(var(--p6-blur)); transition: bottom var(--p6-dur) var(--p6-ease), opacity var(--p6-dur) var(--p6-ease), filter var(--p6-dur) var(--p6-ease); }
 .toast.show { bottom:90px; opacity: 1; filter: blur(0); }
 
-/* ── MOBILE ── */
-.mobile-header { display:none; }
-.mobile-bottom-nav { display:none; }
+/* ── FLOATING PILL NAV ── */
+.pill-nav {
+    display: none; /* shown only on mobile via media query */
+    position: fixed;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 200;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    padding: 6px 8px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.28), 0 2px 8px rgba(0,0,0,0.12);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    align-items: center;
+    gap: 2px;
+    height: 54px;
+    max-width: 96vw;
+    animation: pillEntrance 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+@keyframes pillEntrance {
+    0% { opacity: 0; transform: translateX(-50%) scale(0.85) translateY(20px); }
+    100% { opacity: 1; transform: translateX(-50%) scale(1) translateY(0); }
+}
+
+/* Dark mode pill background */
+[data-theme="dark"] .pill-nav {
+    background: rgba(30, 30, 36, 0.92);
+    border-color: rgba(255,255,255,0.06);
+}
+
+.pill-nav-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    padding: 0 10px;
+    height: 42px;
+    min-width: 42px;
+    border-radius: 50px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-family: inherit;
+    transition: background-color 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+                color 0.2s ease,
+                padding 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+.pill-nav-item:active {
+    transform: scale(0.95);
+}
+.pill-nav-item svg {
+    width: 22px;
+    height: 22px;
+    stroke: currentColor;
+    fill: none;
+    flex-shrink: 0;
+    transition: color 0.2s ease;
+}
+
+/* Label wrapper — animated width */
+.pill-nav-label-wrap {
+    display: block;
+    overflow: hidden;
+    width: 0;
+    opacity: 0;
+    transition: width 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+                opacity 0.2s ease,
+                margin-left 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    margin-left: 0;
+    white-space: nowrap;
+}
+.pill-nav-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    line-height: 1.9;
+    user-select: none;
+}
+
+/* Active State — expand the label */
+.pill-nav-item.active {
+    background: rgba(254, 91, 41, 0.1);
+    color: var(--orange);
+    gap: 0;
+    padding: 0 14px;
+}
+[data-theme="dark"] .pill-nav-item.active {
+    background: rgba(254, 91, 41, 0.15);
+}
+.pill-nav-item.active .pill-nav-label-wrap {
+    width: 62px;
+    opacity: 1;
+    margin-left: 6px;
+}
+.pill-nav-item.active .pill-nav-label {
+    color: var(--orange);
+}
+
+/* Hover on non-active */
+.pill-nav-item:not(.active):hover {
+    background: var(--sidebar-hover, rgba(255,255,255,0.05));
+    color: var(--text-main);
+}
+
+/* Override old mobile-bottom-nav (compatibility) */
+.mobile-bottom-nav { display: none !important; }
 
 @media (max-width:900px) {
     body { height:auto; overflow:auto; }
@@ -557,15 +683,12 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
     .owner-badge.top-nav-profile { padding: 0; background: transparent !important; border: none !important; }
     .owner-badge.top-nav-profile:hover { background: transparent !important; }
     .main-content { flex:1; overflow:visible; }
-    .view.active { height:auto; overflow:visible; padding-bottom:5.5rem; }
+    .view.active { height:auto; overflow:visible; padding-bottom:7rem; }
     /* All views: consistent horizontal + bottom padding for fixed nav */
-    #dashboard,#catalog,#newsale,#history,#netflix,#analytics,#group-accounts { padding:0 1rem 6rem; }
+    #dashboard,#catalog,#newsale,#history,#netflix,#analytics,#group-accounts { padding:0 1rem 7rem; }
 
-    .mobile-bottom-nav { display:flex; position:fixed; bottom:0; left:0; right:0; background:var(--bg-card); backdrop-filter:blur(24px); border-top:1px solid var(--border); z-index:100; padding:0.4rem 0 0.6rem; box-shadow:0 -4px 20px rgba(0,0,0,0.2); }
-    .mobile-nav-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:0.2rem; background:transparent; border:none; color:var(--text-muted); cursor:pointer; padding:0.35rem 0; transition:var(--ease); font-family:inherit; }
-    .mobile-nav-item.active { color:var(--orange); }
-    .mobile-nav-icon svg { width:21px; height:21px; stroke:currentColor; stroke-width:2; fill:none; display:block; }
-    .mobile-nav-label { font-size:0.6rem; font-weight:600; letter-spacing:0.2px; }
+    /* Show floating pill nav */
+    .pill-nav { display: flex; }
 
     .period-tabs { padding-top:1rem; }
     .tab-group { flex-wrap:wrap; border-radius:12px; }

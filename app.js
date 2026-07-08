@@ -459,23 +459,15 @@ function buildExpireBadge(expireDate) {
 
 // ---- NAVEGACIÓN ----
 function setupNavigation() {
-    // Desktop sidebar buttons
+    // Desktop top nav buttons
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', () => navigateTo(item.dataset.target));
     });
 
-    // Mobile bottom nav buttons
-    document.querySelectorAll('.mobile-nav-item[data-target]').forEach(item => {
+    // Mobile pill nav buttons
+    document.querySelectorAll('.pill-nav-item[data-target]').forEach(item => {
         item.addEventListener('click', () => navigateTo(item.dataset.target));
     });
-
-    // Mobile WA button (same as desktop WA button)
-    const mobileWABtn = document.getElementById('btn-generate-wa-mobile');
-    if (mobileWABtn) {
-        mobileWABtn.addEventListener('click', () => {
-            document.getElementById('btn-generate-wa').click();
-        });
-    }
 }
 
 // ---- CATÁLOGO ----
@@ -1532,9 +1524,9 @@ function navigateTo(target) {
     const desktopBtn = document.querySelector(`.nav-item[data-target="${target}"]`);
     if (desktopBtn) desktopBtn.classList.add('active');
 
-    document.querySelectorAll('.mobile-nav-item[data-target]').forEach(n => n.classList.remove('active'));
-    const mobileBtn = document.querySelector(`.mobile-nav-item[data-target="${target}"]`);
-    if (mobileBtn) mobileBtn.classList.add('active');
+    document.querySelectorAll('.pill-nav-item[data-target]').forEach(n => n.classList.remove('active'));
+    const pillBtn = document.querySelector(`.pill-nav-item[data-target="${target}"]`);
+    if (pillBtn) pillBtn.classList.add('active');
 
     const views = document.querySelectorAll('.view');
     views.forEach(v => {
