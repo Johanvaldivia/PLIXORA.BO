@@ -812,6 +812,24 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
     .toast { bottom:5.5rem; right:1rem; left:1rem; transform:none; justify-content:center; text-align:center; font-size:0.82rem; }
     .toast.show { bottom:5.5rem; }
     #cloud-status-indicator { font-size:0.7rem !important; padding:0.2rem 0.6rem !important; }
+    
+    /* Mobile Notification Dropdown Fix */
+    .notif-dropdown {
+        position: fixed;
+        top: 80px;
+        left: 16px;
+        right: 16px;
+        width: auto;
+        max-width: none;
+    }
+    
+    /* Optimize space in top navbar on mobile */
+    .top-navbar-right {
+        gap: 0.25rem;
+    }
+    .brand-text {
+        display: none;
+    }
 }
 
 @media (max-width:400px) {
