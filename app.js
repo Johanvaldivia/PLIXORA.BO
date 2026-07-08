@@ -1300,6 +1300,7 @@ window.notifyRenewal = function(id) {
     let vencLabel = 'próximamente';
     if (sale.expireDate) {
         const expDate = new Date(sale.expireDate); expDate.setHours(0,0,0,0);
+        expDate.setDate(expDate.getDate() + 1);
         vencLabel = `${expDate.getDate()} de ${meses[expDate.getMonth()]} de ${expDate.getFullYear()}`;
     }
 
