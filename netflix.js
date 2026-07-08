@@ -838,17 +838,17 @@
         }
 
         const codeDisplay = p.orderCode ? ` / ${p.orderCode}` : '';
-        const msg = `\u26A0\uFE0F *AVISO DE VENCIMIENTO \u2013 PLIXORA.BO* \u26A0\uFE0F\n\n` +
-                    `Hola ${p.cliente || ''} \uD83D\uDC4B\n` +
-                    `Tu suscripción de *Netflix Perfil ${p.nombre.toUpperCase()}${codeDisplay}* est\u00E1 pr\u00F3xima a vencer.\n\n` +
-                    `\uD83D\uDCE7 *Correo:* ${acc.correo}\n` +
-                    `\uD83D\uDD11 *Contrase\u00F1a:* ${acc.password}\n` +
-                    `\uD83D\uDCC5 *Vence el:* ${vencLabel}\n\n` +
-                    `Para continuar, responde con una opci\u00F3n:\n\n` +
-                    `\u2705 *RENOVAR*\n` +
-                    `\u274C *NO RENOVAR*\n\n` +
-                    `Quedamos atentos a tu respuesta \uD83D\uDE0A\n` +
-                    `*PLIXORA.BO*`;
+        const msg = `🎟️ *TICKET DE VENCIMIENTO | PLIXORA.BO* 🎟️\n\n` +
+                    `👤 *Cliente:* ${p.cliente || ''}\n` +
+                    `📺 *Servicio:* Netflix Perfil ${p.nombre.toUpperCase()}${codeDisplay}\n` +
+                    `⏳ *Válido hasta:* ${vencLabel}\n\n` +
+                    `Tus credenciales de ingreso:\n` +
+                    `• Correo: ${acc.correo}\n` +
+                    `• Clave: ${acc.password}\n\n` +
+                    `¿Deseas prolongar tu suscripción? \n` +
+                    `1️⃣ Responde *RENOVAR*\n` +
+                    `2️⃣ Responde *NO RENOVAR*\n\n` +
+                    `¡Gracias por elegirnos! 🍿✨`;
 
         pendingNotifyPayload = { accountId, idx, phone: p.whatsapp, cliente: p.cliente };
 
