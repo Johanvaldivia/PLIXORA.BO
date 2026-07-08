@@ -818,7 +818,6 @@
         let vencLabel = 'próximamente';
         if (p.vencimiento) {
             const d = new Date(p.vencimiento + 'T12:00:00');
-            d.setDate(d.getDate() + 1);
             vencLabel = `${d.getDate()} de ${meses[d.getMonth()]} de ${d.getFullYear()}`;
         }
 
