@@ -206,15 +206,16 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
 .top-navbar {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
+    gap: 3rem;
     position: fixed;
     top: 14px;
     left: 50%;
     transform: translateX(-50%);
-    width: calc(100% - 40px);
-    max-width: 1280px;
+    width: max-content;
+    max-width: calc(100% - 40px);
     height: 56px;
-    padding: 0 1rem 0 1.25rem;
+    padding: 0 1.25rem;
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: 50px;
@@ -809,6 +810,9 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
     .top-nav-menu { display:none; }
     .top-navbar { 
         width: calc(100% - 32px);
+        max-width: none;
+        justify-content: space-between;
+        gap: 0;
         top: 16px;
         padding: 0 0.75rem 0 1rem; 
     }
