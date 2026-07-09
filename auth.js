@@ -5,9 +5,7 @@
 (function () {
     'use strict';
 
-    // ── CONFIG ────────────────────────────────────────────────
-    const ADMIN_EMAIL    = 'admin@plixora.bo';
-    const ADMIN_PASSWORD = 'Plixora2026!';
+    // No credentials should be stored in plain text here.
 
     let auth = null;
 
@@ -58,22 +56,7 @@
             });
         }
 
-        // Auto-create admin account (silent — only runs once)
-        ensureAdminAccount();
-    }
-
-    // ── CREATE ADMIN ACCOUNT (FIRST TIME ONLY) ───────────────
-    async function ensureAdminAccount() {
-        try {
-            await auth.createUserWithEmailAndPassword(ADMIN_EMAIL, ADMIN_PASSWORD);
-            console.log('✅ Cuenta admin creada automáticamente');
-        } catch (err) {
-            // 'auth/email-already-in-use' means account exists — this is fine
-            if (err.code !== 'auth/email-already-in-use') {
-                console.warn('Admin account setup:', err.message);
-            }
-        }
-    }
+        // No auto-account creation. Account must be managed via Firebase Console.
 
     // ── HANDLE LOGIN ─────────────────────────────────────────
     async function handleLogin(e) {
@@ -134,7 +117,16 @@
         if (!auth) return;
         try {
             await auth.signOut();
-            // onAuthStateChanged will show login
+            // Clear all local data to prevent offline leaks
+            localStorage.removeItem('plixora_sales');
+            localStorage.removeItem('nf_accounts');
+            localStorage.removeItem('plixora_contacts');
+            localStorage.removeItem('ga_accounts');
+            // Destroy the app DOM to prevent CSS bypass
+            const appContent = document.getElementById('app-content');
+            if (appContent) appContent.innerHTML = '';
+            // Force reload to completely clear memory
+            window.location.reload();
         } catch (err) {
             console.error('Error al cerrar sesión:', err);
         }
