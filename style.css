@@ -168,21 +168,21 @@
   animation: number-pop-in var(--p9-dur) var(--p9-ease) forwards;
 }
 
-/* P8: Page Slide */
-@keyframes page-slide-in {
+/* P8: Page Slide (Converted to Blur-Fade) */
+@keyframes blurFadeIn {
   0% {
     opacity: 0;
-    transform: translateX(var(--p8-distance));
-    filter: blur(var(--p8-blur));
+    transform: translateY(16px);
+    filter: blur(8px);
   }
   100% {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateY(0);
     filter: blur(0);
   }
 }
 .view-sliding-in {
-  animation: page-slide-in var(--p8-slide-dur) var(--p8-slide-ease) forwards;
+  animation: blurFadeIn 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
 
 body {
@@ -537,10 +537,36 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
     flex:1; overflow-y:auto;
 }
 
-/* Views */
-.view { display:none; animation:fadeIn 0.3s ease forwards; }
-.view.active { display:block; overflow-y:auto; height:100%; }
-@keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+.view { 
+    display: none; 
+}
+.view.active { 
+    display: block; 
+    overflow-y: auto; 
+    height: 100%; 
+}
+
+/* Staggered Blur Fade Effect for view children */
+.view.active.view-sliding-in > * {
+    opacity: 0;
+    animation: blurFadeIn 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+.view.active.view-sliding-in > *:nth-child(1) { animation-delay: 0.05s; }
+.view.active.view-sliding-in > *:nth-child(2) { animation-delay: 0.10s; }
+.view.active.view-sliding-in > *:nth-child(3) { animation-delay: 0.15s; }
+.view.active.view-sliding-in > *:nth-child(4) { animation-delay: 0.20s; }
+.view.active.view-sliding-in > *:nth-child(5) { animation-delay: 0.25s; }
+.view.active.view-sliding-in > *:nth-child(6) { animation-delay: 0.30s; }
+.view.active.view-sliding-in > *:nth-child(7) { animation-delay: 0.35s; }
+.view.active.view-sliding-in > *:nth-child(8) { animation-delay: 0.40s; }
+.view.active.view-sliding-in > *:nth-child(9) { animation-delay: 0.45s; }
+.view.active.view-sliding-in > *:nth-child(10) { animation-delay: 0.50s; }
+
+@keyframes blurFadeIn { 
+    from { opacity: 0; filter: blur(10px); transform: translateY(10px); } 
+    to { opacity: 1; filter: blur(0); transform: translateY(0); } 
+}
 
 /* Inner padding wrapper for views */
 #dashboard       { padding:1.5rem 2rem; }
