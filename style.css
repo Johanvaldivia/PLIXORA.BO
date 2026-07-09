@@ -872,8 +872,8 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
     .owner-badge.top-nav-profile:hover { background: transparent !important; }
     .main-content { flex:1; overflow:visible; }
     .view.active { height:auto; overflow:visible; padding-bottom:7rem; }
-    /* All views: consistent horizontal + bottom padding for fixed nav */
-    #dashboard,#catalog,#newsale,#history,#netflix,#analytics,#group-accounts { padding:0 1rem 7rem; }
+    /* All views: consistent top padding for top nav + bottom padding for bottom nav */
+    #dashboard,#catalog,#newsale,#history,#netflix,#analytics,#group-accounts { padding:5.5rem 1rem 7rem; }
 
     /* Show floating pill nav */
     .pill-nav { display: flex; }
@@ -1091,7 +1091,8 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
     .nf-view-header{flex-direction:column;}
     .nf-info-strip{flex-wrap:wrap;}
     .nf-info-item{flex:1 1 45%;}
-    .nf-modal-lg{max-width:none !important; width:calc(100% - 1.5rem) !important;}
+    .nf-modal { max-width: 100% !important; min-width: 0; }
+    .nf-modal-lg { width: 100% !important; max-width: 100% !important; margin: 0 auto; min-width: 0; }
     /* ── Mobile modal fix: scroll full page on small screens ── */
     .nf-overlay {
         align-items: flex-start;
