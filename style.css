@@ -251,7 +251,7 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
     display: flex;
     align-items: center;
     height: 100%;
-    min-width: 115px; /* Tighter fit to bring menu closer */
+    width: 125px; /* Hard fixed width to absolutely prevent any jumping */
 }
 .brand-text h1 {
     font-size: 1.2rem; font-weight: 800;
@@ -264,6 +264,7 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
     animation: blink-caret .75s step-end infinite;
     display: inline-block;
     vertical-align: middle;
+    white-space: nowrap;
 }
 
 @keyframes blink-caret {
