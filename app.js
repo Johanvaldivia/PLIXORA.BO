@@ -165,6 +165,31 @@ function setupNotificationBell() {
             }
         });
     }
+
+    // Profile Dropdown Setup
+    const profileBtn = document.getElementById('profile-menu-btn');
+    const profileDropdown = document.getElementById('profile-dropdown');
+    if (profileBtn && profileDropdown) {
+        profileBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            profileDropdown.classList.toggle('hidden');
+        });
+        
+        profileDropdown.addEventListener('click', (e) => {
+            // Do not stop propagation if clicking a valid action item
+            if(e.target.closest('.profile-dropdown-item')) {
+                profileDropdown.classList.add('hidden');
+            } else {
+                e.stopPropagation();
+            }
+        });
+        
+        document.addEventListener('click', () => {
+            if (!profileDropdown.classList.contains('hidden')) {
+                profileDropdown.classList.add('hidden');
+            }
+        });
+    }
 }
 
 // ---- PERIOD TABS ----

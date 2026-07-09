@@ -179,10 +179,23 @@
                     </span>
                 </div>
                 
-                <div class="owner-badge top-nav-profile" onclick="if(confirm('¿Deseas cerrar sesión?')) { plixoraLogout(); }" title="Cerrar Sesión">
-                    <div class="owner-avatar">JV</div>
-                    <div class="owner-info">
-                        <span class="owner-name">Johan V.</span>
+                <div class="profile-wrapper" style="position: relative; margin-left: 0.5rem;">
+                    <div class="owner-badge top-nav-profile" id="profile-menu-btn" title="Perfil" style="cursor: pointer;">
+                        <div class="owner-avatar">JV</div>
+                        <div class="owner-info">
+                            <span class="owner-name">Johan V.</span>
+                        </div>
+                    </div>
+                    <!-- Profile Dropdown -->
+                    <div id="profile-dropdown" class="profile-dropdown hidden">
+                        <div class="profile-dropdown-item" id="btn-manage-contacts">
+                            <span class="profile-dropdown-icon">📇</span>
+                            <span>Gestionar Contactos</span>
+                        </div>
+                        <div class="profile-dropdown-item text-red" onclick="if(confirm('¿Deseas cerrar sesión?')) { plixoraLogout(); }">
+                            <span class="profile-dropdown-icon">🚪</span>
+                            <span>Cerrar sesión</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -298,7 +311,7 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="sale-contact" style="display:flex;align-items:center;justify-content:space-between;">📇 Cliente frecuente <button type="button" id="btn-manage-contacts" style="background:none;border:1px solid var(--border);color:var(--orange);padding:0.2rem 0.6rem;border-radius:6px;font-size:0.75rem;cursor:pointer;font-family:inherit;transition:var(--ease);" title="Gestionar contactos">⚙️ Gestionar</button></label>
+                            <label for="sale-contact">📇 Cliente frecuente</label>
                             <select id="sale-contact">
                                 <option value="" selected>✍️ Nuevo cliente (escribir datos)</option>
                             </select>
