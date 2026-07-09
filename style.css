@@ -168,21 +168,20 @@
   animation: number-pop-in var(--p9-dur) var(--p9-ease) forwards;
 }
 
-/* P8: Page Slide (Converted to Blur-Fade) */
-@keyframes blurFadeIn {
+/* P8: Page Slide (Converted to Scale Pop-in) */
+@keyframes scalePopIn {
   0% {
     opacity: 0;
-    transform: translateY(16px);
-    filter: blur(8px);
+    transform: translateY(15px) scale(0.95);
   }
   100% {
     opacity: 1;
-    transform: translateY(0);
-    filter: blur(0);
+    transform: translateY(0) scale(1);
   }
 }
 .view-sliding-in {
-  animation: blurFadeIn 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  /* Using a spring-like cubic-bezier to match chart deployment */
+  animation: scalePopIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
 body {
@@ -561,10 +560,10 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
     height: 100%; 
 }
 
-/* Staggered Blur Fade Effect for view children */
+/* Staggered Pop-in Effect for view children (resembles chart deployment) */
 .view.active.view-sliding-in > * {
     opacity: 0;
-    animation: blurFadeIn 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    animation: scalePopIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
 .view.active.view-sliding-in > *:nth-child(1) { animation-delay: 0.05s; }
@@ -577,11 +576,6 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
 .view.active.view-sliding-in > *:nth-child(8) { animation-delay: 0.40s; }
 .view.active.view-sliding-in > *:nth-child(9) { animation-delay: 0.45s; }
 .view.active.view-sliding-in > *:nth-child(10) { animation-delay: 0.50s; }
-
-@keyframes blurFadeIn { 
-    from { opacity: 0; filter: blur(10px); transform: translateY(10px); } 
-    to { opacity: 1; filter: blur(0); transform: translateY(0); } 
-}
 
 /* Inner padding wrapper for views */
 #dashboard       { padding:1.5rem 2rem; }
