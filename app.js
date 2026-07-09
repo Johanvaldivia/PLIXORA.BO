@@ -1983,7 +1983,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const typewriterElement = document.getElementById('typewriter-text');
     if (!typewriterElement) return;
 
-    const phrases = ['PLIXORA.BO', 'PLIXORA', 'PLIXORIANA'];
+    const phrases = ['PLIXORA.BO', 'PLIXORABO', 'PLIXORI'];
     let currentPhraseIndex = 0;
     let currentCharIndex = 0;
     let isDeleting = false;
