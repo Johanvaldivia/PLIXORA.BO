@@ -240,28 +240,29 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
 /* Brand */
 .brand-logo {
     width: 36px; height: 36px;
-    background: linear-gradient(135deg, var(--orange-light), var(--orange));
+    background: transparent;
     border-radius: 10px;
     display: flex; align-items: center; justify-content: center;
     box-shadow: var(--shadow-orange);
     flex-shrink: 0;
 }
 .brand-logo svg { width:20px; height:20px; stroke:#fff; }
+.brand-text {
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
 .brand-text h1 {
-    font-size: 1rem; font-weight: 800;
+    font-size: 1.2rem; font-weight: 800;
     background: linear-gradient(135deg, var(--orange-light), var(--orange));
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    background-clip: text; letter-spacing: 0.5px; line-height: 1.1;
-    overflow: hidden;
-    white-space: nowrap;
+    background-clip: text; letter-spacing: 0.5px;
+    margin: 0;
+    padding-right: 4px; /* Space for the cursor */
     border-right: 2px solid var(--orange);
-    animation: typing 1.5s steps(10, end), blink-caret .75s step-end infinite;
+    animation: blink-caret .75s step-end infinite;
     display: inline-block;
-}
-
-@keyframes typing {
-    from { width: 0; }
-    to { width: 100%; }
+    vertical-align: middle;
 }
 
 @keyframes blink-caret {

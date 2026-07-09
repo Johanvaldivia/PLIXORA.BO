@@ -1976,3 +1976,46 @@ async function executeReplace(sendWA) {
 
 window.confirmReplaceOnly = function() { executeReplace(false); };
 window.confirmReplaceAndSend = function() { executeReplace(true); };
+
+
+// TYPEWRITER EFFECT FOR BRAND LOGO
+document.addEventListener('DOMContentLoaded', () => {
+    const typewriterElement = document.getElementById('typewriter-text');
+    if (!typewriterElement) return;
+
+    const phrases = ['PLIXORA.BO', 'PLIXORA', 'PLIXORIANA'];
+    let currentPhraseIndex = 0;
+    let currentCharIndex = 0;
+    let isDeleting = false;
+    let typingSpeed = 200;
+    
+    function type() {
+        const currentPhrase = phrases[currentPhraseIndex];
+        
+        if (isDeleting) {
+            currentCharIndex--;
+        } else {
+            currentCharIndex++;
+        }
+        
+        typewriterElement.textContent = currentPhrase.substring(0, currentCharIndex);
+        
+        let speed = typingSpeed;
+        if (isDeleting) {
+            speed /= 2;
+        }
+        
+        if (!isDeleting && currentCharIndex === currentPhrase.length) {
+            speed = 2500;
+            isDeleting = true;
+        } else if (isDeleting && currentCharIndex === 0) {
+            isDeleting = false;
+            currentPhraseIndex = (currentPhraseIndex + 1) % phrases.length;
+            speed = 500;
+        }
+        
+        setTimeout(type, speed);
+    }
+    
+    setTimeout(type, 1000);
+});
