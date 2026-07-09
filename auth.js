@@ -147,6 +147,18 @@
             screen.classList.remove('hidden-login', 'fade-out');
             screen.style.display = 'flex';
         }
+        
+        // Reset form state on logout/show
+        const btn = document.getElementById('login-submit');
+        if (btn) {
+            btn.classList.remove('loading');
+            btn.disabled = false;
+        }
+        const passInput = document.getElementById('login-password');
+        if (passInput) {
+            passInput.value = '';
+        }
+        hideError();
     }
 
     function hideLogin() {
