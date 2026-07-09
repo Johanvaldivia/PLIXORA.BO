@@ -1070,11 +1070,11 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
 .nf-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(3px); z-index:3000; display:flex; align-items:center; justify-content:center; padding:1.5rem;
     opacity: 0; visibility: hidden; transition: opacity var(--p7-open-dur) var(--p7-ease), visibility var(--p7-open-dur) var(--p7-ease); }
 .nf-overlay[style*="display: flex"] { opacity: 1; visibility: visible; }
-.nf-modal { background:var(--bg-main); border-radius:16px; width:100%; max-width:500px; padding:1.5rem; position:relative; box-shadow:0 20px 40px rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.05);
+.nf-modal { background:var(--bg-main); border-radius:16px; width:100%; max-width:500px; padding:0; position:relative; box-shadow:0 20px 40px rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.05);
     max-height: 90vh; overflow-y: auto;
     transform: scale(var(--p7-scale)); filter: blur(2px); transition: transform var(--p7-open-dur) var(--p7-ease), filter var(--p7-open-dur) var(--p7-ease); }
 .nf-overlay[style*="display: flex"] .nf-modal { transform: scale(1); filter: blur(0); }
-.nf-modal-lg { max-width:750px; padding: 1.2rem; }
+.nf-modal-lg { max-width:750px; padding: 0; }
 .nf-modal-lg .sales-table th, .nf-modal-lg .sales-table td { padding: 0.6rem 0.8rem; }
 .nf-modal-header { display:flex;align-items:center;justify-content:space-between;padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg-card);z-index:1; }
 .nf-modal-header h3 { font-size:1.05rem;font-weight:700; }
