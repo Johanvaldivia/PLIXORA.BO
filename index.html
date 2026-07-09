@@ -27,17 +27,17 @@
          LOGIN SCREEN
          ======================== -->
     <div id="login-screen" class="login-screen">
+        <canvas id="shader-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;"></canvas>
         <div class="login-container">
-            <!-- Left: Form -->
-            <div class="login-left">
-                <div class="login-form-wrapper">
+            <!-- Center: Form -->
+            <div class="login-center">
+                <div class="login-form-wrapper glass-panel">
                     <div class="login-logo login-anim login-anim-d1">
                         <img src="logo.jpg" alt="PLIXORA.BO">
                         <span class="login-logo-text">PLIXORA<span>.BO</span></span>
                     </div>
 
                     <h1 class="login-title login-anim login-anim-d2">Bienvenido</h1>
-                    <!-- <p class="login-subtitle login-anim login-anim-d3">Ingresa a tu panel de control para gestionar tus ventas y cuentas de streaming.</p> -->
 
                     <form id="login-form">
                         <div class="login-field login-anim login-anim-d4">
@@ -72,22 +72,9 @@
 
                     <div id="login-error" class="login-error login-anim login-anim-d8"></div>
 
-                    <p class="login-anim login-anim-d8" style="text-align:center;margin-top:1.5rem;font-size:0.8rem;color:var(--text-muted);">
+                    <p class="login-anim login-anim-d8" style="text-align:center;margin-top:1.5rem;font-size:0.8rem;color:var(--text-muted); opacity: 0.8;">
                         🔒 Acceso exclusivo para administradores
                     </p>
-                </div>
-            </div>
-
-            <!-- Right: Hero -->
-            <div class="login-right login-right-anim">
-                <canvas id="shader-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;"></canvas>
-                <div class="login-circle login-circle-1" style="z-index:1;"></div>
-                <div class="login-circle login-circle-2" style="z-index:1;"></div>
-                <div class="login-circle login-circle-3" style="z-index:1;"></div>
-                <div class="login-hero-content" style="z-index:2;">
-                    <img src="logo.jpg" alt="PLIXORA.BO" class="login-hero-logo">
-                    <h2 class="login-hero-title">PLIXORA.BO</h2>
-                    <!-- <p class="login-hero-sub">Sistema de Gestión de Ventas &amp; Streaming</p> -->
                 </div>
             </div>
         </div>
@@ -112,33 +99,35 @@
 
             const fsSource = `
                 precision highp float;
-                varying vec2 vUv;
-                uniform float uTime;
-                uniform vec2 uResolution;
-
-                void main() {
-                    vec2 uv = gl_FragCoord.xy / uResolution.xy;
-                    // Centered uv
-                    vec2 p = uv * 2.0 - 1.0;
-                    p.x *= uResolution.x / uResolution.y;
-
-                    float color = 0.0;
-                    for(float i = 0.0; i < 6.0; i++) {
-                        p.y += sin(p.x * 2.0 + uTime * 0.5 + i) * 0.2;
-                        p.x += cos(p.y * 1.5 + uTime * 0.3 + i * 0.5) * 0.1;
-                        float line = abs(1.0 / (p.y * 50.0));
-                        color += line * (1.0 - i * 0.1);
+                uniform vec2 resolution;
+                uniform float time;
+                  
+                float random (in float x) {
+                    return fract(sin(x)*1e4);
+                }
+                float random (vec2 st) {
+                    return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);
+                }
+                
+                void main(void) {
+                  vec2 uv = (gl_FragCoord.xy * 2.0 - resolution.xy) / min(resolution.x, resolution.y);
+                  
+                  vec2 fMosaicScal = vec2(4.0, 2.0);
+                  vec2 vScreenSize = vec2(256.0, 256.0);
+                  uv.x = floor(uv.x * vScreenSize.x / fMosaicScal.x) / (vScreenSize.x / fMosaicScal.x);
+                  uv.y = floor(uv.y * vScreenSize.y / fMosaicScal.y) / (vScreenSize.y / fMosaicScal.y);       
+                    
+                  float t = time*1.5 + random(uv.x)*0.4;
+                  float lineWidth = 0.0008;
+          
+                  vec3 color = vec3(0.0);
+                  for(int j = 0; j < 3; j++){
+                    for(int i=0; i < 5; i++){
+                      color[j] += lineWidth*float(i*i) / abs(fract(t - 0.01*float(j)+float(i)*0.01)*1.0 - length(uv));        
                     }
-
-                    vec3 baseColor1 = vec3(0.05, 0.1, 0.3); // Deep blue
-                    vec3 baseColor2 = vec3(0.5, 0.1, 0.8); // Purple
-                    vec3 lineColor = vec3(0.1, 0.6, 1.0);  // Cyan lines
-                    vec3 lineColor2 = vec3(1.0, 0.3, 0.6); // Pink lines
-                    
-                    vec3 bg = mix(baseColor1, baseColor2, uv.y);
-                    vec3 finalColor = bg + mix(lineColor, lineColor2, sin(uTime)*0.5+0.5) * color * 0.5;
-                    
-                    gl_FragColor = vec4(finalColor, 1.0);
+                  }
+          
+                  gl_FragColor = vec4(color[2],color[1],color[0],1.0);
                 }
             `;
 
@@ -180,15 +169,15 @@
             gl.enableVertexAttribArray(positionLocation);
             gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
 
-            const uTimeLocation = gl.getUniformLocation(program, "uTime");
-            const uResolutionLocation = gl.getUniformLocation(program, "uResolution");
+            const timeLocation = gl.getUniformLocation(program, "time");
+            const resolutionLocation = gl.getUniformLocation(program, "resolution");
 
             function resize() {
                 const rect = canvas.parentElement.getBoundingClientRect();
                 canvas.width = rect.width;
                 canvas.height = rect.height;
                 gl.viewport(0, 0, canvas.width, canvas.height);
-                gl.uniform2f(uResolutionLocation, canvas.width, canvas.height);
+                gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
             }
             window.addEventListener('resize', resize);
             resize();
@@ -196,7 +185,7 @@
             let startTime = performance.now();
             function render() {
                 const time = (performance.now() - startTime) * 0.001;
-                gl.uniform1f(uTimeLocation, time);
+                gl.uniform1f(timeLocation, time);
                 gl.drawArrays(gl.TRIANGLES, 0, 6);
                 requestAnimationFrame(render);
             }
