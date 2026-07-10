@@ -57,6 +57,7 @@
         }
 
         // No auto-account creation. Account must be managed via Firebase Console.
+    }
 
     // ── HANDLE LOGIN ─────────────────────────────────────────
     async function handleLogin(e) {
