@@ -295,6 +295,14 @@ function initFirebase() {
                         window.nfRenderAll();
                     }
 
+                    // Conectar el módulo Cuentas Grupales
+                    if (typeof window.gaSetDb === 'function' && !window.gaDbConnected) {
+                        window.gaDbConnected = true;
+                        window.gaSetDb(db);
+                    } else if (window.gaDbConnected && typeof window.renderGroupAccounts === 'function') {
+                        window.renderGroupAccounts();
+                    }
+
                     if (fromServer) {
                         setCloudStatus('online');
                         if (!window.contactsFirebaseInit) {

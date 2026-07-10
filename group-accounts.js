@@ -16,14 +16,17 @@
 
     // ── INIT ──────────────────────────────────────────────────────
     function init() {
-        if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
-            gaDB = firebase.firestore();
-            listenAccounts();
-        }
+        // UI initialization
         const addBtn = document.getElementById('ga-btn-add-account');
         if (addBtn) addBtn.addEventListener('click', openAddAccountModal);
         window.renderGroupAccounts = renderAll;
     }
+
+    // Called by app.js when Firebase is ready
+    window.gaSetDb = function(firebaseDb) {
+        gaDB = firebaseDb;
+        listenAccounts();
+    };
 
     // ── FIRESTORE LISTENER ────────────────────────────────────────
     function listenAccounts() {
