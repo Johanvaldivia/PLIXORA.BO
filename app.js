@@ -1148,9 +1148,9 @@ function generateSaleDetailsText(sale) {
                `Tu cuenta de *Spotify Premium* está activada con éxito.\n` +
                durLine + `\n` +
                `📩 *TUS DATOS DE ACCESO:*\n` +
-               `• *Email:* ${sale.email || ''}\n` +
-               `• *Contraseña:* ${sale.password || ''}\n\n` +
-               `📌 _Nota: Inicia sesión ingresando el correo y contraseña directamente en Spotify, no uses la opción de "Ingresar con Google" o Gmail._\n\n` +
+               `*Correo:* ${sale.email || ''}\n` +
+               `*Contraseña:* ${sale.password || ''}\n\n` +
+               `📌 _Nota: Inicia sesión ingresando el correo y contraseña directamente en Spotify, no uses la opción de "Ingresar con Google"._\n\n` +
                `⚠️ *ADVERTENCIA:*\n` +
                `Para mantener tu garantía activa, está estrictamente prohibido cambiar la contraseña, el correo o los datos de facturación.\n\n` +
                `🛡️ *GARANTÍA O REEMPLAZO:*\n` +
