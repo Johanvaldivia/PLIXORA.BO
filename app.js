@@ -251,10 +251,13 @@ function initFirebase() {
         updateDashboard();
         return;
     }
-
     setCloudStatus('connecting');
 
-    try {
+    firebase.auth().onAuthStateChanged(user => {
+        if (user) {
+            if (!window.firestoreInitialized) {
+                window.firestoreInitialized = true;
+                try {
         db = firebase.firestore();
 
         // CRÍTICO: Habilitar persistencia offline
@@ -337,6 +340,9 @@ function initFirebase() {
         sales = JSON.parse(localStorage.getItem('plixora_sales')) || [];
         updateDashboard();
     }
+            }
+        }
+    });
 }
 
 // Migrar ventas locales que no están en Firebase (ejecución única)
