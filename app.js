@@ -17,6 +17,7 @@ const catalogData = [
     { id: 'cv-pro',   name: 'Canva Pro Individual',   type: 'single', category: 'individual', duration: '1 mes',    salePrice: 18,  cost: 0,   profit: 18, features: ['Kit de marca', 'Plantillas Pro'] },
     { id: 'gp-1m',    name: 'Gemini Pro',             type: 'single', category: 'individual', duration: '1 mes',    salePrice: 15,  cost: 0,   profit: 15, features: ['Inteligencia artificial premium', 'Directo a correo'] },
     { id: 'gp-2m',    name: 'Gemini Pro',             type: 'single', category: 'individual', duration: '2 meses',  salePrice: 30,  cost: 0,   profit: 30, features: ['Inteligencia artificial premium', 'Directo a correo'] },
+    { id: 'pv-perfil',name: 'Prime Video (Perfil)',   type: 'single', category: 'individual', duration: '1 mes',    salePrice: 10,  cost: 5,   profit: 5,  features: ['Perfil individual', '1 dispositivo'] },
     // ── CUENTAS COMPLETAS ──
     { id: 'sp-1m',    name: 'Spotify Premium',        type: 'single', category: 'completa',   duration: '1 mes',    salePrice: 20,  cost: 0,   profit: 20, features: ['Sin anuncios', 'Música offline'] },
     { id: 'sp-3m',    name: 'Spotify Premium',        type: 'single', category: 'completa',   duration: '3 meses',  salePrice: 55,  cost: 30,  profit: 25, features: ['Sin anuncios', 'Música offline'] },
@@ -1279,12 +1280,26 @@ function generateSaleDetailsText(sale) {
 
     // ── Prime Video ──
     if (prodName.includes('prime')) {
-        return `*PLIXORA.BO* | 🎬 *Prime Video*\n` +
+        return `━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+               `      *PLIXORA.BO* 🌟\n` +
+               `  🎬 *PRIME VIDEO*\n` +
+               `━━━━━━━━━━━━━━━━━━━━━━━━\n` +
                codeLine + `\n` +
+               `Hola *${clienteName}* 👋\n\n` +
+               `¡Tu cuenta de *Prime Video* ya está *activa*! 🎉\n\n` +
                duracionLine +
-               `📧 *Correo:* ${sale.email || ''}\n` +
-               `🔑 *Contraseña:* ${sale.password || ''}\n` +
-               prohibicion + `\n` + footer;
+               `📩 *TUS DATOS DE ACCESO:*\n` +
+               `*Correo:* ${sale.email || ''}\n` +
+               `*Contraseña:* ${sale.password || ''}\n\n` +
+               `📌 *Importante*\n` +
+               `SOLO INGRESAR EN 1 DISPOSITIVO\n` +
+               `NO CAMBIAR DE DISPOSITIVO\n` +
+               `✔️ Use su perfil asignado.\n` +
+               `✔️ No compartir perfil.\n` +
+               `✔️ Si necesitas un código, avísanos.\n` +
+               prohibicion + `\n` +
+               `━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+               footer;
     }
 
     // ── Adobe Creative Cloud ──
