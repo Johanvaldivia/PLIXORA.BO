@@ -1144,26 +1144,19 @@ function generateSaleDetailsText(sale) {
             else if (prodName.includes('6 mes')) durLine = `📌 *Duración:* 6 meses\n`;
             else if (prodName.includes('12 mes')) durLine = `📌 *Duración:* 12 meses\n`;
         }
-        return `━━━━━━━━━━━━━━━━━━━━━━━━\n` +
-               `      *PLIXORA.BO* 🌟\n` +
-               `  🎵 *SPOTIFY PREMIUM*\n` +
-               `━━━━━━━━━━━━━━━━━━━━━━━━\n` +
-               codeLine + `\n` +
-               `Hola *${clienteName}* 👋\n\n` +
-               `¡Tu cuenta de *Spotify Premium* ya está *activa* y lista para usar! 🎉\n\n` +
-               durLine +
-               `┌─────────────────────────\n` +
-               `│ 📧 *Correo:* ${sale.email || ''}\n` +
-               `│ 🔑 *Contraseña:* ${sale.password || ''}\n` +
-               `└─────────────────────────\n\n` +
-               `🛡️ *ADVERTENCIAS IMPORTANTES:*\n` +
-               `✅ No cambies la contraseña ni el correo.\n` +
-               `✅ No modifiques los datos de facturación ni el plan.\n\n` +
-               `🔧 _En caso de que la cuenta se caiga o se desactive la suscripción, avísame y el tiempo máximo de reposición o reactivación de la cuenta es entre *12 a 24 horas*._\n\n` +
-               `❌ _El incumplimiento de las advertencias anula la garantía._\n\n` +
-               `━━━━━━━━━━━━━━━━━━━━━━━━\n` +
-               `_PLIXORA.BO — Gracias por tu compra 🧡_\n` +
-               `_Ante cualquier consulta, estamos para ayudarte._`;
+        return `Hola *${clienteName}*, gracias por tu compra en *PLIXORA.BO* 👋\n\n` +
+               `Tu cuenta de *Spotify Premium* está activada con éxito.\n` +
+               durLine + `\n` +
+               `📩 *TUS DATOS DE ACCESO:*\n` +
+               `• *Email:* ${sale.email || ''}\n` +
+               `• *Contraseña:* ${sale.password || ''}\n\n` +
+               `📌 _Nota: Inicia sesión ingresando el correo y contraseña directamente en Spotify, no uses la opción de "Ingresar con Google" o Gmail._\n\n` +
+               `⚠️ *ADVERTENCIA:*\n` +
+               `Para mantener tu garantía activa, está estrictamente prohibido cambiar la contraseña, el correo o los datos de facturación.\n\n` +
+               `🛡️ *GARANTÍA O REEMPLAZO:*\n` +
+               `En caso de que haya una interrupción o deje de funcionar el servicio, por favor envíame tu *N° de Pedido (${sale.orderCode || 'PLX-####'})* y el nombre del servicio. ` +
+               `Una vez verificado y aceptado el reporte, el restablecimiento tardará un máximo de *12 a 24 horas*.\n\n` +
+               `¡Disfruta tu música sin anuncios! 🎵✨`;
     }
 
     // ── Netflix (from history, matches module style) ──
