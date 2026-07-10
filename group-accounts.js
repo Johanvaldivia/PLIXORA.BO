@@ -225,8 +225,13 @@
     async function saveNewMember(sendWhatsApp) {
         const accountId = document.getElementById('ga-member-account-id').value;
         const name = document.getElementById('ga-member-name').value.trim();
-        const phone = document.getElementById('ga-member-phone').value.trim();
+        let phone = document.getElementById('ga-member-phone').value.trim();
         const price = document.getElementById('ga-member-price').value.trim();
+
+        // Standardize phone number using app.js function if available
+        if (typeof window.sanitizeBoliviaPhone === 'function') {
+            phone = window.sanitizeBoliviaPhone(phone);
+        }
 
         if (!name || !phone || !price) {
             showToast('❌ Completa todos los campos.');
