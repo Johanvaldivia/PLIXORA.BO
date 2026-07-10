@@ -47,7 +47,7 @@
 .an-summary-card:hover {
     transform: translateY(-4px);
     box-shadow: var(--shadow-md);
-    border-color: var(--orange-glow);
+    border-color: var(--orange);
 }
 .an-card-icon {
     width: 56px;

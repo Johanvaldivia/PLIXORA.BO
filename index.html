@@ -27,7 +27,6 @@
          LOGIN SCREEN
          ======================== -->
     <div id="login-screen" class="login-screen">
-        <canvas id="shader-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;"></canvas>
         <div class="login-container">
             <!-- Center: Form -->
             <div class="login-center">
@@ -95,116 +94,66 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        // SHADER LINES BACKGROUND (Three.js version)
+        // SHADER LINES BACKGROUND (Canvas-based, replaces Three.js version)
         document.addEventListener("DOMContentLoaded", () => {
             const container = document.getElementById('login-screen');
-            if (!container || !window.THREE) return;
+            if (!container) return;
 
-            const THREE = window.THREE;
-            
-            // Create a dedicated div for the background
-            const bgContainer = document.createElement('div');
-            bgContainer.style.position = 'absolute';
-            bgContainer.style.top = '0';
-            bgContainer.style.left = '0';
-            bgContainer.style.width = '100%';
-            bgContainer.style.height = '100%';
-            bgContainer.style.zIndex = '0';
-            container.insertBefore(bgContainer, container.firstChild);
+            const canvas = document.createElement('canvas');
+            canvas.style.position = 'absolute';
+            canvas.style.top = '0';
+            canvas.style.left = '0';
+            canvas.style.width = '100%';
+            canvas.style.height = '100%';
+            canvas.style.zIndex = '0';
+            container.insertBefore(canvas, container.firstChild);
 
-            // Remove the old canvas if it's there
-            const oldCanvas = document.getElementById('shader-canvas');
-            if (oldCanvas) oldCanvas.remove();
+            const ctx = canvas.getContext('2d');
+            let animId;
+            let time = 0;
+            let W, H;
 
-            const camera = new THREE.Camera();
-            camera.position.z = 1;
+            function resize() {
+                W = canvas.width = container.clientWidth;
+                H = canvas.height = container.clientHeight;
+            }
+            resize();
+            window.addEventListener("resize", resize, false);
 
-            const scene = new THREE.Scene();
-            const geometry = new THREE.PlaneBufferGeometry(2, 2);
-
-            const uniforms = {
-                time: { type: "f", value: 1.0 },
-                resolution: { type: "v2", value: new THREE.Vector2() },
-            };
-
-            const vertexShader = `
-                void main() {
-                    gl_Position = vec4( position, 1.0 );
+            function draw() {
+                if (container.classList.contains('hidden-login')) {
+                    animId = requestAnimationFrame(draw);
+                    return;
                 }
-            `;
+                time += 0.006;
 
-            const fragmentShader = `
-                #define TWO_PI 6.2831853072
-                #define PI 3.14159265359
+                ctx.fillStyle = '#0a0a0c';
+                ctx.fillRect(0, 0, W, H);
 
-                precision highp float;
-                uniform vec2 resolution;
-                uniform float time;
-                  
-                float random (in float x) {
-                    return fract(sin(x)*1e4);
-                }
-                float random (vec2 st) {
-                    return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);
-                }
-                
-                void main(void) {
-                    vec2 uv = (gl_FragCoord.xy * 2.0 - resolution.xy) / min(resolution.x, resolution.y);
-                    
-                    vec2 fMosaicScal = vec2(4.0, 2.0);
-                    vec2 vScreenSize = vec2(256.0, 256.0);
-                    uv.x = floor(uv.x * vScreenSize.x / fMosaicScal.x) / (vScreenSize.x / fMosaicScal.x);
-                    uv.y = floor(uv.y * vScreenSize.y / fMosaicScal.y) / (vScreenSize.y / fMosaicScal.y);       
-                      
-                    float t = time*0.06+random(uv.x)*0.4;
-                    float lineWidth = 0.0008;
+                const spacing = 40;
+                const cols = Math.ceil(W / spacing) + 2;
+                const rows = Math.ceil(H / spacing) + 2;
 
-                    vec3 color = vec3(0.0);
-                    for(int j = 0; j < 3; j++){
-                        for(int i=0; i < 5; i++){
-                            color[j] += lineWidth*float(i*i) / abs(fract(t - 0.01*float(j)+float(i)*0.01)*1.0 - length(uv));        
-                        }
+                for (let r = 0; r < rows; r++) {
+                    for (let c = 0; c < cols; c++) {
+                        const x = c * spacing + (r % 2) * (spacing / 2);
+                        const y = r * spacing;
+                        const sx = x + Math.sin(time + y * 0.02) * 6;
+                        const sy = y + Math.cos(time + x * 0.02) * 6;
+                        const alpha = 0.08 + 0.12 * (0.5 + 0.5 * Math.sin(time * 2 + x * 0.01 + y * 0.01));
+                        ctx.fillStyle = `rgba(255,94,58,${alpha})`;
+                        ctx.beginPath();
+                        ctx.arc(sx, sy, 1.5, 0, Math.PI * 2);
+                        ctx.fill();
                     }
-
-                    gl_FragColor = vec4(color[2],color[1],color[0],1.0);
                 }
-            `;
 
-            const material = new THREE.ShaderMaterial({
-                uniforms: uniforms,
-                vertexShader: vertexShader,
-                fragmentShader: fragmentShader,
-            });
-
-            const mesh = new THREE.Mesh(geometry, material);
-            scene.add(mesh);
-
-            const renderer = new THREE.WebGLRenderer({ alpha: true });
-            renderer.setPixelRatio(window.devicePixelRatio);
-            bgContainer.appendChild(renderer.domElement);
-
-            function onWindowResize() {
-                const rect = container.getBoundingClientRect();
-                renderer.setSize(rect.width, rect.height);
-                uniforms.resolution.value.x = renderer.domElement.width;
-                uniforms.resolution.value.y = renderer.domElement.height;
+                animId = requestAnimationFrame(draw);
             }
 
-            onWindowResize();
-            window.addEventListener("resize", onWindowResize, false);
-
-            function animate() {
-                requestAnimationFrame(animate);
-                if (container.classList.contains('hidden-login')) return;
-                uniforms.time.value += 0.05;
-                renderer.render(scene, camera);
-            }
-
-            animate();
+            draw();
         });
     </script>
-        </div>
-    </div>
 
     <!-- ========================
          APP CONTENT (hidden until auth)
@@ -273,10 +222,16 @@
                     <div id="notif-dropdown" class="notif-dropdown hidden">
                         <div class="notif-header">
                             <h4>Notificaciones</h4>
-                            <button onclick="dismissAllAlerts()" id="notif-dismiss-all" style="display:none;">Marcar todo leído</button>
+                            <button onclick="dismissAllAlerts()" id="notif-dismiss-all" style="display:none;">Marcar todo leido</button>
                         </div>
                         <div id="notif-list" class="notif-list">
-                            <div class="notif-empty">No hay alertas de vencimiento.</div>
+                            <div class="notif-empty">
+                                <div class="notif-empty-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                </div>
+                                <span class="notif-empty-title">Todo tranquilo</span>
+                                <span style="font-size:0.78rem;">No hay alertas de vencimiento</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -498,7 +453,7 @@
                 <!-- History Filters & Search -->
                 <div class="history-controls" style="margin-bottom: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
                     <div class="search-box" style="flex: 1; min-width: 200px; position: relative;">
-                        <input type="text" id="history-search" placeholder="🔍 Buscar por cliente o número..." style="width: 100%; padding: 0.6rem 1rem; border-radius: var(--radius-pill); border: 1.5px solid var(--border); background: var(--bg-card); font-family: inherit; font-size: 0.9rem; outline: none; transition: var(--ease);">
+                        <input type="text" id="history-search" aria-label="Buscar ventas por cliente o número" placeholder="🔍 Buscar por cliente o número..." style="width: 100%; padding: 0.6rem 1rem; border-radius: var(--radius-pill); border: 1.5px solid var(--border); background: var(--bg-card); font-family: inherit; font-size: 0.9rem; outline: none; transition: var(--ease);">
                     </div>
                     <div class="catalog-filters" id="history-product-filters" style="margin-bottom: 0;">
                         <button class="filter-btn active" data-filter="all">Todos</button>

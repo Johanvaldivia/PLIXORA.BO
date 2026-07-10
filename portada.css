@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Fustat:wght@400;700&display=swap');
+
 :root {
   --brand-blue: rgba(0, 132, 255, 0.8);
   --brand-orange: #FF801E;
@@ -264,7 +266,7 @@ h1, h2, h3, .brand-logo {
 .glassy-orb {
   width: 100%;
   max-width: 800px;
-  mix-blend-mode: screen;
+  mix-blend-mode: multiply;
   transform: scale(1.25);
   filter: hue-rotate(-55deg) saturate(250%) brightness(1.2) contrast(1.1);
   pointer-events: none;

@@ -294,19 +294,32 @@ window.renderExpirationAlerts = function() {
         }
 
         if (diffDays <= 7) {
+            const urgency = diffDays <= 3 ? 'urgent' : 'soon';
+            const badgeLabel = diffDays <= 0
+                ? (diffDays === 0 ? 'Hoy' : `Vencido`)
+                : `${diffDays}d`;
+            const badgeClass = diffDays <= 0
+                ? (diffDays === 0 ? 'notif-card-badge vence-hoy' : 'notif-card-badge vencido')
+                : `notif-card-badge ${urgency}`;
+
             const itemHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-card); padding:0.6rem; border-radius:8px; border:1px solid var(--border); font-size:0.85rem; box-shadow: var(--shadow-sm); transition: var(--ease);">
-                    <div>
-                        <strong style="display:block; color:var(--text-main); margin-bottom: 0.2rem;">${sale.productName}</strong>
-                        <span style="color:var(--text-muted); font-size: 0.8rem; display: flex; align-items: center; gap: 0.2rem;">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:12px;height:12px;"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
-                            ${sale.customerName || sale.customer}
-                        </span>
+                <div class="notif-card">
+                    <div class="notif-card-icon ${urgency}">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/></svg>
                     </div>
-                    <div style="display:flex; gap:0.4rem; align-items:center;">
-                        <span style="color:${diffDays <= 3 ? '#ef4444' : '#d97706'}; font-weight:700; font-size: 0.8rem; background: ${diffDays <= 3 ? 'rgba(239,68,68,0.1)' : 'rgba(245,158,11,0.1)'}; padding: 0.2rem 0.4rem; border-radius: 4px;">${diffDays <= 0 ? (diffDays === 0 ? 'Vence HOY' : 'Vencido') : `En ${diffDays} d`}</span>
-                        <button class="btn-icon notify" onclick="notifyRenewal('${sale.id}')" style="width:28px;height:28px;border-color:${sale.notifiedRenewal ? '#10b981' : 'rgba(16,185,129,0.3)'};color:${sale.notifiedRenewal ? '#fff' : '#10b981'};background:${sale.notifiedRenewal ? '#10b981' : 'transparent'};" title="${sale.notifiedRenewal ? 'Aviso Enviado' : 'Notificar'}"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:14px;height:14px;"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/></svg></button>
-                        <button onclick="dismissAlert('${sale.id}')" style="width:28px;height:28px;background:none;border:1px solid rgba(239,68,68,0.25);color:#ef4444;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.7rem;transition:var(--ease);" title="Descartar alerta">&times;</button>
+                    <div class="notif-card-body">
+                        <div class="notif-card-title">${sale.productName}</div>
+                        <div class="notif-card-customer">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+                            ${sale.customerName || sale.customer}
+                        </div>
+                    </div>
+                    <div class="notif-card-actions">
+                        <span class="${badgeClass}">${badgeLabel}</span>
+                        <div class="notif-card-row">
+                            <button class="notif-btn-notify${sale.notifiedRenewal ? ' sent' : ''}" onclick="notifyRenewal('${sale.id}')" title="${sale.notifiedRenewal ? 'Aviso Enviado' : 'Notificar'}"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/></svg></button>
+                            <button class="notif-btn-dismiss" onclick="dismissAlert('${sale.id}')" title="Descartar">&times;</button>
+                        </div>
                     </div>
                 </div>
             `;
@@ -324,8 +337,8 @@ window.renderExpirationAlerts = function() {
     // Save auto-dismissed
     localStorage.setItem('plixora_dismissed_alerts', JSON.stringify(dismissedAlerts));
 
-    if (urgentCount === 0) urgentList.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem; padding:0.5rem; text-align: center; border: 1px dashed var(--border); border-radius: 8px;">✅ Sin urgencias.</div>';
-    if (soonCount === 0) soonList.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem; padding:0.5rem; text-align: center; border: 1px dashed var(--border); border-radius: 8px;">✅ Sin vencimientos próximos.</div>';
+    if (urgentCount === 0) urgentList.innerHTML = '<div class="notif-empty" style="padding:1.25rem 1rem;"><div class="notif-empty-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div><span class="notif-empty-title">Sin urgencias</span><span style="font-size:0.78rem;">Todo está al día</span></div>';
+    if (soonCount === 0) soonList.innerHTML = '<div class="notif-empty" style="padding:1.25rem 1rem;"><div class="notif-empty-icon" style="background:rgba(245,158,11,0.1);"><svg xmlns="http://www.w3.org/2000/svg" style="color:#f59e0b;" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div><span class="notif-empty-title">Sin vencimientos próximos</span><span style="font-size:0.78rem;">Nada que renovar pronto</span></div>';
 
     const totalAlerts = urgentCount + soonCount;
     // Play notification sound for new alerts (only if there are alerts and not on first load)
@@ -348,7 +361,7 @@ window.renderExpirationAlerts = function() {
             notifList.innerHTML = urgentList.innerHTML + soonList.innerHTML;
             if (notifDismissAll) notifDismissAll.style.display = 'block';
         } else {
-            notifList.innerHTML = '<div class="notif-empty">No hay alertas de vencimiento.</div>';
+            notifList.innerHTML = '<div class="notif-empty"><div class="notif-empty-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div><span class="notif-empty-title">Todo tranquilo</span><span style="font-size:0.78rem;">No hay alertas de vencimiento</span></div>';
             if (notifDismissAll) notifDismissAll.style.display = 'none';
         }
     }
