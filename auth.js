@@ -118,11 +118,11 @@
         if (!auth) return;
         try {
             await auth.signOut();
-            // Clear all local data to prevent offline leaks
-            localStorage.removeItem('plixora_sales');
-            localStorage.removeItem('nf_accounts');
-            localStorage.removeItem('plixora_contacts');
-            localStorage.removeItem('ga_accounts');
+            // Los datos locales se conservan para funcionamiento offline
+            // localStorage.removeItem('plixora_sales');
+            // localStorage.removeItem('nf_accounts');
+            // localStorage.removeItem('plixora_contacts');
+            // localStorage.removeItem('ga_accounts');
             // Destroy the app DOM to prevent CSS bypass
             const appContent = document.getElementById('app-content');
             if (appContent) appContent.innerHTML = '';

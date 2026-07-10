@@ -58,9 +58,16 @@
         ctx.fillStyle = bg;
         ctx.fillRect(0, 0, w, h);
 
-        const lineCount = 28;
+        const lineCount = window.innerWidth < 768 ? 12 : 18;
         const speed = 0.003;
         time += speed;
+
+        // Si el dashboard está oculto (login activo), no dibujamos para ahorrar batería/CPU y evitar parpadeos
+        const appContent = document.getElementById('app-content');
+        if (appContent && appContent.style.display === 'none') {
+            animId = requestAnimationFrame(draw);
+            return;
+        }
 
         for (let i = 0; i < lineCount; i++) {
             const colorIdx = i % colors.length;
@@ -74,7 +81,7 @@
             const frequency = 0.003 + Math.sin(time * 0.2 + i * 0.1) * 0.001;
             const phaseOffset = i * 0.8 + time * (0.5 + i * 0.05);
 
-            for (let x = 0; x <= w; x += 3) {
+            for (let x = 0; x <= w; x += 6) {
                 const wave1 = Math.sin(x * frequency + phaseOffset) * amplitude;
                 const wave2 = Math.sin(x * frequency * 1.8 + phaseOffset * 0.7 + time) * (amplitude * 0.4);
                 const wave3 = Math.cos(x * frequency * 0.5 + phaseOffset * 1.3) * (amplitude * 0.2);

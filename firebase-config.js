@@ -17,6 +17,17 @@
 // 1. En el menú izquierdo, haz clic en "Firestore Database"
 // 2. Haz clic en "Crear base de datos"
 // 3. Selecciona "Comenzar en modo de prueba" → Siguiente → Listo
+// 
+// 4. LUEGO REEMPLAZA LAS REGLAS DE FIRESTORE CON ESTO:
+// rules_version = '2';
+// service cloud.firestore {
+//   match /databases/{database}/documents {
+//     // Solo usuarios autenticados pueden leer/escribir
+//     match /{document=**} {
+//       allow read, write: if request.auth != null;
+//     }
+//   }
+// }
 // =============================================================
 
 const firebaseConfig = {

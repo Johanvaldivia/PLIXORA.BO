@@ -195,6 +195,7 @@
 
             function animate() {
                 requestAnimationFrame(animate);
+                if (container.classList.contains('hidden-login')) return;
                 uniforms.time.value += 0.05;
                 renderer.render(scene, camera);
             }
@@ -1142,8 +1143,15 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <script src="config.js"></script>
     <script src="firebase-config.js"></script>
     <script src="auth.js?v=1.2"></script>
+    <script src="catalog-data.js"></script>
+    <script src="sales-core.js"></script>
+    <script src="dashboard.js"></script>
+    <script src="contacts.js"></script>
+    <script src="history-actions.js"></script>
+    <script src="replace-account.js"></script>
     <script src="app.js?v=1.2"></script>
     <script src="netflix.js?v=1.2"></script>
     <script src="analytics.js?v=1.1"></script>

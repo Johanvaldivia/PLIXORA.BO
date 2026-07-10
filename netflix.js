@@ -52,8 +52,8 @@
         return 'NF-' + String(max + 1).padStart(3, '0');
     }
 
-    function generateProfiles(prefix) {
-        const p = prefix || 'Perfil ';
+    function generateProfiles() {
+        const p = 'Perfil ';
         return [1, 2, 3, 4, 5].map(n => ({
             nombre: p + n, estado: 'libre',
             cliente: '', whatsapp: '', inicio: '', vencimiento: '', obs: ''
@@ -566,6 +566,7 @@
         perfiles[assignProfileIndex] = { ...perfiles[assignProfileIndex], nombre: perfilNombre, estado: 'ocupado', cliente, whatsapp: wa, inicio, vencimiento: venc, plan, obs, orderCode: newCode };
 
         // ── Optimistic update: apply locally BEFORE Firebase confirms ──
+        const accSnapshot = JSON.parse(JSON.stringify(acc));
         acc.perfiles = perfiles;
         localStorage.setItem('nf_accounts', JSON.stringify(nfAccounts));
         window.nfRenderAll();
@@ -596,7 +597,7 @@
             }
         } catch (e) {
             // Rollback on error
-            acc.perfiles[assignProfileIndex] = { ...acc.perfiles[assignProfileIndex], estado: 'libre', cliente: '', whatsapp: '', inicio: '', vencimiento: '', plan: '', obs: '' };
+            Object.assign(acc, accSnapshot);
             localStorage.setItem('nf_accounts', JSON.stringify(nfAccounts));
             window.nfRenderAll();
             alert('Error al guardar en la nube: ' + e.message);
@@ -695,6 +696,7 @@
         };
 
         // Optimistic update
+        const destAccSnapshot = JSON.parse(JSON.stringify(destAcc));
         destAcc.perfiles = destPerfiles;
         localStorage.setItem('nf_accounts', JSON.stringify(nfAccounts));
         window.nfRenderAll();
@@ -730,7 +732,7 @@
             }
         } catch (e) {
             // Rollback on error
-            destAcc.perfiles[destIdx] = { nombre: destPerfiles[destIdx].nombre, estado: 'libre', cliente: '', whatsapp: '', inicio: '', vencimiento: '', plan: '', obs: '' };
+            Object.assign(destAcc, destAccSnapshot);
             localStorage.setItem('nf_accounts', JSON.stringify(nfAccounts));
             window.nfRenderAll();
             alert('Error al transferir: ' + e.message);
@@ -786,7 +788,7 @@
 
         try {
             // Enviar mensaje 1 - datos de la cuenta
-            const resp1 = await fetch('https://plixora-bot.duckdns.org/api/send-message', {
+            const resp1 = await fetch(`${window.PLIXORA_CONFIG.WA_BOT_URL}/api/send-message`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ phone: phone, message: msg1 })
@@ -798,7 +800,7 @@
             await new Promise(r => setTimeout(r, 1500));
 
             // Enviar mensaje 2 - instrucciones con imagen (usa el MISMO phone capturado)
-            const resp2 = await fetch('https://plixora-bot.duckdns.org/api/send-image', {
+            const resp2 = await fetch(`${window.PLIXORA_CONFIG.WA_BOT_URL}/api/send-image`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -869,7 +871,7 @@
         showNFToast('📤 Enviando aviso por WhatsApp...');
 
         try {
-            const resp = await fetch('https://plixora-bot.duckdns.org/api/send-message', {
+            const resp = await fetch(`${window.PLIXORA_CONFIG.WA_BOT_URL}/api/send-message`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ phone: phone, message: msg })
