@@ -84,7 +84,7 @@
             card.innerHTML = `
                 <div class="ga-card-header">
                     <div class="ga-card-title">
-                        <span class="ga-card-icon">🎬</span>
+                        <span class="ga-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/></svg></span>
                         <div>
                             <h3>${acc.serviceName}</h3>
                             <p class="ga-card-subtitle">${slotsUsed}/${maxSlots} perfiles ocupados</p>
@@ -95,17 +95,17 @@
                             ${slotsUsed >= maxSlots ? 'Llena' : 'Disponible'}
                         </div>
                         <div class="ga-card-expiry ${expired ? 'ga-expired' : ''}">
-                            📅 Vence: ${expDate}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px; vertical-align:text-top;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Vence: ${expDate}
                         </div>
                     </div>
                 </div>
                 <div class="ga-card-creds">
                     <div class="ga-cred-row">
-                        <span class="ga-cred-label">📧 Correo:</span>
+                        <span class="ga-cred-label"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> Correo:</span>
                         <span class="ga-cred-value">${acc.email || '—'}</span>
                     </div>
                     <div class="ga-cred-row">
-                        <span class="ga-cred-label">🔑 Contraseña:</span>
+                        <span class="ga-cred-label"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg> Contraseña:</span>
                         <span class="ga-cred-value ga-password" data-visible="false" onclick="this.dataset.visible = this.dataset.visible === 'true' ? 'false' : 'true'; this.textContent = this.dataset.visible === 'true' ? '${acc.password || '—'}' : '••••••••'">••••••••</span>
                     </div>
                 </div>
@@ -123,8 +123,9 @@
                         <span class="ga-stat-value ${profit >= 0 ? 'ga-profit-pos' : 'ga-profit-neg'}">${profit >= 0 ? '+' : ''}${profit.toFixed(2)} Bs</span>
                     </div>
                 </div>
-                <div class="ga-card-members-title">
-                    <span>👥 Miembros (${slotsUsed})</span>
+                <div class="ga-card-members-title" style="display:flex;align-items:center;gap:0.4rem;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    <span>Miembros (${slotsUsed})</span>
                 </div>
                 <div class="ga-members-list" id="ga-members-${acc.id}">
                     ${members.length === 0 ? '<p class="ga-no-members">Sin miembros aún</p>' :
@@ -134,7 +135,7 @@
                                     <span class="ga-member-badge">${i + 1}</span>
                                     <div>
                                         <span class="ga-member-name">${m.name}</span>
-                                        <span class="ga-member-phone">📱 ${m.phone}</span>
+                                        <span class="ga-member-phone"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px;"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg> ${m.phone}</span>
                                     </div>
                                 </div>
                                 <div class="ga-member-prices">
@@ -151,10 +152,10 @@
                         Agregar Cliente
                     </button>
                     <button class="ga-btn ga-btn-replace" onclick="window.gaOpenReplace('${acc.id}', '${acc.serviceName}')">
-                        🔄 Reemplazar Cuenta
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Reemplazar Cuenta
                     </button>
-                    <button class="ga-btn ga-btn-delete" onclick="window.gaDeleteAccount('${acc.id}', '${acc.serviceName}')">
-                        🗑️
+                    <button class="ga-btn ga-btn-delete" onclick="window.gaDeleteAccount('${acc.id}', '${acc.serviceName}')" style="padding:0.55rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                     </button>
                 </div>
             `;

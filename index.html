@@ -698,7 +698,7 @@
             <section id="group-accounts" class="view" style="padding: 1.5rem 2rem;">
                 <div class="nf-view-header">
                     <div>
-                        <h2>👥 Cuentas Grupales</h2>
+                        <h2 style="display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Cuentas Grupales</h2>
                         <p class="subtitle">Gestiona cuentas compartidas y notifica cambios automáticamente</p>
                     </div>
                     <button class="ga-btn-add-account-main" id="ga-btn-add-account">
@@ -708,7 +708,7 @@
                 </div>
 
                 <div id="ga-empty-state" class="ga-empty-state">
-                    <span>📦</span>
+                    <span><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg></span>
                     <p>Aún no tienes cuentas grupales.<br>Presiona <strong>"Nueva Cuenta"</strong> para empezar.</p>
                 </div>
 
@@ -1043,7 +1043,7 @@
     <div id="ga-add-account-modal" class="ga-overlay" style="display:none">
         <div class="ga-modal">
             <div class="ga-modal-header">
-                <h3>➕ Nueva Cuenta Grupal</h3>
+                <h3 style="display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M8 12h8"/><path d="M12 8v8"/></svg> Nueva Cuenta Grupal</h3>
                 <button class="ga-close" onclick="gaCloseAddAccountModal()">✕</button>
             </div>
             <div class="ga-form-group">
@@ -1074,11 +1074,11 @@
                     </select>
                 </div>
                 <div class="ga-form-group">
-                    <label>💰 Costo Total de la Cuenta (Bs) *</label>
+                    <label style="display:flex;align-items:center;gap:0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> Costo Total de la Cuenta (Bs) *</label>
                     <input type="number" id="ga-new-account-cost" placeholder="Ej: 30" step="0.01" min="0">
                 </div>
             </div>
-            <button class="ga-btn-submit" onclick="gaSubmitNewAccount()">🚀 Crear Cuenta Grupal</button>
+            <button class="ga-btn-submit" onclick="gaSubmitNewAccount()"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg> Crear Cuenta Grupal</button>
         </div>
     </div>
 
@@ -1086,7 +1086,7 @@
     <div id="ga-add-member-modal" class="ga-overlay" style="display:none">
         <div class="ga-modal">
             <div class="ga-modal-header">
-                <h3>👤 Agregar Cliente</h3>
+                <h3 style="display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg> Agregar Cliente</h3>
                 <button class="ga-close" onclick="gaCloseAddMemberModal()">✕</button>
             </div>
             <input type="hidden" id="ga-member-account-id">
@@ -1101,13 +1101,13 @@
                     <input type="tel" id="ga-member-phone" placeholder="7XXXXXXX">
                 </div>
                 <div class="ga-form-group">
-                    <label>💵 Precio de Venta (Bs) *</label>
+                    <label style="display:flex;align-items:center;gap:0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> Precio de Venta (Bs) *</label>
                     <input type="number" id="ga-member-price" placeholder="Ej: 15" step="0.01" min="0">
                 </div>
             </div>
             <div style="display:flex;gap:0.75rem;margin-top:0.5rem;">
-                <button id="ga-btn-save-only" class="ga-btn-submit" style="background:#374151;flex:1;" onclick="gaSaveOnlyMember()">💾 Solo Guardar</button>
-                <button id="ga-btn-save-send" class="ga-btn-submit" style="flex:1;" onclick="gaSubmitNewMember()">✅ Agregar y Enviar por WhatsApp</button>
+                <button id="ga-btn-save-only" class="ga-btn-submit" style="background:#374151;flex:1;" onclick="gaSaveOnlyMember()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Solo Guardar</button>
+                <button id="ga-btn-save-send" class="ga-btn-submit" style="flex:1;" onclick="gaSubmitNewMember()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9z"/></svg> Agregar y Enviar por WhatsApp</button>
             </div>
         </div>
     </div>
@@ -1116,7 +1116,7 @@
     <div id="ga-replace-modal" class="ga-overlay" style="display:none">
         <div class="ga-modal">
             <div class="ga-modal-header">
-                <h3>🔄 Reemplazar Cuenta</h3>
+                <h3 style="display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Reemplazar Cuenta</h3>
                 <button class="ga-close" onclick="gaCloseReplaceModal()">✕</button>
             </div>
             <input type="hidden" id="ga-replace-account-id">
@@ -1130,10 +1130,10 @@
                 <input type="text" id="ga-replace-password" placeholder="nueva-contraseña">
             </div>
             <div class="ga-notify-section">
-                <h4>📱 Se notificará a estos clientes:</h4>
+                <h4 style="display:flex;align-items:center;gap:0.4rem;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg> Se notificará a estos clientes:</h4>
                 <div id="ga-replace-notify-list"></div>
             </div>
-            <button class="ga-btn-submit ga-btn-submit-blue" onclick="gaSubmitReplace()">🔄 Reemplazar y Notificar por WhatsApp</button>
+            <button class="ga-btn-submit ga-btn-submit-blue" onclick="gaSubmitReplace()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Reemplazar y Notificar por WhatsApp</button>
         </div>
         </div>
     </div>
