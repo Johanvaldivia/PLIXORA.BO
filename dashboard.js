@@ -16,8 +16,24 @@ window.updateDashboard = function() {
 
     // Update values
     mSales.textContent = filtered.length;
-    mRev.textContent = filtered.reduce((s, v) => s + v.price,  0);
-    mProf.textContent = filtered.reduce((s, v) => s + v.profit, 0);
+    const totalRevenue = filtered.reduce((s, v) => s + v.price, 0);
+    const totalProfit = filtered.reduce((s, v) => s + v.profit, 0);
+    mRev.textContent = totalRevenue;
+    mProf.textContent = totalProfit;
+
+    // Animate progress bar (profit margin %)
+    const progressBar = document.getElementById('profit-progress');
+    if (progressBar && totalRevenue > 0) {
+        const margin = Math.min(Math.max((totalProfit / totalRevenue) * 100, 0), 100);
+        progressBar.style.width = '0%';
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                progressBar.style.width = margin + '%';
+            });
+        });
+    } else if (progressBar) {
+        progressBar.style.width = '0%';
+    }
 
     // Trigger reflow and re-add animation
     void mSales.offsetWidth;
