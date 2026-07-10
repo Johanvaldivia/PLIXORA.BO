@@ -1074,9 +1074,10 @@ function generateSaleDetailsText(sale) {
 
     // Format duration instead of expiration
     let duracionLine = '';
-    const matchDuracion = (sale.productName || '').match(/\[(.*?)\]/);
+    const matchDuracion = (sale.productName || '').match(/\[(.*?)\]/) || (sale.productName || '').match(/\((.*?meses?.*?|.*?año.*?)\)/i);
     if (matchDuracion) {
-        duracionLine = `📌 *Duración:* ${matchDuracion[1]}\n`;
+        let textDur = matchDuracion[1] || matchDuracion[0].replace(/[()\[\]]/g, '');
+        duracionLine = `📌 *Duración:* ${textDur}\n`;
     }
 
     // Standard prohibition (applies to ALL products)
@@ -1135,12 +1136,34 @@ function generateSaleDetailsText(sale) {
 
     // ── Spotify Premium ──
     if (prodName.includes('spotify')) {
-        return `*PLIXORA.BO* | 🎵 *Spotify Premium*\n` +
+        let durLine = duracionLine;
+        if (!durLine) {
+            // Fallback for duration if regex fails
+            if (prodName.includes('1 mes')) durLine = `📌 *Duración:* 1 mes\n`;
+            else if (prodName.includes('3 mes')) durLine = `📌 *Duración:* 3 meses\n`;
+            else if (prodName.includes('6 mes')) durLine = `📌 *Duración:* 6 meses\n`;
+            else if (prodName.includes('12 mes')) durLine = `📌 *Duración:* 12 meses\n`;
+        }
+        return `━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+               `      *PLIXORA.BO* 🌟\n` +
+               `  🎵 *SPOTIFY PREMIUM*\n` +
+               `━━━━━━━━━━━━━━━━━━━━━━━━\n` +
                codeLine + `\n` +
-               duracionLine +
-               `📧 *Correo:* ${sale.email || ''}\n` +
-               `🔑 *Contraseña:* ${sale.password || ''}\n` +
-               prohibicion + `\n` + footer;
+               `Hola *${clienteName}* 👋\n\n` +
+               `¡Tu cuenta de *Spotify Premium* ya está *activa* y lista para usar! 🎉\n\n` +
+               durLine +
+               `┌─────────────────────────\n` +
+               `│ 📧 *Correo:* ${sale.email || ''}\n` +
+               `│ 🔑 *Contraseña:* ${sale.password || ''}\n` +
+               `└─────────────────────────\n\n` +
+               `🛡️ *ADVERTENCIAS IMPORTANTES:*\n` +
+               `✅ No cambies la contraseña ni el correo.\n` +
+               `✅ No modifiques los datos de facturación ni el plan.\n\n` +
+               `🔧 _En caso de que la cuenta se caiga o se desactive la suscripción, avísame y el tiempo máximo de reposición o reactivación de la cuenta es entre *12 a 24 horas*._\n\n` +
+               `❌ _El incumplimiento de las advertencias anula la garantía._\n\n` +
+               `━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+               `_PLIXORA.BO — Gracias por tu compra 🧡_\n` +
+               `_Ante cualquier consulta, estamos para ayudarte._`;
     }
 
     // ── Netflix (from history, matches module style) ──
