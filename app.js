@@ -227,6 +227,12 @@ function initFirebase() {
                         window.renderGroupAccounts();
                     }
 
+                    // Actualizar analíticas si está en esa pestaña
+                    const activeView = document.querySelector('.view.active');
+                    if (activeView && activeView.id === 'analytics' && typeof window.renderAnalytics === 'function') {
+                        window.renderAnalytics();
+                    }
+
                     if (fromServer) {
                         setCloudStatus('online');
                         if (!window.contactsFirebaseInit) {

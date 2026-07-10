@@ -73,7 +73,8 @@
 
         // Populate select with months that have sales
         const months = new Set();
-        (window.sales || []).forEach(s => {
+        const allSales = (typeof sales !== 'undefined' ? sales : []);
+        allSales.forEach(s => {
             if (s.date) {
                 const date = new Date(s.date);
                 if (!isNaN(date)) {
@@ -139,7 +140,7 @@
         updateColorsForTheme();
         destroyCharts();
 
-        const allSales = window.sales || [];
+        const allSales = typeof sales !== 'undefined' ? sales : [];
         
         // Filter sales for selected month
         const [targetYear, targetMonth] = currentMonthStr.split('-').map(Number);
