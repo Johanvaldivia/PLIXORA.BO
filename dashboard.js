@@ -270,9 +270,6 @@ window.renderExpirationAlerts = function() {
 
     const today = nowBolivia(); today.setHours(0,0,0,0);
 
-    // Load dismissed alerts from localStorage
-    let dismissedAlerts = JSON.parse(localStorage.getItem('plixora_dismissed_alerts')) || [];
-
     let urgentCount = 0;
     let soonCount = 0;
 
@@ -281,15 +278,14 @@ window.renderExpirationAlerts = function() {
         // EXCLUIR Netflix de las alertas
         const prodName = (sale.productName || '').toLowerCase();
         if (prodName.includes('netflix')) return;
-        // Skip dismissed alerts
-        if (dismissedAlerts.includes(sale.id)) return;
+        // Skip explicitly dismissed alerts
+        if (sale.alertDismissed) return;
 
         const expDate = new Date(sale.expireDate); expDate.setHours(0,0,0,0);
         const diffDays = Math.ceil((expDate - today) / 86400000);
 
-        // Auto-eliminar ventas vencidas hace 2+ dias de las alertas
+        // Auto-eliminar ventas vencidas hace 2+ dias de las alertas (sin guardar en BD)
         if (diffDays <= -2) {
-            dismissedAlerts.push(sale.id);
             return;
         }
 
@@ -333,9 +329,6 @@ window.renderExpirationAlerts = function() {
             }
         }
     });
-
-    // Save auto-dismissed
-    localStorage.setItem('plixora_dismissed_alerts', JSON.stringify(dismissedAlerts));
 
     if (urgentCount === 0) urgentList.innerHTML = '<div class="notif-empty" style="padding:1.25rem 1rem;"><div class="notif-empty-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div><span class="notif-empty-title">Sin urgencias</span><span style="font-size:0.78rem;">Todo está al día</span></div>';
     if (soonCount === 0) soonList.innerHTML = '<div class="notif-empty" style="padding:1.25rem 1rem;"><div class="notif-empty-icon" style="background:rgba(245,158,11,0.1);"><svg xmlns="http://www.w3.org/2000/svg" style="color:#f59e0b;" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div><span class="notif-empty-title">Sin vencimientos próximos</span><span style="font-size:0.78rem;">Nada que renovar pronto</span></div>';
@@ -388,24 +381,55 @@ window.renderExpirationAlerts = function() {
 }
 
 window.dismissAlert = function(saleId) {
-    let dismissed = JSON.parse(localStorage.getItem('plixora_dismissed_alerts')) || [];
-    if (!dismissed.includes(saleId)) dismissed.push(saleId);
-    localStorage.setItem('plixora_dismissed_alerts', JSON.stringify(dismissed));
-    renderHistoryTable();
-    showToast('✅ Alerta descartada');
+    if (!db) { showToast('Error: No hay conexión a la base de datos'); return; }
+    
+    db.collection('plixora_sales').doc(saleId).update({ alertDismissed: true })
+        .then(() => {
+            showToast('✅ Alerta descartada en todos los dispositivos');
+            // La actualización local se manejará automáticamente por el onSnapshot
+        })
+        .catch(err => {
+            console.error('Error al descartar alerta:', err);
+            showToast('❌ Error al descartar alerta');
+        });
 };
 
 window.dismissAllAlerts = function() {
-    if (!confirm('¿Descartar todas las alertas de vencimiento?')) return;
-    const dismissed = JSON.parse(localStorage.getItem('plixora_dismissed_alerts')) || [];
+    if (!confirm('¿Descartar todas las alertas de vencimiento actuales?')) return;
+    if (!db) { showToast('Error: No hay conexión'); return; }
+
+    const batch = db.batch();
+    let count = 0;
+
     sales.forEach(sale => {
         if (!sale.expireDate) return;
         const prodName = (sale.productName || '').toLowerCase();
         if (prodName.includes('netflix')) return;
-        if (!dismissed.includes(sale.id)) dismissed.push(sale.id);
+        
+        // Si no está ya descartada, añadirla al batch
+        if (!sale.alertDismissed) {
+            const today = nowBolivia(); today.setHours(0,0,0,0);
+            const expDate = new Date(sale.expireDate); expDate.setHours(0,0,0,0);
+            const diffDays = Math.ceil((expDate - today) / 86400000);
+            
+            // Solo descartar las que están en el rango de alerta (<= 7 días y > -2)
+            if (diffDays <= 7 && diffDays > -2) {
+                const docRef = db.collection('plixora_sales').doc(sale.id);
+                batch.update(docRef, { alertDismissed: true });
+                count++;
+            }
+        }
     });
-    localStorage.setItem('plixora_dismissed_alerts', JSON.stringify(dismissed));
-    renderHistoryTable();
-    showToast('✅ Todas las alertas descartadas');
+
+    if (count > 0) {
+        batch.commit().then(() => {
+            showToast(`✅ ${count} alertas descartadas globalmente`);
+        }).catch(err => {
+            console.error('Error en batch dismiss:', err);
+            showToast('❌ Error al descartar alertas');
+        });
+    } else {
+        showToast('ℹ️ No hay alertas para descartar');
+    }
 };
 
