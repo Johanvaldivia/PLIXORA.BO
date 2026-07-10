@@ -645,6 +645,9 @@ async function executeSaveSale(newSale, sendWhatsApp) {
         if (contactSel) contactSel.value = '';
         document.getElementById('sale-summary').style.display = 'none';
         showToast('✅ Venta registrada y sincronizada');
+        if (typeof window.playNotificationSound === 'function') {
+            window.playNotificationSound('sale');
+        }
 
         if (sendWhatsApp && newSale.customer && newSale.customer !== 'Anónimo' && window.pendingSaleContext) {
             try {

@@ -2,7 +2,44 @@
 // dashboard.js
 // =============================================================
 
+const HISTORY_PER_PAGE = 15;
+let historyPage = 1;
+
+// ── NOTIFICATION SOUND ──────────────────────────────────────
+window.playNotificationSound = function(type) {
+    try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        if (type === 'sale') {
+            osc.frequency.setValueAtTime(800, ctx.currentTime);
+            osc.frequency.setValueAtTime(1000, ctx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.15, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.3);
+        } else if (type === 'alert') {
+            osc.frequency.setValueAtTime(600, ctx.currentTime);
+            osc.frequency.setValueAtTime(400, ctx.currentTime + 0.15);
+            osc.frequency.setValueAtTime(600, ctx.currentTime + 0.3);
+            gain.gain.setValueAtTime(0.12, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.5);
+        }
+    } catch (e) { /* Silently fail if audio not supported */ }
+};
+
 window.updateDashboard = function() {
+    // Hide skeleton, show table
+    const skeleton = document.getElementById('recent-sales-skeleton');
+    const tableWrap = document.getElementById('recent-sales-table-wrap');
+    if (skeleton) skeleton.style.display = 'none';
+    if (tableWrap) tableWrap.style.display = '';
+
     const filtered = filterSalesByPeriod(sales);
 
     const mSales = document.getElementById('metric-sales-count');
@@ -88,7 +125,13 @@ window.renderHistoryTable = function() {
     const tbody = document.getElementById('history-sales-list');
     const empty = document.getElementById('empty-history-state');
     const table = document.querySelector('#history .sales-table');
+    const skeleton = document.getElementById('history-skeleton');
+    const historyTable = document.getElementById('history-table');
     if (!tbody || !empty || !table) return;
+
+    // Hide skeleton, show table
+    if (skeleton) skeleton.style.display = 'none';
+    if (historyTable) historyTable.style.display = 'table';
 
     tbody.innerHTML = '';
 
@@ -117,13 +160,24 @@ window.renderHistoryTable = function() {
         });
     }
 
+    // Sort by date descending
+    filteredHistory.sort((a,b) => new Date(b.date) - new Date(a.date));
+
+    // Pagination
+    const totalPages = Math.max(1, Math.ceil(filteredHistory.length / HISTORY_PER_PAGE));
+    if (historyPage > totalPages) historyPage = totalPages;
+    const start = (historyPage - 1) * HISTORY_PER_PAGE;
+    const pageData = filteredHistory.slice(start, start + HISTORY_PER_PAGE);
+
     if (!filteredHistory.length) {
         empty.style.display = 'block'; table.style.display = 'none';
+        const paginationEl = document.getElementById('history-pagination');
+        if (paginationEl) paginationEl.style.display = 'none';
     } else {
         empty.style.display = 'none'; table.style.display = 'table';
     }
 
-    [...filteredHistory].sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(sale => {
+    pageData.forEach(sale => {
         const tr = document.createElement('tr');
         const date = new Date(sale.date).toLocaleDateString('es-ES', { day:'2-digit', month:'short', year:'numeric' });
         tr.innerHTML = `
@@ -158,8 +212,50 @@ window.renderHistoryTable = function() {
         tbody.appendChild(tr);
     });
 
+    renderPaginationControls(filteredHistory.length, totalPages);
     renderExpirationAlerts();
 }
+
+function renderPaginationControls(totalItems, totalPages) {
+    const container = document.getElementById('history-pagination');
+    if (!container) return;
+    if (totalItems === 0) { container.style.display = 'none'; return; }
+    container.style.display = 'flex';
+
+    const start = (historyPage - 1) * HISTORY_PER_PAGE + 1;
+    const end = Math.min(historyPage * HISTORY_PER_PAGE, totalItems);
+
+    let html = `<span style="font-size:0.8rem;color:var(--text-muted);margin-right:1rem;">${start}-${end} de ${totalItems}</span>`;
+
+    // Previous button
+    html += `<button class="pag-btn" onclick="goHistoryPage(${historyPage - 1})" ${historyPage <= 1 ? 'disabled' : ''}>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>`;
+
+    // Page numbers (show max 5 around current)
+    const maxVisible = 5;
+    let pageStart = Math.max(1, historyPage - Math.floor(maxVisible / 2));
+    let pageEnd = Math.min(totalPages, pageStart + maxVisible - 1);
+    if (pageEnd - pageStart + 1 < maxVisible) pageStart = Math.max(1, pageEnd - maxVisible + 1);
+
+    for (let i = pageStart; i <= pageEnd; i++) {
+        html += `<button class="pag-btn ${i === historyPage ? 'pag-active' : ''}" onclick="goHistoryPage(${i})">${i}</button>`;
+    }
+
+    // Next button
+    html += `<button class="pag-btn" onclick="goHistoryPage(${historyPage + 1})" ${historyPage >= totalPages ? 'disabled' : ''}>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>`;
+
+    container.innerHTML = html;
+}
+
+window.goHistoryPage = function(page) {
+    const totalPages = Math.max(1, Math.ceil(sales.length / HISTORY_PER_PAGE));
+    if (page < 1 || page > totalPages) return;
+    historyPage = page;
+    renderHistoryTable();
+};
 
 window.renderExpirationAlerts = function() {
     const urgentList = document.getElementById('expiring-urgent-list');
@@ -232,6 +328,13 @@ window.renderExpirationAlerts = function() {
     if (soonCount === 0) soonList.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem; padding:0.5rem; text-align: center; border: 1px dashed var(--border); border-radius: 8px;">✅ Sin vencimientos próximos.</div>';
 
     const totalAlerts = urgentCount + soonCount;
+    // Play notification sound for new alerts (only if there are alerts and not on first load)
+    if (totalAlerts > 0 && window._alertsInitialized) {
+        if (typeof window.playNotificationSound === 'function') {
+            window.playNotificationSound('alert');
+        }
+    }
+    window._alertsInitialized = true;
     const badgeDesktop = document.getElementById('nav-badge-desktop');
     const badgeMobile = document.getElementById('nav-badge-mobile');
     const notifBellBadge = document.getElementById('notif-bell-badge');
