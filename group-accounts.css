@@ -515,3 +515,31 @@
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+/* ── Mobile responsive ── */
+@media (max-width: 900px) {
+    .ga-accounts-grid { grid-template-columns: 1fr; gap: 1rem; }
+    .ga-card { padding: 1.1rem; }
+    .ga-card-header { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+    .ga-header-badges { flex-direction: row; align-items: center; gap: 0.5rem; }
+    .ga-card-creds { padding: 0.85rem; }
+    .ga-cred-label { min-width: auto; font-size: 0.8rem; }
+    .ga-cred-row { flex-direction: column; align-items: flex-start; gap: 0.3rem; }
+    .ga-card-stats { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+    .ga-stat { padding: 0.5rem; }
+    .ga-stat-label { font-size: 0.65rem; }
+    .ga-stat-value { font-size: 0.88rem; }
+    .ga-card-actions { flex-direction: column; }
+    .ga-btn { width: 100%; justify-content: center; min-height: 44px; }
+    .ga-modal { padding: 1.25rem; max-width: 100%; }
+    .ga-form-row { grid-template-columns: 1fr; }
+    .ga-member-row { padding: 0.65rem; }
+    .ga-member-name { font-size: 0.82rem; }
+    .ga-member-phone { font-size: 0.7rem; }
+}
+@media (max-width: 400px) {
+    .ga-card { padding: 0.9rem; }
+    .ga-card-title h3 { font-size: 0.95rem; }
+    .ga-stat-value { font-size: 0.82rem; }
+    .ga-cred-value { font-size: 0.8rem; }
+}

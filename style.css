@@ -898,59 +898,57 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
     .sidebar { display:none; }
     .app-container { flex-direction:column; height:auto; min-height:100vh; }
     .top-nav-menu { display:none; }
-    .top-navbar { 
+    .top-navbar {
         width: calc(100% - 32px);
         max-width: none;
         justify-content: space-between;
         gap: 0;
         top: 16px;
-        padding: 0 0.75rem 0 1rem; 
+        padding: 0 0.75rem 0 1rem;
     }
     .owner-name { display: none; }
     .owner-badge.top-nav-profile { padding: 0; background: transparent !important; border: none !important; }
     .owner-badge.top-nav-profile:hover { background: transparent !important; }
     .main-content { flex:1; overflow:visible; }
     .view.active { height:auto; overflow:visible; padding-bottom:7rem; }
-    /* All views: consistent top padding for top nav + bottom padding for bottom nav */
-    #dashboard,#catalog,#newsale,#history,#netflix,#analytics,#group-accounts { padding:5.5rem 1rem 7rem; }
+    #dashboard,#catalog,#newsale,#history,#netflix,#analytics,#group-accounts { padding:5.5rem 1rem 6.5rem; }
 
-    /* Show floating pill nav */
     .pill-nav { display: flex; }
 
-    .period-tabs { padding-top:1rem; }
+    .period-tabs { padding-top:0.75rem; }
     .tab-group { flex-wrap:wrap; border-radius:12px; }
+    .tab-btn { padding:0.5rem 1rem; font-size:0.82rem; }
     .metrics-grid { grid-template-columns:1fr; gap:0.75rem; margin-bottom:1.25rem; }
     .metric-card { padding:1rem 1.1rem; }
     .metric-value { font-size:1.5rem; }
-    .table-container { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+
+    .table-container { overflow-x:auto; -webkit-overflow-scrolling:touch; border-radius:12px; }
+    .sales-table { min-width:600px; }
     .sales-table th,.sales-table td { padding:0.55rem 0.65rem; font-size:0.78rem; white-space:nowrap; }
+
     .products-grid { grid-template-columns:1fr; }
     .product-card { padding:1.1rem; }
     .catalog-filters { overflow-x:auto; flex-wrap:nowrap; padding-bottom:0.25rem; scrollbar-width:none; }
     .catalog-filters::-webkit-scrollbar { display:none; }
     .filter-btn { flex-shrink:0; white-space:nowrap; }
-    /* Form: full width + extra bottom margin so button isn't hidden */
+
     .form-container { padding:1.25rem; max-width:100%; margin-bottom:1.5rem; }
     .form-row { flex-direction:column; }
     .form-group label { word-break:break-word; white-space:normal; }
-    .form-group input,.form-group select { padding:0.7rem 0.85rem; }
-    /* Ensure submit button is fully visible above bottom nav */
+    .form-group input,.form-group select { padding:0.7rem 0.85rem; font-size:16px; }
     .btn-block { margin-bottom:1rem; }
-    /* History controls stack on mobile */
+
     .history-controls { flex-direction:column !important; }
     .history-controls .search-box { min-width:0 !important; width:100% !important; flex:none !important; }
     .history-controls .catalog-filters { flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; -ms-overflow-style:none; }
     .history-controls .catalog-filters::-webkit-scrollbar { display:none; }
-    /* Modals: !important overrides inline max-width styles */
+
     .nf-modal { width:calc(100% - 1.5rem) !important; max-width:none !important; }
-    /* Expiration alerts grid stacks to 1 column on mobile */
     #expiration-alerts-content > div { grid-template-columns:1fr !important; }
-    /* Toast above bottom nav */
     .toast { bottom:5.5rem; right:1rem; left:1rem; transform:none; justify-content:center; text-align:center; font-size:0.82rem; }
     .toast.show { bottom:5.5rem; }
     #cloud-status-indicator { font-size:0.7rem !important; padding:0.2rem 0.6rem !important; }
-    
-    /* Mobile Notification Dropdown Fix */
+
     .notif-dropdown {
         position: fixed;
         top: 80px;
@@ -959,28 +957,55 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
         width: auto;
         max-width: none;
     }
-    
-    /* Optimize space in top navbar on mobile */
-    .top-navbar-right {
-        gap: 0.25rem;
-    }
-    .brand-text {
-        display: none;
-    }
+
+    .top-navbar-right { gap: 0.25rem; }
+    .brand-text { display: none; }
+
+    .view-header h2 { font-size:1.3rem; }
+
+    .ga-card-actions { flex-direction:column; }
+    .ga-card-actions .ga-btn { width:100%; justify-content:center; min-height:44px; }
+    .ga-card { padding:1.1rem; }
+    .ga-card-header { flex-direction:column; align-items:flex-start; gap:0.75rem; }
+    .ga-header-badges { flex-direction:row; align-items:center; gap:0.5rem; }
+    .ga-cred-label { min-width:auto; }
+    .ga-cred-row { flex-direction:column; align-items:flex-start; }
+    .ga-card-stats { grid-template-columns:repeat(3,1fr); gap:0.5rem; }
+    .ga-form-row { grid-template-columns:1fr; }
+    .ga-modal { padding:1.25rem; }
+
+    .an-summary-grid { grid-template-columns:1fr; gap:1rem; }
+    .an-card-value { font-size:1.4rem; }
+    .an-summary-card { padding:1rem; gap:1rem; }
+    .an-card-icon { width:44px; height:44px; border-radius:12px; }
+    .an-card-icon svg { width:22px; height:22px; }
+    .an-chart-card { padding:1rem; }
+    .an-chart-card h3 { font-size:1rem; margin-bottom:1rem; }
+
+    .btn, .ga-btn, .filter-btn { min-height:44px; }
 }
 
 @media (max-width:400px) {
     .mobile-nav-label { font-size:0.55rem; }
     .mobile-nav-icon svg { width:19px; height:19px; }
-    /* Fix #4: Netflix metrics go single column on very small screens */
     .nf-metrics { grid-template-columns:1fr !important; }
+    #dashboard,#catalog,#newsale,#history,#netflix,#analytics,#group-accounts { padding:5.5rem 0.75rem 6.5rem; }
+    .view-header h2 { font-size:1.15rem; }
+    .metric-value { font-size:1.3rem; }
+    .metric-card { padding:0.85rem 0.9rem; }
+    .tab-btn { padding:0.45rem 0.75rem; font-size:0.78rem; }
+    .ga-card { padding:0.9rem; }
+    .ga-stat-value { font-size:0.88rem; }
+    .ga-cred-value { font-size:0.82rem; }
+    .nf-stat-value { font-size:1.3rem; }
+    .an-card-value { font-size:1.2rem; }
+    .an-summary-card { padding:0.85rem; }
 }
 
 /* =========================================
    NETFLIX MODULE
    ========================================= */
-.nf-n-badge { display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:#e50914;color:#fff;font-size:0.9rem;font-weight:800;border-radius:6px;    margin-right: 0.2rem;
-}
+.nf-n-badge { display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:#e50914;color:#fff !important;font-size:0.9rem;font-weight:800;border-radius:6px;margin-right:0.2rem;-webkit-text-fill-color:#fff !important; }
 
 /* ============================================================ */
 /* THEME SWITCH
@@ -1127,12 +1152,11 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
 .nav-item[data-target="netflix"].active { background:linear-gradient(135deg,#e50914,#b81d24);box-shadow:0 4px 14px rgba(229,9,20,0.35); }
 @media (max-width:900px) {
     .nf-metrics{grid-template-columns:repeat(2,1fr);}
-    .nf-view-header{flex-direction:column;}
+    .nf-view-header{flex-direction:column;gap:0.75rem;}
     .nf-info-strip{flex-wrap:wrap;}
-    .nf-info-item{flex:1 1 45%;}
+    .nf-info-item{flex:1 1 45%;padding:0.75rem 1rem;}
     .nf-modal { max-width: 100% !important; min-width: 0; }
     .nf-modal-lg { width: 100% !important; max-width: 100% !important; margin: 0 auto; min-width: 0; }
-    /* ── Mobile modal fix: scroll full page on small screens ── */
     .nf-overlay {
         align-items: flex-start;
         padding: 0.75rem 0.75rem 5.5rem;
@@ -1149,8 +1173,10 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
     }
     .nf-modal form { padding: 1rem; }
     .nf-modal-header { padding: 1rem; }
-    /* Ensure assign / add modals buttons are always visible */
     .nf-modal .btn { min-height: 48px; font-size: 0.95rem; }
+    .nf-view-header h2 { font-size:1.3rem; }
+    .nf-stat-card { padding:0.85rem; }
+    .nf-badge { font-size:0.65rem; padding:0.15rem 0.5rem; }
 }
 @media (max-width:400px) { .nf-metrics{grid-template-columns:1fr !important;} .nf-stat-value{font-size:1.3rem;} }
 
