@@ -70,6 +70,14 @@ window.confirmHistNotifySend = async function() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ phone: phone, message: msg })
         });
+
+        const contentType = resp.headers.get('content-type') || '';
+        if (!contentType.includes('application/json')) {
+            const textSnippet = (await resp.text()).substring(0, 120);
+            console.error('Respuesta no JSON del bot:', textSnippet);
+            throw new Error(`El bot respondió con HTML (status ${resp.status}). Verifica que el servidor esté activo.`);
+        }
+
         const data = await resp.json();
         if (!data.success) throw new Error(data.error || 'Error enviando mensaje');
 
@@ -83,12 +91,16 @@ window.confirmHistNotifySend = async function() {
                 localStorage.setItem('plixora_sales', JSON.stringify(sales));
             }
         }
-        updateDashboard(); // Re-render tables to show green button
+        updateDashboard();
 
         showToast('✅ Aviso enviado a ' + cliente);
     } catch (error) {
         console.error('Error enviando aviso:', error);
-        showToast('❌ Error: ' + error.message);
+        if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+            showToast('❌ No se pudo conectar al bot de WhatsApp. Verifica tu conexión.');
+        } else {
+            showToast('❌ ' + error.message);
+        }
     }
 };
 

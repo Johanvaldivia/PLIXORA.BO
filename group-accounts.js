@@ -338,7 +338,7 @@
                 }
 
                 try {
-                    await fetch(window.PLIXORA_CONFIG.WA_BOT_URL + '/api/send-message', {
+                    await fetch(window.PLIXORA_CONFIG.WA_BOT_URL, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ phone, message: msg })
@@ -440,7 +440,7 @@
                 const msg = `🔄 *PLIXORA.BO — Actualización de Cuenta*\n\nHola *${m.name}* 👋\n\nTe informamos que los datos de acceso de tu cuenta de *${account.serviceName}* han sido actualizados. Aquí tienes las nuevas credenciales:\n\n📧 *Nuevo Correo:* ${newEmail}\n🔑 *Nueva Contraseña:* ${newPassword}\n👤 *Tu Perfil:* Perfil ${i + 1}${notaCombo}\n\n⚠️ *Importante:*\n• Los datos anteriores ya no funcionan.\n• No cambies la contraseña ni el correo.\n• No compartas estos datos con nadie.\n\n🔧 _El reemplazo o restablecimiento de cuenta se realiza en un plazo máximo de *24 horas*._\n\n_PLIXORA.BO — Disculpa las molestias. Si tienes alguna duda, escríbenos. 🙏_`;
 
                 try {
-                    await fetch(window.PLIXORA_CONFIG.WA_BOT_URL + '/api/send-message', {
+                    await fetch(window.PLIXORA_CONFIG.WA_BOT_URL, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ phone: m.phone, message: msg })

@@ -788,7 +788,7 @@
 
         try {
             // Enviar mensaje 1 - datos de la cuenta
-            const resp1 = await fetch(`${window.PLIXORA_CONFIG.WA_BOT_URL}/api/send-message`, {
+            const resp1 = await fetch(window.PLIXORA_CONFIG.WA_BOT_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ phone: phone, message: msg1 })
@@ -800,7 +800,7 @@
             await new Promise(r => setTimeout(r, 1500));
 
             // Enviar mensaje 2 - instrucciones con imagen (usa el MISMO phone capturado)
-            const resp2 = await fetch(`${window.PLIXORA_CONFIG.WA_BOT_URL}/api/send-image`, {
+            const resp2 = await fetch(window.PLIXORA_CONFIG.WA_BOT_IMAGE_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -871,7 +871,7 @@
         showNFToast('📤 Enviando aviso por WhatsApp...');
 
         try {
-            const resp = await fetch(`${window.PLIXORA_CONFIG.WA_BOT_URL}/api/send-message`, {
+            const resp = await fetch(window.PLIXORA_CONFIG.WA_BOT_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ phone: phone, message: msg })
