@@ -604,6 +604,144 @@
         }
     };
 
+    // ── ASSIGN PROFILE + SEND VIA WHATSAPP (Combined) ────────
+    window.submitNFAssignAndSend = async function () {
+        let hasError = false;
+        const requiredInputs = document.querySelectorAll('#nf-assign-form input[required], #nf-assign-form select[required]');
+
+        requiredInputs.forEach(input => {
+            if (!input.value.trim()) {
+                input.classList.remove('shake-error');
+                void input.offsetWidth;
+                input.classList.add('shake-error');
+                hasError = true;
+            } else {
+                input.classList.remove('shake-error');
+            }
+        });
+
+        if (hasError) return;
+
+        const perfilNombre = document.getElementById('nf-a-perfil-nombre').value.trim();
+        const cliente = document.getElementById('nf-a-cliente').value.trim();
+        let wa      = document.getElementById('nf-a-wa').value.trim();
+        wa = wa.replace(/[^0-9]/g, '');
+        if (wa.startsWith('591')) wa = wa.substring(3);
+
+        const inicio  = document.getElementById('nf-a-inicio').value;
+        const venc    = document.getElementById('nf-a-venc').value;
+        const plan    = document.getElementById('nf-a-plan').value;
+        const obs     = document.getElementById('nf-a-obs').value.trim();
+
+        let precio = 0;
+        let profit = 0;
+        if (plan === '1m') { precio = 15; profit = 7; }
+        else if (plan === '2m') { precio = 29; profit = 13; }
+        else if (plan === '3m') { precio = 40; profit = 16; }
+        else if (plan === '4m') { precio = 55; profit = 32; }
+
+        const acc = nfAccounts.find(a => a.id === currentDetailId);
+        if (!acc) return;
+
+        const perfiles = [...acc.perfiles];
+        const newCode = 'PLX-' + Math.floor(1000 + Math.random() * 9000);
+        perfiles[assignProfileIndex] = { ...perfiles[assignProfileIndex], nombre: perfilNombre, estado: 'ocupado', cliente, whatsapp: wa, inicio, vencimiento: venc, plan, obs, orderCode: newCode };
+
+        const accSnapshot = JSON.parse(JSON.stringify(acc));
+        acc.perfiles = perfiles;
+        localStorage.setItem('nf_accounts', JSON.stringify(nfAccounts));
+        window.nfRenderAll();
+        closeNFAssign();
+        window.nfRenderDetailModal(currentDetailId);
+        showNFToast(`✅ Perfil ${perfiles[assignProfileIndex].nombre} asignado a ${cliente}`);
+
+        try {
+            if (db) {
+                await db.collection('netflix_accounts').doc(currentDetailId).update({ perfiles });
+                if (precio > 0) {
+                    const sale = {
+                        id: Date.now().toString(),
+                        orderCode: newCode,
+                        date: new Date().toISOString(),
+                        productName: `Netflix Perfil ${perfiles[assignProfileIndex].nombre} (${acc.codigo})${plan !== '1m' ? ' [' + plan.replace('m',' Meses') + ']' : ''}`,
+                        price: precio,
+                        profit: profit,
+                        customerName: cliente,
+                        customer: wa,
+                        email: acc.correo,
+                        password: acc.password,
+                        expireDate: new Date(venc).toISOString()
+                    };
+                    await db.collection('plixora_sales').doc(sale.id).set(sale);
+                }
+            }
+        } catch (e) {
+            Object.assign(acc, accSnapshot);
+            localStorage.setItem('nf_accounts', JSON.stringify(nfAccounts));
+            window.nfRenderAll();
+            alert('Error al guardar en la nube: ' + e.message);
+            return;
+        }
+
+        // ── Send WhatsApp message ──
+        if (!wa) {
+            showNFToast('⚠️ Perfil guardado, pero sin número WhatsApp no se pudo enviar');
+            return;
+        }
+
+        showNFToast('📤 Enviando datos por WhatsApp...');
+
+        const phone = String(wa);
+        const msg1 = `*PLIXORA.BO* | 🎬 *Netflix Premium*\n` +
+                     (newCode ? `🎫 *Pedido:* ${newCode}\n` : '') +
+                     `\n` +
+                     `📧 *Correo:* \`${acc.correo}\`\n` +
+                     `🔑 *Contraseña:* \`${acc.password}\`\n` +
+                     `📺 *Perfil:* *${perfilNombre.toUpperCase()}*\n\n` +
+                     `⚠️ *(LA CONTRASEÑA INCLUYE MÁS CON EL * )*\n` +
+                     `*POR FAVOR INGRESAR BIEN LA CONTRASEÑA*\n\n` +
+                     `🔒 _Puedes crear un PIN en tu perfil si deseas mayor privacidad._\n\n` +
+                     `🚫 _Está prohibido cambiar el nombre del perfil. Caso contrario, se dará de baja automáticamente el acceso._`;
+
+        const msg2 = `📌 *Momento de ingresar:*\n` +
+                     `Dar clic en *"OBTENER AYUDA"* y luego *"ACCEDER CON CONTRASEÑA"*`;
+
+        try {
+            const resp1 = await fetch(window.PLIXORA_CONFIG.WA_BOT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone: phone, message: msg1 })
+            });
+            const data1 = await resp1.json();
+            if (!data1.success) throw new Error(data1.error || 'Error enviando mensaje 1');
+
+            await new Promise(r => setTimeout(r, 1500));
+
+            const resp2 = await fetch(window.PLIXORA_CONFIG.WA_BOT_IMAGE_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    phone: phone,
+                    imageUrl: (() => {
+                        let origin = window.location.origin;
+                        if (!origin || origin.startsWith('file://') || origin.includes('localhost') || origin.includes('127.0.0.1') || origin === 'null') {
+                            origin = window.PLIXORA_CONFIG.PRODUCTION_URL || 'https://plixora-ventas.netlify.app';
+                        }
+                        return origin + '/netflix-instrucciones.png';
+                    })(),
+                    caption: msg2
+                })
+            });
+            const data2 = await resp2.json();
+            if (!data2.success) throw new Error(data2.error || 'Error enviando imagen');
+
+            showNFToast('✅ Perfil guardado y datos enviados por WhatsApp a ' + cliente);
+        } catch (error) {
+            console.error('Error enviando por WhatsApp:', error);
+            showNFToast('⚠️ Perfil guardado, pero error al enviar: ' + error.message);
+        }
+    };
+
     // ── TRANSFER PROFILE ─────────────────────────────────────
     window.nfOpenTransfer = function (accountId, idx) {
         const acc = nfAccounts.find(a => a.id === accountId);

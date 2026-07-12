@@ -1423,7 +1423,7 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
     }
     .nf-modal form { padding: 1rem; }
     .nf-modal-header { padding: 1rem; }
-    .nf-modal .btn { min-height: 48px; font-size: 0.95rem; }
+    .nf-modal .btn { min-height: 40px; font-size: 0.85rem; padding: 0.5rem 1rem; }
     .nf-view-header h2 { font-size:1.3rem; }
     .nf-stat-card { padding:0.85rem; }
     .nf-badge { font-size:0.65rem; padding:0.15rem 0.5rem; }
