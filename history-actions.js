@@ -23,10 +23,10 @@ window.notifyRenewal = function(id) {
 
     let extraData = '';
     if (sale.email) {
-        extraData += `\uD83D\uDCE7 *Correo:* ${sale.email}\n`;
+        extraData += `📧 *Correo:* \`${sale.email}\`\n`;
     }
     if (sale.password) {
-        extraData += `\uD83D\uDD11 *Contrase\u00F1a:* ${sale.password}\n`;
+        extraData += `🔑 *Contraseña:* \`${sale.password}\`\n`;
     }
 
     const prodWithCode = sale.orderCode ? `${sale.productName} / ${sale.orderCode}` : sale.productName;

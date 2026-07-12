@@ -851,8 +851,8 @@
                     `📺 *Servicio:* Netflix Perfil ${p.nombre.toUpperCase()}${codeDisplay}\n` +
                     `⏳ *Válido hasta:* ${vencLabel}\n\n` +
                     `Tus credenciales de ingreso:\n` +
-                    `• Correo: ${acc.correo}\n` +
-                    `• Clave: ${acc.password}\n\n` +
+                    `• Correo: \`${acc.correo}\`\n` +
+                    `• Clave: \`${acc.password}\`\n\n` +
                     `¿Deseas prolongar tu suscripción? \n` +
                     `1️⃣ Responde *RENOVAR*\n` +
                     `2️⃣ Responde *NO RENOVAR*\n\n` +
