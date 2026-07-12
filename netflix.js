@@ -759,8 +759,8 @@
         const msg1 = `*PLIXORA.BO* | 🎬 *Netflix Premium*\n` +
                      (p.orderCode ? `🎫 *Pedido:* ${p.orderCode}\n` : '') +
                      `\n` +
-                     `📧 *Correo:* ${acc.correo}\n` +
-                     `🔑 *Contraseña:* ${acc.password}\n` +
+                     `📧 *Correo:* \`${acc.correo}\`\n` +
+                     `🔑 *Contraseña:* \`${acc.password}\`\n` +
                      `📺 *Perfil:* *${p.nombre.toUpperCase()}*\n\n` +
                      `⚠️ *(LA CONTRASEÑA INCLUYE MÁS CON EL * )*\n` +
                      `*POR FAVOR INGRESAR BIEN LA CONTRASEÑA*\n\n` +
@@ -805,7 +805,13 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     phone: phone,
-                    imageUrl: window.location.origin + '/netflix-instrucciones.png',
+                    imageUrl: (() => {
+                        let origin = window.location.origin;
+                        if (!origin || origin.startsWith('file://') || origin.includes('localhost') || origin.includes('127.0.0.1') || origin === 'null') {
+                            origin = window.PLIXORA_CONFIG.PRODUCTION_URL || 'https://plixora-ventas.netlify.app';
+                        }
+                        return origin + '/netflix-instrucciones.png';
+                    })(),
                     caption: msg2
                 })
             });
@@ -968,15 +974,56 @@
     }
 
     // Expose sync function for app.js to call
-    window.nfSyncProfileEdit = function(accCodigo, profileIndex, newName, newPhone) {
+    window.nfSyncProfileEdit = async function(accCodigo, profileNameOrIndex, newName, newPhone) {
         try {
             const acc = nfAccounts.find(a => a.codigo === accCodigo);
             if (!acc) return;
-            const perfil = (acc.perfiles || [])[profileIndex];
-            if (!perfil) return;
+
+            // Buscar perfil exacto por nombre o índice numérico
+            let perfil = null;
+            if (acc.perfiles) {
+                // history-actions.js envía el nombre del perfil ("1", "2", "3", etc.)
+                perfil = acc.perfiles.find(p => 
+                    p.nombre.toLowerCase() === `perfil ${profileNameOrIndex}`.toLowerCase() ||
+                    p.nombre.toLowerCase() === String(profileNameOrIndex).toLowerCase()
+                );
+
+                // Fallback: si no se encuentra por nombre, pero es un número, intentar por índice (1-indexed a 0-indexed)
+                if (!perfil && !isNaN(profileNameOrIndex)) {
+                    const idx = parseInt(profileNameOrIndex) - 1;
+                    if (idx >= 0 && idx < acc.perfiles.length) {
+                        perfil = acc.perfiles[idx];
+                    }
+                }
+            }
+
+            if (!perfil) {
+                console.warn(`No se encontró el perfil "${profileNameOrIndex}" para la cuenta ${accCodigo}`);
+                return;
+            }
+
             if (newName) perfil.cliente = newName;
-            if (newPhone) perfil.whatsapp = newPhone;
-            saveToFirebase();
+            if (newPhone) {
+                // Sanitizar número de teléfono (quitar caracteres no numéricos y prefijo 591 si existe)
+                let wa = String(newPhone).replace(/[^0-9]/g, '');
+                if (wa.startsWith('591')) wa = wa.substring(3);
+                perfil.whatsapp = wa;
+            }
+
+            // Guardar localmente
+            localStorage.setItem('nf_accounts', JSON.stringify(nfAccounts));
+
+            // Re-renderizar la vista
+            window.nfRenderAll();
+            if (currentDetailId === acc.id && document.getElementById('nf-detail-modal').style.display !== 'none') {
+                window.nfRenderDetailModal(currentDetailId);
+            }
+
+            // Guardar en Firebase Firestore
+            if (db) {
+                await db.collection('netflix_accounts').doc(acc.id).update({ perfiles: acc.perfiles });
+                console.log(`✅ Sincronización exitosa en Firebase para cuenta ${accCodigo}, Perfil: ${perfil.nombre}`);
+            }
         } catch(e) {
             console.error('nfSyncProfileEdit error:', e);
         }

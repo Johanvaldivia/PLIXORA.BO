@@ -295,8 +295,8 @@
                     msg = `🎬 *PLIXORA.BO — Cuenta de Streaming*\n\n` +
                           `Hola *${name}* 👋\n\n` +
                           `Tu cuenta de *${account.serviceName}* ya está lista. Aquí están tus datos de acceso:\n\n` +
-                          `📧 *Correo:* ${account.email}\n` +
-                          `🔑 *Contraseña:* ${account.password}\n` +
+                          `📧 *Correo:* \`${account.email}\`\n` +
+                          `🔑 *Contraseña:* \`${account.password}\`\n` +
                           `👤 *Perfil:* Perfil ${profileNum}\n\n` +
                           `📌 *NOTA:* Estos mismos datos te sirven para iniciar sesión tanto en *Disney Plus* como en *HBO Max*.\n\n` +
                           `⚠️ *Importante:*\n` +
@@ -310,8 +310,8 @@
                     msg = `🎬 *PLIXORA.BO — Cuenta de Streaming*\n\n` +
                           `Hola *${name}* 👋\n\n` +
                           `Tu cuenta de *${account.serviceName}* ya está lista. Aquí están tus datos de acceso:\n\n` +
-                          `📧 *Correo:* ${account.email}\n` +
-                          `🔑 *Contraseña:* ${account.password}\n` +
+                          `📧 *Correo:* \`${account.email}\`\n` +
+                          `🔑 *Contraseña:* \`${account.password}\`\n` +
                           `👤 *Perfil:* Perfil ${profileNum}\n\n` +
                           `📌 *Importante*\n` +
                           `SOLO INGRESAR EN 1 DISPOSITIVO\n` +
@@ -326,8 +326,8 @@
                     msg = `🎬 *PLIXORA.BO — Cuenta de Streaming*\n\n` +
                           `Hola *${name}* 👋\n\n` +
                           `Tu cuenta de *${account.serviceName}* ya está lista para que la disfrutes. Aquí están tus datos de acceso:\n\n` +
-                          `📧 *Correo:* ${account.email}\n` +
-                          `🔑 *Contraseña:* ${account.password}\n` +
+                          `📧 *Correo:* \`${account.email}\`\n` +
+                          `🔑 *Contraseña:* \`${account.password}\`\n` +
                           `👤 *Perfil:* Perfil ${profileNum}\n\n` +
                           `⚠️ *Importante:*\n` +
                           `• No cambies la contraseña ni el correo.\n` +
@@ -437,7 +437,7 @@
                 const svcLower = (account.serviceName || '').toLowerCase();
                 const isDisneyHbo = svcLower.includes('disney') || svcLower.includes('hbo');
                 const notaCombo = isDisneyHbo ? `\n\n📌 *NOTA:* Estos mismos datos te sirven para iniciar sesión tanto en *Disney Plus* como en *HBO Max*. Por favor, cierra sesión en tu cuenta antigua e inicia sesión con los datos nuevos.` : '';
-                const msg = `🔄 *PLIXORA.BO — Actualización de Cuenta*\n\nHola *${m.name}* 👋\n\nTe informamos que los datos de acceso de tu cuenta de *${account.serviceName}* han sido actualizados. Aquí tienes las nuevas credenciales:\n\n📧 *Nuevo Correo:* ${newEmail}\n🔑 *Nueva Contraseña:* ${newPassword}\n👤 *Tu Perfil:* Perfil ${i + 1}${notaCombo}\n\n⚠️ *Importante:*\n• Los datos anteriores ya no funcionan.\n• No cambies la contraseña ni el correo.\n• No compartas estos datos con nadie.\n\n🔧 _El reemplazo o restablecimiento de cuenta se realiza en un plazo máximo de *24 horas*._\n\n_PLIXORA.BO — Disculpa las molestias. Si tienes alguna duda, escríbenos. 🙏_`;
+                const msg = `🔄 *PLIXORA.BO — Actualización de Cuenta*\n\nHola *${m.name}* 👋\n\nTe informamos que los datos de acceso de tu cuenta de *${account.serviceName}* han sido actualizados. Aquí tienes las nuevas credenciales:\n\n📧 *Nuevo Correo:* \`${newEmail}\`\n🔑 *Nueva Contraseña:* \`${newPassword}\`\n👤 *Tu Perfil:* Perfil ${i + 1}${notaCombo}\n\n⚠️ *Importante:*\n• Los datos anteriores ya no funcionan.\n• No cambies la contraseña ni el correo.\n• No compartas estos datos con nadie.\n\n🔧 _El reemplazo o restablecimiento de cuenta se realiza en un plazo máximo de *24 horas*._\n\n_PLIXORA.BO — Disculpa las molestias. Si tienes alguna duda, escríbenos. 🙏_`;
 
                 try {
                     await fetch(window.PLIXORA_CONFIG.WA_BOT_URL, {

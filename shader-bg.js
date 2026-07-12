@@ -58,16 +58,16 @@
         ctx.fillStyle = bg;
         ctx.fillRect(0, 0, w, h);
 
-        const lineCount = window.innerWidth < 768 ? 12 : 18;
-        const speed = 0.003;
-        time += speed;
-
         // Si el dashboard está oculto (login activo), no dibujamos para ahorrar batería/CPU y evitar parpadeos
         const appContent = document.getElementById('app-content');
         if (appContent && appContent.style.display === 'none') {
-            animId = requestAnimationFrame(draw);
+            animId = null; // Detiene el bucle completamente
             return;
         }
+
+        const lineCount = window.innerWidth < 768 ? 12 : 18;
+        const speed = 0.003;
+        time += speed;
 
         for (let i = 0; i < lineCount; i++) {
             const colorIdx = i % colors.length;
@@ -109,6 +109,11 @@
         ctx.fillStyle = gradBot;
         ctx.fillRect(0, h - 60, w, 60);
 
+        if (window.innerWidth < 768) {
+            animId = null; // En móviles no corre el bucle de animación, se dibuja estático una vez
+            return;
+        }
+
         animId = requestAnimationFrame(draw);
     }
 
@@ -122,15 +127,34 @@
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(() => {
             resize();
+            if (window.innerWidth < 768 || (appContent && appContent.style.display === 'none')) {
+                draw(); // Redibuja estático
+            }
         }, 100);
     });
 
     // Watch for theme changes to update colors
     const observer = new MutationObserver(() => {
-        // Colors update automatically on next draw frame
+        if (window.innerWidth < 768 || (appContent && appContent.style.display === 'none') || !animId) {
+            draw(); // Redibuja estático si no hay bucle activo
+        }
     });
     observer.observe(document.documentElement, {
         attributes: true,
         attributeFilter: ['data-theme']
     });
+
+    // Watch for app-content visibility to start the loop
+    const appContent = document.getElementById('app-content');
+    if (appContent) {
+        const visibilityObserver = new MutationObserver(() => {
+            if (appContent.style.display !== 'none' && !animId && window.innerWidth >= 768) {
+                draw(); // Inicia el bucle de animación al iniciar sesión en desktop
+            }
+        });
+        visibilityObserver.observe(appContent, {
+            attributes: true,
+            attributeFilter: ['style']
+        });
+    }
 })();

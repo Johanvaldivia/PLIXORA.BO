@@ -109,23 +109,25 @@
             container.insertBefore(canvas, container.firstChild);
 
             const ctx = canvas.getContext('2d');
-            let animId;
+            let animId = null;
             let time = 0;
             let W, H;
 
             function resize() {
                 W = canvas.width = container.clientWidth;
                 H = canvas.height = container.clientHeight;
+                if (window.innerWidth < 768) {
+                    draw(); // Redibuja la versión estática en resize en móviles
+                }
             }
             resize();
             window.addEventListener("resize", resize, false);
 
             function draw() {
                 if (container.classList.contains('hidden-login')) {
-                    animId = requestAnimationFrame(draw);
+                    animId = null; // Detiene el bucle completamente al ocultarse
                     return;
                 }
-                time += 0.006;
 
                 ctx.fillStyle = '#0a0a0c';
                 ctx.fillRect(0, 0, W, H);
@@ -148,6 +150,12 @@
                     }
                 }
 
+                if (window.innerWidth < 768) {
+                    animId = null; // En móviles no corre el bucle de animación, se dibuja estático una vez
+                    return;
+                }
+
+                time += 0.006;
                 animId = requestAnimationFrame(draw);
             }
 

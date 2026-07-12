@@ -105,7 +105,26 @@ app.post('/api/send-image', async (req, res) => {
             fp = '591' + fp;
         }
         const { MessageMedia } = require('whatsapp-web.js');
-        const media = await MessageMedia.fromUrl(imageUrl, { unsafeMime: true });
+        let media;
+        const path = require('path');
+        const fs = require('fs');
+
+        // Cargar imagen local si es para netflix-instrucciones.png y existe
+        if (imageUrl && imageUrl.includes('netflix-instrucciones.png')) {
+            const localPath = path.join(__dirname, 'netflix-instrucciones.png');
+            if (fs.existsSync(localPath)) {
+                try {
+                    media = MessageMedia.fromFilePath(localPath);
+                    console.log('📦 Cargando netflix-instrucciones.png desde almacenamiento local del bot');
+                } catch (localErr) {
+                    console.error('⚠️ Error al cargar imagen local:', localErr);
+                }
+            }
+        }
+
+        if (!media) {
+            media = await MessageMedia.fromUrl(imageUrl, { unsafeMime: true });
+        }
         await client.sendMessage(fp + '@c.us', media, { caption: caption || '' });
         console.log('Imagen enviada a ' + fp);
         return res.status(200).json({ success: true, message: 'Imagen enviada.' });

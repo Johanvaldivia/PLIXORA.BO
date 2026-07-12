@@ -128,8 +128,8 @@ window.generateSaleDetailsText = function(sale) {
                `¡Tu cuenta de *CapCut Pro* ya está *activa* y lista para usar! 🎉\n\n` +
                duracionLine +
                `┌─────────────────────────\n` +
-               `│ 📧 *Correo:* ${sale.email || ''}\n` +
-               `│ 🔑 *Contraseña:* ${sale.password || ''}\n` +
+               `│ 📧 *Correo:* \`${sale.email || ''}\`\n` +
+               `│ 🔑 *Contraseña:* \`${sale.password || ''}\`\n` +
                `└─────────────────────────\n\n` +
                `🛡️ *PARA EVITAR BLOQUEOS:*\n` +
                `✅ Usa la cuenta solo en tu dispositivo.\n` +
@@ -154,8 +154,8 @@ window.generateSaleDetailsText = function(sale) {
                `Hola *${clienteName}* 👋\n\n` +
                `¡Tu cuenta de *Amazon Prime Video* ya está activa y lista para usar! 🎉\n\n` +
                duracionFinal +
-               `📧 *Correo:* ${sale.email || ''}\n` +
-               `🔑 *Contraseña:* ${sale.password || ''}\n\n` +
+               `📧 *Correo:* \`${sale.email || ''}\`\n` +
+               `🔑 *Contraseña:* \`${sale.password || ''}\`\n\n` +
                `📋 *DETALLES DE TU CUENTA:*\n` +
                `✅ Cuenta personal registrada y gestionada exclusivamente bajo nuestro dominio.\n` +
                `✅ Autopay mensual: cada mes se renueva automáticamente.\n` +
@@ -181,8 +181,8 @@ window.generateSaleDetailsText = function(sale) {
                `Tu cuenta de *Spotify Premium* está activada con éxito.\n` +
                durLine + `\n` +
                `📩 *TUS DATOS DE ACCESO:*\n` +
-               `*Correo:* ${sale.email || ''}\n` +
-               `*Contraseña:* ${sale.password || ''}\n\n` +
+               `*Correo:* \`${sale.email || ''}\`\n` +
+               `*Contraseña:* \`${sale.password || ''}\`\n\n` +
                `📌 _Nota: Inicia sesión ingresando el correo y contraseña directamente en Spotify, no uses la opción de "Ingresar con Google"._\n\n` +
                `⚠️ *ADVERTENCIA:*\n` +
                `Para mantener tu garantía activa, está estrictamente prohibido cambiar la contraseña, el correo o los datos de facturación.\n\n` +
@@ -197,8 +197,8 @@ window.generateSaleDetailsText = function(sale) {
         return `*PLIXORA.BO* | 🎬 *Netflix Premium*\n` +
                codeLine + `\n` +
                duracionLine +
-               `📧 *Correo:* ${sale.email || ''}\n` +
-               `🔑 *Contraseña:* ${sale.password || ''}\n\n` +
+               `📧 *Correo:* \`${sale.email || ''}\`\n` +
+               `🔑 *Contraseña:* \`${sale.password || ''}\`\n\n` +
                `⚠️ *(LA CONTRASEÑA INCLUYE MÁS CON EL * )*\n` +
                `*POR FAVOR INGRESAR BIEN LA CONTRASEÑA*\n\n` +
                `🔒 _Puedes crear un PIN en tu perfil si deseas mayor privacidad._\n\n` +
@@ -213,14 +213,14 @@ window.generateSaleDetailsText = function(sale) {
         return `*PLIXORA.BO* | 🏰 *Disney Plus Estándar*\n` +
                codeLine + `\n` +
                duracionLine +
-               `📧 *Correo:* ${sale.email || ''}\n` +
-               `🔑 *Contraseña:* ${sale.password || ''}\n` +
+               `📧 *Correo:* \`${sale.email || ''}\`\n` +
+               `🔑 *Contraseña:* \`${sale.password || ''}\`\n` +
                prohibicion + `\n` + footer;
     }
 
     // ── Canva Pro EDU (NO TOCAR) ──
     if (prodName.includes('canva') && (prodName.includes('edu') || prodName.includes('class'))) {
-        return `*${sale.productName}*\n${codeLine}\nHola ${clienteName} 👋,\n\nSe ha activado y mandado la invitación vía correo al siguiente email:\n📧 ${sale.email || ''}\n\nPor favor, revisar y aceptar la invitación. Luego, asegurarse de estar en el equipo *PLIXORA (CLASS)* para que tenga acceso siempre a los beneficios Pro.\n\nPLIXORA.BO`;
+        return `*${sale.productName}*\n${codeLine}\nHola ${clienteName} 👋,\n\nSe ha activado y mandado la invitación vía correo al siguiente email:\n📧 \`${sale.email || ''}\`\n\nPor favor, revisar y aceptar la invitación. Luego, asegurarse de estar en el equipo *PLIXORA (CLASS)* para que tenga acceso siempre a los beneficios Pro.\n\nPLIXORA.BO`;
     }
 
     // ── Gemini Pro ──
@@ -229,7 +229,7 @@ window.generateSaleDetailsText = function(sale) {
                codeLine + `\n` +
                `Hola *${clienteName}* 👋,\n\n` +
                `Se ha activado su suscripción y se le ha enviado la invitación oficial de Google al siguiente correo electrónico:\n` +
-               `📧 *${sale.email || ''}*\n\n` +
+               `📧 \`${sale.email || ''}\`\n\n` +
                `Por favor, revise su bandeja de entrada (o spam) y acepte la invitación para comenzar a disfrutar de todos los beneficios de la inteligencia artificial.\n\n` +
                `✅ _Activación directa en su cuenta personal y 100% privada._\n` +
                footer;
@@ -240,8 +240,8 @@ window.generateSaleDetailsText = function(sale) {
         return `*PLIXORA.BO* | 🎨 *Canva Pro Individual*\n` +
                codeLine + `\n` +
                duracionLine +
-               `📧 *Correo:* ${sale.email || ''}\n` +
-               `🔑 *Contraseña:* ${sale.password || ''}\n` +
+               `📧 *Correo:* \`${sale.email || ''}\`\n` +
+               `🔑 *Contraseña:* \`${sale.password || ''}\`\n` +
                prohibicion + `\n` + footer;
     }
 
@@ -250,8 +250,8 @@ window.generateSaleDetailsText = function(sale) {
         return `*PLIXORA.BO* | 🍥 *${sale.productName}*\n` +
                codeLine + `\n` +
                duracionLine +
-               `📧 *Correo:* ${sale.email || ''}\n` +
-               `🔑 *Contraseña:* ${sale.password || ''}\n` +
+               `📧 *Correo:* \`${sale.email || ''}\`\n` +
+               `🔑 *Contraseña:* \`${sale.password || ''}\`\n` +
                prohibicion + `\n\n` +
                `✅ _Garantía completa incluida en PLIXORA.BO_`;
     }
@@ -261,8 +261,8 @@ window.generateSaleDetailsText = function(sale) {
         return `*PLIXORA.BO* | 📺 *HBO MAX PLATINO*\n` +
                codeLine + `\n` +
                duracionLine +
-               `📧 *Correo:* ${sale.email || ''}\n` +
-               `🔑 *Contraseña:* ${sale.password || ''}\n` +
+               `📧 *Correo:* \`${sale.email || ''}\`\n` +
+               `🔑 *Contraseña:* \`${sale.password || ''}\`\n` +
                prohibicion + `\n` + footer;
     }
 
@@ -277,8 +277,8 @@ window.generateSaleDetailsText = function(sale) {
                `¡Tu cuenta de *YouTube Premium Familiar* ya está *activa* y lista para usar! 🎉\n\n` +
                `📌 *DATOS DE ACCESO:*\n` +
                `┌─────────────────────────\n` +
-               `│ 📧 *Correo:* ${sale.email || ''}\n` +
-               `│ 🔑 *Contraseña:* ${sale.password || ''}\n` +
+               `│ 📧 *Correo:* \`${sale.email || ''}\`\n` +
+               `│ 🔑 *Contraseña:* \`${sale.password || ''}\`\n` +
                `└─────────────────────────\n\n` +
                `📋 *PASOS PARA ACTIVAR:*\n\n` +
                `1️⃣ Ingresa a *youtube.com* o abre la app de YouTube.\n` +
@@ -305,7 +305,7 @@ window.generateSaleDetailsText = function(sale) {
                codeLine + `\n` +
                `Hola *${clienteName}* 👋\n\n` +
                `Ya se le activó su cuenta de *YouTube Premium* y se encuentra ya su invitación enviada al siguiente correo:\n` +
-               `📧 *${sale.email || ''}*\n\n` +
+               `📧 \`${sale.email || ''}\`\n\n` +
                `Por favor, revise su correo de Gmail para aceptar y unirse al plan familiar de YouTube Premium y disfrutar sin anuncios 🎉\n` +
                prohibicion + `\n` + footer;
     }
@@ -321,8 +321,8 @@ window.generateSaleDetailsText = function(sale) {
                `¡Tu cuenta de *Prime Video* ya está *activa*! 🎉\n\n` +
                duracionLine +
                `📩 *TUS DATOS DE ACCESO:*\n` +
-               `*Correo:* ${sale.email || ''}\n` +
-               `*Contraseña:* ${sale.password || ''}\n\n` +
+               `*Correo:* \`${sale.email || ''}\`\n` +
+               `*Contraseña:* \`${sale.password || ''}\`\n\n` +
                `📌 *Importante*\n` +
                `SOLO INGRESAR EN 1 DISPOSITIVO\n` +
                `NO CAMBIAR DE DISPOSITIVO\n` +
@@ -339,8 +339,8 @@ window.generateSaleDetailsText = function(sale) {
         return `*PLIXORA.BO* | 🎨 *Adobe Creative Cloud*\n` +
                codeLine + `\n` +
                duracionLine +
-               `📧 *Correo:* ${sale.email || ''}\n` +
-               `🔑 *Contraseña:* ${sale.password || ''}\n\n` +
+               `📧 *Correo:* \`${sale.email || ''}\`\n` +
+               `🔑 *Contraseña:* \`${sale.password || ''}\`\n\n` +
                `⚠️ *POR FAVOR INGRESAR BIEN LA CONTRASEÑA*\n` +
                prohibicion + `\n` + footer;
     }
@@ -350,8 +350,8 @@ window.generateSaleDetailsText = function(sale) {
         return `*PLIXORA.BO* | 🔐 *Express VPN*\n` +
                codeLine + `\n` +
                duracionLine +
-               `📧 *Correo:* ${sale.email || ''}\n` +
-               `🔑 *Contraseña:* ${sale.password || ''}\n` +
+               `📧 *Correo:* \`${sale.email || ''}\`\n` +
+               `🔑 *Contraseña:* \`${sale.password || ''}\`\n` +
                prohibicion + `\n` + footer;
     }
 
@@ -359,8 +359,8 @@ window.generateSaleDetailsText = function(sale) {
     return `*PLIXORA.BO* | 🛒 *${sale.productName}*\n` +
            codeLine + `\n` +
            duracionLine +
-           (sale.email ? `📧 *Correo:* ${sale.email}\n` : '') +
-           (sale.password ? `🔑 *Contraseña:* ${sale.password}\n` : '') +
+           (sale.email ? `📧 *Correo:* \`${sale.email}\`\n` : '') +
+           (sale.password ? `🔑 *Contraseña:* \`${sale.password}\`\n` : '') +
            prohibicion + `\n` + footer;
 }
 
