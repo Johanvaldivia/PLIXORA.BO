@@ -61,11 +61,7 @@ window.executeReplace = async function(sendWA) {
                         generateSaleDetailsText(updatedSale);
 
         try {
-            const resp = await fetch(window.PLIXORA_CONFIG.WA_BOT_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ phone: sale.customer, message: msgText })
-            });
+            const resp = await waBotFetch(window.PLIXORA_CONFIG.WA_BOT_URL, { phone: sale.customer, message: msgText });
             const data = await resp.json();
             if (data.success) {
                 showToast('💬 Mensaje enviado al cliente');

@@ -1,9 +1,20 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Solo usuarios autenticados pueden leer/escribir
-    match /{document=**} {
+    match /plixora_sales/{doc} {
       allow read, write: if request.auth != null;
+    }
+    match /contacts/{doc} {
+      allow read, write: if request.auth != null;
+    }
+    match /netflix_accounts/{doc} {
+      allow read, write: if request.auth != null;
+    }
+    match /group_accounts/{doc} {
+      allow read, write: if request.auth != null;
+    }
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

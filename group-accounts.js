@@ -19,6 +19,20 @@
         const addBtn = document.getElementById('ga-btn-add-account');
         if (addBtn) addBtn.addEventListener('click', openAddAccountModal);
         window.renderGroupAccounts = renderAll;
+
+        // Password visibility toggle via event delegation
+        document.addEventListener('click', function(e) {
+            const pw = e.target.closest('.ga-password');
+            if (!pw) return;
+            const password = pw.dataset.password || '—';
+            if (pw.dataset.visible === 'true') {
+                pw.dataset.visible = 'false';
+                pw.textContent = '••••••••';
+            } else {
+                pw.dataset.visible = 'true';
+                pw.textContent = password;
+            }
+        });
     }
 
     // Called by app.js when Firebase is ready
@@ -52,7 +66,7 @@
         if (!isoDate) return false;
         const created = new Date(isoDate);
         const exp = new Date(created.getFullYear(), created.getMonth() + 1, created.getDate());
-        return new Date() > exp;
+        return (typeof window.nowBolivia === 'function' ? window.nowBolivia() : new Date()) > exp;
     }
 
     // ── RENDER ALL ────────────────────────────────────────────────
@@ -106,7 +120,7 @@
                     </div>
                     <div class="ga-cred-row">
                         <span class="ga-cred-label"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg> Contraseña:</span>
-                        <span class="ga-cred-value ga-password" data-visible="false" onclick="this.dataset.visible = this.dataset.visible === 'true' ? 'false' : 'true'; this.textContent = this.dataset.visible === 'true' ? '${acc.password || '—'}' : '••••••••'">••••••••</span>
+                        <span class="ga-cred-value ga-password" data-password="${(acc.password || '—').replace(/"/g,'&quot;').replace(/</g,'&lt;')}">••••••••</span>
                     </div>
                 </div>
                 <div class="ga-card-stats">
@@ -338,11 +352,7 @@
                 }
 
                 try {
-                    await fetch(window.PLIXORA_CONFIG.WA_BOT_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ phone, message: msg })
-                    });
+                    await waBotFetch(window.PLIXORA_CONFIG.WA_BOT_URL, { phone, message: msg });
                     showToast('✅ Cliente agregado, venta registrada y mensaje enviado por WhatsApp.');
                 } catch (waErr) {
                     console.error('WA send error:', waErr);
@@ -440,11 +450,7 @@
                 const msg = `🔄 *PLIXORA.BO — Actualización de Cuenta*\n\nHola *${m.name}* 👋\n\nTe informamos que los datos de acceso de tu cuenta de *${account.serviceName}* han sido actualizados. Aquí tienes las nuevas credenciales:\n\n📧 *Nuevo Correo:* \`${newEmail}\`\n🔑 *Nueva Contraseña:* \`${newPassword}\`\n👤 *Tu Perfil:* Perfil ${i + 1}${notaCombo}\n\n⚠️ *Importante:*\n• Los datos anteriores ya no funcionan.\n• No cambies la contraseña ni el correo.\n• No compartas estos datos con nadie.\n\n🔧 _El reemplazo o restablecimiento de cuenta se realiza en un plazo máximo de *24 horas*._\n\n_PLIXORA.BO — Disculpa las molestias. Si tienes alguna duda, escríbenos. 🙏_`;
 
                 try {
-                    await fetch(window.PLIXORA_CONFIG.WA_BOT_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ phone: m.phone, message: msg })
-                    });
+                    await waBotFetch(window.PLIXORA_CONFIG.WA_BOT_URL, { phone: m.phone, message: msg });
                     sent++;
                 } catch (waErr) {
                     console.error('WA replace error for ' + m.phone, waErr);

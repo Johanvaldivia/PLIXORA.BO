@@ -17,8 +17,6 @@ let db = null;
 let unsubscribe = null;
 
 // ---- DOM ----
-const navItems      = document.querySelectorAll('.nav-item');
-const views         = document.querySelectorAll('.view');
 const productsGrid  = document.getElementById('products-grid');
 const filterBtns    = document.querySelectorAll('.filter-btn');
 const selectProduct = document.getElementById('sale-product');
@@ -385,35 +383,6 @@ function setCloudStatus(status, detail) {
 }
 
 // Re-suscribir el listener (útil para reintentar)
-function initSnapshot() {
-    if (!db) return;
-    if (unsubscribe) { unsubscribe(); unsubscribe = null; }
-    unsubscribe = db.collection('plixora_sales')
-        .orderBy('date', 'desc')
-        .onSnapshot(
-            { includeMetadataChanges: true },
-            snapshot => {
-                const fromServer = !snapshot.metadata.fromCache;
-                sales = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
-                localStorage.setItem('plixora_sales', JSON.stringify(sales));
-                updateDashboard();
-                setCloudStatus(fromServer ? 'online' : 'cache');
-            },
-            error => {
-                setCloudStatus('error', error.message);
-                showToast(`❌ Error Firebase: ${error.code}`);
-            }
-        );
-}
-
-// ---- GUARDAR VENTA ----
-
-// ---- ELIMINAR VENTA ----
-
-// ---- CALCULAR VENCIMIENTO ----
-
-// ---- BADGE DE VENCIMIENTO ----
-
 // ---- NAVEGACIÓN ----
 function setupNavigation() {
     // Desktop top nav buttons
@@ -597,7 +566,7 @@ function setupForm() {
         waVal = sanitizeBoliviaPhone(waVal);
 
         const timestampId = Date.now().toString();
-        const code = 'PLX-' + Math.floor(1000 + Math.random() * 9000); // e.g. PLX-4829
+        const code = generateOrderCode();
 
         const newSale = {
             id:          timestampId,
@@ -651,11 +620,7 @@ async function executeSaveSale(newSale, sendWhatsApp) {
 
         if (sendWhatsApp && newSale.customer && newSale.customer !== 'Anónimo' && window.pendingSaleContext) {
             try {
-                const response = await fetch(window.PLIXORA_CONFIG.WA_BOT_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ phone: newSale.customer, message: window.pendingSaleContext.messageText })
-                });
+                const response = await waBotFetch(window.PLIXORA_CONFIG.WA_BOT_URL, { phone: newSale.customer, message: window.pendingSaleContext.messageText });
                 const resData = await response.json();
                 if (resData.success) {
                     showToast('💬 Mensaje enviado por WhatsApp');
@@ -858,61 +823,6 @@ function navigateTo(target) {
 
     try { document.querySelector('.main-content').scrollTo({ top:0, behavior:'smooth' }); } catch(e){}
 }
-
-// ---- ONE-TIME HISTORY REPAIR ----
-document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => {
-        if (!db || window.netflixNamesFixed) return;
-        window.netflixNamesFixed = true;
-        db.collection('plixora_sales').get().then(snap => {
-            const b = db.batch();
-            let count = 0;
-            snap.forEach(doc => {
-                const s = doc.data();
-                let newName = s.productName || '';
-                let changed = false;
-
-                if (s.customer === '75650364' && newName.includes('Netflix (Perfil)')) {
-                    newName = 'Netflix Perfil P3 (NF-001)';
-                    changed = true;
-                }
-                if (s.customer === '75650364' && newName.includes('[2 Meses]')) {
-                    newName = newName.replace(' [2 Meses]', '');
-                    changed = true;
-                }
-                if (s.customer === '62045098' && newName.includes('P5')) {
-                    newName = newName.replace('P5', 'P3');
-                    changed = true;
-                }
-                if (changed) {
-                    b.update(doc.ref, { productName: newName });
-                    count++;
-                }
-            });
-            if (count > 0) b.commit().then(() => console.log('Historial reparado', count));
-        }).catch(e => console.error(e));
-
-        // One-time fix for Netflix account '2 Meses' bug for Jhulian
-        db.collection('netflix_accounts').where('codigo', '==', 'NF-001').get().then(snap => {
-            if (!snap.empty) {
-                const doc = snap.docs[0];
-                const acc = doc.data();
-                let changed = false;
-                const perfiles = [...acc.perfiles];
-                const pIdx = perfiles.findIndex(p => p.whatsapp === '75650364');
-                if (pIdx !== -1 && perfiles[pIdx].plan === '2m') {
-                    perfiles[pIdx].plan = '1m';
-                    changed = true;
-                }
-                if (changed) {
-                    db.collection('netflix_accounts').doc(doc.id).update({ perfiles });
-                    console.log('Perfil NF-001 reparado: Plan vuelto a 1m');
-                }
-            }
-        }).catch(e => console.error(e));
-
-    }, 4000);
-});
 
 // ============================================================
 // MÓDULO: CLIENTES FRECUENTES (Contactos)

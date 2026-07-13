@@ -65,11 +65,7 @@ window.confirmHistNotifySend = async function() {
     showToast('📤 Enviando aviso por WhatsApp...');
 
     try {
-        const resp = await fetch(window.PLIXORA_CONFIG.WA_BOT_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ phone: phone, message: msg })
-        });
+        const resp = await waBotFetch(window.PLIXORA_CONFIG.WA_BOT_URL, { phone: phone, message: msg });
 
         const contentType = resp.headers.get('content-type') || '';
         if (!contentType.includes('application/json')) {

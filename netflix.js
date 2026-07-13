@@ -562,7 +562,7 @@
         if (!acc) return;
 
         const perfiles = [...acc.perfiles];
-        const newCode = 'PLX-' + Math.floor(1000 + Math.random() * 9000);
+        const newCode = generateOrderCode();
         perfiles[assignProfileIndex] = { ...perfiles[assignProfileIndex], nombre: perfilNombre, estado: 'ocupado', cliente, whatsapp: wa, inicio, vencimiento: venc, plan, obs, orderCode: newCode };
 
         // ── Optimistic update: apply locally BEFORE Firebase confirms ──
@@ -644,7 +644,7 @@
         if (!acc) return;
 
         const perfiles = [...acc.perfiles];
-        const newCode = 'PLX-' + Math.floor(1000 + Math.random() * 9000);
+        const newCode = generateOrderCode();
         perfiles[assignProfileIndex] = { ...perfiles[assignProfileIndex], nombre: perfilNombre, estado: 'ocupado', cliente, whatsapp: wa, inicio, vencimiento: venc, plan, obs, orderCode: newCode };
 
         const accSnapshot = JSON.parse(JSON.stringify(acc));
@@ -707,31 +707,24 @@
                      `Dar clic en *"OBTENER AYUDA"* y luego *"ACCEDER CON CONTRASEÑA"*`;
 
         try {
-            const resp1 = await fetch(window.PLIXORA_CONFIG.WA_BOT_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ phone: phone, message: msg1 })
-            });
+            const resp1 = await waBotFetch(window.PLIXORA_CONFIG.WA_BOT_URL, { phone: phone, message: msg1 });
             const data1 = await resp1.json();
             if (!data1.success) throw new Error(data1.error || 'Error enviando mensaje 1');
 
             await new Promise(r => setTimeout(r, 1500));
 
-            const resp2 = await fetch(window.PLIXORA_CONFIG.WA_BOT_IMAGE_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    phone: phone,
-                    imageUrl: (() => {
+            const imgOrigin = (() => {
                         let origin = window.location.origin;
                         if (!origin || origin.startsWith('file://') || origin.includes('localhost') || origin.includes('127.0.0.1') || origin === 'null') {
                             origin = window.PLIXORA_CONFIG.PRODUCTION_URL || 'https://plixora-ventas.netlify.app';
                         }
-                        return origin + '/netflix-instrucciones.png';
-                    })(),
-                    caption: msg2
-                })
-            });
+                        return origin;
+                    })();
+            const resp2 = await waBotFetch(window.PLIXORA_CONFIG.WA_BOT_IMAGE_URL, {
+                        phone: phone,
+                        imageUrl: imgOrigin + '/netflix-instrucciones.png',
+                        caption: msg2
+                    });
             const data2 = await resp2.json();
             if (!data2.success) throw new Error(data2.error || 'Error enviando imagen');
 
@@ -816,7 +809,7 @@
         else if (plan === '3m') { precio = 40; profit = 16; }
         else if (plan === '4m') { precio = 55; profit = 32; }
 
-        const newCode = 'PLX-' + Math.floor(1000 + Math.random() * 9000);
+        const newCode = generateOrderCode();
 
         // Update destination profile with transferred data
         const destPerfiles = [...destAcc.perfiles];
@@ -926,11 +919,7 @@
 
         try {
             // Enviar mensaje 1 - datos de la cuenta
-            const resp1 = await fetch(window.PLIXORA_CONFIG.WA_BOT_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ phone: phone, message: msg1 })
-            });
+            const resp1 = await waBotFetch(window.PLIXORA_CONFIG.WA_BOT_URL, { phone: phone, message: msg1 });
             const data1 = await resp1.json();
             if (!data1.success) throw new Error(data1.error || 'Error enviando mensaje 1');
 
@@ -938,21 +927,18 @@
             await new Promise(r => setTimeout(r, 1500));
 
             // Enviar mensaje 2 - instrucciones con imagen (usa el MISMO phone capturado)
-            const resp2 = await fetch(window.PLIXORA_CONFIG.WA_BOT_IMAGE_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    phone: phone,
-                    imageUrl: (() => {
+            const imgOrigin = (() => {
                         let origin = window.location.origin;
                         if (!origin || origin.startsWith('file://') || origin.includes('localhost') || origin.includes('127.0.0.1') || origin === 'null') {
                             origin = window.PLIXORA_CONFIG.PRODUCTION_URL || 'https://plixora-ventas.netlify.app';
                         }
-                        return origin + '/netflix-instrucciones.png';
-                    })(),
-                    caption: msg2
-                })
-            });
+                        return origin;
+                    })();
+            const resp2 = await waBotFetch(window.PLIXORA_CONFIG.WA_BOT_IMAGE_URL, {
+                        phone: phone,
+                        imageUrl: imgOrigin + '/netflix-instrucciones.png',
+                        caption: msg2
+                    });
             const data2 = await resp2.json();
             if (!data2.success) throw new Error(data2.error || 'Error enviando imagen');
 
@@ -1015,11 +1001,7 @@
         showNFToast('📤 Enviando aviso por WhatsApp...');
 
         try {
-            const resp = await fetch(window.PLIXORA_CONFIG.WA_BOT_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ phone: phone, message: msg })
-            });
+            const resp = await waBotFetch(window.PLIXORA_CONFIG.WA_BOT_URL, { phone: phone, message: msg });
             const data = await resp.json();
             if (!data.success) throw new Error(data.error || 'Error enviando mensaje');
 

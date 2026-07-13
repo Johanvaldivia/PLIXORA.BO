@@ -6,9 +6,20 @@ const HISTORY_PER_PAGE = 15;
 let historyPage = 1;
 
 // ── NOTIFICATION SOUND ──────────────────────────────────────
+let _audioCtx = null;
+function getAudioCtx() {
+    if (!_audioCtx) {
+        try {
+            _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        } catch (e) { return null; }
+    }
+    return _audioCtx;
+}
+
 window.playNotificationSound = function(type) {
+    const ctx = getAudioCtx();
+    if (!ctx) return;
     try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.connect(gain);
@@ -334,13 +345,12 @@ window.renderExpirationAlerts = function() {
     if (soonCount === 0) soonList.innerHTML = '<div class="notif-empty" style="padding:1.25rem 1rem;"><div class="notif-empty-icon" style="background:rgba(245,158,11,0.1);"><svg xmlns="http://www.w3.org/2000/svg" style="color:#f59e0b;" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div><span class="notif-empty-title">Sin vencimientos próximos</span><span style="font-size:0.78rem;">Nada que renovar pronto</span></div>';
 
     const totalAlerts = urgentCount + soonCount;
-    // Play notification sound for new alerts (only if there are alerts and not on first load)
-    if (totalAlerts > 0 && window._alertsInitialized) {
+    if (totalAlerts > 0 && window._alertsPrevCount !== undefined && totalAlerts > window._alertsPrevCount) {
         if (typeof window.playNotificationSound === 'function') {
             window.playNotificationSound('alert');
         }
     }
-    window._alertsInitialized = true;
+    window._alertsPrevCount = totalAlerts;
     const badgeDesktop = document.getElementById('nav-badge-desktop');
     const badgeMobile = document.getElementById('nav-badge-mobile');
     const notifBellBadge = document.getElementById('notif-bell-badge');
