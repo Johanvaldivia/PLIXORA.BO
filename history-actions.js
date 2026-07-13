@@ -56,7 +56,7 @@ window.closeHistNotify = function() {
 
 window.confirmHistNotifySend = async function() {
     if (!pendingHistNotifyPayload) return;
-    const { phone, cliente } = pendingHistNotifyPayload;
+    const { id: saleId, phone, cliente } = pendingHistNotifyPayload;
     const msg = document.getElementById('hist-notify-msg').value.trim();
 
     if (!msg) { showToast('❌ El mensaje no puede estar vacío'); return; }
@@ -81,7 +81,6 @@ window.confirmHistNotifySend = async function() {
         const data = await resp.json();
         if (!data.success) throw new Error(data.error || 'Error enviando mensaje');
 
-        const saleId = pendingHistNotifyPayload.id;
         if (db) {
             await db.collection('plixora_sales').doc(saleId).update({ notifiedRenewal: true });
         } else {

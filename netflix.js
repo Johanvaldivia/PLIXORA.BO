@@ -1006,7 +1006,7 @@
 
     window.confirmNFNotifySend = async function() {
         if (!pendingNotifyPayload) return;
-        const { phone, cliente } = pendingNotifyPayload;
+        const { accountId, idx: profileIdx, phone, cliente } = pendingNotifyPayload;
         const msg = document.getElementById('nf-notify-msg').value.trim();
 
         if (!msg) { showNFToast('❌ El mensaje no puede estar vacío'); return; }
@@ -1023,9 +1023,9 @@
             const data = await resp.json();
             if (!data.success) throw new Error(data.error || 'Error enviando mensaje');
 
-            const acc = nfAccounts.find(a => a.id === pendingNotifyPayload.accountId);
-            if (acc && acc.perfiles[pendingNotifyPayload.idx]) {
-                acc.perfiles[pendingNotifyPayload.idx].notifiedRenewal = true;
+            const acc = nfAccounts.find(a => a.id === accountId);
+            if (acc && acc.perfiles[profileIdx]) {
+                acc.perfiles[profileIdx].notifiedRenewal = true;
                 const perfiles = [...acc.perfiles];
                 localStorage.setItem('nf_accounts', JSON.stringify(nfAccounts));
                 try {
