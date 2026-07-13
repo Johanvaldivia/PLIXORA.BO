@@ -1,28 +1,18 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Función de seguridad: Verifica que la petición provenga del administrador autorizado
-    function isAdmin() {
-      return request.auth != null 
-          && request.auth.token.email != null
-          && request.auth.token.email == 'valdivianinajohan@gmail.com';
-    }
-
     match /plixora_sales/{doc} {
-      allow read, write: if isAdmin();
+      allow read, write: if request.auth != null;
     }
     match /contacts/{doc} {
-      allow read, write: if isAdmin();
+      allow read, write: if request.auth != null;
     }
     match /netflix_accounts/{doc} {
-      allow read, write: if isAdmin();
+      allow read, write: if request.auth != null;
     }
     match /group_accounts/{doc} {
-      allow read, write: if isAdmin();
+      allow read, write: if request.auth != null;
     }
-    
-    // Rechazar cualquier otra ruta no autorizada
     match /{document=**} {
       allow read, write: if false;
     }
