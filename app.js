@@ -14,6 +14,7 @@
 // ---- ESTADO ----
 let sales = JSON.parse(localStorage.getItem('plixora_sales')) || [];
 let customPlans = JSON.parse(localStorage.getItem('plixora_custom_plans')) || [];
+window.customPlans = customPlans;
 let db = null;
 let unsubscribe = null;
 let unsubscribeCustomPlans = null;
@@ -266,6 +267,7 @@ function initFirebase() {
         unsubscribeCustomPlans = db.collection('plixora_custom_plans')
             .onSnapshot(snapshot => {
                 customPlans = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+                window.customPlans = customPlans;
                 localStorage.setItem('plixora_custom_plans', JSON.stringify(customPlans));
                 
                 // Re-renderizar catálogo o vista activa si es necesario
@@ -279,6 +281,7 @@ function initFirebase() {
             }, error => {
                 console.error('Error Firebase custom_plans:', error);
                 customPlans = JSON.parse(localStorage.getItem('plixora_custom_plans')) || [];
+                window.customPlans = customPlans;
             });
 
         // Verificar conexión real con Firestore después de 5s
@@ -906,6 +909,7 @@ window.openCustomPlanModal = function() {
     document.getElementById('custom-plan-title').innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg> Nuevo Plan Personalizado';
     document.getElementById('custom-plan-form').reset();
     document.getElementById('cp-id').value = '';
+    document.getElementById('cp-wa-template').value = '';
     document.getElementById('cp-profit-preview').textContent = '0.00 Bs';
     document.getElementById('custom-plan-modal').style.display = 'flex';
 };
@@ -931,6 +935,17 @@ window.submitCustomPlan = async function() {
     const salePrice = parseFloat(document.getElementById('cp-salePrice').value) || 0;
     const cost = parseFloat(document.getElementById('cp-cost').value) || 0;
 
+    let waTemplate = document.getElementById('cp-wa-template').value;
+    if (!waTemplate) {
+        // Generar plantilla local por defecto si no se optimizó con IA
+        waTemplate = window.generateLocalWaTemplate(
+            document.getElementById('cp-name').value.trim(),
+            document.getElementById('cp-category').value,
+            document.getElementById('cp-duration').value.trim(),
+            features
+        );
+    }
+
     const plan = {
         id,
         name: document.getElementById('cp-name').value.trim(),
@@ -942,6 +957,7 @@ window.submitCustomPlan = async function() {
         features,
         type: document.getElementById('cp-category').value === 'combo' ? 'combo' : 'single',
         isCustom: true,
+        aiWamessageTemplate: waTemplate,
         createdAt: new Date().toISOString()
     };
 
@@ -959,6 +975,12 @@ window.submitCustomPlan = async function() {
         
         btn.textContent = ogText;
         btn.disabled = false;
+
+        // Mostrar la hermosa vista previa de WhatsApp
+        setTimeout(() => {
+            window.showCustomPlanPreview(plan);
+        }, 300);
+
     } catch (e) {
         console.error('Error guardando plan:', e);
         showToast('❌ Error al guardar el plan');
@@ -977,6 +999,7 @@ window.editCustomPlan = function(id) {
     document.getElementById('cp-salePrice').value = plan.salePrice;
     document.getElementById('cp-cost').value = plan.cost;
     document.getElementById('cp-features').value = plan.features.join(', ');
+    document.getElementById('cp-wa-template').value = plan.aiWamessageTemplate || '';
     
     window.calcCustomProfit();
     document.getElementById('custom-plan-modal').style.display = 'flex';
@@ -993,6 +1016,218 @@ window.deleteCustomPlan = async function(id, name) {
         console.error('Error eliminando plan:', e);
         showToast('❌ Error al eliminar el plan');
     }
+};
+
+// ==========================================
+// MÓDULO INTELIGENTE: OPTIMIZADOR CON IA Y VISTA PREVIA
+// ==========================================
+
+window.optimizePlanWithAI = function() {
+    const name = document.getElementById('cp-name').value.trim();
+    if (!name) {
+        showToast('⚠️ Escribe el nombre del plan antes de optimizar.');
+        return;
+    }
+
+    const key = localStorage.getItem('plixora_gemini_api_key');
+    if (!key) {
+        document.getElementById('gemini-api-key').value = '';
+        document.getElementById('gemini-key-modal').style.display = 'flex';
+    } else {
+        window.runAIOptimization(key);
+    }
+};
+
+window.closeGeminiKeyModal = function() {
+    document.getElementById('gemini-key-modal').style.display = 'none';
+};
+
+window.saveGeminiKey = function() {
+    const key = document.getElementById('gemini-api-key').value.trim();
+    if (!key) {
+        showToast('⚠️ Introduce una clave de API válida.');
+        return;
+    }
+    localStorage.setItem('plixora_gemini_api_key', key);
+    window.closeGeminiKeyModal();
+    window.runAIOptimization(key);
+};
+
+window.useLocalOptimizer = function() {
+    window.closeGeminiKeyModal();
+    window.runLocalOptimization();
+};
+
+window.runAIOptimization = async function(apiKey) {
+    const name = document.getElementById('cp-name').value.trim();
+    const category = document.getElementById('cp-category').value;
+    const duration = document.getElementById('cp-duration').value.trim() || '1 mes';
+    const featuresStr = document.getElementById('cp-features').value.trim();
+
+    const optBtn = document.querySelector('.ai-opt-btn');
+    const ogHTML = optBtn.innerHTML;
+    optBtn.innerHTML = '<span>⏳ Optimizando...</span>';
+    optBtn.disabled = true;
+
+    const prompt = `Eres un copywriter experto para la tienda de streaming PLIXORA.BO.
+Tengo el siguiente producto personalizado:
+- Nombre: ${name}
+- Categoría: ${category}
+- Duración: ${duration}
+- Características descritas por el usuario: ${featuresStr || 'Servicio de alta calidad'}
+
+Optimiza el producto. Genera un JSON válido con la siguiente estructura exacta:
+{
+  "features": ["caracteristica 1 mejorada con emojis", "caracteristica 2 mejorada con emojis", "caracteristica 3 mejorada con emojis"],
+  "waTemplate": "Mensaje de WhatsApp de entrega de credenciales hermoso, limpio, profesional, con emojis, y usando negritas de WhatsApp (*texto*) y monoespaciado (\`texto\`). Debe contener exactamente las etiquetas {cliente}, {pedido}, {duracion}, {correo} y {contrasena} donde corresponda."
+}
+No devuelvas nada más que el JSON puro, sin bloques markdown de código (no uses \`\`\`json ni nada de eso).`;
+
+    try {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }]
+            })
+        });
+
+        if (!response.ok) throw new Error('Error al conectar con la API de Gemini');
+
+        const result = await response.json();
+        let aiText = result.candidates[0].content.parts[0].text.trim();
+        
+        // Limpiar posible formato markdown en la respuesta de la IA
+        if (aiText.startsWith('```')) {
+            aiText = aiText.replace(/^```(json)?/, '').replace(/```$/, '').trim();
+        }
+
+        const data = JSON.parse(aiText);
+        
+        if (data.features && Array.isArray(data.features)) {
+            document.getElementById('cp-features').value = data.features.join(', ');
+        }
+        if (data.waTemplate) {
+            document.getElementById('cp-wa-template').value = data.waTemplate;
+        }
+
+        showToast('✨ ¡Optimización con IA completada!');
+    } catch (e) {
+        console.error('Gemini error:', e);
+        showToast('⚠️ Hubo un problema con la IA. Usando optimizador local...');
+        window.runLocalOptimization();
+    } finally {
+        optBtn.innerHTML = ogHTML;
+        optBtn.disabled = false;
+    }
+};
+
+window.runLocalOptimization = function() {
+    const name = document.getElementById('cp-name').value.trim();
+    const category = document.getElementById('cp-category').value;
+    const duration = document.getElementById('cp-duration').value.trim() || '1 mes';
+    const featuresStr = document.getElementById('cp-features').value.trim();
+    const featuresArr = featuresStr ? featuresStr.split(',').map(f => f.trim()).filter(f => f) : [];
+
+    // Mejorar características localmente
+    const enhancedFeatures = [];
+    if (featuresArr.length > 0) {
+        featuresArr.forEach(f => {
+            enhancedFeatures.push(`✨ ${f}`);
+        });
+    } else {
+        enhancedFeatures.push('⭐ Suscripción premium sin interrupciones');
+        enhancedFeatures.push('⚡ Entrega inmediata y soporte postventa');
+        enhancedFeatures.push('🛡️ Garantía completa por todo el periodo contratado');
+    }
+
+    document.getElementById('cp-features').value = enhancedFeatures.join(', ');
+
+    // Generar plantilla
+    const waTemplate = window.generateLocalWaTemplate(name, category, duration, enhancedFeatures);
+    document.getElementById('cp-wa-template').value = waTemplate;
+
+    showToast('✨ Optimizado localmente con éxito');
+};
+
+window.generateLocalWaTemplate = function(name, category, duration, features) {
+    let rules = '• Prohibido compartir o revender la cuenta.\n• Reportar caídas de inmediato para gestionar garantía.';
+    const lowerName = name.toLowerCase();
+
+    if (lowerName.includes('netflix') || lowerName.includes('nf')) {
+        rules = '• 📺 *LÍMITE DE PANTALLA:* Solo se permite reproducir en *1 dispositivo a la vez*.\n• Prohibido cambiar el nombre o PIN del perfil.';
+    } else if (lowerName.includes('spotify') || lowerName.includes('sp')) {
+        rules = '• Inicia sesión directamente ingresando correo y contraseña en Spotify.\n• No usar "Iniciar sesión con Google".';
+    } else if (lowerName.includes('hbo') || lowerName.includes('disney') || lowerName.includes('prime')) {
+        rules = '• Usar únicamente el perfil asignado.\n• No alterar la facturación o planes contratados.';
+    }
+
+    return `*PLIXORA.BO* | 🛒 *${name}*
+🎫 *Pedido:* {pedido}
+
+Hola *{cliente}* 👋
+¡Tu servicio de *${name}* ya está activo y listo para disfrutar! 🎉
+
+📌 *Duración:* {duracion}
+
+📩 *DATOS DE ACCESO:*
+📧 *Correo:* \`{correo}\`
+🔑 *Contraseña:* \`{contrasena}\`
+
+📋 *REGLAS DEL SERVICIO:*
+${rules}
+
+⚠️ _Prohibido cambiar la contraseña, correo o tocar la facturación. Caso contrario, se dará de baja automáticamente sin derecho a reclamo._
+
+_PLIXORA.BO — Gracias por tu compra 🧡_`;
+};
+
+window.showCustomPlanPreview = function(plan) {
+    let template = plan.aiWamessageTemplate || '';
+    if (!template) {
+        template = window.generateLocalWaTemplate(plan.name, plan.category, plan.duration, plan.features);
+    }
+
+    // Reemplazar marcadores por datos simulados para la vista previa
+    let previewText = template
+        .replace(/{cliente}/g, 'Johan Valdivia')
+        .replace(/{pedido}/g, 'PLX-MOCK12')
+        .replace(/{duracion}/g, plan.duration)
+        .replace(/{correo}/g, 'cliente-premium@plixora.bo')
+        .replace(/{contrasena}/g, 'plixora2026*');
+
+    document.getElementById('wa-preview-text').innerHTML = window.formatWhatsappMarkdown(previewText);
+    
+    // Poner la hora actual
+    const now = new Date();
+    document.getElementById('wa-preview-time').textContent = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+
+    document.getElementById('wa-preview-modal').style.display = 'flex';
+};
+
+window.closeWaPreviewModal = function() {
+    document.getElementById('wa-preview-modal').style.display = 'none';
+};
+
+window.formatWhatsappMarkdown = function(text) {
+    if (!text) return '';
+    // Sanitizar HTML básico
+    let escaped = text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    
+    // Reemplazos de markdown de Whatsapp
+    // Negrita: *texto* -> <strong>texto</strong>
+    escaped = escaped.replace(/\*(.*?)\*/g, '<strong>$1</strong>');
+    // Cursiva: _texto_ -> <em>texto</em>
+    escaped = escaped.replace(/_(.*?)_/g, '<em>$1</em>');
+    // Monoespaciado: `texto` -> <code style="background:rgba(0,0,0,0.06); padding:2px 4px; border-radius:4px; font-family:monospace; color:#222;">$1</code>');
+    escaped = escaped.replace(/`(.*?)`/g, '<code style="background:rgba(0,0,0,0.06); padding:2px 4px; border-radius:4px; font-family:monospace; color:#222;">$1</code>');
+    // Tachado: ~texto~ -> <del>$1</del>
+    escaped = escaped.replace(/~(.*?)~/g, '<del>$1</del>');
+    
+    return escaped;
 };
 
 

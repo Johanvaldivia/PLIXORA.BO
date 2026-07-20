@@ -103,9 +103,22 @@ window.buildExpireBadge = function(expireDate) {
 }
 
 window.generateSaleDetailsText = function(sale) {
+    const clienteName = sale.customerName || 'Cliente';
+    
+    // Buscar si existe plantilla de WhatsApp personalizada mejorada por IA
+    const matchingPlan = (window.customPlans || []).find(p => `${p.name} (${p.duration})` === sale.productName);
+    if (matchingPlan && matchingPlan.aiWamessageTemplate) {
+        let message = matchingPlan.aiWamessageTemplate
+            .replace(/{cliente}/g, clienteName)
+            .replace(/{pedido}/g, sale.orderCode || 'PLX-####')
+            .replace(/{duracion}/g, matchingPlan.duration)
+            .replace(/{correo}/g, sale.email || '')
+            .replace(/{contrasena}/g, sale.password || '');
+        return message;
+    }
+
     const prodName = (sale.productName || '').toLowerCase();
     const codeLine = sale.orderCode ? `🎫 *Pedido:* ${sale.orderCode}\n` : '';
-    const clienteName = sale.customerName || 'Cliente';
 
     // Format duration instead of expiration
     let duracionLine = '';

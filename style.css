@@ -963,6 +963,40 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
 }
 .plan-btn:hover { background: rgba(255, 255, 255, 0.1); color: var(--text-main); }
 .plan-btn-delete:hover { background: rgba(239, 68, 68, 0.1); color: #ef4444; border-color: rgba(239, 68, 68, 0.3); }
+
+/* AI Optimization Button styling */
+.ai-opt-btn {
+    background: linear-gradient(135deg, #7c3aed, #4f46e5);
+    border: none;
+    color: #fff;
+    padding: 0.35rem 0.75rem;
+    border-radius: var(--radius-pill);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.25);
+}
+.ai-opt-btn:hover {
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
+    transform: translateY(-1px);
+    filter: brightness(1.1);
+}
+.ai-opt-btn:active {
+    transform: translateY(0);
+}
+.ai-opt-btn svg {
+    stroke: currentColor;
+    animation: pulseGemini 2s infinite ease-in-out;
+}
+@keyframes pulseGemini {
+    0%, 100% { opacity: 0.7; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.1); }
+}
+
 /* ── FORM ── */
 .form-container { max-width:560px; background:var(--bg-card); border:1.5px solid var(--border); border-radius:var(--radius-lg); padding:2rem; box-shadow:var(--shadow-md); }
 .form-group { margin-bottom:1.1rem; }
