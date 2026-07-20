@@ -168,6 +168,10 @@
                     <button class="ga-btn ga-btn-replace" onclick="window.gaOpenReplace('${acc.id}', '${acc.serviceName}')">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Reemplazar Cuenta
                     </button>
+                    <button class="ga-btn ga-btn-bulk-notify" onclick="window.gaBulkNotify('${acc.id}')" title="Enviar aviso masivo a todos los miembros">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                        Aviso Masivo
+                    </button>
                     <button class="ga-btn ga-btn-delete" onclick="window.gaDeleteAccount('${acc.id}', '${acc.serviceName}')" style="padding:0.55rem;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                     </button>
@@ -478,6 +482,83 @@
             showToast('✅ Cuenta grupal eliminada.');
         } catch (e) {
             showToast('❌ Error: ' + e.message);
+        }
+    };
+    // ── BULK NOTIFY (Aviso Masivo) ─────────────────────────────────
+    window.gaBulkNotify = async function (accountId) {
+        const account = gaAccounts.find(a => a.id === accountId);
+        if (!account) { showToast('❌ Cuenta no encontrada.'); return; }
+
+        const members = account.members || [];
+        if (members.length === 0) {
+            showToast('⚠️ No hay miembros en esta cuenta para notificar.');
+            return;
+        }
+
+        const serviceName = account.serviceName || 'Servicio';
+        const email = account.email || '—';
+        const password = account.password || '—';
+
+        const createdAt = account.createdAt ? new Date(account.createdAt) : null;
+        let expDateStr = '—';
+        if (createdAt) {
+            const exp = new Date(createdAt.getFullYear(), createdAt.getMonth() + 1, createdAt.getDate());
+            expDateStr = `${exp.getDate()}/${MONTH_NAMES[exp.getMonth()]}/${exp.getFullYear()}`;
+        }
+
+        const confirmMsg = `¿Enviar aviso masivo a ${members.length} miembro(s) de "${serviceName}"?\n\nSe les enviará sus credenciales y fecha de vencimiento por WhatsApp.`;
+        if (!confirm(confirmMsg)) return;
+
+        showToast(`📤 Enviando aviso masivo a ${members.length} miembro(s)...`);
+
+        let sent = 0;
+        let failed = 0;
+
+        for (let i = 0; i < members.length; i++) {
+            const m = members[i];
+            if (!m.phone) { failed++; continue; }
+
+            const profileNum = i + 1;
+
+            const svcLower = serviceName.toLowerCase();
+            let notaExtra = '';
+            if (svcLower.includes('disney') || svcLower.includes('hbo')) {
+                notaExtra = `\n\n📌 *NOTA:* Estos mismos datos te sirven para iniciar sesión tanto en *Disney Plus* como en *HBO Max*.`;
+            } else if (svcLower.includes('prime')) {
+                notaExtra = `\n\n📌 *Importante*\nSOLO INGRESAR EN 1 DISPOSITIVO\nNO CAMBIAR DE DISPOSITIVO\n✔️ Use su perfil asignado.\n✔️ No compartir perfil.\n✔️ Si necesitas un código, avísanos.`;
+            }
+
+            const msg = `🔔 *PLIXORA.BO — Recordatorio de Cuenta*\n\n` +
+                `Hola *${m.name}* 👋\n\n` +
+                `Te recordamos los datos de acceso de tu cuenta de *${serviceName}*:\n\n` +
+                `📧 *Correo:* \`${email}\`\n` +
+                `🔑 *Contraseña:* \`${password}\`\n` +
+                `👤 *Tu Perfil:* Perfil ${profileNum}\n` +
+                `📅 *Vence:* ${expDateStr}${notaExtra}\n\n` +
+                `⚠️ *Importante:*\n` +
+                `• No cambies la contraseña ni el correo.\n` +
+                `• No compartas estos datos con nadie.\n` +
+                `• No elimines ni modifiques otros perfiles.\n\n` +
+                `🔧 _En caso de que la cuenta se caiga, el reemplazo se realiza en un plazo máximo de *24 horas*._\n\n` +
+                `_PLIXORA.BO — Gracias por tu preferencia 🧡_`;
+
+            try {
+                await waBotFetch(window.PLIXORA_CONFIG.WA_BOT_URL, { phone: m.phone, message: msg });
+                sent++;
+            } catch (err) {
+                console.error(`Bulk notify error for ${m.name} (${m.phone}):`, err);
+                failed++;
+            }
+
+            if (i < members.length - 1) {
+                await new Promise(r => setTimeout(r, 1200));
+            }
+        }
+
+        if (failed === 0) {
+            showToast(`✅ Aviso masivo enviado a ${sent} miembro(s) exitosamente.`);
+        } else {
+            showToast(`⚠️ Aviso masivo: ${sent} enviados, ${failed} fallaron.`);
         }
     };
 

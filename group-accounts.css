@@ -324,6 +324,14 @@
     background: rgba(239, 68, 68, 0.2);
     transform: translateY(-2px);
 }
+.ga-btn-bulk-notify {
+    background: rgba(37, 211, 102, 0.12);
+    color: #25d366;
+}
+.ga-btn-bulk-notify:hover {
+    background: rgba(37, 211, 102, 0.25);
+    transform: translateY(-2px);
+}
 
 /* Add Account Button */
 .ga-btn-add-account-main {
