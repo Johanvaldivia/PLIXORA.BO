@@ -32,9 +32,8 @@
             .onSnapshot(
                 snap => {
                     nfAccounts = snap.docs.map(d => ({ ...d.data(), id: d.id }));
-                    localStorage.setItem('nf_accounts', JSON.stringify(nfAccounts));
+                    batchedLSSetItem('nf_accounts', JSON.stringify(nfAccounts));
                     renderAll();
-                    // Refresh detail modal if open
                     if (currentDetailId && document.getElementById('nf-detail-modal').style.display !== 'none') {
                         renderDetailModal(currentDetailId);
                     }
@@ -342,7 +341,7 @@
 
         // ── Optimistic update: add locally BEFORE Firebase confirms ──
         nfAccounts.unshift(account);
-        localStorage.setItem('nf_accounts', JSON.stringify(nfAccounts));
+        batchedLSSetItem('nf_accounts', JSON.stringify(nfAccounts));
         window.nfRenderAll();
         closeNFAddModal();
         showNFToast('✅ Cuenta ' + account.codigo + ' creada con 5 perfiles');
@@ -355,7 +354,7 @@
         } catch (e) {
             // Rollback on error
             nfAccounts = nfAccounts.filter(a => a.id !== account.id);
-            localStorage.setItem('nf_accounts', JSON.stringify(nfAccounts));
+            batchedLSSetItem('nf_accounts', JSON.stringify(nfAccounts));
             window.nfRenderAll();
             alert('Error al guardar en la nube: ' + e.message);
         }
@@ -465,7 +464,7 @@
             if (db) {
                 await db.collection('netflix_accounts').doc(currentDetailId).update({ estado: 'cerrada' });
             } else {
-                localStorage.setItem('nf_accounts', JSON.stringify(nfAccounts));
+                batchedLSSetItem('nf_accounts', JSON.stringify(nfAccounts));
             }
             window.nfRenderAll();
             closeNFDetail();
@@ -490,7 +489,7 @@
                 await db.collection('netflix_accounts').doc(currentDetailId).delete();
             } else {
                 nfAccounts = nfAccounts.filter(a => a.id !== currentDetailId);
-                localStorage.setItem('nf_accounts', JSON.stringify(nfAccounts));
+                batchedLSSetItem('nf_accounts', JSON.stringify(nfAccounts));
                 window.nfRenderAll();
             }
             closeNFDetail();
@@ -498,6 +497,93 @@
         } catch (e) { alert('Error: ' + e.message); }
     };
 
+    // ── BULK NOTIFY (Aviso Masivo) ────────────────────────────────
+    window.nfBulkNotify = async function () {
+        if (!currentDetailId) return;
+        const acc = nfAccounts.find(a => a.id === currentDetailId);
+        if (!acc) { showNFToast('❌ Cuenta no encontrada.'); return; }
+
+        const perfiles = acc.perfiles || [];
+        const ocupados = perfiles
+            .map((p, i) => ({ ...p, _idx: i }))
+            .filter(p => p.estado === 'ocupado' && p.whatsapp);
+
+        if (ocupados.length === 0) {
+            showNFToast('⚠️ No hay perfiles ocupados con WhatsApp para notificar.');
+            return;
+        }
+
+        const confirmMsg = `¿Enviar aviso masivo a ${ocupados.length} perfil(es) ocupado(s) de ${acc.codigo}?\n\nSe les enviará su ticket de vencimiento con credenciales por WhatsApp.`;
+        if (!confirm(confirmMsg)) return;
+
+        showNFToast(`📤 Enviando aviso masivo a ${ocupados.length} perfil(es)...`);
+
+        const meses = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
+        let sent = 0;
+        let failed = 0;
+
+        for (let j = 0; j < ocupados.length; j++) {
+            const p = ocupados[j];
+
+            let vencLabel = 'próximamente';
+            if (p.vencimiento) {
+                const d = new Date(p.vencimiento + 'T12:00:00');
+                vencLabel = `${d.getDate()} de ${meses[d.getMonth()]} de ${d.getFullYear()}`;
+            }
+
+            const codeDisplay = p.orderCode ? ` / ${p.orderCode}` : '';
+            const msg = `🎟️ *TICKET DE VENCIMIENTO | PLIXORA.BO* 🎟️\n\n` +
+                        `👤 *Cliente:* ${p.cliente || ''}\n` +
+                        `📺 *Servicio:* Netflix Perfil ${p.nombre.toUpperCase()}${codeDisplay}\n` +
+                        `⏳ *Válido hasta:* ${vencLabel}\n\n` +
+                        `Tus credenciales de ingreso:\n` +
+                        `• Correo: \`${acc.correo}\`\n` +
+                        `• Clave: \`${acc.password}\`\n\n` +
+                        `¿Deseas prolongar tu suscripción? \n` +
+                        `1️⃣ Responde *RENOVAR*\n` +
+                        `2️⃣ Responde *NO RENOVAR*\n\n` +
+                        `¡Gracias por elegirnos! 🍿✨`;
+
+            try {
+                const resp = await waBotFetch(window.PLIXORA_CONFIG.WA_BOT_URL, { phone: p.whatsapp, message: msg });
+                const data = await resp.json();
+                if (!data.success) throw new Error(data.error || 'Fallo en envío');
+
+                // Marcar como notificado
+                acc.perfiles[p._idx].notifiedRenewal = true;
+                sent++;
+            } catch (err) {
+                console.error(`Bulk NF notify error for ${p.cliente} (${p.whatsapp}):`, err);
+                failed++;
+            }
+
+            // Delay entre mensajes para no saturar el bot
+            if (j < ocupados.length - 1) {
+                await new Promise(r => setTimeout(r, 1200));
+            }
+        }
+
+        // Guardar estado notifiedRenewal en Firebase
+        try {
+            const perfilesActualizados = [...acc.perfiles];
+            batchedLSSetItem('nf_accounts', JSON.stringify(nfAccounts));
+            if (db) {
+                await db.collection('netflix_accounts').doc(acc.id).update({ perfiles: perfilesActualizados });
+            }
+        } catch (e) { console.error('Error guardando estado de notificación:', e); }
+
+        // Re-render para mostrar botones verdes
+        window.nfRenderAll();
+        if (currentDetailId && document.getElementById('nf-detail-modal').style.display !== 'none') {
+            window.nfRenderDetailModal(currentDetailId);
+        }
+
+        if (failed === 0) {
+            showNFToast(`✅ Aviso masivo enviado a ${sent} perfil(es) exitosamente.`);
+        } else {
+            showNFToast(`⚠️ Aviso masivo: ${sent} enviados, ${failed} fallaron.`);
+        }
+    };
 
     // ── ASSIGN PROFILE MODAL ─────────────────────────────────
     let currentAssignAcc = null;
@@ -568,7 +654,7 @@
         // ── Optimistic update: apply locally BEFORE Firebase confirms ──
         const accSnapshot = JSON.parse(JSON.stringify(acc));
         acc.perfiles = perfiles;
-        localStorage.setItem('nf_accounts', JSON.stringify(nfAccounts));
+        batchedLSSetItem('nf_accounts', JSON.stringify(nfAccounts));
         window.nfRenderAll();
         closeNFAssign();
         window.nfRenderDetailModal(currentDetailId);
@@ -598,7 +684,7 @@
         } catch (e) {
             // Rollback on error
             Object.assign(acc, accSnapshot);
-            localStorage.setItem('nf_accounts', JSON.stringify(nfAccounts));
+            batchedLSSetItem('nf_accounts', JSON.stringify(nfAccounts));
             window.nfRenderAll();
             alert('Error al guardar en la nube: ' + e.message);
         }
@@ -649,7 +735,7 @@
 
         const accSnapshot = JSON.parse(JSON.stringify(acc));
         acc.perfiles = perfiles;
-        localStorage.setItem('nf_accounts', JSON.stringify(nfAccounts));
+        batchedLSSetItem('nf_accounts', JSON.stringify(nfAccounts));
         window.nfRenderAll();
         closeNFAssign();
         window.nfRenderDetailModal(currentDetailId);
@@ -677,7 +763,7 @@
             }
         } catch (e) {
             Object.assign(acc, accSnapshot);
-            localStorage.setItem('nf_accounts', JSON.stringify(nfAccounts));
+            batchedLSSetItem('nf_accounts', JSON.stringify(nfAccounts));
             window.nfRenderAll();
             alert('Error al guardar en la nube: ' + e.message);
             return;
@@ -829,7 +915,7 @@
         // Optimistic update
         const destAccSnapshot = JSON.parse(JSON.stringify(destAcc));
         destAcc.perfiles = destPerfiles;
-        localStorage.setItem('nf_accounts', JSON.stringify(nfAccounts));
+        batchedLSSetItem('nf_accounts', JSON.stringify(nfAccounts));
         window.nfRenderAll();
         closeNFTransfer();
 
@@ -864,7 +950,7 @@
         } catch (e) {
             // Rollback on error
             Object.assign(destAcc, destAccSnapshot);
-            localStorage.setItem('nf_accounts', JSON.stringify(nfAccounts));
+            batchedLSSetItem('nf_accounts', JSON.stringify(nfAccounts));
             window.nfRenderAll();
             alert('Error al transferir: ' + e.message);
         }
@@ -1009,7 +1095,7 @@
             if (acc && acc.perfiles[profileIdx]) {
                 acc.perfiles[profileIdx].notifiedRenewal = true;
                 const perfiles = [...acc.perfiles];
-                localStorage.setItem('nf_accounts', JSON.stringify(nfAccounts));
+                batchedLSSetItem('nf_accounts', JSON.stringify(nfAccounts));
                 try {
                     if (db) {
                         await db.collection('netflix_accounts').doc(acc.id).update({ perfiles });
@@ -1079,7 +1165,7 @@
                 await db.collection('netflix_accounts').doc(accountId).update({ perfiles });
             } else {
                 acc.perfiles = perfiles;
-                localStorage.setItem('nf_accounts', JSON.stringify(nfAccounts));
+                batchedLSSetItem('nf_accounts', JSON.stringify(nfAccounts));
                 window.nfRenderAll();
             }
             window.nfRenderDetailModal(accountId);
@@ -1131,7 +1217,7 @@
             }
 
             // Guardar localmente
-            localStorage.setItem('nf_accounts', JSON.stringify(nfAccounts));
+            batchedLSSetItem('nf_accounts', JSON.stringify(nfAccounts));
 
             // Re-renderizar la vista
             window.nfRenderAll();
