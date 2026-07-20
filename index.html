@@ -375,9 +375,15 @@
 
             <!-- ====== CATALOG VIEW ====== -->
             <section id="catalog" class="view">
-                <div class="view-header">
-                    <h2>Catálogo de Productos</h2>
-                    <p class="subtitle">Cuentas y combos disponibles para venta</p>
+                <div class="view-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+                    <div>
+                        <h2>Catálogo de Productos</h2>
+                        <p class="subtitle">Cuentas y combos disponibles para venta</p>
+                    </div>
+                    <button class="ga-btn-add-account-main" onclick="window.openCustomPlanModal()">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:18px;height:18px;margin-right:0.4rem"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                        Nuevo Plan
+                    </button>
                 </div>
                 <div class="catalog-filters">
                     <button class="filter-btn active" data-filter="all">Todos</button>
@@ -1138,6 +1144,61 @@
                 <div id="ga-replace-notify-list"></div>
             </div>
             <button class="ga-btn-submit ga-btn-submit-blue" onclick="gaSubmitReplace()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Reemplazar y Notificar por WhatsApp</button>
+        </div>
+    </div>
+
+    <!-- Modal: Crear/Editar Plan Personalizado -->
+    <div id="custom-plan-modal" class="ga-overlay" style="display:none">
+        <div class="ga-modal" style="max-width: 500px;">
+            <div class="ga-modal-header">
+                <h3 id="custom-plan-title" style="display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg> Nuevo Plan Personalizado</h3>
+                <button class="ga-close" onclick="window.closeCustomPlanModal()">✕</button>
+            </div>
+            <form id="custom-plan-form" onsubmit="event.preventDefault(); window.submitCustomPlan();">
+                <input type="hidden" id="cp-id">
+                
+                <div class="ga-form-group">
+                    <label>Nombre del Plan/Combo *</label>
+                    <input type="text" id="cp-name" placeholder="Ej: HBO 3 meses Oferta" required>
+                </div>
+                
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="ga-form-group">
+                        <label>Categoría *</label>
+                        <select id="cp-category" required>
+                            <option value="individual">Individual</option>
+                            <option value="completa">Cuenta Completa</option>
+                            <option value="combo">Combo</option>
+                        </select>
+                    </div>
+                    <div class="ga-form-group">
+                        <label>Duración *</label>
+                        <input type="text" id="cp-duration" placeholder="Ej: 3 meses" required>
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="ga-form-group">
+                        <label>Precio de Venta (Bs) *</label>
+                        <input type="number" id="cp-salePrice" placeholder="Ej: 25" step="0.1" required oninput="window.calcCustomProfit()">
+                    </div>
+                    <div class="ga-form-group">
+                        <label>Costo (Bs) *</label>
+                        <input type="number" id="cp-cost" placeholder="Ej: 15" step="0.1" required oninput="window.calcCustomProfit()">
+                    </div>
+                </div>
+                
+                <div style="font-size:0.85rem; color:var(--text-muted); margin-top:-0.5rem; margin-bottom:1rem; text-align:right;">
+                    Ganancia estimada: <strong id="cp-profit-preview" style="color:var(--green)">0.00 Bs</strong>
+                </div>
+
+                <div class="ga-form-group">
+                    <label>Características (separadas por coma)</label>
+                    <input type="text" id="cp-features" placeholder="Ej: Cuenta individual, Contenido premium">
+                </div>
+
+                <button type="submit" class="ga-btn-submit" style="margin-top:0.5rem;">Guardar Plan</button>
+            </form>
         </div>
     </div>
 

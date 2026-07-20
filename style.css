@@ -930,6 +930,39 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
 .product-features li::before { content:'✓'; color:var(--orange); font-weight:700; }
 .product-profit { display:block; background:linear-gradient(135deg,var(--orange-light),var(--orange)); color:#fff; padding:0.55rem; border-radius:var(--radius-pill); font-size:0.8rem; font-weight:700; text-align:center; box-shadow:0 3px 10px var(--orange-glow); }
 
+/* Custom Plans Styles */
+.custom-plan-badge {
+    position:absolute; top:1rem; right:1rem; 
+    background:rgba(59, 130, 246, 0.1); color:#3b82f6; 
+    padding:0.18rem 0.6rem; border-radius:var(--radius-pill); 
+    font-size:0.68rem; font-weight:700; text-transform:uppercase; 
+    letter-spacing:0.5px; display:flex; align-items:center; gap:0.25rem;
+}
+.plan-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    border-top: 1px solid var(--border);
+    padding-top: 1rem;
+}
+.plan-btn {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 0.5rem;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--ease);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+}
+.plan-btn:hover { background: rgba(255, 255, 255, 0.1); color: var(--text-main); }
+.plan-btn-delete:hover { background: rgba(239, 68, 68, 0.1); color: #ef4444; border-color: rgba(239, 68, 68, 0.3); }
 /* ── FORM ── */
 .form-container { max-width:560px; background:var(--bg-card); border:1.5px solid var(--border); border-radius:var(--radius-lg); padding:2rem; box-shadow:var(--shadow-md); }
 .form-group { margin-bottom:1.1rem; }

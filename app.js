@@ -13,8 +13,10 @@
 
 // ---- ESTADO ----
 let sales = JSON.parse(localStorage.getItem('plixora_sales')) || [];
+let customPlans = JSON.parse(localStorage.getItem('plixora_custom_plans')) || [];
 let db = null;
 let unsubscribe = null;
+let unsubscribeCustomPlans = null;
 
 // ---- DOM ----
 const productsGrid  = document.getElementById('products-grid');
@@ -260,6 +262,25 @@ function initFirebase() {
                 }
             );
 
+        // Listener para Planes Personalizados
+        unsubscribeCustomPlans = db.collection('plixora_custom_plans')
+            .onSnapshot(snapshot => {
+                customPlans = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+                localStorage.setItem('plixora_custom_plans', JSON.stringify(customPlans));
+                
+                // Re-renderizar catálogo o vista activa si es necesario
+                const activeView = document.querySelector('.view.active');
+                if (activeView && activeView.id === 'catalog' && typeof window.renderCatalog === 'function') {
+                    const activeFilter = document.querySelector('.filter-btn.active');
+                    window.renderCatalog(activeFilter ? activeFilter.dataset.filter : 'all');
+                } else if (activeView && activeView.id === 'newsale' && typeof window.populateSelect === 'function') {
+                    window.populateSelect();
+                }
+            }, error => {
+                console.error('Error Firebase custom_plans:', error);
+                customPlans = JSON.parse(localStorage.getItem('plixora_custom_plans')) || [];
+            });
+
         // Verificar conexión real con Firestore después de 5s
         setTimeout(() => {
             const statusEl = document.getElementById('cloud-status-indicator');
@@ -399,13 +420,14 @@ function setupNavigation() {
 // ---- CATÁLOGO ----
 function renderCatalog(filter) {
     productsGrid.innerHTML = '';
+    const allProducts = [...catalogData, ...customPlans];
     let data;
     if (filter === 'all') {
-        data = catalogData;
+        data = allProducts;
     } else if (filter === 'individual' || filter === 'completa' || filter === 'combo') {
-        data = catalogData.filter(p => p.category === filter);
+        data = allProducts.filter(p => p.category === filter);
     } else {
-        data = catalogData.filter(p => p.type === filter);
+        data = allProducts.filter(p => p.type === filter);
     }
 
     // Group by category for 'all' view
@@ -451,13 +473,29 @@ function createProductCard(product) {
     }
     const priceDisplay = product.salePrice > 0 ? `${product.salePrice} <span>Bs</span>` : '<span style="color:#f59e0b;font-size:0.9rem;">A PEDIDO</span>';
     const profitDisplay = product.profit > 0 ? `Ganancia: ${product.profit} Bs` : 'Consultar precio';
+    
+    let customBadgeHTML = '';
+    let customActionsHTML = '';
+    
+    if (product.isCustom) {
+        customBadgeHTML = `<div class="custom-plan-badge"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg> Personalizado</div>`;
+        customActionsHTML = `
+            <div class="plan-actions">
+                <button class="plan-btn" onclick="window.editCustomPlan('${product.id}')"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg> Editar</button>
+                <button class="plan-btn plan-btn-delete" onclick="window.deleteCustomPlan('${product.id}', '${product.name}')"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Eliminar</button>
+            </div>
+        `;
+    }
+
     card.innerHTML = `
-        <div class="product-badge" ${badgeStyle}>${badgeText}</div>
+        ${customBadgeHTML}
+        <div class="product-badge" ${badgeStyle} ${product.isCustom ? 'style="top: 2.8rem;"' : ''}>${badgeText}</div>
         <div class="product-type">${product.duration}</div>
         <h3 class="product-title">${product.name}</h3>
         <div class="product-price">${priceDisplay}</div>
         <ul class="product-features">${product.features.map(f => `<li>${f}</li>`).join('')}</ul>
         <div class="product-profit">${profitDisplay}</div>
+        ${customActionsHTML}
     `;
     return card;
 }
@@ -500,13 +538,19 @@ function populateSelect() {
     const grpIndividual = document.createElement('optgroup'); grpIndividual.label = '👤 Cuentas Individuales';
     const grpCompleta   = document.createElement('optgroup'); grpCompleta.label   = '🔑 Cuentas Completas';
     const grpCombo      = document.createElement('optgroup'); grpCombo.label      = '🔥 Combos';
+    const grpCustom     = document.createElement('optgroup'); grpCustom.label     = '⭐ Planes Personalizados';
 
-    catalogData.forEach(p => {
+    const allProducts = [...catalogData, ...customPlans];
+
+    allProducts.forEach(p => {
         if (p.id.startsWith('nf-')) return; // Ocultar Netflix del formulario genérico
         const opt = document.createElement('option');
         opt.value = p.id;
         opt.textContent = `${p.name} (${p.duration}) - ${p.salePrice} Bs`;
-        if (p.type === 'combo') {
+        
+        if (p.isCustom) {
+            grpCustom.appendChild(opt);
+        } else if (p.type === 'combo') {
             grpCombo.appendChild(opt);
         } else if (p.category === 'completa') {
             grpCompleta.appendChild(opt);
@@ -514,12 +558,17 @@ function populateSelect() {
             grpIndividual.appendChild(opt);
         }
     });
+    
     selectProduct.appendChild(grpIndividual);
     selectProduct.appendChild(grpCompleta);
     selectProduct.appendChild(grpCombo);
+    if (grpCustom.children.length > 0) {
+        selectProduct.appendChild(grpCustom);
+    }
 
     selectProduct.addEventListener('change', e => {
-        const p = catalogData.find(x => x.id === e.target.value);
+        const allProds = [...catalogData, ...customPlans];
+        const p = allProds.find(x => x.id === e.target.value);
         if (p) {
             document.getElementById('summary-price').textContent  = `${p.salePrice} Bs`;
             document.getElementById('summary-cost').textContent   = `${p.cost} Bs`;
@@ -557,7 +606,8 @@ function setupForm() {
 
         if (hasError) return;
 
-        const product = catalogData.find(p => p.id === productId);
+        const allProds = [...catalogData, ...customPlans];
+        const product = allProds.find(p => p.id === productId);
         const submitBtn = formNewSale.querySelector('button[type="submit"]');
         submitBtn.disabled = true;
         submitBtn.textContent = 'Guardando...';
@@ -847,6 +897,103 @@ window.closeContactsModal = function() {
 // MÓDULO: REEMPLAZAR CUENTA
 // ============================================================
 let pendingReplaceSaleId = null;
+
+// ==========================================
+// SISTEMA DE PLANES PERSONALIZADOS
+// ==========================================
+
+window.openCustomPlanModal = function() {
+    document.getElementById('custom-plan-title').innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg> Nuevo Plan Personalizado';
+    document.getElementById('custom-plan-form').reset();
+    document.getElementById('cp-id').value = '';
+    document.getElementById('cp-profit-preview').textContent = '0.00 Bs';
+    document.getElementById('custom-plan-modal').style.display = 'flex';
+};
+
+window.closeCustomPlanModal = function() {
+    document.getElementById('custom-plan-modal').style.display = 'none';
+};
+
+window.calcCustomProfit = function() {
+    const sale = parseFloat(document.getElementById('cp-salePrice').value) || 0;
+    const cost = parseFloat(document.getElementById('cp-cost').value) || 0;
+    const profit = (sale - cost).toFixed(2);
+    const el = document.getElementById('cp-profit-preview');
+    el.textContent = `${profit} Bs`;
+    el.style.color = profit >= 0 ? 'var(--green)' : 'var(--accent-red)';
+};
+
+window.submitCustomPlan = async function() {
+    const id = document.getElementById('cp-id').value || `cp-${Date.now()}`;
+    const featuresStr = document.getElementById('cp-features').value;
+    const features = featuresStr ? featuresStr.split(',').map(f => f.trim()).filter(f => f) : [];
+    
+    const salePrice = parseFloat(document.getElementById('cp-salePrice').value) || 0;
+    const cost = parseFloat(document.getElementById('cp-cost').value) || 0;
+
+    const plan = {
+        id,
+        name: document.getElementById('cp-name').value.trim(),
+        category: document.getElementById('cp-category').value,
+        duration: document.getElementById('cp-duration').value.trim(),
+        salePrice,
+        cost,
+        profit: salePrice - cost,
+        features,
+        type: document.getElementById('cp-category').value === 'combo' ? 'combo' : 'single',
+        isCustom: true,
+        createdAt: new Date().toISOString()
+    };
+
+    try {
+        if (!db) throw new Error("Firebase no inicializado");
+        
+        const btn = document.querySelector('#custom-plan-form .ga-btn-submit');
+        const ogText = btn.textContent;
+        btn.textContent = 'Guardando...';
+        btn.disabled = true;
+
+        await db.collection('plixora_custom_plans').doc(id).set(plan);
+        window.closeCustomPlanModal();
+        showToast('✅ Plan guardado exitosamente');
+        
+        btn.textContent = ogText;
+        btn.disabled = false;
+    } catch (e) {
+        console.error('Error guardando plan:', e);
+        showToast('❌ Error al guardar el plan');
+    }
+};
+
+window.editCustomPlan = function(id) {
+    const plan = customPlans.find(p => p.id === id);
+    if (!plan) return;
+
+    document.getElementById('custom-plan-title').innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg> Editar Plan Personalizado';
+    document.getElementById('cp-id').value = plan.id;
+    document.getElementById('cp-name').value = plan.name;
+    document.getElementById('cp-category').value = plan.category;
+    document.getElementById('cp-duration').value = plan.duration;
+    document.getElementById('cp-salePrice').value = plan.salePrice;
+    document.getElementById('cp-cost').value = plan.cost;
+    document.getElementById('cp-features').value = plan.features.join(', ');
+    
+    window.calcCustomProfit();
+    document.getElementById('custom-plan-modal').style.display = 'flex';
+};
+
+window.deleteCustomPlan = async function(id, name) {
+    if (!confirm(`¿Estás seguro de que quieres eliminar el plan "${name}"?\nEsto NO afectará a las ventas ya registradas con este plan.`)) return;
+
+    try {
+        if (!db) throw new Error("Firebase no inicializado");
+        await db.collection('plixora_custom_plans').doc(id).delete();
+        showToast('✅ Plan eliminado exitosamente');
+    } catch (e) {
+        console.error('Error eliminando plan:', e);
+        showToast('❌ Error al eliminar el plan');
+    }
+};
 
 
 
