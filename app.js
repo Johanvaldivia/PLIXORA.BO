@@ -1026,6 +1026,11 @@ window.submitCustomPlan = async function() {
     } catch (e) {
         console.error('Error guardando plan:', e);
         showToast('❌ Error al guardar el plan');
+        const btn = document.querySelector('#custom-plan-form .ga-btn-submit');
+        if (btn) {
+            btn.textContent = 'Guardar Plan';
+            btn.disabled = false;
+        }
     }
 };
 
@@ -1129,6 +1134,7 @@ Tu tarea es tomar la entrada del usuario y mejorar tanto las características pa
 Debes seguir el estilo y tono característico de PLIXORA.BO:
 - Muy profesional, ordenado, usando emojis representativos.
 - Saludo personalizado con el nombre del cliente incluyendo la etiqueta '{cliente}'.
+- DEBES incluir una sección "🌟 *Características de tu plan:*" donde enumeres las características mejoradas que generaste en el campo 'features'.
 - Datos de acceso claramente delimitados, preferiblemente dentro de un cuadro estilizado con caracteres o viñetas y usando texto monoespaciado para correo y contraseña (ej: \`{correo}\` y \`{contrasena}\`).
 - Reglas de uso muy claras y estrictas para evitar reclamos y caídas (basadas en el tipo de producto).
 - Advertencia clara de garantía y qué está prohibido (ej. no cambiar datos de facturación ni contraseña, no compartir con terceros).
@@ -1144,6 +1150,11 @@ Hola *{cliente}* 👋
 ¡Tu suscripción de *Netflix Premium* ya está activa y lista para usar! 🎉
 
 📌 *Duración:* {duracion}
+
+🌟 *Características de tu plan:*
+• Perfil individual y privado
+• Calidad Ultra HD 4K
+• Sin caídas ni interrupciones
 
 📧 *Correo:* \`{correo}\`
 🔑 *Contraseña:* \`{contrasena}\`
@@ -1317,6 +1328,9 @@ Hola *{cliente}* 👋
 ¡Tu suscripción de *${name}* ya está activa y lista para usar! 🎉
 
 📌 *Duración:* {duracion}
+
+🌟 *Características de tu plan:*
+${features.map(f => `• ${f}`).join('\n')}
 
 ${credsBlock.trim()}
 
