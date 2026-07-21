@@ -111,9 +111,25 @@ window.generateSaleDetailsText = function(sale) {
         let message = matchingPlan.aiWamessageTemplate
             .replace(/{cliente}/g, clienteName)
             .replace(/{pedido}/g, sale.orderCode || 'PLX-####')
-            .replace(/{duracion}/g, matchingPlan.duration)
-            .replace(/{correo}/g, sale.email || '')
-            .replace(/{contrasena}/g, sale.password || '');
+            .replace(/{duracion}/g, matchingPlan.duration);
+
+        if (sale.credentials && sale.credentials.length > 0) {
+            sale.credentials.forEach((cred, index) => {
+                const i = index + 1;
+                message = message
+                    .replace(new RegExp(`{correo_${i}}`, 'g'), cred.email || '')
+                    .replace(new RegExp(`{contrasena_${i}}`, 'g'), cred.password || '');
+            });
+            // Legacy/fallback replacements if the template just uses {correo}
+            message = message
+                .replace(/{correo}/g, sale.credentials[0].email || '')
+                .replace(/{contrasena}/g, sale.credentials[0].password || '');
+        } else {
+            message = message
+                .replace(/{correo}/g, sale.email || '')
+                .replace(/{contrasena}/g, sale.password || '');
+        }
+
         return message;
     }
 

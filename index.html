@@ -424,14 +424,16 @@
                                 <input type="text" id="sale-customer" placeholder="Ej: 73651440">
                             </div>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group half">
-                                <label for="sale-email">Correo de la Cuenta (Opcional)</label>
-                                <input type="email" id="sale-email" placeholder="correo@ejemplo.com">
-                            </div>
-                            <div class="form-group half">
-                                <label for="sale-password">Contraseña (Opcional)</label>
-                                <input type="text" id="sale-password" placeholder="Contraseña de acceso">
+                        <div id="dynamic-credentials-container">
+                            <div class="form-row credential-group" data-index="1">
+                                <div class="form-group half">
+                                    <label class="cred-email-label">Correo de la Cuenta (Opcional)</label>
+                                    <input type="email" class="sale-email-input" placeholder="correo@ejemplo.com">
+                                </div>
+                                <div class="form-group half">
+                                    <label class="cred-password-label">Contraseña (Opcional)</label>
+                                    <input type="text" class="sale-password-input" placeholder="Contraseña de acceso">
+                                </div>
                             </div>
                         </div>
                         <div class="sale-summary" id="sale-summary" style="display:none;">
@@ -1165,11 +1167,15 @@
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                     <div class="ga-form-group">
                         <label>Categoría *</label>
-                        <select id="cp-category" required>
+                        <select id="cp-category" required onchange="document.getElementById('cp-accounts-count-container').style.display = this.value === 'combo' ? 'block' : 'none'">
                             <option value="individual">Individual</option>
                             <option value="completa">Cuenta Completa</option>
                             <option value="combo">Combo</option>
                         </select>
+                    </div>
+                    <div class="ga-form-group" id="cp-accounts-count-container" style="display:none;">
+                        <label>Cuentas (Cantidad) *</label>
+                        <input type="number" id="cp-accounts-count" min="1" max="10" value="1">
                     </div>
                     <div class="ga-form-group">
                         <label>Duración *</label>
@@ -1201,7 +1207,11 @@
                         </button>
                     </div>
                     <input type="text" id="cp-features" placeholder="Ej: Cuenta individual, Contenido premium">
-                    <input type="hidden" id="cp-wa-template">
+                    
+                    <div style="margin-top: 1rem;">
+                        <label>Vista Previa del Mensaje (IA)</label>
+                        <textarea id="cp-wa-template" rows="8" style="width:100%; border: 1.5px solid var(--border); border-radius: 8px; padding: 0.8rem; background: var(--bg-card); color: var(--text-color); font-family: inherit; resize: vertical;" placeholder="El mensaje optimizado por IA aparecerá aquí y se usará al vender este plan..."></textarea>
+                    </div>
                 </div>
 
                 <button type="submit" class="ga-btn-submit" style="margin-top:0.5rem;">Guardar Plan</button>

@@ -577,6 +577,29 @@ function populateSelect() {
             document.getElementById('summary-cost').textContent   = `${p.cost} Bs`;
             document.getElementById('summary-profit').textContent = `${p.profit} Bs`;
             saleSummary.style.display = 'block';
+
+            // Generar campos de credenciales dinámicos
+            const container = document.getElementById('dynamic-credentials-container');
+            if (container) {
+                const accountsCount = p.accountsCount || 1;
+                container.innerHTML = '';
+                for (let i = 1; i <= accountsCount; i++) {
+                    const isCombo = accountsCount > 1;
+                    const indexStr = isCombo ? ` (Cuenta ${i})` : '';
+                    container.innerHTML += `
+                        <div class="form-row credential-group" data-index="${i}">
+                            <div class="form-group half">
+                                <label class="cred-email-label">Correo de la Cuenta${indexStr} (Opcional)</label>
+                                <input type="email" class="sale-email-input" placeholder="correo@ejemplo.com">
+                            </div>
+                            <div class="form-group half">
+                                <label class="cred-password-label">Contraseña${indexStr} (Opcional)</label>
+                                <input type="text" class="sale-password-input" placeholder="Contraseña de acceso">
+                            </div>
+                        </div>
+                    `;
+                }
+            }
         }
     });
 }
@@ -621,6 +644,19 @@ function setupForm() {
         const timestampId = Date.now().toString();
         const code = generateOrderCode();
 
+        const credentialGroups = formNewSale.querySelectorAll('.credential-group');
+        const credentials = [];
+        credentialGroups.forEach(group => {
+            credentials.push({
+                email: group.querySelector('.sale-email-input').value.trim() || '',
+                password: group.querySelector('.sale-password-input').value.trim() || ''
+            });
+        });
+
+        // Para retrocompatibilidad
+        const firstEmail = credentials.length > 0 ? credentials[0].email : '';
+        const firstPassword = credentials.length > 0 ? credentials[0].password : '';
+
         const newSale = {
             id:          timestampId,
             orderCode:   code,
@@ -630,9 +666,12 @@ function setupForm() {
             profit:      product.profit,
             customerName:document.getElementById('sale-customer-name').value.trim() || '',
             customer:    waVal || 'Anónimo',
-            email:       document.getElementById('sale-email').value.trim()    || '',
-            password:    document.getElementById('sale-password').value.trim() || '',
-            expireDate:  calculateExpirationDate(product.duration)
+            email:       firstEmail,
+            password:    firstPassword,
+            credentials: credentials, // Guardamos todas las credenciales
+            expireDate:  calculateExpirationDate(product.duration),
+            isCustom:    product.isCustom || false,
+            aiWamessageTemplate: product.aiWamessageTemplate || ''
         };
 
         let pendingSaleMsg = '';
@@ -910,6 +949,8 @@ window.openCustomPlanModal = function() {
     document.getElementById('custom-plan-form').reset();
     document.getElementById('cp-id').value = '';
     document.getElementById('cp-wa-template').value = '';
+    document.getElementById('cp-accounts-count-container').style.display = 'none';
+    document.getElementById('cp-accounts-count').value = 1;
     document.getElementById('cp-profit-preview').textContent = '0.00 Bs';
     document.getElementById('custom-plan-modal').style.display = 'flex';
 };
@@ -956,6 +997,7 @@ window.submitCustomPlan = async function() {
         profit: salePrice - cost,
         features,
         type: document.getElementById('cp-category').value === 'combo' ? 'combo' : 'single',
+        accountsCount: document.getElementById('cp-category').value === 'combo' ? (parseInt(document.getElementById('cp-accounts-count').value) || 1) : 1,
         isCustom: true,
         aiWamessageTemplate: waTemplate,
         createdAt: new Date().toISOString()
@@ -995,6 +1037,8 @@ window.editCustomPlan = function(id) {
     document.getElementById('cp-id').value = plan.id;
     document.getElementById('cp-name').value = plan.name;
     document.getElementById('cp-category').value = plan.category;
+    document.getElementById('cp-accounts-count-container').style.display = plan.category === 'combo' ? 'block' : 'none';
+    document.getElementById('cp-accounts-count').value = plan.accountsCount || 1;
     document.getElementById('cp-duration').value = plan.duration;
     document.getElementById('cp-salePrice').value = plan.salePrice;
     document.getElementById('cp-cost').value = plan.cost;
@@ -1063,13 +1107,23 @@ window.runAIOptimization = async function(apiKey) {
     const category = document.getElementById('cp-category').value;
     const duration = document.getElementById('cp-duration').value.trim() || '1 mes';
     const featuresStr = document.getElementById('cp-features').value.trim();
+    const accountsCount = category === 'combo' ? (parseInt(document.getElementById('cp-accounts-count').value) || 1) : 1;
+
+    let comboPrompt = '';
+    if (accountsCount > 1) {
+        comboPrompt = `\n\nIMPORTANTE: Este producto es un COMBO que contiene ${accountsCount} cuentas distintas. Por lo tanto, en la plantilla de WhatsApp DEBES generar ${accountsCount} bloques de credenciales independientes usando las siguientes etiquetas exactas: `;
+        for (let i = 1; i <= accountsCount; i++) {
+            comboPrompt += `{correo_${i}} y {contrasena_${i}}` + (i < accountsCount ? ', ' : '');
+        }
+        comboPrompt += `.\nPor favor estructura el mensaje para que cada cuenta quede clara (ej: Cuenta 1, Cuenta 2, etc). No uses {correo} ni {contrasena} sin número.`;
+    }
 
     const optBtn = document.querySelector('.ai-opt-btn');
     const ogHTML = optBtn.innerHTML;
     optBtn.innerHTML = '<span>⏳ Optimizando...</span>';
     optBtn.disabled = true;
 
-    const prompt = `Eres un copywriter experto para la tienda de streaming y software PLIXORA.BO.
+    const prompt = `Eres un copywriter experto para la tienda de streaming y software PLIXORA.BO.${comboPrompt}
 Tu tarea es tomar la entrada del usuario y mejorar tanto las características para el catálogo como la plantilla de WhatsApp que se le enviará al cliente al entregarle sus credenciales.
 
 Debes seguir el estilo y tono característico de PLIXORA.BO:
@@ -1146,7 +1200,7 @@ Ahora, procesa el siguiente producto nuevo:
 
 Genera un JSON estrictamente válido que contenga:
 1. "features": Un array con 3 o 4 características súper pulidas, profesionales y cortas con emojis para mostrar en el catálogo.
-2. "waTemplate": La plantilla de WhatsApp para este producto siguiendo los ejemplos anteriores. Debe usar las etiquetas {cliente}, {pedido}, {duracion}, {correo} y {contrasena} para que sean reemplazadas dinámicamente más tarde. Si el producto es un Combo, asegúrate de mencionar todos los servicios del combo de forma ordenada y clara.
+2. "waTemplate": La plantilla de WhatsApp para este producto siguiendo los ejemplos anteriores. Debe usar las etiquetas {cliente}, {pedido}, {duracion}, y los placeholders correspondientes de {correo} y {contrasena} (o numerados si es un combo múltiple) para que sean reemplazadas dinámicamente más tarde. Si el producto es un Combo, asegúrate de mencionar todos los servicios del combo de forma ordenada y clara.
 
 Devuelve ÚNICAMENTE el código JSON puro, sin decoraciones de ningún tipo, sin bloques de código de markdown de tipo \`\`\`json.`;
 
@@ -1217,14 +1271,16 @@ window.runLocalOptimization = function() {
 
     document.getElementById('cp-features').value = enhancedFeatures.join(', ');
 
+    const accountsCount = category === 'combo' ? (parseInt(document.getElementById('cp-accounts-count').value) || 1) : 1;
+
     // Generar plantilla
-    const waTemplate = window.generateLocalWaTemplate(name, category, duration, enhancedFeatures);
+    const waTemplate = window.generateLocalWaTemplate(name, category, duration, enhancedFeatures, accountsCount);
     document.getElementById('cp-wa-template').value = waTemplate;
 
     showToast('✨ Optimizado localmente con éxito');
 };
 
-window.generateLocalWaTemplate = function(name, category, duration, features) {
+window.generateLocalWaTemplate = function(name, category, duration, features, accountsCount = 1) {
     let rules = '• Prohibido compartir o revender la cuenta.\n• Reportar caídas de inmediato para gestionar garantía.';
     const lowerName = name.toLowerCase();
 
@@ -1234,6 +1290,21 @@ window.generateLocalWaTemplate = function(name, category, duration, features) {
         rules = '• Inicia sesión directamente ingresando correo y contraseña en Spotify.\n• No usar "Iniciar sesión con Google".';
     } else if (lowerName.includes('hbo') || lowerName.includes('disney') || lowerName.includes('prime')) {
         rules = '• Usar únicamente el perfil asignado.\n• No alterar la facturación o planes contratados.';
+    }
+
+    let credsBlock = '';
+    if (accountsCount > 1) {
+        for(let i = 1; i <= accountsCount; i++) {
+            credsBlock += `┌── CUENTA ${i} ──────────────\n`;
+            credsBlock += `│ 📧 *Correo:* \`{correo_${i}}\`\n`;
+            credsBlock += `│ 🔑 *Contraseña:* \`{contrasena_${i}}\`\n`;
+            credsBlock += `└─────────────────────────\n`;
+        }
+    } else {
+        credsBlock += `┌─────────────────────────\n`;
+        credsBlock += `│ 📧 *Correo:* \`{correo}\`\n`;
+        credsBlock += `│ 🔑 *Contraseña:* \`{contrasena}\`\n`;
+        credsBlock += `└─────────────────────────\n`;
     }
 
     return `━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1247,10 +1318,7 @@ Hola *{cliente}* 👋
 
 📌 *Duración:* {duracion}
 
-┌─────────────────────────
-│ 📧 *Correo:* \`{correo}\`
-│ 🔑 *Contraseña:* \`{contrasena}\`
-└─────────────────────────
+${credsBlock.trim()}
 
 🚫 *REGLAS ESTRICTAS DE USO:*
 ${rules}
