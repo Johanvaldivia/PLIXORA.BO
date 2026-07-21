@@ -1069,19 +1069,86 @@ window.runAIOptimization = async function(apiKey) {
     optBtn.innerHTML = '<span>⏳ Optimizando...</span>';
     optBtn.disabled = true;
 
-    const prompt = `Eres un copywriter experto para la tienda de streaming PLIXORA.BO.
-Tengo el siguiente producto personalizado:
-- Nombre: ${name}
-- Categoría: ${category}
-- Duración: ${duration}
-- Características descritas por el usuario: ${featuresStr || 'Servicio de alta calidad'}
+    const prompt = `Eres un copywriter experto para la tienda de streaming y software PLIXORA.BO.
+Tu tarea es tomar la entrada del usuario y mejorar tanto las características para el catálogo como la plantilla de WhatsApp que se le enviará al cliente al entregarle sus credenciales.
 
-Optimiza el producto. Genera un JSON válido con la siguiente estructura exacta:
-{
-  "features": ["caracteristica 1 mejorada con emojis", "caracteristica 2 mejorada con emojis", "caracteristica 3 mejorada con emojis"],
-  "waTemplate": "Mensaje de WhatsApp de entrega de credenciales hermoso, limpio, profesional, con emojis, y usando negritas de WhatsApp (*texto*) y monoespaciado (\`texto\`). Debe contener exactamente las etiquetas {cliente}, {pedido}, {duracion}, {correo} y {contrasena} donde corresponda."
-}
-No devuelvas nada más que el JSON puro, sin bloques markdown de código (no uses \`\`\`json ni nada de eso).`;
+Debes seguir el estilo y tono característico de PLIXORA.BO:
+- Muy profesional, ordenado, usando emojis representativos.
+- Saludo personalizado con el nombre del cliente incluyendo la etiqueta '{cliente}'.
+- Datos de acceso claramente delimitados, preferiblemente dentro de un cuadro estilizado con caracteres o viñetas y usando texto monoespaciado para correo y contraseña (ej: \`{correo}\` y \`{contrasena}\`).
+- Reglas de uso muy claras y estrictas para evitar reclamos y caídas (basadas en el tipo de producto).
+- Advertencia clara de garantía y qué está prohibido (ej. no cambiar datos de facturación ni contraseña, no compartir con terceros).
+- Firma al final: \n_PLIXORA.BO — Gracias por tu compra 🧡_
+
+Aquí tienes ejemplos reales de plantillas que usamos en PLIXORA.BO para que aprendas el formato exacto:
+
+EJEMPLO 1 (Para productos tipo Cuentas Compartidas o Perfiles, ej. Netflix):
+🎬 *Netflix Premium (1 mes)*
+🎫 *Pedido:* {pedido}
+
+Hola *{cliente}* 👋
+¡Tu suscripción de *Netflix Premium* ya está activa y lista para usar! 🎉
+
+📌 *Duración:* {duracion}
+
+📧 *Correo:* \`{correo}\`
+🔑 *Contraseña:* \`{contrasena}\`
+
+⚠️ *(LA CONTRASEÑA INCLUYE MÁS CON EL * )*
+*POR FAVOR INGRESAR BIEN LA CONTRASEÑA*
+
+🔒 _Puedes crear un PIN en tu perfil si deseas mayor privacidad._
+
+🚫 *REGLAS ESTRICTAS DE USO:*
+• *Prohibido cambiar el nombre del perfil.*
+• 📺 *LÍMITE DE PANTALLA:* Solo se permite reproducir contenido en *1 dispositivo a la vez*.
+_Si el sistema detecta reproducción simultánea en 2 o más pantallas, tu perfil será suspendido automáticamente sin derecho a reembolso o garantía._
+
+_PLIXORA.BO — Gracias por tu compra 🧡_
+
+EJEMPLO 2 (Para herramientas de software o cuentas completas, ej. CapCut Pro):
+━━━━━━━━━━━━━━━━━━━━━━━━
+      *PLIXORA.BO* 🌟
+  ✂️ *CAPCUT PRO*
+━━━━━━━━━━━━━━━━━━━━━━━━
+🎫 *Pedido:* {pedido}
+
+Hola *{cliente}* 👋
+
+¡Tu cuenta de *CapCut Pro* ya está *activa* y lista para usar! 🎉
+
+📌 *Duración:* {duracion}
+
+┌─────────────────────────
+│ 📧 *Correo:* \`{correo}\`
+│ 🔑 *Contraseña:* \`{contrasena}\`
+└─────────────────────────
+
+🛡️ *PARA EVITAR BLOQUEOS:*
+✅ Usa la cuenta solo en tu dispositivo.
+✅ No cambies la contraseña.
+✅ No compartas el acceso con otra persona.
+✅ Ingresa con cuidado los datos de acceso.
+
+❌ _Si la cuenta se bloquea por mal uso, no hay cambio, devolución ni garantía._
+✅ _La garantía solo aplica si la cuenta deja de funcionar por problema de facturación._
+🔧 _En caso de que la cuenta se caiga o esté fuera de servicio, el reemplazo o restablecimiento se realiza en un plazo máximo de *24 horas*._
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+_PLIXORA.BO — Gracias por tu compra 🧡_
+_Ante cualquier consulta, estamos para ayudarte._
+
+Ahora, procesa el siguiente producto nuevo:
+- Nombre del Plan/Combo: "${name}"
+- Categoría del Plan: "${category}"
+- Duración: "${duration}"
+- Características provistas por el usuario: "${featuresStr || 'Servicio de alta calidad'}"
+
+Genera un JSON estrictamente válido que contenga:
+1. "features": Un array con 3 o 4 características súper pulidas, profesionales y cortas con emojis para mostrar en el catálogo.
+2. "waTemplate": La plantilla de WhatsApp para este producto siguiendo los ejemplos anteriores. Debe usar las etiquetas {cliente}, {pedido}, {duracion}, {correo} y {contrasena} para que sean reemplazadas dinámicamente más tarde. Si el producto es un Combo, asegúrate de mencionar todos los servicios del combo de forma ordenada y clara.
+
+Devuelve ÚNICAMENTE el código JSON puro, sin decoraciones de ningún tipo, sin bloques de código de markdown de tipo \`\`\`json.`;
 
     try {
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
@@ -1100,6 +1167,13 @@ No devuelvas nada más que el JSON puro, sin bloques markdown de código (no use
         // Limpiar posible formato markdown en la respuesta de la IA
         if (aiText.startsWith('```')) {
             aiText = aiText.replace(/^```(json)?/, '').replace(/```$/, '').trim();
+        }
+        
+        // Buscar el bloque JSON real por si acaso hay texto explicativo
+        const firstBrace = aiText.indexOf('{');
+        const lastBrace = aiText.lastIndexOf('}');
+        if (firstBrace !== -1 && lastBrace !== -1) {
+            aiText = aiText.substring(firstBrace, lastBrace + 1);
         }
 
         const data = JSON.parse(aiText);
@@ -1155,30 +1229,36 @@ window.generateLocalWaTemplate = function(name, category, duration, features) {
     const lowerName = name.toLowerCase();
 
     if (lowerName.includes('netflix') || lowerName.includes('nf')) {
-        rules = '• 📺 *LÍMITE DE PANTALLA:* Solo se permite reproducir en *1 dispositivo a la vez*.\n• Prohibido cambiar el nombre o PIN del perfil.';
+        rules = '• 📺 *LÍMITE DE PANTALLA:* Solo se permite reproducir en *1 dispositivo a la vez*.\n• Prohibido cambiar el nombre del perfil.\n• Puedes crear un PIN en tu perfil si deseas mayor privacidad.';
     } else if (lowerName.includes('spotify') || lowerName.includes('sp')) {
         rules = '• Inicia sesión directamente ingresando correo y contraseña en Spotify.\n• No usar "Iniciar sesión con Google".';
     } else if (lowerName.includes('hbo') || lowerName.includes('disney') || lowerName.includes('prime')) {
         rules = '• Usar únicamente el perfil asignado.\n• No alterar la facturación o planes contratados.';
     }
 
-    return `*PLIXORA.BO* | 🛒 *${name}*
+    return `━━━━━━━━━━━━━━━━━━━━━━━━
+      *PLIXORA.BO* 🌟
+  🎬 *${name.toUpperCase()}*
+━━━━━━━━━━━━━━━━━━━━━━━━
 🎫 *Pedido:* {pedido}
 
 Hola *{cliente}* 👋
-¡Tu servicio de *${name}* ya está activo y listo para disfrutar! 🎉
+¡Tu suscripción de *${name}* ya está activa y lista para usar! 🎉
 
 📌 *Duración:* {duracion}
 
-📩 *DATOS DE ACCESO:*
-📧 *Correo:* \`{correo}\`
-🔑 *Contraseña:* \`{contrasena}\`
+┌─────────────────────────
+│ 📧 *Correo:* \`{correo}\`
+│ 🔑 *Contraseña:* \`{contrasena}\`
+└─────────────────────────
 
-📋 *REGLAS DEL SERVICIO:*
+🚫 *REGLAS ESTRICTAS DE USO:*
 ${rules}
 
-⚠️ _Prohibido cambiar la contraseña, correo o tocar la facturación. Caso contrario, se dará de baja automáticamente sin derecho a reclamo._
+❌ _Si la cuenta se bloquea por mal uso, no hay cambio, devolución ni garantía._
+✅ _La garantía solo aplica si la cuenta deja de funcionar por problema de facturación._
 
+━━━━━━━━━━━━━━━━━━━━━━━━
 _PLIXORA.BO — Gracias por tu compra 🧡_`;
 };
 
