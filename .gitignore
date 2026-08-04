@@ -1,7 +1,5 @@
 ﻿# ── Dependencias / Build ──
 node_modules/
-www/
-android/
 dist/
 build/
 
