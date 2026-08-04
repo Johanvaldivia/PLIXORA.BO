@@ -41,16 +41,8 @@ window.filterSalesByPeriod = function(salesArr) {
     });
 }
 
-window.generateOrderCode = function() {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    let code = '';
-    for (let i = 0; i < 6; i++) {
-        code += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return 'PLX-' + code;
-}
-
 window.calculateExpirationDate = function(durationStr) {
+    if (!durationStr) return null;
     const today = nowBolivia();
     if (durationStr.includes('35 días')) {
         today.setDate(today.getDate() + 35);

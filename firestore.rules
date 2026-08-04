@@ -4,7 +4,7 @@ service cloud.firestore {
     match /plixora_sales/{doc} {
       allow read, write: if request.auth != null;
     }
-    match /contacts/{doc} {
+    match /plixora_contacts/{doc} {
       allow read, write: if request.auth != null;
     }
     match /netflix_accounts/{doc} {

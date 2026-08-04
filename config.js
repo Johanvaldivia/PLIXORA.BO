@@ -11,12 +11,57 @@ window.PLIXORA_CONFIG = {
     TIMEZONE: 'America/La_Paz'
 };
 
-window.waBotFetch = function(url, body) {
+window.waBotFetch = function(url, body, timeoutMs) {
     const headers = { 'Content-Type': 'application/json' };
     if (window.PLIXORA_CONFIG.WA_BOT_TOKEN) {
         headers['Authorization'] = 'Bearer ' + window.PLIXORA_CONFIG.WA_BOT_TOKEN;
     }
-    return fetch(url, { method: 'POST', headers, body: JSON.stringify(body) });
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs || 15000);
+    return fetch(url, { method: 'POST', headers, body: JSON.stringify(body), signal: controller.signal })
+        .finally(() => clearTimeout(timer));
+};
+
+// =============================================================
+// PLIXORA.BO - GLOBAL CONFIGURATION
+// =============================================================
+
+window.PLIXORA_CONFIG = {
+    WA_BOT_URL: 'https://plixora-bot.duckdns.org/api/send-message',
+    WA_BOT_IMAGE_URL: 'https://plixora-bot.duckdns.org/api/send-image',
+    WA_BOT_TOKEN: '',
+    PRODUCTION_URL: 'https://plixora-ventas.netlify.app',
+    CURRENCY: 'Bs',
+    TIMEZONE: 'America/La_Paz'
+};
+
+window.waBotFetch = function(url, body, timeoutMs) {
+    const headers = { 'Content-Type': 'application/json' };
+    if (window.PLIXORA_CONFIG.WA_BOT_TOKEN) {
+        headers['Authorization'] = 'Bearer ' + window.PLIXORA_CONFIG.WA_BOT_TOKEN;
+    }
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs || 15000);
+    return fetch(url, { method: 'POST', headers, body: JSON.stringify(body), signal: controller.signal })
+        .finally(() => clearTimeout(timer));
+};
+
+window.waBotFetchRetry = async function(url, body, maxRetries, delayMs) {
+    maxRetries = maxRetries || 2;
+    delayMs = delayMs || 800;
+    let lastErr;
+    for (let i = 0; i <= maxRetries; i++) {
+        try {
+            const resp = await window.waBotFetch(url, body);
+            const data = await resp.json();
+            if (data.success) return data;
+            lastErr = new Error(data.error || 'Bot error');
+        } catch (e) {
+            lastErr = e;
+            if (i < maxRetries) await new Promise(r => setTimeout(r, delayMs * (i + 1)));
+        }
+    }
+    throw lastErr;
 };
 
 window.generateOrderCode = function() {
@@ -27,3 +72,30 @@ window.generateOrderCode = function() {
     }
     return 'PLX-' + code;
 };
+
+window.debounce = function(fn, delay) {
+    let timer;
+    return function() {
+        const ctx = this, args = arguments;
+        clearTimeout(timer);
+        timer = setTimeout(() => fn.apply(ctx, args), delay);
+    };
+};
+
+window.batchedLSSetItem = (function() {
+    let pending = {};
+    let timeoutId = null;
+    const FLUSH_MS = 300;
+    return function(key, value) {
+        pending[key] = value;
+        if (!timeoutId) {
+            timeoutId = setTimeout(() => {
+                for (const k in pending) {
+                    try { localStorage.setItem(k, pending[k]); } catch (e) { /* quota exceeded */ }
+                }
+                pending = {};
+                timeoutId = null;
+            }, FLUSH_MS);
+        }
+    };
+})();
