@@ -3,33 +3,11 @@
 // =============================================================
 
 window.PLIXORA_CONFIG = {
-    WA_BOT_URL: 'https://plixora-bot.duckdns.org/api/send-message',
-    WA_BOT_IMAGE_URL: 'https://plixora-bot.duckdns.org/api/send-image',
+    // URL del bot de WhatsApp. En producción apunta al dominio
+    // (ej: plixora-bot.duckdns.org). En desarrollo local: http://localhost:3000
+    WA_BOT_URL: 'http://localhost:3000/api/send-message',
+    WA_BOT_IMAGE_URL: 'http://localhost:3000/api/send-image',
     WA_BOT_TOKEN: '',  // Token de autenticación para el bot (configurar en producción)
-    PRODUCTION_URL: 'https://plixora-ventas.netlify.app',
-    CURRENCY: 'Bs',
-    TIMEZONE: 'America/La_Paz'
-};
-
-window.waBotFetch = function(url, body, timeoutMs) {
-    const headers = { 'Content-Type': 'application/json' };
-    if (window.PLIXORA_CONFIG.WA_BOT_TOKEN) {
-        headers['Authorization'] = 'Bearer ' + window.PLIXORA_CONFIG.WA_BOT_TOKEN;
-    }
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), timeoutMs || 15000);
-    return fetch(url, { method: 'POST', headers, body: JSON.stringify(body), signal: controller.signal })
-        .finally(() => clearTimeout(timer));
-};
-
-// =============================================================
-// PLIXORA.BO - GLOBAL CONFIGURATION
-// =============================================================
-
-window.PLIXORA_CONFIG = {
-    WA_BOT_URL: 'https://plixora-bot.duckdns.org/api/send-message',
-    WA_BOT_IMAGE_URL: 'https://plixora-bot.duckdns.org/api/send-image',
-    WA_BOT_TOKEN: '',
     PRODUCTION_URL: 'https://plixora-ventas.netlify.app',
     CURRENCY: 'Bs',
     TIMEZONE: 'America/La_Paz'

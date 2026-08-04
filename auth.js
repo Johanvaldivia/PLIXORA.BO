@@ -98,7 +98,8 @@
                     break;
                 case 'auth/wrong-password':
                 case 'auth/invalid-credential':
-                    msg = '❌ Contraseña incorrecta';
+                case 'auth/invalid-login-credentials':
+                    msg = '❌ Correo o contraseña incorrectos';
                     break;
                 case 'auth/invalid-email':
                     msg = '❌ El correo no es válido';
@@ -106,8 +107,14 @@
                 case 'auth/too-many-requests':
                     msg = '⚠️ Demasiados intentos. Espera un momento.';
                     break;
+                case 'auth/network-request-failed':
+                    msg = '⚠️ Sin conexión a internet';
+                    break;
+                case 'auth/user-disabled':
+                    msg = '❌ Esta cuenta está deshabilitada';
+                    break;
                 default:
-                    msg = '❌ ' + err.message;
+                    msg = '❌ Credenciales incorrectas';
             }
             showError(msg);
         }

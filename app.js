@@ -19,6 +19,10 @@ let db = null;
 let unsubscribe = null;
 let unsubscribeCustomPlans = null;
 
+const debouncedUpdateDashboard = window.debounce(function() {
+    if (typeof updateDashboard === 'function') updateDashboard();
+}, 250);
+
 // ---- DOM ----
 const productsGrid  = document.getElementById('products-grid');
 const filterBtns    = document.querySelectorAll('.filter-btn');
@@ -200,7 +204,7 @@ function initFirebase() {
         // Migrar datos de localStorage a Firebase (primera vez)
         migrateLocalToFirebase();
 
-        // Listener en tiempo real con metadatos para saber si viene de caché o servidor
+// Listener en tiempo real con metadatos para saber si viene de caché o servidor
         unsubscribe = db.collection('plixora_sales')
             .orderBy('date', 'desc')
             .onSnapshot(
@@ -209,15 +213,17 @@ function initFirebase() {
                     const fromServer = !snapshot.metadata.fromCache;
                     sales = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
                     localStorage.setItem('plixora_sales', JSON.stringify(sales));
-                    updateDashboard();
+                    debouncedUpdateDashboard();
 
                     // Conectar el módulo Netflix a Firebase en cuanto haya datos (caché o servidor)
                     if (typeof window.nfSetDb === 'function' && !window.nfDbConnected) {
                         window.nfDbConnected = true;
                         window.nfSetDb(db);
                     } else if (window.nfDbConnected && typeof window.nfRenderAll === 'function') {
-                        // Ya conectado, solo re-renderizar si llegan datos nuevos
-                        window.nfRenderAll();
+                        if (!window._debouncedNfRender) {
+                            window._debouncedNfRender = window.debounce(() => window.nfRenderAll(), 200);
+                        }
+                        window._debouncedNfRender();
                     }
 
                     // Conectar el módulo Cuentas Grupales
@@ -225,13 +231,19 @@ function initFirebase() {
                         window.gaDbConnected = true;
                         window.gaSetDb(db);
                     } else if (window.gaDbConnected && typeof window.renderGroupAccounts === 'function') {
-                        window.renderGroupAccounts();
+                        if (!window._debouncedGaRender) {
+                            window._debouncedGaRender = window.debounce(() => window.renderGroupAccounts(), 200);
+                        }
+                        window._debouncedGaRender();
                     }
 
                     // Actualizar analíticas si está en esa pestaña
                     const activeView = document.querySelector('.view.active');
                     if (activeView && activeView.id === 'analytics' && typeof window.renderAnalytics === 'function') {
-                        window.renderAnalytics();
+                        if (!window._debouncedAnRender) {
+                            window._debouncedAnRender = window.debounce(() => window.renderAnalytics(), 300);
+                        }
+                        window._debouncedAnRender();
                     }
 
                     if (fromServer) {
@@ -636,7 +648,7 @@ function setupForm() {
         const product = allProds.find(p => p.id === productId);
         const submitBtn = formNewSale.querySelector('button[type="submit"]');
         submitBtn.disabled = true;
-        submitBtn.textContent = 'Guardando...';
+        submitBtn.classList.add('loading');
 
         let waVal = document.getElementById('sale-customer').value.trim();
         waVal = sanitizeBoliviaPhone(waVal);
@@ -694,7 +706,7 @@ function setupForm() {
 async function executeSaveSale(newSale, sendWhatsApp) {
     const submitBtn = formNewSale.querySelector('button[type="submit"]');
     submitBtn.disabled = true;
-    submitBtn.textContent = 'Guardando...';
+    submitBtn.classList.add('loading');
 
     try {
         await saveSale(newSale);
@@ -730,7 +742,7 @@ async function executeSaveSale(newSale, sendWhatsApp) {
         showToast('❌ Error guardando venta');
     } finally {
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Registrar Venta';
+        submitBtn.classList.remove('loading');
     }
 }
 
@@ -739,7 +751,7 @@ window.closeSalePreview = function() {
     window.pendingSaleContext = null;
     const submitBtn = formNewSale.querySelector('button[type="submit"]');
     submitBtn.disabled = false;
-    submitBtn.textContent = 'Registrar Venta';
+    submitBtn.classList.remove('loading');
 };
 
 window.confirmSaleOnly = function() {
@@ -878,11 +890,25 @@ btnGenerateWA.addEventListener('click', () => {
 });
 
 // ---- TOAST ----
-function showToast(message) {
-    const toast = document.getElementById('toast');
+function showToast(message, durationMs) {
+    const container = document.getElementById('toast-container') || (function() {
+        const c = document.createElement('div');
+        c.id = 'toast-container';
+        c.style.cssText = 'position:fixed;bottom:5.5rem;right:1rem;z-index:9999;display:flex;flex-direction:column-reverse;gap:0.5rem;pointer-events:none;';
+        document.body.appendChild(c);
+        return c;
+    })();
+    const toast = document.createElement('div');
+    toast.className = 'toast show';
     toast.textContent = message;
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 3500);
+    toast.setAttribute('role', 'alert');
+    toast.setAttribute('aria-live', 'polite');
+    container.appendChild(toast);
+    const dur = durationMs || 3500;
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 300);
+    }, dur);
 }
 
 // ---- NAVIGATE TO VIEW (shared by desktop + mobile nav) ----

@@ -13,6 +13,7 @@ function getAudioCtx() {
             _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         } catch (e) { return null; }
     }
+    if (_audioCtx.state === 'suspended') _audioCtx.resume();
     return _audioCtx;
 }
 
@@ -41,6 +42,8 @@ window.playNotificationSound = function(type) {
             osc.start(ctx.currentTime);
             osc.stop(ctx.currentTime + 0.5);
         }
+        // Suspend context after sound finishes to free resources
+        setTimeout(() => { if (_audioCtx && _audioCtx.state === 'running') _audioCtx.suspend(); }, 600);
     } catch (e) { /* Silently fail if audio not supported */ }
 };
 
@@ -276,73 +279,42 @@ window.renderExpirationAlerts = function() {
 
     if (!urgentList || !soonList) return;
 
-    urgentList.innerHTML = '';
-    soonList.innerHTML = '';
-
     const today = nowBolivia(); today.setHours(0,0,0,0);
 
+    let urgentHTML = '';
+    let soonHTML = '';
     let urgentCount = 0;
     let soonCount = 0;
 
-    sales.forEach(sale => {
-        if (!sale.expireDate) return;
-        // EXCLUIR Netflix de las alertas
+    const svgBell = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/></svg>';
+    const svgUser = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>';
+    const svgWA = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/></svg>';
+
+    for (let i = 0; i < sales.length; i++) {
+        const sale = sales[i];
+        if (!sale.expireDate) continue;
         const prodName = (sale.productName || '').toLowerCase();
-        if (prodName.includes('netflix')) return;
-        // Skip explicitly dismissed alerts
-        if (sale.alertDismissed) return;
+        if (prodName.includes('netflix')) continue;
+        if (sale.alertDismissed) continue;
 
         const expDate = new Date(sale.expireDate); expDate.setHours(0,0,0,0);
         const diffDays = Math.ceil((expDate - today) / 86400000);
+        if (diffDays <= -2 || diffDays > 7) continue;
 
-        // Auto-eliminar ventas vencidas hace 2+ dias de las alertas (sin guardar en BD)
-        if (diffDays <= -2) {
-            return;
-        }
+        const urgency = diffDays <= 3 ? 'urgent' : 'soon';
+        const badgeLabel = diffDays <= 0 ? (diffDays === 0 ? 'Hoy' : 'Vencido') : diffDays + 'd';
+        const badgeClass = diffDays <= 0
+            ? (diffDays === 0 ? 'notif-card-badge vence-hoy' : 'notif-card-badge vencido')
+            : 'notif-card-badge ' + urgency;
 
-        if (diffDays <= 7) {
-            const urgency = diffDays <= 3 ? 'urgent' : 'soon';
-            const badgeLabel = diffDays <= 0
-                ? (diffDays === 0 ? 'Hoy' : `Vencido`)
-                : `${diffDays}d`;
-            const badgeClass = diffDays <= 0
-                ? (diffDays === 0 ? 'notif-card-badge vence-hoy' : 'notif-card-badge vencido')
-                : `notif-card-badge ${urgency}`;
+        const itemHTML = '<div class="notif-card"><div class="notif-card-icon ' + urgency + '">' + svgBell + '</div><div class="notif-card-body"><div class="notif-card-title">' + sale.productName + '</div><div class="notif-card-customer">' + svgUser + ' ' + (sale.customerName || sale.customer) + '</div></div><div class="notif-card-actions"><span class="' + badgeClass + '">' + badgeLabel + '</span><div class="notif-card-row"><button class="notif-btn-notify' + (sale.notifiedRenewal ? ' sent' : '') + '" data-action="notify" data-saleid="' + sale.id + '" title="' + (sale.notifiedRenewal ? 'Aviso Enviado' : 'Notificar') + '">' + svgWA + '</button><button class="notif-btn-dismiss" data-action="dismiss" data-saleid="' + sale.id + '" title="Descartar">&times;</button></div></div></div>';
 
-            const itemHTML = `
-                <div class="notif-card">
-                    <div class="notif-card-icon ${urgency}">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/></svg>
-                    </div>
-                    <div class="notif-card-body">
-                        <div class="notif-card-title">${sale.productName}</div>
-                        <div class="notif-card-customer">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
-                            ${sale.customerName || sale.customer}
-                        </div>
-                    </div>
-                    <div class="notif-card-actions">
-                        <span class="${badgeClass}">${badgeLabel}</span>
-                        <div class="notif-card-row">
-                            <button class="notif-btn-notify${sale.notifiedRenewal ? ' sent' : ''}" onclick="notifyRenewal('${sale.id}')" title="${sale.notifiedRenewal ? 'Aviso Enviado' : 'Notificar'}"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/></svg></button>
-                            <button class="notif-btn-dismiss" onclick="dismissAlert('${sale.id}')" title="Descartar">&times;</button>
-                        </div>
-                    </div>
-                </div>
-            `;
+        if (diffDays <= 3) { urgentHTML += itemHTML; urgentCount++; }
+        else { soonHTML += itemHTML; soonCount++; }
+    }
 
-            if (diffDays <= 3) {
-                urgentList.insertAdjacentHTML('beforeend', itemHTML);
-                urgentCount++;
-            } else {
-                soonList.insertAdjacentHTML('beforeend', itemHTML);
-                soonCount++;
-            }
-        }
-    });
-
-    if (urgentCount === 0) urgentList.innerHTML = '<div class="notif-empty" style="padding:1.25rem 1rem;"><div class="notif-empty-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div><span class="notif-empty-title">Sin urgencias</span><span style="font-size:0.78rem;">Todo está al día</span></div>';
-    if (soonCount === 0) soonList.innerHTML = '<div class="notif-empty" style="padding:1.25rem 1rem;"><div class="notif-empty-icon" style="background:rgba(245,158,11,0.1);"><svg xmlns="http://www.w3.org/2000/svg" style="color:#f59e0b;" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div><span class="notif-empty-title">Sin vencimientos próximos</span><span style="font-size:0.78rem;">Nada que renovar pronto</span></div>';
+    urgentList.innerHTML = urgentHTML || '<div class="notif-empty" style="padding:1.25rem 1rem;"><div class="notif-empty-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div><span class="notif-empty-title">Sin urgencias</span><span style="font-size:0.78rem;">Todo está al día</span></div>';
+    soonList.innerHTML = soonHTML || '<div class="notif-empty" style="padding:1.25rem 1rem;"><div class="notif-empty-icon" style="background:rgba(245,158,11,0.1);"><svg xmlns="http://www.w3.org/2000/svg" style="color:#f59e0b;" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div><span class="notif-empty-title">Sin vencimientos próximos</span><span style="font-size:0.78rem;">Nada que renovar pronto</span></div>';
 
     const totalAlerts = urgentCount + soonCount;
     if (totalAlerts > 0 && window._alertsPrevCount !== undefined && totalAlerts > window._alertsPrevCount) {
@@ -351,6 +323,7 @@ window.renderExpirationAlerts = function() {
         }
     }
     window._alertsPrevCount = totalAlerts;
+
     const badgeDesktop = document.getElementById('nav-badge-desktop');
     const badgeMobile = document.getElementById('nav-badge-mobile');
     const notifBellBadge = document.getElementById('notif-bell-badge');
@@ -358,18 +331,16 @@ window.renderExpirationAlerts = function() {
     const notifList = document.getElementById('notif-list');
     const notifDismissAll = document.getElementById('notif-dismiss-all');
 
-    // Populate the dropdown
     if (notifList) {
         if (totalAlerts > 0) {
-            notifList.innerHTML = urgentList.innerHTML + soonList.innerHTML;
+            notifList.innerHTML = urgentHTML + soonHTML;
             if (notifDismissAll) notifDismissAll.style.display = 'block';
         } else {
-            notifList.innerHTML = '<div class="notif-empty"><div class="notif-empty-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div><span class="notif-empty-title">Todo tranquilo</span><span style="font-size:0.78rem;">No hay alertas de vencimiento</span></div>';
+            notifList.innerHTML = '<div class="notif-empty"><div class="notif-empty-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div><span class="notif-empty-title">Todo tranquilo</span><span style="font-size:0.78rem;">No hay alertas de vencimiento</span></div>';
             if (notifDismissAll) notifDismissAll.style.display = 'none';
         }
     }
 
-    // Update dismiss all button visibility in History
     const dismissAllBtn = document.getElementById('dismiss-all-alerts-btn');
     if (dismissAllBtn) dismissAllBtn.style.display = totalAlerts > 0 ? 'inline-block' : 'none';
 
@@ -389,6 +360,16 @@ window.renderExpirationAlerts = function() {
         if (notifBellBadge) notifBellBadge.dataset.open = "false";
     }
 }
+
+// Event delegation for expiration alert buttons
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    const action = btn.dataset.action;
+    const saleId = btn.dataset.saleid;
+    if (action === 'dismiss' && saleId) dismissAlert(saleId);
+    if (action === 'notify' && saleId) notifyRenewal(saleId);
+});
 
 window.dismissAlert = function(saleId) {
     if (!db) { showToast('Error: No hay conexión a la base de datos'); return; }

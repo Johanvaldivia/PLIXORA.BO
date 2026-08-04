@@ -357,6 +357,19 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
     color: var(--orange);
     padding: 0 0.9rem;
 }
+
+/* Focus visible */
+.nav-item:focus-visible,
+.pill-nav-item:focus-visible,
+.btn:focus-visible,
+.top-nav-btn.icon-btn:focus-visible,
+.profile-dropdown-item:focus-visible,
+.filter-btn:focus-visible,
+.tab-btn:focus-visible,
+.btn-icon:focus-visible {
+    outline: 2px solid var(--orange);
+    outline-offset: 2px;
+}
 [data-theme="dark"] .nav-item.active {
     background: rgba(254, 91, 41, 0.15);
 }
@@ -998,7 +1011,22 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
 }
 
 /* ── FORM ── */
+
+/* Texto de ayuda bajo campos */
+.helper-text {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Separación entre grupos de credenciales */
+.credential-group {
+    margin-bottom: 1rem;
+}
+
 .form-container { max-width:560px; background:var(--bg-card); border:1.5px solid var(--border); border-radius:var(--radius-lg); padding:2rem; box-shadow:var(--shadow-md); }
+
 .form-group { margin-bottom:1.1rem; }
 .form-row { display:flex; gap:1rem; }
 .form-group.half { flex:1; }
@@ -1006,10 +1034,225 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
 .form-group input,.form-group select { width:100%; background:rgba(26,26,46,0.03); border:1.5px solid var(--border); color:var(--text-main); padding:0.85rem 1rem; border-radius:10px; font-family:inherit; font-size:0.92rem; transition:var(--ease); }
 .form-group input:focus,.form-group select:focus { outline:none; border-color:var(--orange); box-shadow:0 0 0 3px rgba(254,91,41,0.1); background:var(--bg-card); }
 #history-search:focus { border-color:var(--orange) !important; box-shadow:0 0 0 3px rgba(254,91,41,0.1) !important; background:var(--bg-card) !important; }
-.sale-summary { background:rgba(254,91,41,0.04); border-radius:12px; padding:1rem 1.25rem; margin-bottom:1.25rem; border:1.5px solid rgba(254,91,41,0.12); }
+.sale-summary { background:rgba(254,91,41,0.04); border-radius:12px; padding:1rem 1.25rem; margin-bottom:1.25rem; border:1.5px solid rgba(254,91,41,0.12); transition: opacity 0.3s ease; }
 .summary-row { display:flex; justify-content:space-between; margin-bottom:0.55rem; color:var(--text-muted); font-size:0.88rem; }
 .summary-row:last-child { margin-bottom:0; padding-top:0.55rem; border-top:1px dashed rgba(254,91,41,0.2); }
 .summary-row.highlight { color:var(--orange); font-size:1rem; font-weight:700; }
+
+/* ============================================================ */
+/* SECCIÓN: REGISTRAR NUEVA VENTA — Diseño mejorado              */
+/* ============================================================ */
+
+#newsale .form-container.sale-form-card {
+    max-width: 680px;
+    padding: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+    overflow: hidden;
+    margin: 0 auto;
+}
+
+/* Encabezado de la tarjeta */
+.sale-form-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem 2rem;
+    background: linear-gradient(135deg, rgba(254,91,41,0.06), rgba(254,91,41,0.02));
+    border-bottom: 1px solid var(--border);
+}
+.sale-step-badge {
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--orange-light), var(--orange));
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 800;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(254,91,41,0.3);
+}
+.sale-form-header h3 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+.sale-form-header p {
+    margin: 0.15rem 0 0 0;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+.sale-form-icon {
+    margin-left: auto;
+    color: var(--orange);
+    opacity: 0.5;
+    flex-shrink: 0;
+}
+
+/* Cuerpo del formulario */
+#newsale .sale-form-card form {
+    padding: 2rem;
+}
+
+/* Labels con iconos */
+#newsale .sale-form-card .form-group label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-bottom: 0.45rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+#newsale .sale-form-card .form-group label svg {
+    color: var(--orange);
+    opacity: 0.7;
+    flex-shrink: 0;
+}
+.label-optional {
+    font-weight: 400;
+    text-transform: none;
+    opacity: 0.6;
+    letter-spacing: 0;
+    font-size: 0.7rem;
+}
+
+/* Inputs con mejor estilo */
+#newsale .sale-form-card .form-group input,
+#newsale .sale-form-card .form-group select {
+    padding: 0.85rem 1rem;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    background: rgba(26,26,46,0.02);
+    font-size: 0.92rem;
+    transition: var(--ease);
+}
+#newsale .sale-form-card .form-group input:focus,
+#newsale .sale-form-card .form-group select:focus {
+    outline: none;
+    border-color: var(--orange);
+    box-shadow: 0 0 0 4px rgba(254,91,41,0.08);
+    background: var(--bg-card);
+}
+
+/* Resumen de venta mejorado */
+#newsale .sale-summary {
+    background: linear-gradient(135deg, rgba(254,91,41,0.04), rgba(254,91,41,0.01));
+    border-left: 4px solid var(--orange);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+    margin-top: 0.5rem;
+    border-top: 1px solid rgba(254,91,41,0.1);
+    border-right: 1px solid rgba(254,91,41,0.1);
+    border-bottom: 1px solid rgba(254,91,41,0.1);
+    animation: summaryFadeIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+.sale-summary-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--orange);
+    margin-bottom: 0.85rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px dashed rgba(254,91,41,0.2);
+}
+.sale-summary-header svg {
+    flex-shrink: 0;
+}
+@keyframes summaryFadeIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Botón de envío con spinner */
+.sale-submit-btn {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+.sale-submit-btn .btn-content {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: opacity 0.2s ease;
+}
+.sale-submit-btn .btn-icon-check {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+    flex-shrink: 0;
+}
+.sale-submit-btn::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 22px;
+    height: 22px;
+    margin-top: -11px;
+    margin-left: -11px;
+    border: 2.5px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+.sale-submit-btn.loading .btn-content {
+    opacity: 0;
+}
+.sale-submit-btn.loading::after {
+    opacity: 1;
+}
+
+/* Responsive del formulario de venta */
+@media (max-width: 900px) {
+    #newsale .sale-form-card form {
+        padding: 1.5rem;
+    }
+    .sale-form-header {
+        padding: 1.25rem 1.5rem;
+    }
+    .sale-form-icon {
+        display: none;
+    }
+}
+@media (max-width: 400px) {
+    #newsale .sale-form-card form {
+        padding: 1.25rem 1rem;
+    }
+    .sale-form-header {
+        padding: 1rem 1.25rem;
+    }
+    .sale-step-badge {
+        width: 32px;
+        height: 32px;
+        font-size: 0.95rem;
+    }
+    .sale-form-header h3 {
+        font-size: 0.95rem;
+    }
+}
 
 /* ── BUTTONS ── */
 .btn { padding:0.8rem 1.5rem; border-radius:var(--radius-pill); font-family:inherit; font-weight:600; font-size:0.9rem; cursor:pointer; transition:var(--ease); border:none; display:inline-flex; align-items:center; justify-content:center; gap:0.5rem; }
@@ -1081,9 +1324,31 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
 .profit-badge { color:#10b981; font-weight:700; }
 
 /* ── TOAST ── */
-.toast { position:fixed; bottom:-80px; left:50%; transform:translateX(-50%); background:var(--text-main); color:var(--bg-main); padding:0.8rem 1.5rem; border-radius:100px; font-weight:500; font-size:0.9rem; box-shadow:0 10px 25px rgba(0,0,0,0.2); z-index:9999;
-    opacity: 0; filter: blur(var(--p6-blur)); transition: bottom var(--p6-dur) var(--p6-ease), opacity var(--p6-dur) var(--p6-ease), filter var(--p6-dur) var(--p6-ease); }
-.toast.show { bottom:90px; opacity: 1; filter: blur(0); }
+.toast {
+    position: relative;
+    background: var(--text-main);
+    color: var(--bg-main);
+    padding: 0.7rem 1.2rem;
+    border-radius: 99px;
+    font-weight: 500;
+    font-size: 0.85rem;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    z-index: 9999;
+    pointer-events: auto;
+    opacity: 0;
+    transform: translateY(10px) scale(0.95);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    white-space: nowrap;
+    animation: toastIn 0.3s ease forwards;
+}
+.toast.show {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+@keyframes toastIn {
+    from { opacity: 0; transform: translateY(10px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
 
 /* ── FLOATING PILL NAV ── */
 .pill-nav {
@@ -1127,8 +1392,9 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
     justify-content: center;
     gap: 0;
     padding: 0 10px;
-    height: 42px;
-    min-width: 42px;
+    height: 48px;
+    min-width: 48px;
+    min-height: 48px;
     border-radius: 50px;
     border: none;
     background: transparent;
@@ -1207,7 +1473,7 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
 }
 
 /* Override old mobile-bottom-nav (compatibility) */
-.mobile-bottom-nav { display: none !important; }
+
 
 @media (max-width:900px) {
     body { height:auto; overflow:auto; }
@@ -1303,8 +1569,8 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
 }
 
 @media (max-width:400px) {
-    .mobile-nav-label { font-size:0.55rem; }
-    .mobile-nav-icon svg { width:19px; height:19px; }
+    
+    
     .nf-metrics { grid-template-columns:1fr !important; }
     #dashboard,#catalog,#newsale,#history,#netflix,#analytics,#group-accounts { padding:5.5rem 0.75rem 6.5rem; }
     .view-header h2 { font-size:1.15rem; }

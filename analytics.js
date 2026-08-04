@@ -67,11 +67,12 @@
         setupMonthSelector();
     }
 
+    let _monthAbort = null;
+
     function setupMonthSelector() {
         const select = document.getElementById('an-month-select');
         if (!select) return;
 
-        // Populate select with months that have sales
         const months = new Set();
         const allSales = (typeof sales !== 'undefined' ? sales : []);
         allSales.forEach(s => {
@@ -83,15 +84,12 @@
             }
         });
 
-        // Add current month if not present
         const now = new Date();
         const currentM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
         months.add(currentM);
 
-        // Sort descending
         const sortedMonths = Array.from(months).sort().reverse();
         
-        // Only update DOM if the options changed to avoid losing focus/flicker
         const newOptionsStr = sortedMonths.join(',');
         if (select.dataset.loadedMonths === newOptionsStr) {
             return;
@@ -102,38 +100,40 @@
         sortedMonths.forEach(m => {
             const opt = document.createElement('option');
             opt.value = m;
-            
-            // Format for display (e.g., "Junio 2026")
             const [yyyy, mm] = m.split('-');
             const dateObj = new Date(parseInt(yyyy), parseInt(mm) - 1, 1);
             opt.textContent = dateObj.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
-            // Capitalize first letter
             opt.textContent = opt.textContent.charAt(0).toUpperCase() + opt.textContent.slice(1);
-            
             select.appendChild(opt);
         });
 
-        // Set initial value
         if (!currentMonthStr || !sortedMonths.includes(currentMonthStr)) {
             currentMonthStr = sortedMonths[0];
         }
         select.value = currentMonthStr;
 
-        // Remove old listener to avoid duplicates
-        const newSelect = select.cloneNode(true);
-        select.parentNode.replaceChild(newSelect, select);
-        newSelect.addEventListener('change', (e) => {
+        // Use AbortController to remove old listener instead of cloneNode
+        if (_monthAbort) _monthAbort.abort();
+        _monthAbort = new AbortController();
+        select.addEventListener('change', (e) => {
             currentMonthStr = e.target.value;
             renderAll();
-        });
+        }, { signal: _monthAbort.signal });
     }
 
     // Main render function
+    let _renderRetries = 0;
     function renderAll() {
         if (typeof Chart === 'undefined') {
-            setTimeout(renderAll, 100); // Wait for Chart.js to load
+            if (_renderRetries < 30) {
+                _renderRetries++;
+                setTimeout(renderAll, 100);
+            } else {
+                console.error('Chart.js no se cargo despues de 3 segundos');
+            }
             return;
         }
+        _renderRetries = 0;
 
         setupMonthSelector();
 
@@ -340,20 +340,30 @@
         const labels = [];
         const data = [];
 
-        // Generate last 6 months
+        // Build month keys for the last 6 months
+        const monthKeys = [];
         for (let i = 5; i >= 0; i--) {
             const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
             const monthName = d.toLocaleDateString('es-ES', { month: 'short' });
             labels.push(monthName.charAt(0).toUpperCase() + monthName.slice(1));
+            monthKeys.push({ year: d.getFullYear(), month: d.getMonth(), count: 0 });
+        }
 
-            // Count sales for this month
-            const count = allSales.filter(s => {
-                if (!s.date) return false;
-                const sd = new Date(s.date);
-                return sd.getFullYear() === d.getFullYear() && sd.getMonth() === d.getMonth();
-            }).length;
-            
-            data.push(count);
+        // Single pass: count sales per month
+        for (let i = 0; i < allSales.length; i++) {
+            const s = allSales[i];
+            if (!s.date) continue;
+            const sd = new Date(s.date);
+            for (let j = 0; j < monthKeys.length; j++) {
+                if (sd.getFullYear() === monthKeys[j].year && sd.getMonth() === monthKeys[j].month) {
+                    monthKeys[j].count++;
+                    break;
+                }
+            }
+        }
+
+        for (let i = 0; i < monthKeys.length; i++) {
+            data.push(monthKeys[i].count);
         }
 
         const ctx = canvas.getContext('2d');

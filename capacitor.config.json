@@ -1,0 +1,15 @@
+{
+  "appId": "com.plixora.app",
+  "appName": "Plixorabo",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https",
+    "cleartext": true,
+    "allowNavigation": [
+      "plixora-bot.duckdns.org",
+      "*.googleapis.com",
+      "*.firebaseio.com",
+      "*.firebase.com"
+    ]
+  }
+}
