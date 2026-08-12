@@ -19,7 +19,7 @@
         WA_BOT_STATUS_URL: isProd
             ? 'https://plixora-bot.duckdns.org/status'
             : 'http://localhost:3000/status',
-        WA_BOT_TOKEN: '',  // Token de autenticación (configurar en .env o build)
+        WA_BOT_TOKEN: 'f58v6XkUscoxyIEGVgez7dRuJLHq4Sip',  // Token de autenticación (configurar en .env o build)
         PRODUCTION_URL: 'https://plixora-ventas.netlify.app',
         CURRENCY: 'Bs',
         TIMEZONE: 'America/La_Paz',
