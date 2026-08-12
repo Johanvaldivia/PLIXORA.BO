@@ -1,0 +1,5 @@
+# PLIXORA.BO — Netlify proxy para WhatsApp Bot API
+# Esto soluciona el problema de Mixed Content (HTTPS → HTTP)
+
+/api/wa/*  http://144.22.213.69:3000/api/:splat  200
+/api/wa-status  http://144.22.213.69:3000/status  200

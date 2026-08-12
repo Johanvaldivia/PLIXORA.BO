@@ -9,15 +9,15 @@
     const isProd = !/^(localhost|127\.0\.0\.1|\[::1\])$/i.test(window.location.hostname);
 
     window.PLIXORA_CONFIG = {
-        // URL base del bot WhatsApp
+        // URL base del bot WhatsApp (producción usa proxy Netlify para evitar Mixed Content)
         WA_BOT_URL: isProd
-            ? 'http://144.22.213.69:3000/api/send-message'
+            ? '/api/wa/send-message'
             : 'http://localhost:3000/api/send-message',
         WA_BOT_IMAGE_URL: isProd
-            ? 'http://144.22.213.69:3000/api/send-image'
+            ? '/api/wa/send-image'
             : 'http://localhost:3000/api/send-image',
         WA_BOT_STATUS_URL: isProd
-            ? 'http://144.22.213.69:3000/status'
+            ? '/api/wa-status'
             : 'http://localhost:3000/status',
         WA_BOT_TOKEN: 'f58v6XkUscoxyIEGVgez7dRuJLHq4Sip',  // Token de autenticación (configurar en .env o build)
         PRODUCTION_URL: 'https://plixora-ventas.netlify.app',
@@ -25,6 +25,7 @@
         TIMEZONE: 'America/La_Paz',
         IS_PROD: isProd
     };
+
 
     // ── Helpers API Bot ────────────────────────────────────────
     window.waBotFetch = function (url, body, timeoutMs) {
