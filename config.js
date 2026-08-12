@@ -11,13 +11,13 @@
     window.PLIXORA_CONFIG = {
         // URL base del bot WhatsApp
         WA_BOT_URL: isProd
-            ? 'https://plixora-bot.duckdns.org/api/send-message'
+            ? 'http://144.22.213.69:3000/api/send-message'
             : 'http://localhost:3000/api/send-message',
         WA_BOT_IMAGE_URL: isProd
-            ? 'https://plixora-bot.duckdns.org/api/send-image'
+            ? 'http://144.22.213.69:3000/api/send-image'
             : 'http://localhost:3000/api/send-image',
         WA_BOT_STATUS_URL: isProd
-            ? 'https://plixora-bot.duckdns.org/status'
+            ? 'http://144.22.213.69:3000/status'
             : 'http://localhost:3000/status',
         WA_BOT_TOKEN: 'f58v6XkUscoxyIEGVgez7dRuJLHq4Sip',  // Token de autenticación (configurar en .env o build)
         PRODUCTION_URL: 'https://plixora-ventas.netlify.app',
