@@ -29,37 +29,37 @@ const possiblePaths = [
     // Windows
     'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
     'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
-    // Linux
+    // Linux (system)
     '/snap/bin/chromium',
     '/usr/bin/chromium',
     '/usr/bin/chromium-browser',
     '/usr/bin/google-chrome',
-    '/usr/bin/google-chrome-stable'
+    '/usr/bin/google-chrome-stable',
+    // Linux (Puppeteer cache)
+    '/home/opc/.cache/puppeteer/chrome/linux-*/chrome-linux64/chrome'
 ];
 
 let executablePath;
 for (const p of possiblePaths) {
-    if (fs.existsSync(p)) {
-        executablePath = p;
+    const matches = require('glob').sync(p);
+    if (matches.length > 0) {
+        executablePath = matches[0];
         break;
     }
 }
 
 const puppeteerOptions = {
-    headless: true,
+    headless: 'new',
     args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
         '--disable-gpu',
         '--disable-accelerated-2d-canvas',
-        '--no-first-run'
+        '--no-first-run',
+        '--headless=new'
     ]
 };
-// Flags que rompen en Windows (single-process / no-zygote)
-if (process.platform === 'linux') {
-    puppeteerOptions.args.push('--no-zygote', '--single-process');
-}
 if (executablePath) {
     puppeteerOptions.executablePath = executablePath;
     console.log(`Chrome detectado: ${executablePath}`);
