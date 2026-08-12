@@ -41,6 +41,15 @@ window.playNotificationSound = function(type) {
             gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
             osc.start(ctx.currentTime);
             osc.stop(ctx.currentTime + 0.5);
+        } else if (type === 'wasent') {
+            // A quick, distinct double pop sound for WhatsApp sent
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(600, ctx.currentTime);
+            osc.frequency.setValueAtTime(900, ctx.currentTime + 0.08);
+            gain.gain.setValueAtTime(0.15, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.15);
         }
         // Suspend context after sound finishes to free resources
         setTimeout(() => { if (_audioCtx && _audioCtx.state === 'running') _audioCtx.suspend(); }, 600);
