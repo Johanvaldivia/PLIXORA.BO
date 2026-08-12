@@ -1,0 +1,2 @@
+#!/bin/bash
+curl -s -H "Authorization: Bearer f58v6XkUscoxyIEGVgez7dRuJLHq4Sip" -H "Content-Type: application/json" -d '{"phone":"test","message":"test"}' http://localhost:3000/api/send-message

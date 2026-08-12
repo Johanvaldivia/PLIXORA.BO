@@ -1,0 +1,2 @@
+#!/bin/bash
+curl -v -H "Authorization: Bearer f58v6XkUscoxyIEGVgez7dRuJLHq4Sip" -X POST -d '{"phone":"","message":""}' -H "Content-Type: application/json" http://localhost:3000/api/send-message 2>&1 | grep -E "(>|<|Authorization)"

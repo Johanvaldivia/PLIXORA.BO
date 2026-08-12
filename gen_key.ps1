@@ -1,0 +1,1 @@
+ssh-keygen -t ed25519 -f "$env:USERPROFILE\.ssh\oracle_plixora_2026" -N "" -C "plixora-vm-2026"
