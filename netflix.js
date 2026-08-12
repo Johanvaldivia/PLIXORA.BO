@@ -201,7 +201,7 @@
 
                 let estadoBadge = '<span class="nf-badge inactive-badge">Inactiva</span>';
                 if ((acc.estado || '').toLowerCase() === 'cerrada') {
-                    estadoBadge = '<span class="nf-badge" style="background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3)">Cerrada</span>';
+                    estadoBadge = '<span class="nf-badge" style="background:rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.25)">Cerrada</span>';
                 } else if (acc.estado === 'activa' || !acc.estado) {
                     estadoBadge = '<span class="nf-badge active-badge">Activa</span>';
 
@@ -389,7 +389,7 @@
 
         let estadoBadge = '<span class="nf-badge inactive-badge">Inactiva</span>';
         if ((acc.estado || '').toLowerCase() === 'cerrada') {
-            estadoBadge = '<span class="nf-badge" style="background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3)">Cerrada</span>';
+            estadoBadge = '<span class="nf-badge" style="background:rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.25)">Cerrada</span>';
         } else if (acc.estado === 'activa' || !acc.estado) {
             estadoBadge = '<span class="nf-badge active-badge">Activa</span>';
         }
@@ -1132,6 +1132,35 @@
             <span style="font-size:0.88rem;font-weight:600;color:var(--text-main);text-align:right;max-width:60%;word-break:break-all">${value}</span>
         </div>`;
 
+        const planLabels = {'1m':'1 Mes','2m':'2 Meses','3m':'3 Meses','4m':'4 Meses'};
+        const currentPlanLabel = planLabels[p.plan] || p.plan || '—';
+
+        // Plan row with edit button
+        const planRow = `<div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);padding-bottom:0.5rem">
+            <span style="color:var(--text-muted);font-size:0.8rem;font-weight:600">📋 Plan</span>
+            <div id="nf-plan-display" style="display:flex;align-items:center;gap:0.4rem;">
+                <span style="font-size:0.88rem;font-weight:600;color:var(--text-main)">${currentPlanLabel}</span>
+                <button onclick="window.nfEditPlan('${accountId}', ${idx})" title="Editar plan" style="background:none;border:none;cursor:pointer;padding:0.2rem;border-radius:6px;color:var(--text-muted);transition:all 0.2s;display:flex;align-items:center;" onmouseover="this.style.background='rgba(254,91,41,0.12)';this.style.color='#FE5B29'" onmouseout="this.style.background='none';this.style.color='var(--text-muted)'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+            </div>
+            <div id="nf-plan-editor" style="display:none;align-items:center;gap:0.35rem;">
+                <select id="nf-plan-select" style="padding:0.3rem 0.5rem;border-radius:8px;border:1.5px solid var(--border);background:var(--bg-card);color:var(--text-main);font-family:'Inter',sans-serif;font-size:0.82rem;font-weight:600;cursor:pointer;">
+                    <option value="1m" ${p.plan === '1m' ? 'selected' : ''}>1 Mes</option>
+                    <option value="2m" ${p.plan === '2m' ? 'selected' : ''}>2 Meses</option>
+                    <option value="3m" ${p.plan === '3m' ? 'selected' : ''}>3 Meses</option>
+                    <option value="4m" ${p.plan === '4m' ? 'selected' : ''}>4 Meses</option>
+                </select>
+                <button onclick="window.nfSavePlanEdit('${accountId}', ${idx})" title="Guardar" style="background:linear-gradient(135deg,#10b981,#34d399);border:none;cursor:pointer;padding:0.3rem 0.6rem;border-radius:8px;color:#fff;font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:700;transition:all 0.2s;display:flex;align-items:center;gap:0.2rem;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    OK
+                </button>
+                <button onclick="window.nfCancelPlanEdit()" title="Cancelar" style="background:rgba(239,68,68,0.1);border:none;cursor:pointer;padding:0.3rem;border-radius:8px;color:#ef4444;transition:all 0.2s;display:flex;align-items:center;" onmouseover="this.style.background='rgba(239,68,68,0.2)'" onmouseout="this.style.background='rgba(239,68,68,0.1)'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+        </div>`;
+
         const body = document.getElementById('nf-client-detail-body');
         body.innerHTML =
             row('👤 Cliente', p.cliente || '—') +
@@ -1141,11 +1170,103 @@
             row('🔑 Contraseña', acc.password) +
             row('📅 Inicio', fmtDate(p.inicio)) +
             row('📅 Vencimiento', fmtDate(p.vencimiento)) +
-            row('📋 Plan', {'1m':'1 Mes','2m':'2 Meses','3m':'3 Meses','4m':'4 Meses'}[p.plan] || p.plan || '—') +
+            planRow +
             row('💬 Observación', p.obs || '—');
 
         document.getElementById('nf-client-detail-modal').style.display = 'flex';
     };
+
+    // ── EDITAR PLAN (meses) ─────────────────────────────────────
+    window.nfEditPlan = function (accountId, idx) {
+        document.getElementById('nf-plan-display').style.display = 'none';
+        document.getElementById('nf-plan-editor').style.display = 'flex';
+    };
+
+    window.nfCancelPlanEdit = function () {
+        document.getElementById('nf-plan-display').style.display = 'flex';
+        document.getElementById('nf-plan-editor').style.display = 'none';
+    };
+
+    window.nfSavePlanEdit = async function (accountId, idx) {
+        const newPlan = document.getElementById('nf-plan-select').value;
+        const months = parseInt(newPlan.replace('m', ''));
+        if (!months) return;
+
+        const acc = nfAccounts.find(a => a.id === accountId);
+        if (!acc) { showNFToast('❌ Cuenta no encontrada.'); return; }
+
+        const perfiles = [...acc.perfiles];
+        const p = perfiles[idx];
+        if (!p) return;
+
+        // Recalcular vencimiento basado en inicio + nuevos meses
+        let newVenc = p.vencimiento; // fallback
+        if (p.inicio) {
+            if (acc.fecha_creada) {
+                // Usa el día de facturación de la cuenta
+                const baseDate = new Date(acc.fecha_creada + 'T12:00:00');
+                const accDay = baseDate.getDate();
+                const inicioDate = new Date(p.inicio + 'T12:00:00');
+
+                let billing = new Date(inicioDate);
+                billing.setDate(accDay);
+                if (billing <= inicioDate) {
+                    billing.setMonth(billing.getMonth() + 1);
+                }
+                billing.setMonth(billing.getMonth() + (months - 1));
+                billing.setDate(billing.getDate() - 1);
+                newVenc = toLocalDateStr(billing);
+            } else {
+                // Sin fecha de cuenta, calcula desde inicio directo
+                const inicioDate = new Date(p.inicio + 'T12:00:00');
+                inicioDate.setMonth(inicioDate.getMonth() + months);
+                inicioDate.setDate(inicioDate.getDate() - 1);
+                newVenc = toLocalDateStr(inicioDate);
+            }
+        }
+
+        // Actualizar perfil
+        perfiles[idx] = { ...p, plan: newPlan, vencimiento: newVenc };
+
+        // Optimistic update local
+        acc.perfiles = perfiles;
+        batchedLSSetItem('nf_accounts', JSON.stringify(nfAccounts));
+        window.nfRenderAll();
+
+        // Cerrar modal de detalle cliente y refrescar modal de cuenta
+        document.getElementById('nf-client-detail-modal').style.display = 'none';
+        if (currentDetailId && document.getElementById('nf-detail-modal').style.display !== 'none') {
+            window.nfRenderDetailModal(currentDetailId);
+        }
+
+        // Guardar en Firestore
+        try {
+            if (db) {
+                await db.collection('netflix_accounts').doc(accountId).update({ perfiles });
+            }
+            const planLabels = {'1m':'1 Mes','2m':'2 Meses','3m':'3 Meses','4m':'4 Meses'};
+            showNFToast(`✅ Plan actualizado a ${planLabels[newPlan]} — Vence: ${newVenc}`);
+        } catch (e) {
+            console.error('Error actualizando plan:', e);
+            showNFToast('❌ Error al guardar: ' + e.message);
+        }
+
+        // También actualizar la venta en historial si existe orderCode
+        if (p.orderCode) {
+            try {
+                if (db) {
+                    const salesSnap = await db.collection('plixora_sales').where('orderCode', '==', p.orderCode).get();
+                    if (!salesSnap.empty) {
+                        const saleDoc = salesSnap.docs[0];
+                        await saleDoc.ref.update({ expireDate: newVenc + 'T12:00:00' });
+                    }
+                }
+            } catch (saleErr) {
+                console.error('Error actualizando venta:', saleErr);
+            }
+        }
+    };
+
 
     window.nfFree = async function (accountId, idx) {
         if (!confirm('¿Liberar este perfil? Se borrarán los datos del cliente asignado y su registro de venta (si existe).')) return;

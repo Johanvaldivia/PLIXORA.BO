@@ -117,10 +117,16 @@
                     <div class="ga-cred-row">
                         <span class="ga-cred-label"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> Correo:</span>
                         <span class="ga-cred-value">${acc.email || '—'}</span>
+                        <button class="ga-btn-copy" onclick="window.gaCopyToClipboard('${(acc.email || '').replace(/'/g, "\\'").replace(/\\/g, '\\\\')}', this)" title="Copiar correo">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        </button>
                     </div>
                     <div class="ga-cred-row">
                         <span class="ga-cred-label"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg> Contraseña:</span>
                         <span class="ga-cred-value ga-password" data-password="${(acc.password || '—').replace(/"/g,'&quot;').replace(/</g,'&lt;')}">••••••••</span>
+                        <button class="ga-btn-copy" onclick="window.gaCopyToClipboard('${(acc.password || '').replace(/'/g, "\\'").replace(/\\/g, '\\\\')}', this)" title="Copiar contraseña">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        </button>
                     </div>
                 </div>
                 <div class="ga-card-stats">
@@ -149,13 +155,24 @@
                                     <span class="ga-member-badge">${i + 1}</span>
                                     <div>
                                         <span class="ga-member-name">${m.name}</span>
-                                        <span class="ga-member-phone"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px;"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg> ${m.phone}</span>
+                                        <div class="ga-member-meta">
+                                            <span class="ga-member-phone">📱 ${m.phone}</span>
+                                            <span class="ga-member-date">📅 ${m.addedAt ? new Date(m.addedAt).toLocaleDateString('es-BO', {day:'2-digit', month:'short'}) : '—'}</span>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="ga-member-prices">
+                                <div class="ga-member-actions-right">
                                     <span class="ga-member-sale">Venta: ${(parseFloat(m.price) || 0).toFixed(2)} Bs</span>
+                                    <div class="ga-member-btns">
+                                        <a class="ga-btn-wa-direct" href="https://wa.me/${(m.phone || '').replace(/[^0-9]/g,'')}" target="_blank" title="Abrir chat de WhatsApp">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.555 4.126 1.528 5.86L.06 23.708a.5.5 0 00.633.632l5.848-1.468A11.948 11.948 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.94 0-3.757-.565-5.285-1.539l-.379-.229-3.477.873.887-3.477-.248-.394A9.96 9.96 0 012 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"/></svg>
+                                        </a>
+                                        <button class="ga-btn-resend" onclick="window.gaResendToMember('${acc.id}', ${i})" title="Reenviar datos por WhatsApp">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2Z"/></svg>
+                                        </button>
+                                        <button class="ga-btn-remove-member" onclick="window.gaRemoveMember('${acc.id}', ${i})" title="Eliminar miembro">✕</button>
+                                    </div>
                                 </div>
-                                <button class="ga-btn-remove-member" onclick="window.gaRemoveMember('${acc.id}', ${i})" title="Eliminar miembro">✕</button>
                             </div>
                         `).join('')
                     }
@@ -167,6 +184,10 @@
                     </button>
                     <button class="ga-btn ga-btn-replace" onclick="window.gaOpenReplace('${acc.id}', '${acc.serviceName}')">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Reemplazar Cuenta
+                    </button>
+                    <button class="ga-btn ga-btn-bulk-notify" onclick="window.gaBulkNotify('${acc.id}')" title="Enviar aviso masivo">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.555 4.126 1.528 5.86L.06 23.708a.5.5 0 00.633.632l5.848-1.468A11.948 11.948 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.94 0-3.757-.565-5.285-1.539l-.379-.229-3.477.873.887-3.477-.248-.394A9.96 9.96 0 012 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"/></svg>
+                        Notificar
                     </button>
                     <button class="ga-btn ga-btn-delete" onclick="window.gaDeleteAccount('${acc.id}', '${acc.serviceName}')" style="padding:0.55rem;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
@@ -555,6 +576,60 @@
             showToast(`✅ Aviso masivo enviado a ${sent} miembro(s) exitosamente.`);
         } else {
             showToast(`⚠️ Aviso masivo: ${sent} enviados, ${failed} fallaron.`);
+        }
+    };
+
+    // ── COPIAR AL PORTAPAPELES ────────────────────────────────────
+    window.gaCopyToClipboard = function(text, btnEl) {
+        navigator.clipboard.writeText(text).then(() => {
+            showToast('✅ Copiado al portapapeles');
+            if (btnEl) {
+                btnEl.classList.add('ga-copied');
+                setTimeout(() => btnEl.classList.remove('ga-copied'), 1500);
+            }
+        }).catch(() => {
+            showToast('❌ No se pudo copiar');
+        });
+    };
+
+    // ── REENVIAR DATOS A UN MIEMBRO ──────────────────────────────
+    window.gaResendToMember = async function(accountId, memberIndex) {
+        const account = gaAccounts.find(a => a.id === accountId);
+        if (!account) { showToast('❌ Cuenta no encontrada.'); return; }
+
+        const members = account.members || [];
+        const m = members[memberIndex];
+        if (!m) { showToast('❌ Miembro no encontrado.'); return; }
+
+        const profileNum = memberIndex + 1;
+        const svcLower = (account.serviceName || '').toLowerCase();
+
+        let notaExtra = '';
+        if (svcLower.includes('disney') || svcLower.includes('hbo')) {
+            notaExtra = `\n\n📌 *NOTA:* Estos mismos datos te sirven para iniciar sesión tanto en *Disney Plus* como en *HBO Max*.`;
+        } else if (svcLower.includes('prime')) {
+            notaExtra = `\n\n📌 *Importante*\nSOLO INGRESAR EN 1 DISPOSITIVO\nNO CAMBIAR DE DISPOSITIVO\n✔️ Use su perfil asignado.\n✔️ No compartir perfil.\n✔️ Si necesitas un código, avísanos.`;
+        }
+
+        const msg = `🔔 *PLIXORA.BO — Datos de tu Cuenta*\n\n` +
+            `Hola *${m.name}* 👋\n\n` +
+            `Aquí tienes los datos de acceso de tu cuenta de *${account.serviceName}*:\n\n` +
+            `📧 *Correo:* \`${account.email}\`\n` +
+            `🔑 *Contraseña:* \`${account.password}\`\n` +
+            `👤 *Tu Perfil:* Perfil ${profileNum}${notaExtra}\n\n` +
+            `⚠️ *Importante:*\n` +
+            `• No cambies la contraseña ni el correo.\n` +
+            `• No compartas estos datos con nadie.\n` +
+            `• No elimines ni modifiques otros perfiles.\n\n` +
+            `🔧 _En caso de que la cuenta se caiga, el reemplazo se realiza en un plazo máximo de *24 horas*._\n\n` +
+            `_PLIXORA.BO — Gracias por tu preferencia 🧡_`;
+
+        try {
+            await waBotFetch(window.PLIXORA_CONFIG.WA_BOT_URL, { phone: m.phone, message: msg });
+            showToast(`✅ Datos enviados a ${m.name} por WhatsApp.`);
+        } catch (err) {
+            console.error('Resend error:', err);
+            showToast(`⚠️ No se pudo enviar a ${m.name}. Intenta de nuevo.`);
         }
     };
 

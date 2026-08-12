@@ -515,6 +515,94 @@
     margin-bottom: 1rem;
 }
 
+/* Botón Copiar Credenciales */
+.ga-btn-copy {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0.3rem;
+    border-radius: 6px;
+    transition: var(--ease);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+.ga-btn-copy:hover {
+    background: rgba(16, 185, 129, 0.12);
+    color: #10b981;
+}
+.ga-btn-copy.ga-copied {
+    color: #10b981;
+    animation: gaCopyPulse 0.3s ease;
+}
+@keyframes gaCopyPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+}
+
+/* Botón Reenviar por WhatsApp */
+.ga-btn-resend {
+    background: none;
+    border: none;
+    color: #25d366;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 6px;
+    transition: var(--ease);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+.ga-btn-resend:hover {
+    background: rgba(37, 211, 102, 0.15);
+    transform: scale(1.1);
+}
+
+/* Enlace directo WhatsApp */
+.ga-btn-wa-direct {
+    display: flex;
+    align-items: center;
+    color: #25d366;
+    padding: 0.25rem;
+    border-radius: 6px;
+    transition: var(--ease);
+    text-decoration: none;
+}
+.ga-btn-wa-direct:hover {
+    background: rgba(37, 211, 102, 0.15);
+    transform: scale(1.1);
+}
+
+/* Fila de meta-datos del miembro */
+.ga-member-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+.ga-member-date {
+    display: inline-block;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    opacity: 0.7;
+}
+
+/* Acciones del miembro (lado derecho) */
+.ga-member-actions-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.3rem;
+    flex-shrink: 0;
+}
+.ga-member-btns {
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;
+}
+
 @keyframes gaFadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
