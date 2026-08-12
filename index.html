@@ -382,7 +382,7 @@
                     </div>
                     <button class="ga-btn-add-account-main" onclick="window.openCustomPlanModal()">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:18px;height:18px;margin-right:0.4rem"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-                        Nuevo Plan
+                        Nuevo Producto
                     </button>
                 </div>
                 <div class="catalog-filters">
@@ -390,6 +390,11 @@
                     <button class="filter-btn" data-filter="individual">👤 Individuales</button>
                     <button class="filter-btn" data-filter="completa">🔑 Completas</button>
                     <button class="filter-btn" data-filter="combo">Combos 🔥</button>
+                    <button class="filter-btn" data-filter="tv">📺 TV</button>
+                    <button class="tv-menu-btn" id="btn-copy-tv-menu" onclick="window.copyTVMenu()" title="Copiar menú TV para WhatsApp">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/></svg>
+                        Menú TV
+                    </button>
                 </div>
                 <div class="products-grid" id="products-grid"></div>
             </section>
@@ -510,6 +515,7 @@
                         <button class="filter-btn" data-filter="capcut">CapCut</button>
                         <button class="filter-btn" data-filter="youtube">YouTube</button>
                         <button class="filter-btn" data-filter="hbo">HBO</button>
+                        <button class="filter-btn" data-filter="tv">📺 TV</button>
                     </div>
                 </div>
 
@@ -1186,35 +1192,104 @@
     <div id="custom-plan-modal" class="ga-overlay" style="display:none">
         <div class="ga-modal" style="max-width: 500px;">
             <div class="ga-modal-header">
-                <h3 id="custom-plan-title" style="display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg> Nuevo Plan Personalizado</h3>
+                <h3 id="custom-plan-title" style="display:flex;align-items:center;gap:0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg> Nuevo Producto</h3>
                 <button class="ga-close" onclick="window.closeCustomPlanModal()">✕</button>
             </div>
             <form id="custom-plan-form" onsubmit="event.preventDefault(); window.submitCustomPlan();">
                 <input type="hidden" id="cp-id">
                 
                 <div class="ga-form-group">
-                    <label>Nombre del Plan/Combo *</label>
+                    <label>Nombre del Producto *</label>
                     <input type="text" id="cp-name" placeholder="Ej: HBO 3 meses Oferta" required>
                 </div>
                 
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                    <div class="ga-form-group">
-                        <label>Categoría *</label>
-                        <select id="cp-category" required onchange="document.getElementById('cp-accounts-count-container').style.display = this.value === 'combo' ? 'block' : 'none'">
-                            <option value="individual">Individual</option>
-                            <option value="completa">Cuenta Completa</option>
-                            <option value="combo">Combo</option>
-                        </select>
-                    </div>
-                    <div class="ga-form-group" id="cp-accounts-count-container" style="display:none;">
-                        <label>Cuentas (Cantidad) *</label>
-                        <input type="number" id="cp-accounts-count" min="1" max="10" value="1">
-                    </div>
-                    <div class="ga-form-group">
-                        <label>Duración *</label>
-                        <input type="text" id="cp-duration" placeholder="Ej: 3 meses" required>
+                <div class="ga-form-group">
+                    <label>Tipo de Producto *</label>
+                    <input type="hidden" id="cp-category" value="individual">
+                    <div class="product-type-switch">
+                        <button type="button" class="product-type-btn active" data-type="individual" onclick="window.selectProductType('individual')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            Perfil
+                        </button>
+                        <button type="button" class="product-type-btn" data-type="completa" onclick="window.selectProductType('completa')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                            Cuenta Completa
+                        </button>
+                        <button type="button" class="product-type-btn" data-type="combo" onclick="window.selectProductType('combo')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+                            Combo
+                        </button>
                     </div>
                 </div>
+
+                <div class="ga-form-group">
+                    <label>Duración *</label>
+                    <input type="text" id="cp-duration" placeholder="Ej: 3 meses" required>
+                </div>
+
+                <!-- Credenciales para Perfil / Cuenta Completa -->
+                <div id="cp-single-credentials" class="cp-credentials-section">
+                    <div class="cp-credentials-header">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        Credenciales del Producto
+                    </div>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                        <div class="ga-form-group" style="margin-bottom:0;">
+                            <label>Correo</label>
+                            <input type="text" id="cp-single-email" placeholder="correo@ejemplo.com">
+                        </div>
+                        <div class="ga-form-group" style="margin-bottom:0;">
+                            <label>Contraseña</label>
+                            <input type="text" id="cp-single-password" placeholder="Contraseña">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Credenciales para Combo (múltiples productos) -->
+                <div id="cp-combo-credentials" class="cp-credentials-section" style="display:none;">
+                    <div class="cp-credentials-header">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+                        Productos del Combo
+                    </div>
+                    <div id="cp-combo-items">
+                        <div class="combo-credential-item" data-index="1">
+                            <div class="combo-item-header">Producto 1</div>
+                            <div class="ga-form-group" style="margin-bottom:0.5rem;">
+                                <input type="text" class="combo-product-name" placeholder="Nombre del producto (ej: Netflix)">
+                            </div>
+                            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                                <input type="text" class="combo-email" placeholder="Correo" style="width:100%;padding:0.55rem 0.75rem;border-radius:10px;border:1.5px solid var(--border);background:var(--bg-main);color:var(--text-main);font-family:'Inter',sans-serif;font-size:0.88rem;box-sizing:border-box;">
+                                <input type="text" class="combo-password" placeholder="Contraseña" style="width:100%;padding:0.55rem 0.75rem;border-radius:10px;border:1.5px solid var(--border);background:var(--bg-main);color:var(--text-main);font-family:'Inter',sans-serif;font-size:0.88rem;box-sizing:border-box;">
+                            </div>
+                        </div>
+                        <div class="combo-credential-item" data-index="2">
+                            <div class="combo-item-header">Producto 2</div>
+                            <div class="ga-form-group" style="margin-bottom:0.5rem;">
+                                <input type="text" class="combo-product-name" placeholder="Nombre del producto (ej: Disney+)">
+                            </div>
+                            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                                <input type="text" class="combo-email" placeholder="Correo" style="width:100%;padding:0.55rem 0.75rem;border-radius:10px;border:1.5px solid var(--border);background:var(--bg-main);color:var(--text-main);font-family:'Inter',sans-serif;font-size:0.88rem;box-sizing:border-box;">
+                                <input type="text" class="combo-password" placeholder="Contraseña" style="width:100%;padding:0.55rem 0.75rem;border-radius:10px;border:1.5px solid var(--border);background:var(--bg-main);color:var(--text-main);font-family:'Inter',sans-serif;font-size:0.88rem;box-sizing:border-box;">
+                            </div>
+                        </div>
+                        <div class="combo-credential-item" data-index="3">
+                            <div class="combo-item-header">Producto 3</div>
+                            <div class="ga-form-group" style="margin-bottom:0.5rem;">
+                                <input type="text" class="combo-product-name" placeholder="Nombre del producto (ej: HBO Max)">
+                            </div>
+                            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                                <input type="text" class="combo-email" placeholder="Correo" style="width:100%;padding:0.55rem 0.75rem;border-radius:10px;border:1.5px solid var(--border);background:var(--bg-main);color:var(--text-main);font-family:'Inter',sans-serif;font-size:0.88rem;box-sizing:border-box;">
+                                <input type="text" class="combo-password" placeholder="Contraseña" style="width:100%;padding:0.55rem 0.75rem;border-radius:10px;border:1.5px solid var(--border);background:var(--bg-main);color:var(--text-main);font-family:'Inter',sans-serif;font-size:0.88rem;box-sizing:border-box;">
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="combo-add-btn" onclick="window.addComboItem()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+                        Agregar otro producto
+                    </button>
+                </div>
+
+                <input type="hidden" id="cp-accounts-count" value="1">
 
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                     <div class="ga-form-group">
@@ -1356,6 +1431,5 @@
     <script src="analytics.js?v=1.1"></script>
     <script src="group-accounts.js?v=1.1"></script>
     <script src="shader-bg.js?v=1.0"></script>
-    <script src="tests.js"></script>
 </body>
 </html>

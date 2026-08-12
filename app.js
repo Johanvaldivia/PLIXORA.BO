@@ -439,7 +439,7 @@ function renderCatalog(filter) {
     let data;
     if (filter === 'all') {
         data = allProducts;
-    } else if (filter === 'individual' || filter === 'completa' || filter === 'combo') {
+    } else if (filter === 'individual' || filter === 'completa' || filter === 'combo' || filter === 'tv') {
         data = allProducts.filter(p => p.category === filter);
     } else {
         data = allProducts.filter(p => p.type === filter);
@@ -449,10 +449,11 @@ function renderCatalog(filter) {
     const categories = [
         { key: 'individual', label: '👤 Cuentas Individuales', items: data.filter(p => p.category === 'individual') },
         { key: 'completa',   label: '🔑 Cuentas Completas',    items: data.filter(p => p.category === 'completa') },
-        { key: 'combo',      label: '🔥 Combos',               items: data.filter(p => p.category === 'combo') }
+        { key: 'combo',      label: '🔥 Combos',               items: data.filter(p => p.category === 'combo') },
+        { key: 'tv',         label: '📺 Sección TV',            items: data.filter(p => p.category === 'tv') }
     ];
 
-    if (filter === 'all' || filter === 'individual' || filter === 'completa' || filter === 'combo') {
+    if (filter === 'all' || filter === 'individual' || filter === 'completa' || filter === 'combo' || filter === 'tv') {
         categories.forEach(cat => {
             if (cat.items.length === 0) return;
             // Section header
@@ -485,6 +486,9 @@ function createProductCard(product) {
     } else if (isCompleta) {
         badgeText = '🔑 COMPLETA';
         badgeStyle = 'style="color:#10b981;background:rgba(16,185,129,0.15);"';
+    } else if (product.category === 'tv') {
+        badgeText = '📺 TV';
+        badgeStyle = 'style="color:#8b5cf6;background:rgba(139,92,246,0.15);"';
     }
     const priceDisplay = product.salePrice > 0 ? `${product.salePrice} <span>Bs</span>` : '<span style="color:#f59e0b;font-size:0.9rem;">A PEDIDO</span>';
     const profitDisplay = product.profit > 0 ? `Ganancia: ${product.profit} Bs` : 'Consultar precio';
@@ -553,6 +557,7 @@ function populateSelect() {
     const grpIndividual = document.createElement('optgroup'); grpIndividual.label = '👤 Cuentas Individuales';
     const grpCompleta   = document.createElement('optgroup'); grpCompleta.label   = '🔑 Cuentas Completas';
     const grpCombo      = document.createElement('optgroup'); grpCombo.label      = '🔥 Combos';
+    const grpTV         = document.createElement('optgroup'); grpTV.label         = '📺 Sección TV & Streaming';
     const grpCustom     = document.createElement('optgroup'); grpCustom.label     = '⭐ Planes Personalizados';
 
     const allProducts = [...catalogData, ...customPlans];
@@ -565,6 +570,8 @@ function populateSelect() {
         
         if (p.isCustom) {
             grpCustom.appendChild(opt);
+        } else if (p.category === 'tv') {
+            grpTV.appendChild(opt);
         } else if (p.type === 'combo') {
             grpCombo.appendChild(opt);
         } else if (p.category === 'completa') {
@@ -577,6 +584,9 @@ function populateSelect() {
     selectProduct.appendChild(grpIndividual);
     selectProduct.appendChild(grpCompleta);
     selectProduct.appendChild(grpCombo);
+    if (grpTV.children.length > 0) {
+        selectProduct.appendChild(grpTV);
+    }
     if (grpCustom.children.length > 0) {
         selectProduct.appendChild(grpCustom);
     }
@@ -882,6 +892,21 @@ btnGenerateWA.addEventListener('click', () => {
 🛡️ *Garantía incluida*
 ⚡ *Entrega inmediata*
 
+
+📺 *SECCIÓN TV & STREAMING*
+
+📡 Magis TV PRO (1 pantalla) → desde 12 Bs
+🌊 Flujo TV (1 pantalla) → desde 14 Bs
+📡 IPTV Smarter Pro (1 pantalla) → desde 12 Bs
+📡 IPTV Smarter Pro-Z TV (1 pantalla) → desde 10 Bs
+📡 Tele Latino Max (1 pantalla) → desde 12 Bs
+🔥 Nubia TV - GX MAX (1 pantalla) → desde 40 Bs
+🔥 Veltix (1 pantalla) → desde 40 Bs
+📡 Plex TV (1 pantalla) → desde 12 Bs
+
+💡 *Consultanos por planes de 3, 6 y 12 meses con DESCUENTO*
+💡 *Cuentas completas disponibles (3-4 pantallas)*
+
 📲 *WhatsApp:* 73651440`;
 
     navigator.clipboard.writeText(text)
@@ -889,12 +914,139 @@ btnGenerateWA.addEventListener('click', () => {
         .catch(() => showToast('❌ Error al copiar'));
 });
 
+// ---- GENERAR MENÚ TV PARA WHATSAPP ----
+window.copyTVMenu = function() {
+    const text = `📺 *PLIXORA.BO — CATÁLOGO TV & STREAMING*
+
+🟢 *Cuentas por pantalla y completas*
+🟢 *Totalmente renovables*
+
+━━━━━━━━━━━━━━━━━━━
+
+📡 *MAGIS TV PRO* (Liga Boliviana)
+🖥️ 1 Pantalla:
+• 1 mes → 12 Bs
+• 3 meses → 25 Bs
+• 6+1 mes gratis → 40 Bs
+• 12+2 meses gratis → 80 Bs
+📺 Cuenta Completa (3 pantallas):
+• 1 mes → 22 Bs
+• 3 meses → 60 Bs
+• 6+1 mes gratis → 115 Bs
+• 12+2 meses gratis → 220 Bs
+
+━━━━━━━━━━━━━━━━━━━
+
+🌊 *FLUJO TV* (Mejor estabilidad)
+🖥️ 1 Pantalla:
+• 1 mes → 14 Bs
+• 3 meses → 34 Bs
+• 6+1 mes gratis → 65 Bs
+• 12+2 meses gratis → 125 Bs
+📺 Cuenta Completa (3 pantallas):
+• 1 mes → 35 Bs
+• 3 meses → 95 Bs
+• 6+1 mes gratis → 180 Bs
+• 12+2 meses gratis → 360 Bs
+
+━━━━━━━━━━━━━━━━━━━
+
+📡 *IPTV SMARTER PRO*
+🖥️ 1 Pantalla:
+• 1 mes → 12 Bs
+• 2+1 mes gratis → 20 Bs
+• 3+2 meses gratis → 30 Bs
+• 6+3 meses gratis → 50 Bs
+• 12+4 meses gratis → 85 Bs
+📺 Cuenta Completa (3 pantallas):
+• 1 mes → 20 Bs
+• 2+1 mes gratis → 35 Bs
+• 3+2 meses gratis → 50 Bs
+• 6+3 meses gratis → 90 Bs
+• 12+4 meses gratis → 170 Bs
+
+━━━━━━━━━━━━━━━━━━━
+
+📡 *IPTV SMARTER PRO-Z TV* (Liga Boliviana)
+🖥️ 1 Pantalla:
+• 1 mes → 10 Bs
+• 3 meses → 25 Bs
+• 6 meses → 40 Bs
+• 12 meses → 70 Bs
+📺 Cuenta Completa (3 pantallas):
+• 1 mes → 20 Bs
+• 3 meses → 50 Bs
+• 6 meses → 90 Bs
+• 12 meses → 165 Bs
+
+━━━━━━━━━━━━━━━━━━━
+
+📡 *TELE LATINO MAX* (Liga Boliviana)
+🖥️ 1 Pantalla:
+• 1 mes → 12 Bs
+• 3 meses → 30 Bs
+• 6 meses → 50 Bs
+• 12 meses → 95 Bs
+📺 Cuenta Completa (4 pantallas):
+• 1 mes → 30 Bs
+• 3 meses → 85 Bs
+• 6 meses → 165 Bs
+• 12 meses → 330 Bs
+
+━━━━━━━━━━━━━━━━━━━
+
+🔥 *NUBIA TV - GX MAX* (Liga Boliviana)
+🖥️ 1 Pantalla:
+• 1 mes → 40 Bs
+• 3 meses → 110 Bs
+• 6+1 mes gratis → 210 Bs
+• 12+2 meses gratis → 420 Bs
+📺 Cuenta Completa (3 pantallas):
+• 1 mes → 65 Bs
+• 3 meses → 175 Bs
+• 6+1 mes gratis → 330 Bs
+• 12+2 meses gratis → 650 Bs
+
+━━━━━━━━━━━━━━━━━━━
+
+🔥 *VELTIX* (Liga Boliviana)
+🖥️ 1 Pantalla:
+• 1 mes → 40 Bs
+• 3 meses → 110 Bs
+• 6+1 mes gratis → 210 Bs
+• 12+2 meses gratis → 420 Bs
+📺 Cuenta Completa (3 pantallas):
+• 1 mes → 65 Bs
+• 3 meses → 175 Bs
+• 6+1 mes gratis → 330 Bs
+• 12+2 meses gratis → 650 Bs
+
+━━━━━━━━━━━━━━━━━━━
+
+📡 *PLEX TV*
+🖥️ 1 Pantalla → 12 Bs/mes
+📺 2 Personas → 20 Bs/mes
+📺 4 Personas → 35 Bs/mes
+
+━━━━━━━━━━━━━━━━━━━
+
+🛡️ *Garantía incluida*
+⚡ *Entrega inmediata*
+🔄 *Totalmente renovables*
+
+📲 *WhatsApp:* 73651440`;
+
+    navigator.clipboard.writeText(text)
+        .then(() => showToast('📋 Menú TV copiado al portapapeles'))
+        .catch(() => showToast('❌ Error al copiar'));
+};
+
 // ---- TOAST ----
 function showToast(message, durationMs) {
     const container = document.getElementById('toast-container') || (function() {
         const c = document.createElement('div');
         c.id = 'toast-container';
-        c.style.cssText = 'position:fixed;bottom:5.5rem;right:1rem;z-index:9999;display:flex;flex-direction:column-reverse;gap:0.5rem;pointer-events:none;';
+        c.style.cssText = 'position:fixed;bottom:2.5rem;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column-reverse;align-items:center;gap:0.5rem;pointer-events:none;';
         document.body.appendChild(c);
         return c;
     })();
@@ -967,17 +1119,81 @@ window.closeContactsModal = function() {
 let pendingReplaceSaleId = null;
 
 // ==========================================
-// SISTEMA DE PLANES PERSONALIZADOS
+// SISTEMA DE PRODUCTOS PERSONALIZADOS
 // ==========================================
 
+window.selectProductType = function(type) {
+    // Update hidden input
+    document.getElementById('cp-category').value = type;
+    
+    // Update switch buttons visual state
+    document.querySelectorAll('.product-type-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.type === type);
+    });
+    
+    // Show/hide credential sections with animation
+    const singleCreds = document.getElementById('cp-single-credentials');
+    const comboCreds = document.getElementById('cp-combo-credentials');
+    
+    if (type === 'combo') {
+        if (singleCreds) singleCreds.style.display = 'none';
+        if (comboCreds) comboCreds.style.display = 'block';
+        document.getElementById('cp-accounts-count').value = document.querySelectorAll('.combo-credential-item').length;
+    } else {
+        if (singleCreds) singleCreds.style.display = 'block';
+        if (comboCreds) comboCreds.style.display = 'none';
+        document.getElementById('cp-accounts-count').value = 1;
+    }
+};
+
+window.addComboItem = function() {
+    const container = document.getElementById('cp-combo-items');
+    if (!container) return;
+    const count = container.querySelectorAll('.combo-credential-item').length + 1;
+    
+    const item = document.createElement('div');
+    item.className = 'combo-credential-item';
+    item.dataset.index = count;
+    item.innerHTML = `
+        <div class="combo-item-header">Producto ${count}</div>
+        <div class="ga-form-group" style="margin-bottom:0.5rem;">
+            <input type="text" class="combo-product-name" placeholder="Nombre del producto">
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+            <input type="text" class="combo-email" placeholder="Correo" style="width:100%;padding:0.55rem 0.75rem;border-radius:10px;border:1.5px solid var(--border);background:var(--bg-main);color:var(--text-main);font-family:'Inter',sans-serif;font-size:0.88rem;box-sizing:border-box;">
+            <input type="text" class="combo-password" placeholder="Contraseña" style="width:100%;padding:0.55rem 0.75rem;border-radius:10px;border:1.5px solid var(--border);background:var(--bg-main);color:var(--text-main);font-family:'Inter',sans-serif;font-size:0.88rem;box-sizing:border-box;">
+        </div>
+    `;
+    container.appendChild(item);
+    document.getElementById('cp-accounts-count').value = count;
+    item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+};
+
 window.openCustomPlanModal = function() {
-    document.getElementById('custom-plan-title').innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg> Nuevo Plan Personalizado';
+    document.getElementById('custom-plan-title').innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg> Nuevo Producto';
     document.getElementById('custom-plan-form').reset();
     document.getElementById('cp-id').value = '';
     document.getElementById('cp-wa-template').value = '';
-    document.getElementById('cp-accounts-count-container').style.display = 'none';
     document.getElementById('cp-accounts-count').value = 1;
     document.getElementById('cp-profit-preview').textContent = '0.00 Bs';
+    
+    // Reset switch to 'individual'
+    window.selectProductType('individual');
+    
+    // Clear credentials inputs
+    const singleEmail = document.getElementById('cp-single-email');
+    const singlePass = document.getElementById('cp-single-password');
+    if (singleEmail) singleEmail.value = '';
+    if (singlePass) singlePass.value = '';
+    
+    const comboContainer = document.getElementById('cp-combo-items');
+    if (comboContainer) {
+        comboContainer.querySelectorAll('input').forEach(inp => inp.value = '');
+        while (comboContainer.children.length > 3) {
+            comboContainer.removeChild(comboContainer.lastChild);
+        }
+    }
+    
     document.getElementById('custom-plan-modal').style.display = 'flex';
 };
 
@@ -990,8 +1206,10 @@ window.calcCustomProfit = function() {
     const cost = parseFloat(document.getElementById('cp-cost').value) || 0;
     const profit = (sale - cost).toFixed(2);
     const el = document.getElementById('cp-profit-preview');
-    el.textContent = `${profit} Bs`;
-    el.style.color = profit >= 0 ? 'var(--green)' : 'var(--accent-red)';
+    if (el) {
+        el.textContent = `${profit} Bs`;
+        el.style.color = profit >= 0 ? 'var(--green)' : 'var(--accent-red)';
+    }
 };
 
 window.submitCustomPlan = async function() {
@@ -1001,30 +1219,48 @@ window.submitCustomPlan = async function() {
     
     const salePrice = parseFloat(document.getElementById('cp-salePrice').value) || 0;
     const cost = parseFloat(document.getElementById('cp-cost').value) || 0;
+    const category = document.getElementById('cp-category').value;
 
     let waTemplate = document.getElementById('cp-wa-template').value;
     if (!waTemplate) {
-        // Generar plantilla local por defecto si no se optimizó con IA
         waTemplate = window.generateLocalWaTemplate(
             document.getElementById('cp-name').value.trim(),
-            document.getElementById('cp-category').value,
+            category,
             document.getElementById('cp-duration').value.trim(),
             features
         );
     }
 
+    // Collect credentials
+    let credentials = {};
+    if (category === 'combo') {
+        const comboItems = document.querySelectorAll('.combo-credential-item');
+        credentials.combo = [];
+        comboItems.forEach((item, i) => {
+            credentials.combo.push({
+                name: item.querySelector('.combo-product-name')?.value?.trim() || `Producto ${i + 1}`,
+                email: item.querySelector('.combo-email')?.value?.trim() || '',
+                password: item.querySelector('.combo-password')?.value?.trim() || ''
+            });
+        });
+    } else {
+        credentials.email = document.getElementById('cp-single-email')?.value?.trim() || '';
+        credentials.password = document.getElementById('cp-single-password')?.value?.trim() || '';
+    }
+
     const plan = {
         id,
         name: document.getElementById('cp-name').value.trim(),
-        category: document.getElementById('cp-category').value,
+        category,
         duration: document.getElementById('cp-duration').value.trim(),
         salePrice,
         cost,
         profit: salePrice - cost,
         features,
-        type: document.getElementById('cp-category').value === 'combo' ? 'combo' : 'single',
-        accountsCount: document.getElementById('cp-category').value === 'combo' ? (parseInt(document.getElementById('cp-accounts-count').value) || 1) : 1,
+        type: category === 'combo' ? 'combo' : 'single',
+        accountsCount: category === 'combo' ? (parseInt(document.getElementById('cp-accounts-count').value) || 1) : 1,
         isCustom: true,
+        credentials,
         aiWamessageTemplate: waTemplate,
         createdAt: new Date().toISOString()
     };
@@ -1033,25 +1269,28 @@ window.submitCustomPlan = async function() {
         if (!db) throw new Error("Firebase no inicializado");
         
         const btn = document.querySelector('#custom-plan-form .ga-btn-submit');
-        const ogText = btn.textContent;
-        btn.textContent = 'Guardando...';
-        btn.disabled = true;
+        const ogText = btn ? btn.textContent : 'Guardar Plan';
+        if (btn) {
+            btn.textContent = 'Guardando...';
+            btn.disabled = true;
+        }
 
         await db.collection('plixora_custom_plans').doc(id).set(plan);
         window.closeCustomPlanModal();
-        showToast('✅ Plan guardado exitosamente');
+        showToast('✅ Producto guardado exitosamente');
         
-        btn.textContent = ogText;
-        btn.disabled = false;
+        if (btn) {
+            btn.textContent = ogText;
+            btn.disabled = false;
+        }
 
-        // Mostrar la hermosa vista previa de WhatsApp
         setTimeout(() => {
             window.showCustomPlanPreview(plan);
         }, 300);
 
     } catch (e) {
-        console.error('Error guardando plan:', e);
-        showToast('❌ Error al guardar el plan');
+        console.error('Error guardando producto:', e);
+        showToast('❌ Error al guardar el producto');
         const btn = document.querySelector('#custom-plan-form .ga-btn-submit');
         if (btn) {
             btn.textContent = 'Guardar Plan';
@@ -1064,32 +1303,60 @@ window.editCustomPlan = function(id) {
     const plan = customPlans.find(p => p.id === id);
     if (!plan) return;
 
-    document.getElementById('custom-plan-title').innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg> Editar Plan Personalizado';
+    document.getElementById('custom-plan-title').innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg> Editar Producto';
     document.getElementById('cp-id').value = plan.id;
     document.getElementById('cp-name').value = plan.name;
-    document.getElementById('cp-category').value = plan.category;
-    document.getElementById('cp-accounts-count-container').style.display = plan.category === 'combo' ? 'block' : 'none';
+    
+    window.selectProductType(plan.category || 'individual');
+    
     document.getElementById('cp-accounts-count').value = plan.accountsCount || 1;
     document.getElementById('cp-duration').value = plan.duration;
     document.getElementById('cp-salePrice').value = plan.salePrice;
     document.getElementById('cp-cost').value = plan.cost;
-    document.getElementById('cp-features').value = plan.features.join(', ');
+    document.getElementById('cp-features').value = plan.features ? plan.features.join(', ') : '';
     document.getElementById('cp-wa-template').value = plan.aiWamessageTemplate || '';
+    
+    if (plan.credentials) {
+        if (plan.category === 'combo' && plan.credentials.combo) {
+            const comboContainer = document.getElementById('cp-combo-items');
+            if (comboContainer) {
+                while (comboContainer.children.length < plan.credentials.combo.length) {
+                    window.addComboItem();
+                }
+                const items = comboContainer.querySelectorAll('.combo-credential-item');
+                plan.credentials.combo.forEach((cred, i) => {
+                    if (items[i]) {
+                        const nameInput = items[i].querySelector('.combo-product-name');
+                        const emailInput = items[i].querySelector('.combo-email');
+                        const passInput = items[i].querySelector('.combo-password');
+                        if (nameInput) nameInput.value = cred.name || '';
+                        if (emailInput) emailInput.value = cred.email || '';
+                        if (passInput) passInput.value = cred.password || '';
+                    }
+                });
+            }
+        } else {
+            const singleEmail = document.getElementById('cp-single-email');
+            const singlePass = document.getElementById('cp-single-password');
+            if (singleEmail) singleEmail.value = plan.credentials.email || '';
+            if (singlePass) singlePass.value = plan.credentials.password || '';
+        }
+    }
     
     window.calcCustomProfit();
     document.getElementById('custom-plan-modal').style.display = 'flex';
 };
 
 window.deleteCustomPlan = async function(id, name) {
-    if (!confirm(`¿Estás seguro de que quieres eliminar el plan "${name}"?\nEsto NO afectará a las ventas ya registradas con este plan.`)) return;
+    if (!confirm(`¿Estás seguro de que quieres eliminar el producto "${name}"?\nEsto NO afectará a las ventas ya registradas.`)) return;
 
     try {
         if (!db) throw new Error("Firebase no inicializado");
         await db.collection('plixora_custom_plans').doc(id).delete();
-        showToast('✅ Plan eliminado exitosamente');
+        showToast('✅ Producto eliminado exitosamente');
     } catch (e) {
-        console.error('Error eliminando plan:', e);
-        showToast('❌ Error al eliminar el plan');
+        console.error('Error eliminando producto:', e);
+        showToast('❌ Error al eliminar el producto');
     }
 };
 
@@ -1383,6 +1650,21 @@ window.showCustomPlanPreview = function(plan) {
         .replace(/{duracion}/g, plan.duration)
         .replace(/{correo}/g, 'cliente-premium@plixora.bo')
         .replace(/{contrasena}/g, 'plixora2026*');
+
+    if (plan.credentials && plan.credentials.combo) {
+        plan.credentials.combo.forEach((c, idx) => {
+            const i = idx + 1;
+            previewText = previewText
+                .replace(new RegExp(`{correo_${i}}`, 'g'), c.email || `combo${i}@plixora.bo`)
+                .replace(new RegExp(`{contrasena_${i}}`, 'g'), c.password || `pass${i}*2026`);
+        });
+    } else {
+        for (let i = 1; i <= 5; i++) {
+            previewText = previewText
+                .replace(new RegExp(`{correo_${i}}`, 'g'), `cuenta${i}@plixora.bo`)
+                .replace(new RegExp(`{contrasena_${i}}`, 'g'), `pass${i}*2026`);
+        }
+    }
 
     document.getElementById('wa-preview-text').innerHTML = window.formatWhatsappMarkdown(previewText);
     

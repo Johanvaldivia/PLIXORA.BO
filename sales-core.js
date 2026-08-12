@@ -49,6 +49,15 @@ window.calculateExpirationDate = function(durationStr) {
         return today.toISOString();
     }
 
+    // Soporte para meses promocionales con bonus (ej: "6+1", "12+2", "2+1", "3+2", "6+3", "12+4")
+    const bonusMatch = durationStr.match(/(\d+)\s*\+\s*(\d+)/);
+    if (bonusMatch) {
+        const totalMonths = parseInt(bonusMatch[1], 10) + parseInt(bonusMatch[2], 10);
+        today.setMonth(today.getMonth() + totalMonths);
+        today.setDate(today.getDate() - 1);
+        return today.toISOString();
+    }
+
     const monthMatch = durationStr.match(/(\d+)\s*mes(es)?/i);
     if (monthMatch) {
         const months = parseInt(monthMatch[1], 10);

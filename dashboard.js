@@ -67,10 +67,10 @@ window.updateDashboard = function() {
 
     // Update values
     mSales.textContent = filtered.length;
-    const totalRevenue = filtered.reduce((s, v) => s + v.price, 0);
-    const totalProfit = filtered.reduce((s, v) => s + v.profit, 0);
-    mRev.textContent = totalRevenue;
-    mProf.textContent = totalProfit;
+    const totalRevenue = filtered.reduce((s, v) => s + (v.price || 0), 0);
+    const totalProfit = filtered.reduce((s, v) => s + (v.profit || 0), 0);
+    mRev.textContent = Number.isInteger(totalRevenue) ? totalRevenue : totalRevenue.toFixed(2);
+    mProf.textContent = Number.isInteger(totalProfit) ? totalProfit : totalProfit.toFixed(2);
 
     // Animate progress bar (profit margin %)
     const progressBar = document.getElementById('profit-progress');
@@ -114,13 +114,16 @@ window.renderSalesTable = function(filtered) {
     [...src].sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0,10).forEach(sale => {
         const tr = document.createElement('tr');
         const date = new Date(sale.date).toLocaleDateString('es-ES', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+        const customerHTML = (sale.customer && sale.customer !== 'Anónimo')
+            ? `<a href="https://wa.me/591${sale.customer}" target="_blank" style="color:var(--accent-blue);text-decoration:none;">${sale.customer}</a>`
+            : `<span style="color:var(--text-muted);">Anónimo</span>`;
         tr.innerHTML = `
             <td>${date}</td>
             <td>
                 <div style="font-weight:500">${sale.productName}</div>
                 ${sale.orderCode ? `<div style="font-size:0.75rem; color:var(--text-muted);">Ref: ${sale.orderCode}</div>` : ''}
             </td>
-            <td><a href="https://wa.me/591${sale.customer}" target="_blank" style="color:var(--accent-blue);text-decoration:none;">${sale.customer}</a></td>
+            <td>${customerHTML}</td>
             <td>${sale.price} Bs</td>
             <td class="profit-badge">+${sale.profit} Bs</td>
         `;
@@ -160,6 +163,7 @@ window.renderHistoryTable = function() {
             if (historyProductFilter === 'capcut') return p.includes('capcut');
             if (historyProductFilter === 'youtube') return p.includes('youtube');
             if (historyProductFilter === 'hbo') return p.includes('hbo max') || p.includes('hbo');
+            if (historyProductFilter === 'tv') return p.includes('tv') || p.includes('magis') || p.includes('flujo') || p.includes('iptv') || p.includes('latino') || p.includes('nubia') || p.includes('veltix') || p.includes('plex');
             return true;
         });
     }

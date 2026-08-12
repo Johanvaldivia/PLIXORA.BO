@@ -925,6 +925,39 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
     font-size:0.82rem; font-weight:500; cursor:pointer; transition:var(--ease);
 }
 .filter-btn.active, .filter-btn:hover, .nf-filter-btn.active, .nf-filter-btn:hover { background:linear-gradient(135deg,var(--orange-light),var(--orange)); border-color:transparent; color:#fff; box-shadow:var(--shadow-orange); }
+
+/* TV Section Styles */
+.filter-btn[data-filter="tv"] {
+    position: relative;
+}
+.filter-btn[data-filter="tv"].active {
+    background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+    box-shadow: 0 3px 12px rgba(139, 92, 246, 0.3);
+}
+.tv-menu-btn {
+    background: linear-gradient(135deg, #7c3aed, #5b21b6) !important;
+    color: #fff !important;
+    border: none !important;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.45rem 0.85rem !important;
+    font-size: 0.78rem !important;
+    font-weight: 700;
+    border-radius: 20px !important;
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.25);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+.tv-menu-btn:hover {
+    box-shadow: 0 4px 16px rgba(124, 58, 237, 0.4);
+    transform: translateY(-1px);
+}
+.tv-menu-btn svg {
+    stroke: #fff;
+    width: 14px;
+    height: 14px;
+}
 .products-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px,1fr)); gap:1rem; }
 .product-card {
     background:var(--bg-card); border:1.5px solid var(--border); border-radius:var(--radius-lg);
@@ -976,6 +1009,145 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
 }
 .plan-btn:hover { background: rgba(255, 255, 255, 0.1); color: var(--text-main); }
 .plan-btn-delete:hover { background: rgba(239, 68, 68, 0.1); color: #ef4444; border-color: rgba(239, 68, 68, 0.3); }
+
+/* Product Type Switch (3-way toggle) */
+.product-type-switch {
+    display: flex;
+    background: var(--bg-main);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 4px;
+    gap: 4px;
+    position: relative;
+}
+.product-type-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 0.6rem 0.5rem;
+    border: none;
+    border-radius: 11px;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 1;
+    white-space: nowrap;
+}
+.product-type-btn:hover {
+    color: var(--text-main);
+    background: rgba(255, 255, 255, 0.04);
+}
+.product-type-btn.active {
+    background: linear-gradient(135deg, var(--orange), #ff7e5f);
+    color: #fff;
+    box-shadow: 0 3px 12px var(--orange-glow);
+}
+.product-type-btn.active svg {
+    stroke: #fff;
+}
+.product-type-btn svg {
+    stroke: var(--text-muted);
+    transition: stroke 0.3s ease;
+    flex-shrink: 0;
+}
+
+/* Credentials Sections */
+.cp-credentials-section {
+    margin-bottom: 1rem;
+    animation: credentialSlideIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+@keyframes credentialSlideIn {
+    from { opacity: 0; transform: translateY(-10px); max-height: 0; }
+    to { opacity: 1; transform: translateY(0); max-height: 600px; }
+}
+.cp-credentials-header {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 0.6rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--border);
+}
+.cp-credentials-header svg {
+    stroke: var(--orange);
+    flex-shrink: 0;
+}
+
+/* Combo Credential Items */
+.combo-credential-item {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 0.75rem;
+    margin-bottom: 0.6rem;
+    transition: all 0.3s ease;
+    position: relative;
+}
+.combo-credential-item:hover {
+    border-color: var(--orange);
+    box-shadow: 0 2px 12px rgba(254, 91, 41, 0.08);
+}
+.combo-item-header {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--orange);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+.combo-item-header::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--orange);
+    flex-shrink: 0;
+}
+
+/* Combo Add Button */
+.combo-add-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 0.55rem;
+    border: 1.5px dashed var(--border);
+    border-radius: 12px;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 0.25rem;
+}
+.combo-add-btn:hover {
+    border-color: var(--orange);
+    color: var(--orange);
+    background: rgba(254, 91, 41, 0.05);
+}
+.combo-add-btn svg {
+    stroke: currentColor;
+    transition: transform 0.3s ease;
+}
+.combo-add-btn:hover svg {
+    transform: rotate(90deg);
+}
 
 /* AI Optimization Button styling */
 .ai-opt-btn {
@@ -1324,14 +1496,26 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
 .profit-badge { color:#10b981; font-weight:700; }
 
 /* ── TOAST ── */
+#toast-container {
+    position: fixed;
+    bottom: 2.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: 0.5rem;
+    pointer-events: none;
+}
 .toast {
     position: relative;
     background: var(--text-main);
     color: var(--bg-main);
-    padding: 0.7rem 1.2rem;
+    padding: 0.75rem 1.4rem;
     border-radius: 99px;
-    font-weight: 500;
-    font-size: 0.85rem;
+    font-weight: 600;
+    font-size: 0.88rem;
     box-shadow: 0 8px 24px rgba(0,0,0,0.25);
     z-index: 9999;
     pointer-events: auto;
@@ -1339,6 +1523,7 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
     transform: translateY(10px) scale(0.95);
     transition: opacity 0.25s ease, transform 0.25s ease;
     white-space: nowrap;
+    text-align: center;
     animation: toastIn 0.3s ease forwards;
 }
 .toast.show {
@@ -1528,8 +1713,8 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
 
     .nf-modal { width:calc(100% - 1.5rem) !important; max-width:none !important; }
     #expiration-alerts-content > div { grid-template-columns:1fr !important; }
-    .toast { bottom:5.5rem; right:1rem; left:1rem; transform:none; justify-content:center; text-align:center; font-size:0.82rem; }
-    .toast.show { bottom:5.5rem; }
+    #toast-container { bottom:5.5rem; }
+    .toast { font-size:0.82rem; }
     #cloud-status-indicator { font-size:0.7rem !important; padding:0.2rem 0.6rem !important; }
 
     .notif-dropdown {

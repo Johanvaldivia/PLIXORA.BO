@@ -39,5 +39,86 @@ window.catalogData = [
     { id: 'cb-creator',name: 'Combo Creator Pro',     type: 'combo',  category: 'combo',      duration: '1 mes',    salePrice: 125, cost: 110,  profit: 15, features: ['CapCut Pro', 'Adobe Creative Cloud'] },
     { id: 'cb-office', name: 'Combo Office',          type: 'combo',  category: 'combo',      duration: '1 año',    salePrice: 160, cost: 100,  profit: 60, features: ['Microsoft 365', 'Canva EDU'] },
     { id: 'cb-ultra',  name: 'Combo Ultra',           type: 'combo',  category: 'combo',      duration: 'Mix',      salePrice: 210, cost: 150,  profit: 60, features: ['Microsoft 365', 'Adobe', 'Canva EDU'] },
-    { id: 'cb-privado',name: 'Combo Privado',         type: 'combo',  category: 'combo',      duration: '1 mes',    salePrice: 45,  cost: 36,   profit: 9,  features: ['Express VPN', 'YouTube Premium'] }
+    { id: 'cb-privado',name: 'Combo Privado',         type: 'combo',  category: 'combo',      duration: '1 mes',    salePrice: 45,  cost: 36,   profit: 9,  features: ['Express VPN', 'YouTube Premium'] },
+
+    // ══════════════════════════════════════════════════════════
+    // ── 📺 SECCIÓN TV — Streaming para TV, Celular y PC ──
+    // ══════════════════════════════════════════════════════════
+
+    // ── MAGIS TV PRO (Oleada TV) ──
+    { id: 'mgtv-1p-1m',  name: 'Magis TV PRO',           type: 'single', category: 'tv', duration: '1 mes',                salePrice: 12,  cost: 5,   profit: 7,   features: ['1 pantalla', 'Incluye Liga Boliviana', 'Renovable'] },
+    { id: 'mgtv-1p-3m',  name: 'Magis TV PRO',           type: 'single', category: 'tv', duration: '3 meses',              salePrice: 25,  cost: 15,  profit: 10,  features: ['1 pantalla', 'Incluye Liga Boliviana', 'Renovable'] },
+    { id: 'mgtv-1p-6m',  name: 'Magis TV PRO',           type: 'single', category: 'tv', duration: '6+1 mes gratis',       salePrice: 40,  cost: 30,  profit: 10,  features: ['1 pantalla', 'Incluye Liga Boliviana', '7 meses total'] },
+    { id: 'mgtv-1p-12m', name: 'Magis TV PRO',           type: 'single', category: 'tv', duration: '12+2 meses gratis',    salePrice: 80,  cost: 60,  profit: 20,  features: ['1 pantalla', 'Incluye Liga Boliviana', '14 meses total'] },
+    { id: 'mgtv-cc-1m',  name: 'Magis TV PRO (Completa)',type: 'single', category: 'tv', duration: '1 mes',                salePrice: 22,  cost: 15,  profit: 7,   features: ['3 pantallas', 'Incluye Liga Boliviana', 'Cuenta completa'] },
+    { id: 'mgtv-cc-3m',  name: 'Magis TV PRO (Completa)',type: 'single', category: 'tv', duration: '3 meses',              salePrice: 60,  cost: 45,  profit: 15,  features: ['3 pantallas', 'Incluye Liga Boliviana', 'Cuenta completa'] },
+    { id: 'mgtv-cc-6m',  name: 'Magis TV PRO (Completa)',type: 'single', category: 'tv', duration: '6+1 mes gratis',       salePrice: 115, cost: 90,  profit: 25,  features: ['3 pantallas', 'Incluye Liga Boliviana', '7 meses total'] },
+    { id: 'mgtv-cc-12m', name: 'Magis TV PRO (Completa)',type: 'single', category: 'tv', duration: '12+2 meses gratis',    salePrice: 220, cost: 175, profit: 45,  features: ['3 pantallas', 'Incluye Liga Boliviana', '14 meses total'] },
+
+    // ── FLUJO TV ──
+    { id: 'fltv-1p-1m',  name: 'Flujo TV',               type: 'single', category: 'tv', duration: '1 mes',                salePrice: 14,  cost: 8,   profit: 6,   features: ['1 pantalla', 'Mejor estabilidad del mercado', 'Renovable'] },
+    { id: 'fltv-1p-3m',  name: 'Flujo TV',               type: 'single', category: 'tv', duration: '3 meses',              salePrice: 34,  cost: 24,  profit: 10,  features: ['1 pantalla', 'Mejor estabilidad del mercado', 'Renovable'] },
+    { id: 'fltv-1p-6m',  name: 'Flujo TV',               type: 'single', category: 'tv', duration: '6+1 mes gratis',       salePrice: 65,  cost: 48,  profit: 17,  features: ['1 pantalla', 'Mejor estabilidad del mercado', '7 meses total'] },
+    { id: 'fltv-1p-12m', name: 'Flujo TV',               type: 'single', category: 'tv', duration: '12+2 meses gratis',    salePrice: 125, cost: 96,  profit: 29,  features: ['1 pantalla', 'Mejor estabilidad del mercado', '14 meses total'] },
+    { id: 'fltv-cc-1m',  name: 'Flujo TV (Completa)',    type: 'single', category: 'tv', duration: '1 mes',                salePrice: 35,  cost: 24,  profit: 11,  features: ['3 pantallas', 'Mejor estabilidad del mercado', 'Cuenta completa'] },
+    { id: 'fltv-cc-3m',  name: 'Flujo TV (Completa)',    type: 'single', category: 'tv', duration: '3 meses',              salePrice: 95,  cost: 72,  profit: 23,  features: ['3 pantallas', 'Mejor estabilidad del mercado', 'Cuenta completa'] },
+    { id: 'fltv-cc-6m',  name: 'Flujo TV (Completa)',    type: 'single', category: 'tv', duration: '6+1 mes gratis',       salePrice: 180, cost: 144, profit: 36,  features: ['3 pantallas', 'Mejor estabilidad del mercado', '7 meses total'] },
+    { id: 'fltv-cc-12m', name: 'Flujo TV (Completa)',    type: 'single', category: 'tv', duration: '12+2 meses gratis',    salePrice: 360, cost: 288, profit: 72,  features: ['3 pantallas', 'Mejor estabilidad del mercado', '14 meses total'] },
+
+    // ── IPTV SMARTER PRO ──
+    { id: 'iptv-1p-1m',  name: 'IPTV Smarter Pro',       type: 'single', category: 'tv', duration: '1 mes',                salePrice: 12,  cost: 6,   profit: 6,   features: ['1 pantalla', 'Entretenimiento completo', 'Renovable'] },
+    { id: 'iptv-1p-3m',  name: 'IPTV Smarter Pro',       type: 'single', category: 'tv', duration: '2+1 mes gratis',       salePrice: 20,  cost: 10,  profit: 10,  features: ['1 pantalla', 'Entretenimiento completo', '3 meses total'] },
+    { id: 'iptv-1p-5m',  name: 'IPTV Smarter Pro',       type: 'single', category: 'tv', duration: '3+2 meses gratis',     salePrice: 30,  cost: 15,  profit: 15,  features: ['1 pantalla', 'Entretenimiento completo', '5 meses total'] },
+    { id: 'iptv-1p-9m',  name: 'IPTV Smarter Pro',       type: 'single', category: 'tv', duration: '6+3 meses gratis',     salePrice: 50,  cost: 30,  profit: 20,  features: ['1 pantalla', 'Entretenimiento completo', '9 meses total'] },
+    { id: 'iptv-1p-16m', name: 'IPTV Smarter Pro',       type: 'single', category: 'tv', duration: '12+4 meses gratis',    salePrice: 85,  cost: 60,  profit: 25,  features: ['1 pantalla', 'Entretenimiento completo', '16 meses total'] },
+    { id: 'iptv-cc-1m',  name: 'IPTV Smarter Pro (Completa)', type: 'single', category: 'tv', duration: '1 mes',           salePrice: 20,  cost: 12,  profit: 8,   features: ['3 pantallas', 'Entretenimiento completo', 'Cuenta completa'] },
+    { id: 'iptv-cc-3m',  name: 'IPTV Smarter Pro (Completa)', type: 'single', category: 'tv', duration: '2+1 mes gratis',  salePrice: 35,  cost: 22,  profit: 13,  features: ['3 pantallas', 'Entretenimiento completo', '3 meses total'] },
+    { id: 'iptv-cc-5m',  name: 'IPTV Smarter Pro (Completa)', type: 'single', category: 'tv', duration: '3+2 meses gratis',salePrice: 50,  cost: 33,  profit: 17,  features: ['3 pantallas', 'Entretenimiento completo', '5 meses total'] },
+    { id: 'iptv-cc-9m',  name: 'IPTV Smarter Pro (Completa)', type: 'single', category: 'tv', duration: '6+3 meses gratis',salePrice: 90,  cost: 66,  profit: 24,  features: ['3 pantallas', 'Entretenimiento completo', '9 meses total'] },
+    { id: 'iptv-cc-16m', name: 'IPTV Smarter Pro (Completa)', type: 'single', category: 'tv', duration: '12+4 meses gratis',salePrice: 170, cost: 132, profit: 38, features: ['3 pantallas', 'Entretenimiento completo', '16 meses total'] },
+
+    // ── IPTV SMARTER PRO-Z TV ──
+    { id: 'iptvz-1p-1m',  name: 'IPTV Smarter Pro-Z TV',  type: 'single', category: 'tv', duration: '1 mes',               salePrice: 10,  cost: 4,   profit: 6,   features: ['1 pantalla', 'Incluye Liga Boliviana', 'Renovable'] },
+    { id: 'iptvz-1p-3m',  name: 'IPTV Smarter Pro-Z TV',  type: 'single', category: 'tv', duration: '3 meses',             salePrice: 25,  cost: 12,  profit: 13,  features: ['1 pantalla', 'Incluye Liga Boliviana', 'Renovable'] },
+    { id: 'iptvz-1p-6m',  name: 'IPTV Smarter Pro-Z TV',  type: 'single', category: 'tv', duration: '6 meses',             salePrice: 40,  cost: 24,  profit: 16,  features: ['1 pantalla', 'Incluye Liga Boliviana', 'Renovable'] },
+    { id: 'iptvz-1p-12m', name: 'IPTV Smarter Pro-Z TV',  type: 'single', category: 'tv', duration: '12 meses',            salePrice: 70,  cost: 48,  profit: 22,  features: ['1 pantalla', 'Incluye Liga Boliviana', 'Renovable'] },
+    { id: 'iptvz-cc-1m',  name: 'IPTV Smarter Pro-Z TV (Completa)', type: 'single', category: 'tv', duration: '1 mes',     salePrice: 20,  cost: 12,  profit: 8,   features: ['3 pantallas', 'Incluye Liga Boliviana', 'Cuenta completa'] },
+    { id: 'iptvz-cc-3m',  name: 'IPTV Smarter Pro-Z TV (Completa)', type: 'single', category: 'tv', duration: '3 meses',   salePrice: 50,  cost: 33,  profit: 17,  features: ['3 pantallas', 'Incluye Liga Boliviana', 'Cuenta completa'] },
+    { id: 'iptvz-cc-6m',  name: 'IPTV Smarter Pro-Z TV (Completa)', type: 'single', category: 'tv', duration: '6 meses',   salePrice: 90,  cost: 66,  profit: 24,  features: ['3 pantallas', 'Incluye Liga Boliviana', 'Cuenta completa'] },
+    { id: 'iptvz-cc-12m', name: 'IPTV Smarter Pro-Z TV (Completa)', type: 'single', category: 'tv', duration: '12 meses',  salePrice: 165, cost: 132, profit: 33,  features: ['3 pantallas', 'Incluye Liga Boliviana', 'Cuenta completa'] },
+
+    // ── TELE LATINO MAX ──
+    { id: 'tl-1p-1m',  name: 'Tele Latino Max',         type: 'single', category: 'tv', duration: '1 mes',                 salePrice: 12,  cost: 6,   profit: 6,   features: ['1 pantalla', 'Incluye Liga Boliviana', 'Renovable'] },
+    { id: 'tl-1p-3m',  name: 'Tele Latino Max',         type: 'single', category: 'tv', duration: '3 meses',               salePrice: 30,  cost: 18,  profit: 12,  features: ['1 pantalla', 'Incluye Liga Boliviana', 'Renovable'] },
+    { id: 'tl-1p-6m',  name: 'Tele Latino Max',         type: 'single', category: 'tv', duration: '6 meses',               salePrice: 50,  cost: 36,  profit: 14,  features: ['1 pantalla', 'Incluye Liga Boliviana', 'Renovable'] },
+    { id: 'tl-1p-12m', name: 'Tele Latino Max',         type: 'single', category: 'tv', duration: '12 meses',              salePrice: 95,  cost: 72,  profit: 23,  features: ['1 pantalla', 'Incluye Liga Boliviana', 'Renovable'] },
+    { id: 'tl-cc-1m',  name: 'Tele Latino Max (Completa)', type: 'single', category: 'tv', duration: '1 mes',              salePrice: 30,  cost: 22,  profit: 8,   features: ['4 pantallas', 'Incluye Liga Boliviana', 'Cuenta completa'] },
+    { id: 'tl-cc-3m',  name: 'Tele Latino Max (Completa)', type: 'single', category: 'tv', duration: '3 meses',            salePrice: 85,  cost: 66,  profit: 19,  features: ['4 pantallas', 'Incluye Liga Boliviana', 'Cuenta completa'] },
+    { id: 'tl-cc-6m',  name: 'Tele Latino Max (Completa)', type: 'single', category: 'tv', duration: '6 meses',            salePrice: 165, cost: 132, profit: 33,  features: ['4 pantallas', 'Incluye Liga Boliviana', 'Cuenta completa'] },
+    { id: 'tl-cc-12m', name: 'Tele Latino Max (Completa)', type: 'single', category: 'tv', duration: '12 meses',           salePrice: 330, cost: 264, profit: 66,  features: ['4 pantallas', 'Incluye Liga Boliviana', 'Cuenta completa'] },
+
+    // ── NUBIA TV - GX MAX ──
+    { id: 'nubia-1p-1m',  name: 'Nubia TV - GX MAX',     type: 'single', category: 'tv', duration: '1 mes',                salePrice: 40,  cost: 30,  profit: 10,  features: ['1 pantalla', 'Incluye Liga Boliviana', 'Renovable'] },
+    { id: 'nubia-1p-3m',  name: 'Nubia TV - GX MAX',     type: 'single', category: 'tv', duration: '3 meses',              salePrice: 110, cost: 85,  profit: 25,  features: ['1 pantalla', 'Incluye Liga Boliviana', 'Renovable'] },
+    { id: 'nubia-1p-6m',  name: 'Nubia TV - GX MAX',     type: 'single', category: 'tv', duration: '6+1 mes gratis',       salePrice: 210, cost: 170, profit: 40,  features: ['1 pantalla', 'Incluye Liga Boliviana', '7 meses total'] },
+    { id: 'nubia-1p-12m', name: 'Nubia TV - GX MAX',     type: 'single', category: 'tv', duration: '12+2 meses gratis',    salePrice: 420, cost: 340, profit: 80,  features: ['1 pantalla', 'Incluye Liga Boliviana', '14 meses total'] },
+    { id: 'nubia-cc-1m',  name: 'Nubia TV - GX MAX (Completa)', type: 'single', category: 'tv', duration: '1 mes',         salePrice: 65,  cost: 50,  profit: 15,  features: ['3 pantallas', 'Incluye Liga Boliviana', 'Cuenta completa'] },
+    { id: 'nubia-cc-3m',  name: 'Nubia TV - GX MAX (Completa)', type: 'single', category: 'tv', duration: '3 meses',       salePrice: 175, cost: 140, profit: 35,  features: ['3 pantallas', 'Incluye Liga Boliviana', 'Cuenta completa'] },
+    { id: 'nubia-cc-6m',  name: 'Nubia TV - GX MAX (Completa)', type: 'single', category: 'tv', duration: '6+1 mes gratis',salePrice: 330, cost: 270, profit: 60,  features: ['3 pantallas', 'Incluye Liga Boliviana', '7 meses total'] },
+    { id: 'nubia-cc-12m', name: 'Nubia TV - GX MAX (Completa)', type: 'single', category: 'tv', duration: '12+2 meses gratis',salePrice: 650, cost: 520, profit: 130, features: ['3 pantallas', 'Incluye Liga Boliviana', '14 meses total'] },
+
+    // ── VELTIX ──
+    { id: 'vltx-1p-1m',  name: 'Veltix',                 type: 'single', category: 'tv', duration: '1 mes',                salePrice: 40,  cost: 30,  profit: 10,  features: ['1 pantalla', 'Incluye Liga Boliviana', 'Renovable'] },
+    { id: 'vltx-1p-3m',  name: 'Veltix',                 type: 'single', category: 'tv', duration: '3 meses',              salePrice: 110, cost: 85,  profit: 25,  features: ['1 pantalla', 'Incluye Liga Boliviana', 'Renovable'] },
+    { id: 'vltx-1p-6m',  name: 'Veltix',                 type: 'single', category: 'tv', duration: '6+1 mes gratis',       salePrice: 210, cost: 170, profit: 40,  features: ['1 pantalla', 'Incluye Liga Boliviana', '7 meses total'] },
+    { id: 'vltx-1p-12m', name: 'Veltix',                 type: 'single', category: 'tv', duration: '12+2 meses gratis',    salePrice: 420, cost: 340, profit: 80,  features: ['1 pantalla', 'Incluye Liga Boliviana', '14 meses total'] },
+    { id: 'vltx-cc-1m',  name: 'Veltix (Completa)',      type: 'single', category: 'tv', duration: '1 mes',                salePrice: 65,  cost: 50,  profit: 15,  features: ['3 pantallas', 'Incluye Liga Boliviana', 'Cuenta completa'] },
+    { id: 'vltx-cc-3m',  name: 'Veltix (Completa)',      type: 'single', category: 'tv', duration: '3 meses',              salePrice: 175, cost: 140, profit: 35,  features: ['3 pantallas', 'Incluye Liga Boliviana', 'Cuenta completa'] },
+    { id: 'vltx-cc-6m',  name: 'Veltix (Completa)',      type: 'single', category: 'tv', duration: '6+1 mes gratis',       salePrice: 330, cost: 270, profit: 60,  features: ['3 pantallas', 'Incluye Liga Boliviana', '7 meses total'] },
+    { id: 'vltx-cc-12m', name: 'Veltix (Completa)',      type: 'single', category: 'tv', duration: '12+2 meses gratis',    salePrice: 650, cost: 520, profit: 130, features: ['3 pantallas', 'Incluye Liga Boliviana', '14 meses total'] },
+
+    // ── PLEX TV ──
+    { id: 'plex-1p-1m',  name: 'Plex TV',                type: 'single', category: 'tv', duration: '1 mes',                salePrice: 12,  cost: 6,   profit: 6,   features: ['1 pantalla', 'Streaming estable', 'Renovable'] },
+    { id: 'plex-cc-2p',  name: 'Plex TV (2 Personas)',   type: 'single', category: 'tv', duration: '1 mes',                salePrice: 20,  cost: 12,  profit: 8,   features: ['2 personas', 'Streaming estable', 'Cuenta completa'] },
+    { id: 'plex-cc-4p',  name: 'Plex TV (4 Personas)',   type: 'single', category: 'tv', duration: '1 mes',                salePrice: 35,  cost: 24,  profit: 11,  features: ['4 personas', 'Streaming estable', 'Cuenta completa'] }
 ];
