@@ -802,7 +802,7 @@
             const imgOrigin = (() => {
                         let origin = window.location.origin;
                         if (!origin || origin.startsWith('file://') || origin.includes('localhost') || origin.includes('127.0.0.1') || origin === 'null') {
-                            origin = window.PLIXORA_CONFIG.PRODUCTION_URL || 'https://plixora-ventas.netlify.app';
+                            origin = window.PLIXORA_CONFIG.PRODUCTION_URL || 'https://plixora-bo.onrender.com';
                         }
                         return origin;
                     })();
@@ -1016,7 +1016,7 @@
             const imgOrigin = (() => {
                         let origin = window.location.origin;
                         if (!origin || origin.startsWith('file://') || origin.includes('localhost') || origin.includes('127.0.0.1') || origin === 'null') {
-                            origin = window.PLIXORA_CONFIG.PRODUCTION_URL || 'https://plixora-ventas.netlify.app';
+                            origin = window.PLIXORA_CONFIG.PRODUCTION_URL || 'https://plixora-bo.onrender.com';
                         }
                         return origin;
                     })();

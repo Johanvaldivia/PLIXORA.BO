@@ -100,7 +100,15 @@ function setupNotificationBell() {
         });
         
         // Prevent clicks inside dropdown from closing it
+        // BUT allow data-action buttons to propagate to the document-level delegation
         dropdown.addEventListener('click', (e) => {
+            const actionBtn = e.target.closest('[data-action]');
+            if (actionBtn) {
+                // Let notify/dismiss actions bubble up to the document delegation handler
+                // but still close the dropdown
+                dropdown.classList.add('hidden');
+                return;
+            }
             e.stopPropagation();
         });
         
