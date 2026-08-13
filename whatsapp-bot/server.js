@@ -23,6 +23,7 @@ const BOT_TOKEN = process.env.WA_BOT_TOKEN || '';
 let currentQR = null;
 let isClientReady = false;
 let statusMsg = 'Iniciando...';
+let startTime = Date.now();
 
 // ── Configuración de Puppeteer (multi-plataforma) ─────────────
 const possiblePaths = [
@@ -113,13 +114,31 @@ function startClient() {
 
     client.on('disconnected', (reason) => {
         isClientReady = false;
+        currentQR = null;
         statusMsg = 'Desconectado: ' + reason;
         console.log('⚠️ Cliente desconectado:', reason);
+        // Auto-reconectar después de desconexion
+        console.log('↻ Intentando reconectar en 5s...');
+        setTimeout(() => {
+            retryCount = 0;
+            startClient();
+        }, 5000);
     });
 
     client.on('auth_failure', (msg) => {
         statusMsg = 'Fallo de autenticación: ' + (msg || '');
         console.error('❌ Fallo de autenticación:', msg);
+        // Limpiar sesión corrupta y reintentar
+        console.log('🗑️ Limpiando sesión corrupta...');
+        const authPath = path.join(__dirname, '.wwebjs_auth');
+        try {
+            fs.rmSync(authPath, { recursive: true, force: true });
+            console.log('✅ Sesión eliminada. Reiniciando para generar nuevo QR...');
+        } catch (e) { console.error('Error limpiando sesión:', e.message); }
+        setTimeout(() => {
+            retryCount = 0;
+            startClient();
+        }, 3000);
     });
 
     client.initialize().catch(err => {
@@ -134,7 +153,11 @@ function startClient() {
 }
 
 // ── Middleware ────────────────────────────────────────────────
-app.use(cors());
+app.use(cors({
+    origin: ['https://plixora-bo.onrender.com', /localhost/, /127\.0\.0\.1/],
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json({ limit: '10mb' }));
 
 // Autenticación por token para la API (excepto /qr, /status, /)
@@ -188,7 +211,16 @@ app.get('/qr', async (req, res) => {
 });
 
 app.get('/status', (req, res) => {
-    res.json({ ready: isClientReady, status: statusMsg, hasQR: !!currentQR });
+    const uptimeS = Math.floor((Date.now() - startTime) / 1000);
+    const h = Math.floor(uptimeS / 3600);
+    const m = Math.floor((uptimeS % 3600) / 60);
+    res.json({
+        ready: isClientReady,
+        status: statusMsg,
+        hasQR: !!currentQR,
+        uptime: `${h}h ${m}m`,
+        uptimeSeconds: uptimeS
+    });
 });
 
 // ── API ───────────────────────────────────────────────────────
@@ -258,4 +290,24 @@ app.listen(PORT, '0.0.0.0', () => {
     console.log('📊 Estado:           http://localhost:' + PORT + '/status');
     console.log('💬 Enviar mensaje:   POST /api/send-message');
     console.log('🖼️ Enviar imagen:    POST /api/send-image');
+});
+
+// ── Manejo de errores fatales (evitar que el proceso muera silenciosamente) ──
+process.on('uncaughtException', (err) => {
+    console.error('💥 Error no capturado:', err.message);
+    // Si es un error de Puppeteer/Chrome, reiniciar el cliente
+    if (err.message.includes('Protocol error') || err.message.includes('Target closed') || err.message.includes('Session closed')) {
+        console.log('↻ Reiniciando cliente WA por crash de Chrome...');
+        isClientReady = false;
+        currentQR = null;
+        statusMsg = 'Reiniciando por crash...';
+        setTimeout(() => {
+            retryCount = 0;
+            startClient();
+        }, 5000);
+    }
+});
+
+process.on('unhandledRejection', (reason) => {
+    console.error('💥 Promise no capturada:', reason);
 });

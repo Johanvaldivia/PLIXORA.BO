@@ -10,16 +10,16 @@
 
     window.PLIXORA_CONFIG = {
         // URL base del bot WhatsApp
-        // En producción: rutas relativas que Render reescribe al VPS (evita Mixed Content HTTPS→HTTP)
+        // En producción: directo al VPS via HTTPS (nginx + Certbot en plixora-bot.duckdns.org)
         // En local: directo a localhost:3000
         WA_BOT_URL: isProd
-            ? '/api/wa/send-message'
+            ? 'https://plixora-bot.duckdns.org/api/send-message'
             : 'http://localhost:3000/api/send-message',
         WA_BOT_IMAGE_URL: isProd
-            ? '/api/wa/send-image'
+            ? 'https://plixora-bot.duckdns.org/api/send-image'
             : 'http://localhost:3000/api/send-image',
         WA_BOT_STATUS_URL: isProd
-            ? '/api/wa-status'
+            ? 'https://plixora-bot.duckdns.org/status'
             : 'http://localhost:3000/status',
         WA_BOT_TOKEN: 'f58v6XkUscoxyIEGVgez7dRuJLHq4Sip',
         PRODUCTION_URL: 'https://plixora-bo.onrender.com',
