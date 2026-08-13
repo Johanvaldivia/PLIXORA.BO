@@ -373,11 +373,15 @@
                 }
 
                 try {
-                    await waBotFetch(window.PLIXORA_CONFIG.WA_BOT_URL, { phone, message: msg });
-                    showToast('✅ Cliente agregado, venta registrada y mensaje enviado por WhatsApp.');
+                    const data = await waBotFetchRetry(window.PLIXORA_CONFIG.WA_BOT_URL, { phone, message: msg });
+                    if (data.success) {
+                        showToast('✅ Cliente agregado, venta registrada y mensaje enviado por WhatsApp.');
+                    } else {
+                        showToast('✅ Cliente agregado y venta registrada. ⚠️ El bot no pudo enviar el mensaje.');
+                    }
                 } catch (waErr) {
                     console.error('WA send error:', waErr);
-                    showToast('✅ Cliente agregado y venta registrada. ⚠️ No se pudo enviar el mensaje de WhatsApp.');
+                    showToast('✅ Cliente agregado y venta registrada. ⚠️ ' + waErr.message);
                 }
             } else {
                 showToast('✅ Cliente agregado y venta registrada correctamente.');
@@ -471,8 +475,13 @@
                 const msg = `🔄 *PLIXORA.BO — Actualización de Cuenta*\n\nHola *${m.name}* 👋\n\nTe informamos que los datos de acceso de tu cuenta de *${account.serviceName}* han sido actualizados. Aquí tienes las nuevas credenciales:\n\n📧 *Nuevo Correo:* \`${newEmail}\`\n🔑 *Nueva Contraseña:* \`${newPassword}\`\n👤 *Tu Perfil:* Perfil ${i + 1}${notaCombo}\n\n⚠️ *Importante:*\n• Los datos anteriores ya no funcionan.\n• No cambies la contraseña ni el correo.\n• No compartas estos datos con nadie.\n\n🔧 _El reemplazo o restablecimiento de cuenta se realiza en un plazo máximo de *24 horas*._\n\n_PLIXORA.BO — Disculpa las molestias. Si tienes alguna duda, escríbenos. 🙏_`;
 
                 try {
-                    await waBotFetch(window.PLIXORA_CONFIG.WA_BOT_URL, { phone: m.phone, message: msg });
-                    sent++;
+                    const data = await waBotFetchRetry(window.PLIXORA_CONFIG.WA_BOT_URL, { phone: m.phone, message: msg });
+                    if (data.success) {
+                        sent++;
+                    } else {
+                        console.warn('WA replace: bot no envió a ' + m.phone, data.error);
+                        failed++;
+                    }
                 } catch (waErr) {
                     console.error('WA replace error for ' + m.phone, waErr);
                     failed++;
@@ -560,8 +569,13 @@
                 `_PLIXORA.BO — Gracias por tu preferencia 🧡_`;
 
             try {
-                await waBotFetch(window.PLIXORA_CONFIG.WA_BOT_URL, { phone: m.phone, message: msg });
-                sent++;
+                const data = await waBotFetchRetry(window.PLIXORA_CONFIG.WA_BOT_URL, { phone: m.phone, message: msg });
+                if (data.success) {
+                    sent++;
+                } else {
+                    console.warn('Bulk notify: bot no envió a ' + m.phone, data.error);
+                    failed++;
+                }
             } catch (err) {
                 console.error(`Bulk notify error for ${m.name} (${m.phone}):`, err);
                 failed++;
@@ -625,11 +639,15 @@
             `_PLIXORA.BO — Gracias por tu preferencia 🧡_`;
 
         try {
-            await waBotFetch(window.PLIXORA_CONFIG.WA_BOT_URL, { phone: m.phone, message: msg });
-            showToast(`✅ Datos enviados a ${m.name} por WhatsApp.`);
+            const data = await waBotFetchRetry(window.PLIXORA_CONFIG.WA_BOT_URL, { phone: m.phone, message: msg });
+            if (data.success) {
+                showToast(`✅ Datos enviados a ${m.name} por WhatsApp.`);
+            } else {
+                showToast(`⚠️ El bot no pudo enviar a ${m.name}.`);
+            }
         } catch (err) {
             console.error('Resend error:', err);
-            showToast(`⚠️ No se pudo enviar a ${m.name}. Intenta de nuevo.`);
+            showToast(`⚠️ No se pudo enviar a ${m.name}. ` + err.message);
         }
     };
 

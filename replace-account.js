@@ -61,16 +61,15 @@ window.executeReplace = async function(sendWA) {
                         generateSaleDetailsText(updatedSale);
 
         try {
-            const resp = await waBotFetch(window.PLIXORA_CONFIG.WA_BOT_URL, { phone: sale.customer, message: msgText });
-            const data = await resp.json();
+            const data = await waBotFetchRetry(window.PLIXORA_CONFIG.WA_BOT_URL, { phone: sale.customer, message: msgText });
             if (data.success) {
                 showToast('💬 Mensaje enviado al cliente');
             } else {
                 showToast('⚠️ Cuenta guardada pero no se pudo enviar WA');
             }
         } catch(e) {
-            console.log('Bot de WhatsApp no disponible.');
-            showToast('⚠️ Cuenta guardada. Bot WA no disponible.');
+            console.warn('Bot WA error:', e.message);
+            showToast('⚠️ Cuenta guardada. ' + e.message);
         }
     }
 

@@ -53,34 +53,86 @@
     };
 
     // ── Helpers API Bot ────────────────────────────────────────
-    window.waBotFetch = function (url, body, timeoutMs) {
+    // Timeout por defecto: 15s (imágenes pueden tardar más)
+    window.waBotFetch = async function (url, body, timeoutMs) {
         const headers = { 'Content-Type': 'application/json' };
         if (window.PLIXORA_CONFIG.WA_BOT_TOKEN) {
             headers['Authorization'] = 'Bearer ' + window.PLIXORA_CONFIG.WA_BOT_TOKEN;
         }
         const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), timeoutMs || 10000);
-        
-        return fetch(url, { method: 'POST', headers, body: JSON.stringify(body), signal: controller.signal })
-            .finally(() => clearTimeout(timer));
+        const timer = setTimeout(() => controller.abort(), timeoutMs || 15000);
+
+        let resp;
+        try {
+            resp = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body), signal: controller.signal });
+        } catch (err) {
+            clearTimeout(timer);
+            if (err.name === 'AbortError') {
+                throw new Error('El bot de WhatsApp no respondió (timeout). Verifica que esté encendido.');
+            }
+            throw new Error('No se pudo conectar al bot de WhatsApp. Verifica tu conexión.');
+        } finally {
+            clearTimeout(timer);
+        }
+
+        // Validar que la respuesta sea JSON (evitar crash al parsear HTML de errores 502/504)
+        const ct = (resp.headers.get('content-type') || '');
+        if (!ct.includes('application/json')) {
+            const snippet = (await resp.text()).substring(0, 150);
+            console.error('Respuesta no-JSON del bot WA:', resp.status, snippet);
+            throw new Error('El servidor del bot devolvió un error (status ' + resp.status + '). Verifica que el bot esté activo.');
+        }
+
+        // Parsear JSON y verificar status HTTP
+        const data = await resp.json();
+        if (!resp.ok) {
+            throw new Error(data.error || 'Error del bot (HTTP ' + resp.status + ')');
+        }
+
+        return data;
     };
 
+    // Envío con reintentos automáticos (2 reintentos, backoff 1s, 2s)
+    // Devuelve { success: true, ... } o lanza Error
     window.waBotFetchRetry = async function (url, body, maxRetries, delayMs) {
         maxRetries = maxRetries || 2;
-        delayMs = delayMs || 800;
+        delayMs = delayMs || 1000;
         let lastErr;
         for (let i = 0; i <= maxRetries; i++) {
             try {
-                const resp = await window.waBotFetch(url, body);
-                const data = await resp.json();
+                const data = await window.waBotFetch(url, body);
                 if (data.success) return data;
-                lastErr = new Error(data.error || 'Bot error');
+                lastErr = new Error(data.error || 'El bot no pudo enviar el mensaje.');
             } catch (e) {
                 lastErr = e;
-                if (i < maxRetries) await new Promise(r => setTimeout(r, delayMs * (i + 1)));
+            }
+            if (i < maxRetries) {
+                console.log('↻ Reintentando envío WA (' + (i + 1) + '/' + maxRetries + ')...');
+                await new Promise(r => setTimeout(r, delayMs * (i + 1)));
             }
         }
         throw lastErr;
+    };
+
+    // ── Verificar estado del bot ──────────────────────────────
+    window.checkWaBotStatus = async function () {
+        const url = window.PLIXORA_CONFIG.WA_BOT_STATUS_URL;
+        if (!url) return { ready: false, status: 'URL de status no configurada' };
+        try {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), 8000);
+            const headers = {};
+            if (window.PLIXORA_CONFIG.WA_BOT_TOKEN) {
+                headers['Authorization'] = 'Bearer ' + window.PLIXORA_CONFIG.WA_BOT_TOKEN;
+            }
+            const resp = await fetch(url, { signal: controller.signal, headers });
+            clearTimeout(timer);
+            if (!resp.ok) return { ready: false, status: 'Bot respondió con error HTTP ' + resp.status };
+            const data = await resp.json();
+            return data; // { ready: bool, status: string, hasQR: bool }
+        } catch (e) {
+            return { ready: false, status: 'No se pudo contactar al bot: ' + (e.name === 'AbortError' ? 'timeout' : e.message) };
+        }
     };
 
     // ── Utilidades ─────────────────────────────────────────────

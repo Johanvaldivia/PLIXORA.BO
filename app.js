@@ -742,15 +742,15 @@ async function executeSaveSale(newSale, sendWhatsApp) {
 
         if (sendWhatsApp && newSale.customer && newSale.customer !== 'Anónimo' && window.pendingSaleContext) {
             try {
-                const response = await waBotFetch(window.PLIXORA_CONFIG.WA_BOT_URL, { phone: newSale.customer, message: window.pendingSaleContext.messageText });
-                const resData = await response.json();
-                if (resData.success) {
+                const data = await waBotFetchRetry(window.PLIXORA_CONFIG.WA_BOT_URL, { phone: newSale.customer, message: window.pendingSaleContext.messageText });
+                if (data.success) {
                     showToast('💬 Mensaje enviado por WhatsApp');
                 } else {
-                    console.warn('Bot de WhatsApp no listo o no pudo enviar:', resData.error);
+                    showToast('⚠️ Venta registrada, pero no se pudo enviar el mensaje de WhatsApp.');
                 }
             } catch (apiErr) {
-                console.log('Bot de WhatsApp apagado o no disponible.');
+                console.warn('WA send error en venta:', apiErr.message);
+                showToast('⚠️ Venta registrada. ' + apiErr.message);
             }
         }
 

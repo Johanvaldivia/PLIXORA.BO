@@ -545,8 +545,7 @@
                         `¡Gracias por elegirnos! 🍿✨`;
 
             try {
-                const resp = await waBotFetch(window.PLIXORA_CONFIG.WA_BOT_URL, { phone: p.whatsapp, message: msg });
-                const data = await resp.json();
+                const data = await waBotFetchRetry(window.PLIXORA_CONFIG.WA_BOT_URL, { phone: p.whatsapp, message: msg });
                 if (!data.success) throw new Error(data.error || 'Fallo en envío');
 
                 // Marcar como notificado
@@ -793,8 +792,7 @@
                      `Dar clic en *"OBTENER AYUDA"* y luego *"ACCEDER CON CONTRASEÑA"*`;
 
         try {
-            const resp1 = await waBotFetch(window.PLIXORA_CONFIG.WA_BOT_URL, { phone: phone, message: msg1 });
-            const data1 = await resp1.json();
+            const data1 = await waBotFetchRetry(window.PLIXORA_CONFIG.WA_BOT_URL, { phone: phone, message: msg1 });
             if (!data1.success) throw new Error(data1.error || 'Error enviando mensaje 1');
 
             await new Promise(r => setTimeout(r, 600));
@@ -806,12 +804,11 @@
                         }
                         return origin;
                     })();
-            const resp2 = await waBotFetch(window.PLIXORA_CONFIG.WA_BOT_IMAGE_URL, {
+            const data2 = await waBotFetchRetry(window.PLIXORA_CONFIG.WA_BOT_IMAGE_URL, {
                         phone: phone,
                         imageUrl: imgOrigin + '/netflix-instrucciones.png',
                         caption: msg2
                     });
-            const data2 = await resp2.json();
             if (!data2.success) throw new Error(data2.error || 'Error enviando imagen');
 
             showNFToast('✅ Perfil guardado y datos enviados por WhatsApp a ' + cliente);
@@ -1005,8 +1002,7 @@
 
         try {
             // Enviar mensaje 1 - datos de la cuenta
-            const resp1 = await waBotFetch(window.PLIXORA_CONFIG.WA_BOT_URL, { phone: phone, message: msg1 });
-            const data1 = await resp1.json();
+            const data1 = await waBotFetchRetry(window.PLIXORA_CONFIG.WA_BOT_URL, { phone: phone, message: msg1 });
             if (!data1.success) throw new Error(data1.error || 'Error enviando mensaje 1');
 
             // Pequeña pausa para que lleguen en orden
@@ -1020,12 +1016,11 @@
                         }
                         return origin;
                     })();
-            const resp2 = await waBotFetch(window.PLIXORA_CONFIG.WA_BOT_IMAGE_URL, {
+            const data2 = await waBotFetchRetry(window.PLIXORA_CONFIG.WA_BOT_IMAGE_URL, {
                         phone: phone,
                         imageUrl: imgOrigin + '/netflix-instrucciones.png',
                         caption: msg2
                     });
-            const data2 = await resp2.json();
             if (!data2.success) throw new Error(data2.error || 'Error enviando imagen');
 
             showNFToast('✅ Datos enviados por WhatsApp a ' + clienteName);
@@ -1087,8 +1082,7 @@
         showNFToast('📤 Enviando aviso por WhatsApp...');
 
         try {
-            const resp = await waBotFetch(window.PLIXORA_CONFIG.WA_BOT_URL, { phone: phone, message: msg });
-            const data = await resp.json();
+            const data = await waBotFetchRetry(window.PLIXORA_CONFIG.WA_BOT_URL, { phone: phone, message: msg });
             if (!data.success) throw new Error(data.error || 'Error enviando mensaje');
 
             const acc = nfAccounts.find(a => a.id === accountId);
