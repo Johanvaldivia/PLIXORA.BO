@@ -32,7 +32,7 @@
             <div class="login-center">
                 <div class="glow-orb" aria-hidden="true"></div>
 
-                <form class="card-login" id="login-form" novalidate>
+                <form class="card-login" id="login-form" novalidate onsubmit="event.preventDefault();">
                   <div class="brand">
                     <div class="brand-badge">P</div>
                     <div class="brand-word">PLIXORA<span>.BO</span></div>
@@ -128,7 +128,7 @@
                     return;
                 }
 
-                ctx.fillStyle = '#0a0a0c';
+                ctx.fillStyle = '#f7f7f7';
                 ctx.fillRect(0, 0, W, H);
 
                 const spacing = 40;
@@ -141,8 +141,8 @@
                         const y = r * spacing;
                         const sx = x + Math.sin(time + y * 0.02) * 6;
                         const sy = y + Math.cos(time + x * 0.02) * 6;
-                        const alpha = 0.08 + 0.12 * (0.5 + 0.5 * Math.sin(time * 2 + x * 0.01 + y * 0.01));
-                        ctx.fillStyle = `rgba(255,94,58,${alpha})`;
+                        const alpha = 0.15 + 0.15 * (0.5 + 0.5 * Math.sin(time * 2 + x * 0.01 + y * 0.01));
+                        ctx.fillStyle = `rgba(0,0,0,${alpha})`;
                         ctx.beginPath();
                         ctx.arc(sx, sy, 1.5, 0, Math.PI * 2);
                         ctx.fill();
