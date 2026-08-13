@@ -559,7 +559,7 @@
 
             // Delay entre mensajes para no saturar el bot
             if (j < ocupados.length - 1) {
-                await new Promise(r => setTimeout(r, 1200));
+                await new Promise(r => setTimeout(r, 600));
             }
         }
 
@@ -797,7 +797,7 @@
             const data1 = await resp1.json();
             if (!data1.success) throw new Error(data1.error || 'Error enviando mensaje 1');
 
-            await new Promise(r => setTimeout(r, 1500));
+            await new Promise(r => setTimeout(r, 600));
 
             const imgOrigin = (() => {
                         let origin = window.location.origin;
@@ -1010,7 +1010,7 @@
             if (!data1.success) throw new Error(data1.error || 'Error enviando mensaje 1');
 
             // Pequeña pausa para que lleguen en orden
-            await new Promise(r => setTimeout(r, 1500));
+            await new Promise(r => setTimeout(r, 600));
 
             // Enviar mensaje 2 - instrucciones con imagen (usa el MISMO phone capturado)
             const imgOrigin = (() => {

@@ -59,21 +59,9 @@
             headers['Authorization'] = 'Bearer ' + window.PLIXORA_CONFIG.WA_BOT_TOKEN;
         }
         const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), timeoutMs || 15000);
+        const timer = setTimeout(() => controller.abort(), timeoutMs || 10000);
         
         return fetch(url, { method: 'POST', headers, body: JSON.stringify(body), signal: controller.signal })
-            .then(res => {
-                // Intercept successful send requests to trigger global notification
-                if (res.ok && url.includes('send-')) {
-                    res.clone().json().then(data => {
-                        if (data && data.success) {
-                            if (window.showWAToast) window.showWAToast();
-                            if (window.playNotificationSound) window.playNotificationSound('wasent');
-                        }
-                    }).catch(e => console.log('WA Toast parse err:', e));
-                }
-                return res;
-            })
             .finally(() => clearTimeout(timer));
     };
 
