@@ -1521,10 +1521,9 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
     pointer-events: auto;
     opacity: 0;
     transform: translateY(10px) scale(0.95);
-    transition: opacity 0.25s ease, transform 0.25s ease;
+    transition: opacity 0.3s ease, transform 0.3s ease;
     white-space: nowrap;
     text-align: center;
-    animation: toastIn 0.3s ease forwards;
 }
 .toast.show {
     opacity: 1;
