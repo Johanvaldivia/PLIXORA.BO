@@ -966,16 +966,12 @@
         const msg2 = document.getElementById('nf-prev-msg2').textContent || '';
         const fullMsg = msg1 + '\n\n' + msg2;
         navigator.clipboard.writeText(fullMsg).then(function() {
-            showNFToast('📋 Mensaje copiado al portapapeles');
+            showNFToast('✅ Mensaje copiado al portapapeles');
             const btn = document.getElementById('nf-copy-btn');
             if (btn) {
-                btn.textContent = '✅ Copiado';
-                btn.style.borderColor = '#22c55e';
-                btn.style.color = '#22c55e';
+                btn.textContent = '¡Copiado!';
                 setTimeout(function() {
-                    btn.textContent = '📋 Copiar';
-                    btn.style.borderColor = '#6c63ff';
-                    btn.style.color = '#6c63ff';
+                    btn.textContent = 'Copiar';
                 }, 2000);
             }
         }).catch(function() {
