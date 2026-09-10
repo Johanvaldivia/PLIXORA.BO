@@ -116,31 +116,35 @@
                 <div class="ga-card-creds">
                     <div class="ga-cred-row">
                         <span class="ga-cred-label"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> Correo:</span>
-                        <span class="ga-cred-value">${acc.email || '—'}</span>
-                        <button class="ga-btn-copy" onclick="window.gaCopyToClipboard('${(acc.email || '').replace(/'/g, "\\'").replace(/\\/g, '\\\\')}', this)" title="Copiar correo">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        <span class="ga-cred-value" title="${(acc.email || '').replace(/"/g,'&quot;')}">${acc.email || '—'}</span>
+                        <button class="ga-copy-btn" onclick="window.gaCopyToClipboard('${(acc.email || '').replace(/'/g, "\\'").replace(/\\/g, '\\\\')}', 'Correo', this)" title="Copiar correo">
+                            <svg class="icon-copy" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                            <svg class="icon-check" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                         </button>
                     </div>
                     <div class="ga-cred-row">
                         <span class="ga-cred-label"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg> Contraseña:</span>
                         <span class="ga-cred-value ga-password" data-password="${(acc.password || '—').replace(/"/g,'&quot;').replace(/</g,'&lt;')}">••••••••</span>
-                        <button class="ga-btn-copy" onclick="window.gaCopyToClipboard('${(acc.password || '').replace(/'/g, "\\'").replace(/\\/g, '\\\\')}', this)" title="Copiar contraseña">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        <button class="ga-copy-btn" onclick="window.gaCopyToClipboard('${(acc.password || '').replace(/'/g, "\\'").replace(/\\/g, '\\\\')}', 'Contraseña', this)" title="Copiar contraseña">
+                            <svg class="icon-copy" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                            <svg class="icon-check" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                         </button>
                     </div>
                 </div>
-                <div class="ga-card-stats">
-                    <div class="ga-stat">
-                        <span class="ga-stat-label">Invertido</span>
-                        <span class="ga-stat-value ga-cost">${accountCost.toFixed(2)} Bs</span>
+                <div class="ga-stats-ribbon">
+                    <div class="ga-stat-item">
+                        <span class="ga-stat-tag">Invertido</span>
+                        <span class="ga-stat-val ga-val-cost">${accountCost.toFixed(2)} Bs</span>
                     </div>
-                    <div class="ga-stat">
-                        <span class="ga-stat-label">Recaudado</span>
-                        <span class="ga-stat-value ga-revenue">${totalRevenue.toFixed(2)} Bs</span>
+                    <div class="ga-stat-divider"></div>
+                    <div class="ga-stat-item">
+                        <span class="ga-stat-tag">Recaudado</span>
+                        <span class="ga-stat-val ga-val-revenue">${totalRevenue.toFixed(2)} Bs</span>
                     </div>
-                    <div class="ga-stat">
-                        <span class="ga-stat-label">Ganancia</span>
-                        <span class="ga-stat-value ${profit >= 0 ? 'ga-profit-pos' : 'ga-profit-neg'}">${profit >= 0 ? '+' : ''}${profit.toFixed(2)} Bs</span>
+                    <div class="ga-stat-divider"></div>
+                    <div class="ga-stat-item">
+                        <span class="ga-stat-tag">Ganancia</span>
+                        <span class="ga-stat-val ${profit >= 0 ? 'ga-val-profit-pos' : 'ga-val-profit-neg'}">${profit >= 0 ? '+' : ''}${profit.toFixed(2)} Bs</span>
                     </div>
                 </div>
                 <div class="ga-card-members-title" style="display:flex;align-items:center;gap:0.4rem;">
@@ -177,21 +181,24 @@
                         `).join('')
                     }
                 </div>
-                <div class="ga-card-actions">
-                    <button class="ga-btn ga-btn-add-member" onclick="window.gaOpenAddMember('${acc.id}', '${acc.serviceName}', ${maxSlots}, ${slotsUsed})">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-                        Agregar Cliente
+                <div class="ga-card-actions-v2">
+                    <button class="ga-action-btn-primary" onclick="window.gaOpenAddMember('${acc.id}', '${acc.serviceName}', ${maxSlots}, ${slotsUsed})">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" width="17" height="17"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                        <span>Agregar Cliente</span>
                     </button>
-                    <button class="ga-btn ga-btn-replace" onclick="window.gaOpenReplace('${acc.id}', '${acc.serviceName}')">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Reemplazar Cuenta
-                    </button>
-                    <button class="ga-btn ga-btn-bulk-notify" onclick="window.gaBulkNotify('${acc.id}')" title="Enviar aviso masivo">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.555 4.126 1.528 5.86L.06 23.708a.5.5 0 00.633.632l5.848-1.468A11.948 11.948 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.94 0-3.757-.565-5.285-1.539l-.379-.229-3.477.873.887-3.477-.248-.394A9.96 9.96 0 012 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"/></svg>
-                        Notificar
-                    </button>
-                    <button class="ga-btn ga-btn-delete" onclick="window.gaDeleteAccount('${acc.id}', '${acc.serviceName}')" style="padding:0.55rem;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                    </button>
+                    <div class="ga-action-tools-row">
+                        <button class="ga-tool-btn ga-tool-replace" onclick="window.gaOpenReplace('${acc.id}', '${acc.serviceName}')" title="Reemplazar cuenta por caída o cambio">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                            <span>Reemplazar</span>
+                        </button>
+                        <button class="ga-tool-btn ga-tool-notify" onclick="window.gaBulkNotify('${acc.id}')" title="Enviar aviso masivo a todos los miembros">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.555 4.126 1.528 5.86L.06 23.708a.5.5 0 00.633.632l5.848-1.468A11.948 11.948 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.94 0-3.757-.565-5.285-1.539l-.379-.229-3.477.873.887-3.477-.248-.394A9.96 9.96 0 012 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"/></svg>
+                            <span>Aviso Masivo</span>
+                        </button>
+                        <button class="ga-tool-btn ga-tool-delete" onclick="window.gaDeleteAccount('${acc.id}', '${acc.serviceName}')" title="Eliminar cuenta grupal">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        </button>
+                    </div>
                 </div>
             `;
             grid.appendChild(card);
@@ -594,16 +601,25 @@
     };
 
     // ── COPIAR AL PORTAPAPELES ────────────────────────────────────
-    window.gaCopyToClipboard = function(text, btnEl) {
+    window.gaCopyToClipboard = function(text, labelOrBtn, maybeBtn) {
+        let label = 'Dato';
+        let btnEl = null;
+        if (typeof labelOrBtn === 'string') {
+            label = labelOrBtn;
+            btnEl = maybeBtn;
+        } else {
+            btnEl = labelOrBtn;
+        }
+
         if (typeof window.copyToClipboardWithToast === 'function') {
-            window.copyToClipboardWithToast(text, 'Dato', btnEl);
+            window.copyToClipboardWithToast(text, label, btnEl);
             return;
         }
         navigator.clipboard.writeText(text).then(() => {
-            showToast('✅ Copiado al portapapeles');
+            showToast(`📋 ${label} copiado al portapapeles`);
             if (btnEl) {
-                btnEl.classList.add('ga-copied');
-                setTimeout(() => btnEl.classList.remove('ga-copied'), 1500);
+                btnEl.classList.add('copied');
+                setTimeout(() => btnEl.classList.remove('copied'), 1800);
             }
         }).catch(() => {
             showToast('❌ No se pudo copiar');
