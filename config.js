@@ -1,35 +1,50 @@
 // =============================================================
-// PLIXORA.BO - GLOBAL CONFIGURATION (multi-entorno)
+// PLIXORA.BO - GLOBAL CONFIGURATION (multi-entorno v2.0)
 // =============================================================
 
 (function () {
     'use strict';
 
-    // Detectar entorno: producción si el hostname NO es localhost/127.0.0.1
-    const isProd = !/^(localhost|127\.0\.0\.1|\[::1\])$/i.test(window.location.hostname);
+    // Detectar entorno local: localhost, 127.0.0.1, [::1], o apertura por archivo directo file:///
+    const isLocal = !window.location.hostname ||
+                    /^(localhost|127\.0\.0\.1|\[::1\])$/i.test(window.location.hostname) ||
+                    window.location.protocol === 'file:';
+
+    // URL base del bot configurable guardada por el usuario en localStorage
+    const savedBotUrl = (function() {
+        try { return localStorage.getItem('plixora_bot_url'); } catch(e) { return null; }
+    })();
+
+    // Base URL normalizada (por defecto siempre apunta a http://localhost:3000 si no se configura otra)
+    const defaultBot = 'http://localhost:3000';
+    const botBase = (savedBotUrl || defaultBot).trim().replace(/\/+$/, '');
 
     window.PLIXORA_CONFIG = {
-        // URL base del bot WhatsApp
-        // En producción: directo al VPS via HTTPS (nginx + Certbot en plixora-bot.duckdns.org)
-        // En local: directo a localhost:3000
-        WA_BOT_URL: isProd
-            ? 'https://growing-libs-thread-leaf.trycloudflare.com/api/send-message'
-            : 'http://localhost:3000/api/send-message',
-        WA_BOT_IMAGE_URL: isProd
-            ? 'https://growing-libs-thread-leaf.trycloudflare.com/api/send-image'
-            : 'http://localhost:3000/api/send-image',
-        WA_BOT_STATUS_URL: isProd
-            ? 'https://growing-libs-thread-leaf.trycloudflare.com/status'
-            : 'http://localhost:3000/status',
+        BOT_BASE_URL: botBase,
+        WA_BOT_URL: botBase + '/api/send-message',
+        WA_BOT_IMAGE_URL: botBase + '/api/send-image',
+        WA_BOT_STATUS_URL: botBase + '/status',
         WA_BOT_TOKEN: 'f58v6XkUscoxyIEGVgez7dRuJLHq4Sip',
         PRODUCTION_URL: 'https://plixora-bo.onrender.com',
         CURRENCY: 'Bs',
         TIMEZONE: 'America/La_Paz',
-        IS_PROD: isProd
+        IS_LOCAL: isLocal,
+        IS_PROD: !isLocal
     };
 
-
-
+    // Helper para cambiar la URL del bot dinámicamente desde la interfaz
+    window.setCustomBotUrl = function(newUrl) {
+        if (!newUrl || newUrl.trim() === '' || newUrl.trim() === defaultBot) {
+            try { localStorage.removeItem('plixora_bot_url'); } catch(e) {}
+        } else {
+            let clean = newUrl.trim().replace(/\/+$/, '');
+            if (!clean.startsWith('http://') && !clean.startsWith('https://')) {
+                clean = 'http://' + clean;
+            }
+            try { localStorage.setItem('plixora_bot_url', clean); } catch(e) {}
+        }
+        window.location.reload();
+    };
 
     // ── Global WA Notifications ─────────────────────────────────
     window.showWAToast = function(msg = 'Mensaje Enviado') {
@@ -37,7 +52,6 @@
         if (!container) return;
         const toast = document.createElement('div');
         toast.className = 'wa-toast';
-        // Check if tabler icons are available, else use a fallback emoji
         toast.innerHTML = `<i class="ti ti-brand-whatsapp" style="font-size:1.2rem; margin-right:4px;"></i> <span>${msg}</span>`;
         container.appendChild(toast);
         
@@ -53,8 +67,11 @@
     };
 
     // ── Helpers API Bot ────────────────────────────────────────
-    // Timeout por defecto: 15s (imágenes pueden tardar más)
     window.waBotFetch = async function (url, body, timeoutMs) {
+        if (!window.PLIXORA_CONFIG.IS_LOCAL && !savedBotUrl) {
+            throw new Error('El bot de WhatsApp funciona en tu PC local. Abre el sistema en tu computadora con INICIAR_SISTEMA.bat o configura una URL de túnel.');
+        }
+
         const headers = { 'Content-Type': 'application/json' };
         if (window.PLIXORA_CONFIG.WA_BOT_TOKEN) {
             headers['Authorization'] = 'Bearer ' + window.PLIXORA_CONFIG.WA_BOT_TOKEN;
@@ -68,22 +85,21 @@
         } catch (err) {
             clearTimeout(timer);
             if (err.name === 'AbortError') {
-                throw new Error('El bot de WhatsApp no respondió (timeout). Verifica que esté encendido.');
+                throw new Error('El bot de WhatsApp tardó demasiado en responder. Verifica que esté abierto en tu PC.');
             }
-            throw new Error('No se pudo conectar al bot de WhatsApp. Verifica tu conexión.');
+            throw new Error('No se pudo conectar al bot de WhatsApp (' + (window.PLIXORA_CONFIG.BOT_BASE_URL) + '). Asegúrate de haber ejecutado INICIAR_BOT.bat.');
         } finally {
             clearTimeout(timer);
         }
 
-        // Validar que la respuesta sea JSON (evitar crash al parsear HTML de errores 502/504)
+        // Validar que la respuesta sea JSON
         const ct = (resp.headers.get('content-type') || '');
         if (!ct.includes('application/json')) {
             const snippet = (await resp.text()).substring(0, 150);
             console.error('Respuesta no-JSON del bot WA:', resp.status, snippet);
-            throw new Error('El servidor del bot devolvió un error (status ' + resp.status + '). Verifica que el bot esté activo.');
+            throw new Error('El bot devolvió un error (HTTP ' + resp.status + '). Abre http://localhost:3000/status para verificarlo.');
         }
 
-        // Parsear JSON y verificar status HTTP
         const data = await resp.json();
         if (!resp.ok) {
             throw new Error(data.error || 'Error del bot (HTTP ' + resp.status + ')');
@@ -92,8 +108,7 @@
         return data;
     };
 
-    // Envío con reintentos automáticos (2 reintentos, backoff 1s, 2s)
-    // Devuelve { success: true, ... } o lanza Error
+    // Envío con reintentos automáticos
     window.waBotFetchRetry = async function (url, body, maxRetries, delayMs) {
         maxRetries = maxRetries || 2;
         delayMs = delayMs || 1000;
@@ -116,22 +131,34 @@
 
     // ── Verificar estado del bot ──────────────────────────────
     window.checkWaBotStatus = async function () {
+        // En entorno remoto sin túnel personalizado configurado, no intentamos fetch a localhost
+        if (!window.PLIXORA_CONFIG.IS_LOCAL && !savedBotUrl) {
+            return {
+                ready: false,
+                isRemoteMode: true,
+                status: 'El bot opera de forma local en tu computadora'
+            };
+        }
+
         const url = window.PLIXORA_CONFIG.WA_BOT_STATUS_URL;
         if (!url) return { ready: false, status: 'URL de status no configurada' };
         try {
             const controller = new AbortController();
-            const timer = setTimeout(() => controller.abort(), 8000);
+            const timer = setTimeout(() => controller.abort(), 6000);
             const headers = {};
             if (window.PLIXORA_CONFIG.WA_BOT_TOKEN) {
                 headers['Authorization'] = 'Bearer ' + window.PLIXORA_CONFIG.WA_BOT_TOKEN;
             }
             const resp = await fetch(url, { signal: controller.signal, headers });
             clearTimeout(timer);
-            if (!resp.ok) return { ready: false, status: 'Bot respondió con error HTTP ' + resp.status };
+            if (!resp.ok) return { ready: false, status: 'Error HTTP ' + resp.status };
             const data = await resp.json();
-            return data; // { ready: bool, status: string, hasQR: bool }
+            return data;
         } catch (e) {
-            return { ready: false, status: 'No se pudo contactar al bot: ' + (e.name === 'AbortError' ? 'timeout' : e.message) };
+            return {
+                ready: false,
+                status: 'Bot apagado o no alcanzable (' + (e.name === 'AbortError' ? 'timeout' : 'sin conexión') + ')'
+            };
         }
     };
 

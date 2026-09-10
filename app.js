@@ -917,9 +917,7 @@ btnGenerateWA.addEventListener('click', () => {
 
 📲 *WhatsApp:* 73651440`;
 
-    navigator.clipboard.writeText(text)
-        .then(() => showToast('📋 Menú copiado al portapapeles'))
-        .catch(() => showToast('❌ Error al copiar'));
+    window.copyToClipboardWithToast(text, 'Menú');
 });
 
 // ---- GENERAR MENÚ TV PARA WHATSAPP ----
@@ -1044,9 +1042,7 @@ window.copyTVMenu = function() {
 
 📲 *WhatsApp:* 73651440`;
 
-    navigator.clipboard.writeText(text)
-        .then(() => showToast('📋 Menú TV copiado al portapapeles'))
-        .catch(() => showToast('❌ Error al copiar'));
+    window.copyToClipboardWithToast(text, 'Menú TV');
 };
 
 // ---- TOAST ----
@@ -1054,7 +1050,7 @@ function showToast(message, durationMs) {
     const container = document.getElementById('toast-container') || (function() {
         const c = document.createElement('div');
         c.id = 'toast-container';
-        c.style.cssText = 'position:fixed;bottom:2.5rem;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column-reverse;align-items:center;gap:0.5rem;pointer-events:none;';
+        c.style.cssText = 'position:fixed;bottom:2.5rem;left:50%;transform:translateX(-50%);z-index:999999;display:flex;flex-direction:column-reverse;align-items:center;gap:0.5rem;pointer-events:none;';
         document.body.appendChild(c);
         return c;
     })();
@@ -1064,12 +1060,59 @@ function showToast(message, durationMs) {
     toast.setAttribute('role', 'alert');
     toast.setAttribute('aria-live', 'polite');
     container.appendChild(toast);
-    const dur = durationMs || 3500;
+    const dur = durationMs || 3000;
     setTimeout(() => {
         toast.classList.remove('show');
-        setTimeout(() => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 300);
+        setTimeout(() => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 350);
     }, dur);
 }
+window.showToast = showToast;
+
+// Helper global para copiar al portapapeles con feedback de burbuja (toast) y animación de icono
+window.copyToClipboardWithToast = function(text, label, btnEl) {
+    const val = (text || '').trim();
+    if (!val) {
+        showToast('⚠️ No hay texto para copiar');
+        return;
+    }
+
+    const onCopied = () => {
+        showToast(`📋 ${label} copiado al portapapeles`);
+        if (btnEl) {
+            btnEl.classList.add('copied');
+            const origTitle = btnEl.getAttribute('title') || '';
+            btnEl.setAttribute('title', '¡Copiado!');
+            setTimeout(() => {
+                btnEl.classList.remove('copied');
+                if (origTitle) btnEl.setAttribute('title', origTitle);
+            }, 1800);
+        }
+    };
+
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(val).then(onCopied).catch(() => fallbackCopy(val, onCopied));
+    } else {
+        fallbackCopy(val, onCopied);
+    }
+
+    function fallbackCopy(str, cb) {
+        try {
+            const ta = document.createElement('textarea');
+            ta.value = str;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            ta.style.left = '-9999px';
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            cb();
+        } catch (e) {
+            console.error('Error al copiar:', e);
+            showToast('❌ Error al copiar');
+        }
+    }
+};
 
 // ---- NAVIGATE TO VIEW (shared by desktop + mobile nav) ----
 function navigateTo(target) {
@@ -1754,3 +1797,167 @@ document.addEventListener('DOMContentLoaded', () => {
     
     setTimeout(type, 1000);
 });
+
+// =============================================================
+// WHATSAPP BOT STATUS & MODAL CONTROLLER
+// =============================================================
+(function() {
+    let pollIntervalId = null;
+
+    window.updateWaBotIndicator = function(data) {
+        const dot = document.getElementById('wa-bot-indicator-dot');
+        const label = document.getElementById('wa-bot-indicator-label');
+        const btn = document.getElementById('btn-wa-bot-status');
+        if (!dot || !label) return;
+
+        dot.classList.remove('online', 'pending', 'offline', 'local-only');
+
+        if (data && data.isRemoteMode) {
+            dot.classList.add('local-only');
+            label.textContent = 'Bot Local';
+            if (btn) btn.title = 'Bot de WhatsApp (Se ejecuta de forma local en tu computadora)';
+            return;
+        }
+
+        if (!data || (!data.ready && !data.hasQR && data.status && data.status.includes('apagado'))) {
+            dot.classList.add('offline');
+            label.textContent = 'Bot Off';
+            if (btn) btn.title = 'Bot de WhatsApp apagado o no iniciado';
+        } else if (data.ready) {
+            dot.classList.add('online');
+            label.textContent = 'Bot Activo';
+            if (btn) btn.title = 'Bot de WhatsApp Conectado (' + (data.phone ? '+' + data.phone : 'Listo') + ')';
+        } else if (data.hasQR) {
+            dot.classList.add('pending');
+            label.textContent = 'Escanear QR';
+            if (btn) btn.title = 'Bot de WhatsApp requiere escanear QR';
+        } else {
+            dot.classList.add('pending');
+            label.textContent = 'Iniciando...';
+            if (btn) btn.title = data.status || 'Iniciando bot...';
+        }
+    };
+
+    window.openWaBotModal = function() {
+        const modal = document.getElementById('wa-bot-modal');
+        if (!modal) return;
+
+        const customInput = document.getElementById('wa-bot-custom-url');
+        if (customInput) {
+            customInput.value = localStorage.getItem('plixora_bot_url') || window.PLIXORA_CONFIG.BOT_BASE_URL || 'http://localhost:3000';
+        }
+
+        const qrLink = document.getElementById('wa-bot-open-qr-link');
+        if (qrLink) {
+            qrLink.href = (window.PLIXORA_CONFIG.BOT_BASE_URL || 'http://localhost:3000') + '/qr';
+        }
+
+        modal.style.display = 'flex';
+        window.checkWaBotModalStatus(false);
+    };
+
+    window.closeWaBotModal = function() {
+        const modal = document.getElementById('wa-bot-modal');
+        if (modal) modal.style.display = 'none';
+    };
+
+    window.saveWaBotUrl = function() {
+        const input = document.getElementById('wa-bot-custom-url');
+        if (!input) return;
+        const val = input.value.trim();
+        window.setCustomBotUrl(val);
+        showToast('✅ URL del bot guardada');
+    };
+
+    window.checkWaBotModalStatus = async function(showToastFeedback) {
+        const badge = document.getElementById('wa-bot-status-badge');
+        const detail = document.getElementById('wa-bot-status-detail');
+        const phoneRow = document.getElementById('wa-bot-phone-row');
+        const phoneVal = document.getElementById('wa-bot-phone-val');
+        const qrContainer = document.getElementById('wa-bot-modal-qr-container');
+        const qrImgDiv = document.getElementById('wa-bot-modal-qr-img');
+
+        if (badge) {
+            badge.style.background = 'rgba(255,255,255,0.1)';
+            badge.style.color = '#aaa';
+            badge.textContent = 'Comprobando...';
+        }
+
+        const data = await window.checkWaBotStatus();
+        window.updateWaBotIndicator(data);
+
+        if (!badge || !detail) return;
+
+        if (data.isRemoteMode) {
+            badge.style.background = 'rgba(59, 130, 246, 0.15)';
+            badge.style.color = '#3b82f6';
+            badge.textContent = '● PC LOCAL';
+            detail.innerHTML = 'El bot de WhatsApp está diseñado para ejecutarse localmente en tu computadora.<br><br>💡 Para vincularlo y usarlo, abre el sistema en tu PC mediante <b>INICIAR_SISTEMA.bat</b>. Si cuentas con un túnel HTTPS (Cloudflare o VPS), puedes configurarlo abajo.';
+            if (phoneRow) phoneRow.style.display = 'none';
+            if (qrContainer) qrContainer.style.display = 'none';
+            if (showToastFeedback) showToast('💻 El bot opera de forma local en tu PC');
+            return;
+        }
+
+        if (data.ready) {
+            badge.style.background = 'rgba(37,211,102,0.15)';
+            badge.style.color = '#25D366';
+            badge.textContent = '● CONECTADO';
+            detail.textContent = data.status || 'El bot está conectado y listo para enviar mensajes.';
+            if (data.phone) {
+                if (phoneRow) phoneRow.style.display = 'block';
+                if (phoneVal) phoneVal.textContent = '+' + data.phone;
+            }
+            if (qrContainer) qrContainer.style.display = 'none';
+            if (showToastFeedback) showToast('✅ Bot conectado correctamente');
+        } else if (data.hasQR) {
+            badge.style.background = 'rgba(245,158,11,0.15)';
+            badge.style.color = '#f59e0b';
+            badge.textContent = '● ESCANEAR QR';
+            detail.textContent = 'Se requiere vincular con WhatsApp Business.';
+            if (phoneRow) phoneRow.style.display = 'none';
+            if (qrContainer) {
+                qrContainer.style.display = 'block';
+                if (qrImgDiv) {
+                    qrImgDiv.innerHTML = '<a href="' + (window.PLIXORA_CONFIG.BOT_BASE_URL) + '/qr" target="_blank" style="color:#25D366;font-weight:bold;text-decoration:underline;">Abrir página /qr para escanear</a>';
+                }
+            }
+            if (showToastFeedback) showToast('⚠️ Escanea el código QR en /qr');
+        } else {
+            badge.style.background = 'rgba(239,68,68,0.15)';
+            badge.style.color = '#ef4444';
+            badge.textContent = '● DESCONECTADO';
+            detail.textContent = data.status || 'No se pudo contactar al bot. Inicia INICIAR_BOT.bat en tu PC.';
+            if (phoneRow) phoneRow.style.display = 'none';
+            if (qrContainer) qrContainer.style.display = 'none';
+            if (showToastFeedback) showToast('❌ Bot no alcanzable (' + (data.status || 'apagado') + ')');
+        }
+    };
+
+    // Polling en segundo plano cada 30s
+    function startWaBotPolling() {
+        if (pollIntervalId) clearInterval(pollIntervalId);
+
+        // Si estamos en entorno remoto sin URL personalizada configurada, no hacemos polling contra localhost
+        if (!window.PLIXORA_CONFIG.IS_LOCAL && !localStorage.getItem('plixora_bot_url')) {
+            window.updateWaBotIndicator({ isRemoteMode: true });
+            return;
+        }
+
+        setTimeout(async () => {
+            const data = await window.checkWaBotStatus();
+            window.updateWaBotIndicator(data);
+        }, 2000);
+
+        pollIntervalId = setInterval(async () => {
+            const data = await window.checkWaBotStatus();
+            window.updateWaBotIndicator(data);
+        }, 30000);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', startWaBotPolling);
+    } else {
+        startWaBotPolling();
+    }
+})();

@@ -6,10 +6,10 @@
     <title>PLIXORA.BO - Sistema de Ventas</title>
     <link rel="icon" href="logo.jpg">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=2.0">
-    <link rel="stylesheet" href="login.css?v=2.0">
-    <link rel="stylesheet" href="analytics.css?v=2.0">
-    <link rel="stylesheet" href="group-accounts.css?v=2.0">
+    <link rel="stylesheet" href="style.css?v=2.2">
+    <link rel="stylesheet" href="login.css?v=2.2">
+    <link rel="stylesheet" href="analytics.css?v=2.2">
+    <link rel="stylesheet" href="group-accounts.css?v=2.2">
     <script>
         (function () {
             try {
@@ -128,10 +128,10 @@
                     return;
                 }
 
-                ctx.fillStyle = '#f7f7f7';
+                ctx.fillStyle = '#08090f';
                 ctx.fillRect(0, 0, W, H);
 
-                const spacing = 40;
+                const spacing = 42;
                 const cols = Math.ceil(W / spacing) + 2;
                 const rows = Math.ceil(H / spacing) + 2;
 
@@ -141,10 +141,16 @@
                         const y = r * spacing;
                         const sx = x + Math.sin(time + y * 0.02) * 6;
                         const sy = y + Math.cos(time + x * 0.02) * 6;
-                        const alpha = 0.15 + 0.15 * (0.5 + 0.5 * Math.sin(time * 2 + x * 0.01 + y * 0.01));
-                        ctx.fillStyle = `rgba(0,0,0,${alpha})`;
+                        const wave = 0.5 + 0.5 * Math.sin(time * 2 + x * 0.01 + y * 0.01);
+                        const alpha = 0.12 + 0.22 * wave;
+
+                        if ((r + c) % 4 === 0) {
+                            ctx.fillStyle = `rgba(254, 91, 41, ${alpha * 0.85})`;
+                        } else {
+                            ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.65})`;
+                        }
                         ctx.beginPath();
-                        ctx.arc(sx, sy, 1.5, 0, Math.PI * 2);
+                        ctx.arc(sx, sy, 1.4, 0, Math.PI * 2);
                         ctx.fill();
                     }
                 }
@@ -215,6 +221,10 @@
             </nav>
 
             <div class="top-navbar-right">
+                <button id="btn-wa-bot-status" class="top-nav-btn wa-status-btn" title="Estado del Bot de WhatsApp" onclick="window.openWaBotModal()">
+                    <span class="wa-status-dot offline" id="wa-bot-indicator-dot"></span>
+                    <span class="wa-status-label" id="wa-bot-indicator-label">Bot WA</span>
+                </button>
                 <button id="btn-generate-wa" class="top-nav-btn icon-btn" title="Menú WhatsApp">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/></svg>
                 </button>
@@ -824,29 +834,33 @@
     <div id="nf-detail-modal" class="nf-overlay" style="display:none">
         <div class="nf-modal nf-modal-lg">
             <div class="nf-modal-header">
-                <div><h3 id="nf-detail-title" style="margin:0; margin-bottom:0.25rem;">NF-001</h3><p style="font-size:0.82rem;color:var(--text-muted);display:flex;align-items:center;gap:0.4rem;margin:0;"><span id="nf-detail-correo-sub"></span><button onclick="navigator.clipboard.writeText(document.getElementById('nf-detail-correo-sub').textContent).then(()=>showNFToast('📋 Correo copiado'))" style="background:none;border:1px solid rgba(255,255,255,0.15);border-radius:4px;padding:2px 5px;cursor:pointer;color:var(--text-muted);display:inline-flex;align-items:center" title="Copiar correo"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:12px;height:12px"><path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184"/></svg></button></p></div>
+                <div><h3 id="nf-detail-title" style="margin:0; margin-bottom:0.25rem;">NF-001</h3><p style="font-size:0.84rem;color:var(--text-muted);display:flex;align-items:center;gap:0.45rem;margin:0;"><span id="nf-detail-correo-sub" style="font-weight:500;color:var(--text-main);"></span><button type="button" class="nf-copy-btn" id="btn-copy-nf-correo" onclick="window.copyToClipboardWithToast(document.getElementById('nf-detail-correo-sub').textContent, 'Correo', this)" title="Copiar correo"><svg class="icon-copy" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184"/></svg><svg class="icon-check" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg></button></p></div>
                 <button class="nf-close" onclick="closeNFDetail()">✕</button>
             </div>
             <!-- Account info strip -->
             <div class="nf-info-strip" style="border-bottom:none;">
                 <div class="nf-info-item"><span class="nf-info-label">Estado</span><span id="nf-detail-estado"></span></div>
-                <div class="nf-info-item"><span class="nf-info-label">Contraseña</span><span style="display:flex;align-items:center;gap:0.4rem"><span id="nf-detail-pass" onclick="nfTogglePass(this)" style="cursor:pointer;user-select:none" title="Clic para mostrar">••••••••</span><button onclick="const el=document.getElementById('nf-detail-pass');navigator.clipboard.writeText(el.dataset.pass).then(()=>showNFToast('📋 Contraseña copiada'))" style="background:none;border:1px solid rgba(255,255,255,0.15);border-radius:4px;padding:2px 5px;cursor:pointer;color:var(--text-muted);display:inline-flex;align-items:center" title="Copiar contraseña"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:12px;height:12px"><path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184"/></svg></button></span></div>
+                <div class="nf-info-item"><span class="nf-info-label">Contraseña</span><span style="display:flex;align-items:center;gap:0.45rem"><span id="nf-detail-pass" onclick="nfTogglePass(this)" style="cursor:pointer;user-select:none;font-family:monospace;font-weight:600;font-size:0.95rem;color:var(--text-main);" title="Clic para mostrar u ocultar">••••••••</span><button type="button" class="nf-copy-btn" id="btn-copy-nf-pass" onclick="const el=document.getElementById('nf-detail-pass');window.copyToClipboardWithToast(el.dataset.pass, 'Contraseña', this)" title="Copiar contraseña"><svg class="icon-copy" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184"/></svg><svg class="icon-check" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg></button></span></div>
                 <div class="nf-info-item"><span class="nf-info-label">Observación</span><span id="nf-detail-obs" style="font-size:0.82rem"></span></div>
             </div>
             <!-- Account Actions Strip -->
-            <div style="display:flex; gap:0.75rem; padding: 0 1.5rem 1.25rem; border-bottom: 1px solid var(--border);">
-                <button class="btn btn-outline" style="flex:1; display:flex; justify-content:center; align-items:center; gap:0.4rem; padding:0.6rem; font-size:0.85rem; font-weight:600; color:#f59e0b; border-color:rgba(245,158,11,0.3); background:rgba(245,158,11,0.05); transition:var(--ease);" onclick="nfCloseAccount()" onmouseover="this.style.background='rgba(245,158,11,0.1)'" onmouseout="this.style.background='rgba(245,158,11,0.05)'">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:16px;height:16px"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
-                    Cerrar Cuenta
-                </button>
-                <button class="btn btn-outline" style="flex:1; display:flex; justify-content:center; align-items:center; gap:0.4rem; padding:0.6rem; font-size:0.85rem; font-weight:600; color:#25d366; border-color:rgba(37,211,102,0.3); background:rgba(37,211,102,0.05); transition:var(--ease);" onclick="nfBulkNotify()" onmouseover="this.style.background='rgba(37,211,102,0.12)'" onmouseout="this.style.background='rgba(37,211,102,0.05)'">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:16px;height:16px"><path stroke-linecap="round" stroke-linejoin="round" d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path stroke-linecap="round" stroke-linejoin="round" d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-                    Aviso Masivo
-                </button>
-                <button class="btn btn-outline" style="flex:1; display:flex; justify-content:center; align-items:center; gap:0.4rem; padding:0.6rem; font-size:0.85rem; font-weight:600; color:#ef4444; border-color:rgba(239,68,68,0.3); background:rgba(239,68,68,0.05); transition:var(--ease);" onclick="nfDeleteAccount()" onmouseover="this.style.background='rgba(239,68,68,0.1)'" onmouseout="this.style.background='rgba(239,68,68,0.05)'">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:16px;height:16px"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
-                    Eliminar Cuenta
-                </button>
+            <div class="nf-modal-actions-bar">
+                <div class="nf-actions-group-left">
+                    <button type="button" class="nf-btn-action nf-btn-action-primary" onclick="nfBulkNotify()" title="Enviar ticket de vencimiento con credenciales por WhatsApp a perfiles ocupados">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path stroke-linecap="round" stroke-linejoin="round" d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                        <span>Aviso Masivo</span>
+                    </button>
+                    <button type="button" class="nf-btn-action nf-btn-action-secondary" onclick="nfCloseAccount()" title="Marcar cuenta como cerrada">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
+                        <span>Cerrar Cuenta</span>
+                    </button>
+                </div>
+                <div class="nf-actions-group-right">
+                    <button type="button" class="nf-btn-action nf-btn-action-danger" onclick="nfDeleteAccount()" title="Eliminar la cuenta completa y liberar registros asociados">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
+                        <span>Eliminar Cuenta</span>
+                    </button>
+                </div>
             </div>
             <!-- Profiles table -->
             <div class="table-container" style="margin-top:0">
@@ -1418,24 +1432,71 @@
         </div>
     </div>
 
+    <!-- Modal: Estado y Configuración del Bot de WhatsApp -->
+    <div id="wa-bot-modal" class="ga-overlay" style="display:none">
+        <div class="ga-modal" style="max-width: 460px; padding: 1.5rem; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem;">
+                <div style="display:flex; align-items:center; gap:0.6rem;">
+                    <div style="width:36px; height:36px; background:rgba(37,211,102,0.15); border-radius:10px; display:flex; align-items:center; justify-content:center; color:#25D366;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/></svg>
+                    </div>
+                    <h3 style="margin:0; font-size:1.15rem; font-weight:700;">Bot de WhatsApp</h3>
+                </div>
+                <button onclick="window.closeWaBotModal()" class="btn-icon" style="border:none; background:transparent; font-size:1.4rem; cursor:pointer; color:var(--text-muted);">&times;</button>
+            </div>
+
+            <!-- Estado actual en tarjeta -->
+            <div id="wa-bot-status-card" style="background:var(--bg-input, rgba(0,0,0,0.05)); border:1px solid var(--border); border-radius:12px; padding:1rem; margin-bottom:1.2rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                    <span style="font-size:0.85rem; color:var(--text-muted);">Estado:</span>
+                    <span id="wa-bot-status-badge" style="font-size:0.82rem; font-weight:700; padding:0.2rem 0.6rem; border-radius:99px; background:rgba(239,68,68,0.15); color:#ef4444;">Comprobando...</span>
+                </div>
+                <div id="wa-bot-status-detail" style="font-size:0.84rem; color:var(--text-main); margin-bottom:0.4rem; word-break:break-word;">Iniciando diagnóstico...</div>
+                <div id="wa-bot-phone-row" style="display:none; font-size:0.82rem; color:var(--text-muted);">Teléfono: <strong id="wa-bot-phone-val" style="color:var(--text-main);"></strong></div>
+            </div>
+
+            <!-- Contenedor QR si está pendiente -->
+            <div id="wa-bot-modal-qr-container" style="display:none; text-align:center; margin-bottom:1.2rem; background:#fff; padding:12px; border-radius:12px; border:1px solid var(--border);">
+                <div id="wa-bot-modal-qr-img" style="display:inline-block;"></div>
+                <p style="color:#333; font-size:0.8rem; margin:8px 0 0;">Escanea con WhatsApp Business en tu celular</p>
+            </div>
+
+            <!-- Configuración de URL -->
+            <div class="ga-form-group" style="margin-bottom:1rem;">
+                <label style="font-size:0.85rem; font-weight:600; display:block; margin-bottom:0.4rem;">URL del Servidor del Bot</label>
+                <div style="display:flex; gap:0.5rem;">
+                    <input type="text" id="wa-bot-custom-url" placeholder="http://localhost:3000" style="flex:1; padding:0.55rem 0.8rem; border-radius:8px; border:1px solid var(--border); background:var(--bg-input); color:var(--text-main); font-size:0.88rem;">
+                    <button class="ga-btn-submit" onclick="window.saveWaBotUrl()" style="width:auto; padding:0.55rem 1rem; font-size:0.85rem;">Guardar</button>
+                </div>
+                <span style="font-size:0.75rem; color:var(--text-muted); margin-top:4px; display:block;">Por defecto en tu PC: <code>http://localhost:3000</code></span>
+            </div>
+
+            <!-- Acciones -->
+            <div style="display:flex; gap:0.6rem; margin-top:1.2rem;">
+                <button class="ga-btn-submit" onclick="window.checkWaBotModalStatus(true)" style="flex:1; background:rgba(255,255,255,0.06); border:1px solid var(--border); color:var(--text-main); font-size:0.88rem;">↻ Comprobar</button>
+                <a id="wa-bot-open-qr-link" href="http://localhost:3000/qr" target="_blank" class="ga-btn-submit" style="flex:1; text-align:center; text-decoration:none; display:flex; align-items:center; justify-content:center; background:#25D366; color:#000; font-weight:700; font-size:0.88rem;">Abrir /qr ↗</a>
+            </div>
+        </div>
+    </div>
+
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-    <script src="config.js?v=2.0"></script>
-    <script src="firebase-config.js?v=2.0"></script>
-    <script src="auth.js?v=2.0"></script>
-    <script src="catalog-data.js?v=2.0"></script>
-    <script src="sales-core.js?v=2.0"></script>
-    <script src="dashboard.js?v=2.0"></script>
-    <script src="contacts.js?v=2.0"></script>
-    <script src="history-actions.js?v=2.0"></script>
-    <script src="replace-account.js?v=2.0"></script>
-    <script src="app.js?v=2.0"></script>
-    <script src="netflix.js?v=2.0"></script>
-    <script src="analytics.js?v=2.0"></script>
-    <script src="group-accounts.js?v=2.0"></script>
-    <script src="shader-bg.js?v=2.0"></script>
+    <script src="config.js?v=2.2"></script>
+    <script src="firebase-config.js?v=2.2"></script>
+    <script src="auth.js?v=2.2"></script>
+    <script src="catalog-data.js?v=2.2"></script>
+    <script src="sales-core.js?v=2.2"></script>
+    <script src="dashboard.js?v=2.2"></script>
+    <script src="contacts.js?v=2.2"></script>
+    <script src="history-actions.js?v=2.2"></script>
+    <script src="replace-account.js?v=2.2"></script>
+    <script src="app.js?v=2.2"></script>
+    <script src="netflix.js?v=2.2"></script>
+    <script src="analytics.js?v=2.2"></script>
+    <script src="group-accounts.js?v=2.2"></script>
+    <script src="shader-bg.js?v=2.2"></script>
 </body>
 </html>

@@ -4,6 +4,7 @@
 
 const HISTORY_PER_PAGE = 15;
 let historyPage = 1;
+let lastFilteredHistoryTotal = 0;
 
 // ── NOTIFICATION SOUND ──────────────────────────────────────
 let _audioCtx = null;
@@ -191,6 +192,7 @@ window.renderHistoryTable = function() {
     filteredHistory.sort((a,b) => new Date(b.date) - new Date(a.date));
 
     // Pagination
+    lastFilteredHistoryTotal = filteredHistory.length;
     const totalPages = Math.max(1, Math.ceil(filteredHistory.length / HISTORY_PER_PAGE));
     if (historyPage > totalPages) historyPage = totalPages;
     const start = (historyPage - 1) * HISTORY_PER_PAGE;
@@ -278,7 +280,8 @@ function renderPaginationControls(totalItems, totalPages) {
 }
 
 window.goHistoryPage = function(page) {
-    const totalPages = Math.max(1, Math.ceil(sales.length / HISTORY_PER_PAGE));
+    const count = lastFilteredHistoryTotal !== undefined ? lastFilteredHistoryTotal : sales.length;
+    const totalPages = Math.max(1, Math.ceil(count / HISTORY_PER_PAGE));
     if (page < 1 || page > totalPages) return;
     historyPage = page;
     renderHistoryTable();

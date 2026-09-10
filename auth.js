@@ -206,8 +206,7 @@
 
     function shakeField(input) {
         if (!input) return;
-        const wrap = input.closest('.login-input-wrap');
-        if (!wrap) return;
+        const wrap = input.closest('.field-wrap') || input.closest('.login-input-wrap') || input;
         wrap.style.animation = 'none';
         void wrap.offsetWidth; // reflow
         wrap.style.animation = 'loginShake 0.4s ease';

@@ -2,6 +2,8 @@
 // replace-account.js
 // =============================================================
 
+let pendingReplaceSaleId = null;
+
 window.openReplaceAccount = function(id) {
     const sale = sales.find(s => s.id === id);
     if (!sale) return;

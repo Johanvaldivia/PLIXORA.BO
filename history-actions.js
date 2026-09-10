@@ -7,7 +7,11 @@ window.copySaleDetail = function(id) {
     if (!sale) return;
 
     const text = generateSaleDetailsText(sale);
-    navigator.clipboard.writeText(text).then(() => showToast('📋 Detalle copiado'));
+    if (typeof window.copyToClipboardWithToast === 'function') {
+        window.copyToClipboardWithToast(text, 'Detalle');
+    } else {
+        navigator.clipboard.writeText(text).then(() => showToast('📋 Detalle copiado'));
+    }
 };
 
 window.notifyRenewal = function(id) {

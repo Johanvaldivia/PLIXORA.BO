@@ -1308,9 +1308,14 @@
 
     // ── TOAST ────────────────────────────────────────────────
     function showNFToast(msg) {
+        if (typeof window.showToast === 'function') {
+            window.showToast(msg);
+            return;
+        }
         const t = document.getElementById('toast');
         if (t) { t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3500); }
     }
+    window.showNFToast = showNFToast;
 
     // Expose sync function for app.js to call
     window.nfSyncProfileEdit = async function(accCodigo, profileNameOrIndex, newName, newPhone) {

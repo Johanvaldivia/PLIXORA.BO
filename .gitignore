@@ -1,10 +1,13 @@
-﻿# ── Dependencias / Build ──
+# ── Dependencias / Build ──
 node_modules/
 dist/
 build/
 
 # ── Sesión y secretos del bot de WhatsApp ──
 whatsapp-bot/.env
+.env
+.wwebjs_auth/
+.wwebjs_cache/
 whatsapp-bot/.wwebjs_auth/
 whatsapp-bot/.wwebjs_cache/
 whatsapp-bot/*.tar.gz

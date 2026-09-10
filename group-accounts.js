@@ -595,6 +595,10 @@
 
     // ── COPIAR AL PORTAPAPELES ────────────────────────────────────
     window.gaCopyToClipboard = function(text, btnEl) {
+        if (typeof window.copyToClipboardWithToast === 'function') {
+            window.copyToClipboardWithToast(text, 'Dato', btnEl);
+            return;
+        }
         navigator.clipboard.writeText(text).then(() => {
             showToast('✅ Copiado al portapapeles');
             if (btnEl) {
