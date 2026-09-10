@@ -1611,9 +1611,10 @@
             </div>
 
             <!-- Acciones -->
-            <div style="display:flex; gap:0.6rem; margin-top:1.2rem;">
-                <button class="ga-btn-submit" onclick="window.checkWaBotModalStatus(true)" style="flex:1; background:rgba(255,255,255,0.06); border:1px solid var(--border); color:var(--text-main); font-size:0.88rem;">↻ Comprobar</button>
-                <a id="wa-bot-open-qr-link" href="http://localhost:3000/qr" target="_blank" class="ga-btn-submit" style="flex:1; text-align:center; text-decoration:none; display:flex; align-items:center; justify-content:center; background:#25D366; color:#000; font-weight:700; font-size:0.88rem;">Abrir /qr ↗</a>
+            <div style="display:flex; gap:0.6rem; margin-top:1.2rem; flex-wrap:wrap;">
+                <button class="ga-btn-submit" onclick="window.checkWaBotModalStatus(true)" style="flex:1; min-width:105px; background:rgba(255,255,255,0.06); border:1px solid var(--border); color:var(--text-main); font-size:0.85rem;">↻ Comprobar</button>
+                <button type="button" class="ga-btn-submit" onclick="window.launchLocalBot()" style="flex:1; min-width:115px; background:#FE5B29; color:#fff; font-weight:700; font-size:0.85rem;" title="Iniciar servidor del bot en tu computadora">⚡ Iniciar Bot</button>
+                <a id="wa-bot-open-qr-link" href="http://localhost:3000/qr" target="_blank" class="ga-btn-submit" style="flex:1; min-width:105px; text-align:center; text-decoration:none; display:flex; align-items:center; justify-content:center; background:#25D366; color:#000; font-weight:700; font-size:0.85rem;">Abrir /qr ↗</a>
             </div>
         </div>
     </div>

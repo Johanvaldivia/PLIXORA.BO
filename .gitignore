@@ -11,6 +11,8 @@ whatsapp-bot/.env
 whatsapp-bot/.wwebjs_auth/
 whatsapp-bot/.wwebjs_cache/
 whatsapp-bot/*.tar.gz
+whatsapp-bot/*.log
+*.log
 
 # ── Claves SSH y credenciales ──
 ssh-key*

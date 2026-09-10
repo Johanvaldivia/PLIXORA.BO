@@ -2270,6 +2270,21 @@ document.addEventListener('DOMContentLoaded', () => {
         showToast('✅ URL del bot guardada');
     };
 
+    window.launchLocalBot = function() {
+        if (!window.PLIXORA_CONFIG.IS_LOCAL) {
+            showToast('💻 El bot opera en tu computadora. Usa el lanzador en tu PC.');
+            return;
+        }
+        window.location.href = 'plixora://start';
+        showToast('🚀 Iniciando bot de WhatsApp en segundo plano...');
+        setTimeout(() => {
+            window.checkWaBotModalStatus(false);
+        }, 3500);
+        setTimeout(() => {
+            window.checkWaBotModalStatus(false);
+        }, 7000);
+    };
+
     window.checkWaBotModalStatus = async function(showToastFeedback) {
         const badge = document.getElementById('wa-bot-status-badge');
         const detail = document.getElementById('wa-bot-status-detail');
