@@ -531,6 +531,8 @@ function createProductCard(product) {
             if (product.credentials.profileName) parts.push(`👤 ${product.credentials.profileName}`);
             if (product.credentials.profilePin) parts.push(`🔒 PIN: ${product.credentials.profilePin}`);
             credsProfileHTML = `<div style="font-size:0.75rem; color:var(--orange); background:rgba(254,91,41,0.08); border:1px solid rgba(254,91,41,0.2); border-radius:6px; padding:2px 7px; margin-top:5px; display:inline-block; font-weight:600;">${parts.join(' • ')}</div>`;
+        } else if (product.comboServices && product.comboServices.length > 0) {
+            credsProfileHTML = `<div style="font-size:0.75rem; color:#ef4444; background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.2); border-radius:6px; padding:2px 7px; margin-top:5px; display:inline-block; font-weight:600;">📦 Incluye: ${product.comboServices.join(' + ')}</div>`;
         }
 
         customActionsHTML = `
@@ -588,11 +590,116 @@ function setupHistoryControls() {
 }
 
 // ---- FORMULARIO NUEVA VENTA ----
+window.createSaleAccountCardHTML = function(index, serviceName = '', email = '', password = '', profileName = '', profilePin = '') {
+    return `
+        <div class="sale-account-card credential-group" data-index="${index}">
+            <div class="sale-account-card-header">
+                <div class="sale-account-title">
+                    <span class="sale-account-num">#${index}</span>
+                    <input type="text" class="sale-service-name" placeholder="Nombre de la cuenta (ej: Netflix)" value="${serviceName || `Cuenta ${index}`}">
+                </div>
+                <button type="button" class="sale-account-del-btn" onclick="window.removeSaleCredentialCard(this)" title="Quitar cuenta">✕ Quitar</button>
+            </div>
+            <div class="form-row" style="margin-bottom:0.55rem;">
+                <div class="form-group half">
+                    <label class="cred-email-label">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                        Correo / Usuario <span class="label-optional">(Opcional)</span>
+                    </label>
+                    <input type="text" class="sale-email-input" placeholder="correo@ejemplo.com" value="${email}">
+                </div>
+                <div class="form-group half">
+                    <label class="cred-password-label">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        Contraseña <span class="label-optional">(Opcional)</span>
+                    </label>
+                    <input type="text" class="sale-password-input" placeholder="Contraseña de acceso" value="${password}">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group half">
+                    <label>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        Perfil / Pantalla <span class="label-optional">(Opcional)</span>
+                    </label>
+                    <input type="text" class="sale-profile-input" placeholder="Ej: Perfil 1 / Juan" value="${profileName}">
+                </div>
+                <div class="form-group half">
+                    <label>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="m7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        PIN del Perfil <span class="label-optional">(Opcional)</span>
+                    </label>
+                    <input type="text" class="sale-pin-input" placeholder="Ej: 1234" value="${profilePin}">
+                </div>
+            </div>
+        </div>
+    `;
+};
+
+window.renderSaleCredentialCards = function(servicesList = []) {
+    const container = document.getElementById('dynamic-credentials-container');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    const list = servicesList.length > 0 ? servicesList : ['Cuenta 1'];
+    list.forEach((srv, idx) => {
+        container.insertAdjacentHTML('beforeend', window.createSaleAccountCardHTML(idx + 1, srv));
+    });
+    window.updateSaleCredentialIndexes();
+};
+
+window.addSaleCredentialCard = function(defaultServiceName = '') {
+    const container = document.getElementById('dynamic-credentials-container');
+    if (!container) return;
+    const cards = container.querySelectorAll('.sale-account-card');
+    const newIdx = cards.length + 1;
+    container.insertAdjacentHTML('beforeend', window.createSaleAccountCardHTML(newIdx, defaultServiceName));
+    window.updateSaleCredentialIndexes();
+    
+    const lastCard = container.lastElementChild;
+    if (lastCard) {
+        lastCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        const nameInput = lastCard.querySelector('.sale-service-name');
+        if (nameInput) nameInput.focus();
+    }
+};
+
+window.removeSaleCredentialCard = function(btn) {
+    const card = btn.closest('.sale-account-card');
+    if (!card) return;
+    const container = document.getElementById('dynamic-credentials-container');
+    if (container && container.querySelectorAll('.sale-account-card').length > 1) {
+        card.remove();
+        window.updateSaleCredentialIndexes();
+    } else {
+        showToast('⚠️ La venta debe incluir al menos una cuenta');
+    }
+};
+
+window.updateSaleCredentialIndexes = function() {
+    const container = document.getElementById('dynamic-credentials-container');
+    if (!container) return;
+    const cards = container.querySelectorAll('.sale-account-card');
+    cards.forEach((c, idx) => {
+        c.dataset.index = idx + 1;
+        const num = c.querySelector('.sale-account-num');
+        if (num) num.textContent = `#${idx + 1}`;
+        const delBtn = c.querySelector('.sale-account-del-btn');
+        if (delBtn) {
+            delBtn.style.display = cards.length > 1 ? 'inline-block' : 'none';
+        }
+    });
+    const badge = document.getElementById('sale-creds-badge');
+    if (badge) {
+        badge.textContent = `${cards.length} ${cards.length === 1 ? 'Cuenta' : 'Cuentas'}`;
+    }
+};
+
 function populateSelect() {
     selectProduct.innerHTML = '<option value="" disabled selected>Selecciona un producto...</option>';
+    const grpCombo      = document.createElement('optgroup'); grpCombo.label      = '🔥 Combos';
     const grpIndividual = document.createElement('optgroup'); grpIndividual.label = '👤 Cuentas Individuales';
     const grpCompleta   = document.createElement('optgroup'); grpCompleta.label   = '🔑 Cuentas Completas';
-    const grpCombo      = document.createElement('optgroup'); grpCombo.label      = '🔥 Combos';
     const grpTV         = document.createElement('optgroup'); grpTV.label         = '📺 Sección TV & Streaming';
     const grpCustom     = document.createElement('optgroup'); grpCustom.label     = '⭐ Planes Personalizados';
 
@@ -602,30 +709,34 @@ function populateSelect() {
         if (p.id.startsWith('nf-')) return; // Ocultar Netflix del formulario genérico
         const opt = document.createElement('option');
         opt.value = p.id;
-        opt.textContent = `${p.name} (${p.duration}) - ${p.salePrice} Bs`;
         
-        if (p.isCustom) {
-            grpCustom.appendChild(opt);
-        } else if (p.category === 'tv') {
-            grpTV.appendChild(opt);
-        } else if (p.type === 'combo') {
+        const isCombo = p.category === 'combo' || p.type === 'combo' || (p.comboServices && p.comboServices.length > 1);
+        if (isCombo) {
+            opt.textContent = `🔥 ${p.name} (${p.duration}) - ${p.salePrice} Bs`;
             grpCombo.appendChild(opt);
+        } else if (p.category === 'tv') {
+            opt.textContent = `📺 ${p.name} (${p.duration}) - ${p.salePrice} Bs`;
+            grpTV.appendChild(opt);
         } else if (p.category === 'completa') {
+            opt.textContent = `🔑 ${p.name} (${p.duration}) - ${p.salePrice} Bs`;
             grpCompleta.appendChild(opt);
+        } else if (p.category === 'individual' || p.category === 'perfil') {
+            opt.textContent = `👤 ${p.name} (${p.duration}) - ${p.salePrice} Bs`;
+            grpIndividual.appendChild(opt);
+        } else if (p.isCustom) {
+            opt.textContent = `⭐ ${p.name} (${p.duration}) - ${p.salePrice} Bs`;
+            grpCustom.appendChild(opt);
         } else {
+            opt.textContent = `${p.name} (${p.duration}) - ${p.salePrice} Bs`;
             grpIndividual.appendChild(opt);
         }
     });
     
-    selectProduct.appendChild(grpIndividual);
-    selectProduct.appendChild(grpCompleta);
-    selectProduct.appendChild(grpCombo);
-    if (grpTV.children.length > 0) {
-        selectProduct.appendChild(grpTV);
-    }
-    if (grpCustom.children.length > 0) {
-        selectProduct.appendChild(grpCustom);
-    }
+    if (grpCombo.children.length > 0) selectProduct.appendChild(grpCombo);
+    if (grpIndividual.children.length > 0) selectProduct.appendChild(grpIndividual);
+    if (grpCompleta.children.length > 0) selectProduct.appendChild(grpCompleta);
+    if (grpTV.children.length > 0) selectProduct.appendChild(grpTV);
+    if (grpCustom.children.length > 0) selectProduct.appendChild(grpCustom);
 
     selectProduct.addEventListener('change', e => {
         const allProds = [...catalogData, ...customPlans];
@@ -636,28 +747,24 @@ function populateSelect() {
             document.getElementById('summary-profit').textContent = `${p.profit} Bs`;
             saleSummary.style.display = 'block';
 
-            // Generar campos de credenciales dinámicos
-            const container = document.getElementById('dynamic-credentials-container');
-            if (container) {
-                const accountsCount = p.accountsCount || 1;
-                container.innerHTML = '';
-                for (let i = 1; i <= accountsCount; i++) {
-                    const isCombo = accountsCount > 1;
-                    const indexStr = isCombo ? ` (Cuenta ${i})` : '';
-                    container.innerHTML += `
-                        <div class="form-row credential-group" data-index="${i}">
-                            <div class="form-group half">
-                                <label class="cred-email-label">Correo de la Cuenta${indexStr} (Opcional)</label>
-                                <input type="email" class="sale-email-input" placeholder="correo@ejemplo.com">
-                            </div>
-                            <div class="form-group half">
-                                <label class="cred-password-label">Contraseña${indexStr} (Opcional)</label>
-                                <input type="text" class="sale-password-input" placeholder="Contraseña de acceso">
-                            </div>
-                        </div>
-                    `;
+            // Generar campos de credenciales según el producto o combo seleccionado
+            const isCombo = p.category === 'combo' || p.type === 'combo' || (p.comboServices && p.comboServices.length > 1);
+            let servicesToRender = [];
+            if (isCombo) {
+                if (p.comboServices && p.comboServices.length > 0) {
+                    servicesToRender = [...p.comboServices];
+                } else if (p.credentials && p.credentials.combo && p.credentials.combo.length > 0) {
+                    servicesToRender = p.credentials.combo.map(c => c.name || 'Cuenta');
+                } else if (p.features && p.features.length > 1) {
+                    servicesToRender = [...p.features];
+                } else {
+                    const count = p.accountsCount || 2;
+                    for (let i = 1; i <= count; i++) servicesToRender.push(`Cuenta ${i}`);
                 }
+            } else {
+                servicesToRender = [p.name];
             }
+            window.renderSaleCredentialCards(servicesToRender);
         }
     });
 }
@@ -702,18 +809,25 @@ function setupForm() {
         const timestampId = Date.now().toString();
         const code = generateOrderCode();
 
-        const credentialGroups = formNewSale.querySelectorAll('.credential-group');
+        const credentialCards = formNewSale.querySelectorAll('.sale-account-card');
         const credentials = [];
-        credentialGroups.forEach(group => {
+        credentialCards.forEach((card, idx) => {
+            const serviceName = card.querySelector('.sale-service-name')?.value.trim() || `Cuenta ${idx + 1}`;
+            const email = card.querySelector('.sale-email-input')?.value.trim() || '';
+            const password = card.querySelector('.sale-password-input')?.value.trim() || '';
+            const profileName = card.querySelector('.sale-profile-input')?.value.trim() || '';
+            const profilePin = card.querySelector('.sale-pin-input')?.value.trim() || '';
             credentials.push({
-                email: group.querySelector('.sale-email-input').value.trim() || '',
-                password: group.querySelector('.sale-password-input').value.trim() || ''
+                serviceName,
+                email,
+                password,
+                profileName,
+                profilePin
             });
         });
 
         // Para retrocompatibilidad
-        const firstEmail = credentials.length > 0 ? credentials[0].email : '';
-        const firstPassword = credentials.length > 0 ? credentials[0].password : '';
+        const first = credentials.length > 0 ? credentials[0] : {};
 
         const newSale = {
             id:          timestampId,
@@ -724,9 +838,11 @@ function setupForm() {
             profit:      product.profit,
             customerName:document.getElementById('sale-customer-name').value.trim() || '',
             customer:    waVal || 'Anónimo',
-            email:       firstEmail,
-            password:    firstPassword,
-            credentials: credentials, // Guardamos todas las credenciales
+            email:       first.email || '',
+            password:    first.password || '',
+            profileName: first.profileName || '',
+            profilePin:  first.profilePin || '',
+            credentials: credentials, // Guardamos todas las cuentas y credenciales
             expireDate:  calculateExpirationDate(product.duration),
             isCustom:    product.isCustom || false,
             aiWamessageTemplate: product.aiWamessageTemplate || ''
@@ -1285,7 +1401,7 @@ window.selectProductType = function(type) {
     if (type === 'combo') {
         if (singleCreds) singleCreds.style.display = 'none';
         if (comboCreds) comboCreds.style.display = 'block';
-        document.getElementById('cp-accounts-count').value = document.querySelectorAll('.combo-credential-item').length || 1;
+        window.updateComboIndexes();
     } else if (type === 'individual') {
         if (singleCreds) singleCreds.style.display = 'block';
         if (profileFields) profileFields.style.display = 'grid';
@@ -1299,27 +1415,56 @@ window.selectProductType = function(type) {
     }
 };
 
-window.addComboItem = function() {
+window.addComboItem = function(initialName = '') {
     const container = document.getElementById('cp-combo-items');
     if (!container) return;
-    const count = container.querySelectorAll('.combo-credential-item').length + 1;
+    const items = container.querySelectorAll('.combo-platform-row');
+    const count = items.length + 1;
     
     const item = document.createElement('div');
-    item.className = 'combo-credential-item';
+    item.className = 'combo-platform-row';
     item.dataset.index = count;
     item.innerHTML = `
-        <div class="combo-item-header">Producto ${count}</div>
-        <div class="ga-form-group" style="margin-bottom:0.5rem;">
-            <input type="text" class="combo-product-name" placeholder="Nombre del producto (ej: Max)">
+        <div class="combo-row-badge">#${count}</div>
+        <div class="ga-form-group" style="flex:1; margin-bottom:0;">
+            <input type="text" class="combo-product-name" placeholder="Nombre de la plataforma (ej: Max)" value="${initialName}">
         </div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
-            <input type="text" class="combo-email" placeholder="Correo" style="width:100%;padding:0.55rem 0.75rem;border-radius:10px;border:1.5px solid var(--border);background:var(--bg-main);color:var(--text-main);font-family:'Inter',sans-serif;font-size:0.88rem;box-sizing:border-box;">
-            <input type="text" class="combo-password" placeholder="Contraseña" style="width:100%;padding:0.55rem 0.75rem;border-radius:10px;border:1.5px solid var(--border);background:var(--bg-main);color:var(--text-main);font-family:'Inter',sans-serif;font-size:0.88rem;box-sizing:border-box;">
-        </div>
+        <button type="button" class="combo-del-btn" onclick="window.removeComboItem(this)" title="Quitar plataforma">✕</button>
     `;
     container.appendChild(item);
-    document.getElementById('cp-accounts-count').value = count;
+    window.updateComboIndexes();
     item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+};
+
+window.removeComboItem = function(btn) {
+    const row = btn.closest('.combo-platform-row');
+    if (!row) return;
+    const container = document.getElementById('cp-combo-items');
+    if (container && container.querySelectorAll('.combo-platform-row').length > 1) {
+        row.remove();
+        window.updateComboIndexes();
+    } else {
+        showToast('⚠️ El combo debe tener al menos una plataforma');
+    }
+};
+
+window.updateComboIndexes = function() {
+    const container = document.getElementById('cp-combo-items');
+    if (!container) return;
+    const rows = container.querySelectorAll('.combo-platform-row');
+    rows.forEach((r, idx) => {
+        const badge = r.querySelector('.combo-row-badge');
+        if (badge) badge.textContent = `#${idx + 1}`;
+        r.dataset.index = idx + 1;
+        const delBtn = r.querySelector('.combo-del-btn');
+        if (delBtn) {
+            delBtn.style.display = rows.length > 1 ? 'flex' : 'none';
+        }
+    });
+    const countInput = document.getElementById('cp-accounts-count');
+    if (countInput) countInput.value = rows.length;
+    const countLabel = document.getElementById('cp-combo-count-label');
+    if (countLabel) countLabel.textContent = `${rows.length} ${rows.length === 1 ? 'plataforma' : 'plataformas'}`;
 };
 
 window.toggleWAPlateAccordion = function() {
@@ -1394,10 +1539,23 @@ window.openCustomPlanModal = function() {
     
     const comboContainer = document.getElementById('cp-combo-items');
     if (comboContainer) {
-        comboContainer.querySelectorAll('input').forEach(inp => inp.value = '');
-        while (comboContainer.children.length > 2) {
-            comboContainer.removeChild(comboContainer.lastChild);
-        }
+        comboContainer.innerHTML = `
+            <div class="combo-platform-row" data-index="1">
+                <div class="combo-row-badge">#1</div>
+                <div class="ga-form-group" style="flex:1; margin-bottom:0;">
+                    <input type="text" class="combo-product-name" placeholder="Nombre de la plataforma (ej: Netflix)">
+                </div>
+                <button type="button" class="combo-del-btn" onclick="window.removeComboItem(this)" title="Quitar plataforma" style="display:none;">✕</button>
+            </div>
+            <div class="combo-platform-row" data-index="2">
+                <div class="combo-row-badge">#2</div>
+                <div class="ga-form-group" style="flex:1; margin-bottom:0;">
+                    <input type="text" class="combo-product-name" placeholder="Nombre de la plataforma (ej: Disney+)">
+                </div>
+                <button type="button" class="combo-del-btn" onclick="window.removeComboItem(this)" title="Quitar plataforma">✕</button>
+            </div>
+        `;
+        window.updateComboIndexes();
     }
 
     // Render & reset presets
@@ -1452,18 +1610,21 @@ window.submitCustomPlan = async function() {
         );
     }
 
-    // Collect credentials
+    // Recolectar credenciales / plataformas
     let credentials = {};
+    let comboServices = [];
     if (category === 'combo') {
-        const comboItems = document.querySelectorAll('.combo-credential-item');
-        credentials.combo = [];
-        comboItems.forEach((item, i) => {
-            credentials.combo.push({
-                name: item.querySelector('.combo-product-name')?.value?.trim() || `Producto ${i + 1}`,
-                email: item.querySelector('.combo-email')?.value?.trim() || '',
-                password: item.querySelector('.combo-password')?.value?.trim() || ''
-            });
+        const comboInputs = document.querySelectorAll('.combo-product-name');
+        comboInputs.forEach((inp, i) => {
+            const val = inp.value.trim();
+            if (val) {
+                comboServices.push(val);
+            } else {
+                comboServices.push(`Plataforma ${i + 1}`);
+            }
         });
+        if (comboServices.length === 0) comboServices = ['Plataforma 1', 'Plataforma 2'];
+        credentials.combo = comboServices.map(srvName => ({ name: srvName }));
     } else {
         credentials.email = document.getElementById('cp-single-email')?.value?.trim() || '';
         credentials.password = document.getElementById('cp-single-password')?.value?.trim() || '';
@@ -1479,9 +1640,10 @@ window.submitCustomPlan = async function() {
         salePrice,
         cost,
         profit: salePrice - cost,
-        features,
+        features: features.length > 0 ? features : (category === 'combo' ? comboServices : []),
         type: category === 'combo' ? 'combo' : 'single',
-        accountsCount: category === 'combo' ? (parseInt(document.getElementById('cp-accounts-count').value) || 1) : 1,
+        accountsCount: category === 'combo' ? comboServices.length : 1,
+        comboServices: category === 'combo' ? comboServices : [],
         isCustom: true,
         credentials,
         aiWamessageTemplate: waTemplate,
@@ -1553,7 +1715,6 @@ window.editCustomPlan = function(id) {
     
     window.selectProductType(plan.category || 'individual');
     
-    document.getElementById('cp-accounts-count').value = plan.accountsCount || 1;
     document.getElementById('cp-duration').value = plan.duration;
     window.setDurationPreset(plan.duration);
     
@@ -1565,36 +1726,28 @@ window.editCustomPlan = function(id) {
     // Preset bar setup
     window.renderServicePresets();
     
-    if (plan.credentials) {
-        if (plan.category === 'combo' && plan.credentials.combo) {
-            const comboContainer = document.getElementById('cp-combo-items');
-            if (comboContainer) {
-                while (comboContainer.children.length < plan.credentials.combo.length) {
-                    window.addComboItem();
-                }
-                const items = comboContainer.querySelectorAll('.combo-credential-item');
-                plan.credentials.combo.forEach((cred, i) => {
-                    if (items[i]) {
-                        const nameInput = items[i].querySelector('.combo-product-name');
-                        const emailInput = items[i].querySelector('.combo-email');
-                        const passInput = items[i].querySelector('.combo-password');
-                        if (nameInput) nameInput.value = cred.name || '';
-                        if (emailInput) emailInput.value = cred.email || '';
-                        if (passInput) passInput.value = cred.password || '';
-                    }
-                });
-            }
-        } else {
-            const singleEmail = document.getElementById('cp-single-email');
-            const singlePass = document.getElementById('cp-single-password');
-            const singleProfile = document.getElementById('cp-single-profile');
-            const singlePin = document.getElementById('cp-single-pin');
-
-            if (singleEmail) singleEmail.value = plan.credentials.email || '';
-            if (singlePass) singlePass.value = plan.credentials.password || '';
-            if (singleProfile) singleProfile.value = plan.credentials.profileName || '';
-            if (singlePin) singlePin.value = plan.credentials.profilePin || '';
+    if (plan.category === 'combo') {
+        const comboContainer = document.getElementById('cp-combo-items');
+        if (comboContainer) {
+            comboContainer.innerHTML = '';
+            const services = (plan.comboServices && plan.comboServices.length > 0)
+                ? plan.comboServices
+                : (plan.credentials && plan.credentials.combo ? plan.credentials.combo.map(c => c.name) : ['Plataforma 1', 'Plataforma 2']);
+            services.forEach(srv => {
+                window.addComboItem(srv);
+            });
+            window.updateComboIndexes();
         }
+    } else if (plan.credentials) {
+        const singleEmail = document.getElementById('cp-single-email');
+        const singlePass = document.getElementById('cp-single-password');
+        const singleProfile = document.getElementById('cp-single-profile');
+        const singlePin = document.getElementById('cp-single-pin');
+
+        if (singleEmail) singleEmail.value = plan.credentials.email || '';
+        if (singlePass) singlePass.value = plan.credentials.password || '';
+        if (singleProfile) singleProfile.value = plan.credentials.profileName || '';
+        if (singlePin) singlePin.value = plan.credentials.profilePin || '';
     }
     
     window.calcCustomProfit();

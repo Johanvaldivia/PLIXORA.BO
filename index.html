@@ -460,23 +460,64 @@
                                 <p class="helper-text">Solo 8 dígitos. +591 se agrega automáticamente.</p>
                             </div>
                         </div>
-                        <div id="dynamic-credentials-container">
-                            <div class="form-row credential-group" data-index="1">
-                                <div class="form-group half">
-                                    <label class="cred-email-label">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-                                        Correo <span class="label-optional">(Opcional)</span>
-                                    </label>
-                                    <input type="email" class="sale-email-input" placeholder="correo@ejemplo.com">
+                        <!-- Credenciales dinámicas para la venta -->
+                        <div class="sale-creds-section">
+                            <div class="sale-creds-header">
+                                <div class="sale-creds-title">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                    <span>Cuentas y Accesos a Entregar</span>
                                 </div>
-                                <div class="form-group half">
-                                    <label class="cred-password-label">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                                        Contraseña <span class="label-optional">(Opcional)</span>
-                                    </label>
-                                    <input type="text" class="sale-password-input" placeholder="Contraseña de acceso">
+                                <span class="sale-creds-badge" id="sale-creds-badge">1 Cuenta</span>
+                            </div>
+                            
+                            <div id="dynamic-credentials-container">
+                                <div class="sale-account-card credential-group" data-index="1">
+                                    <div class="sale-account-card-header">
+                                        <div class="sale-account-title">
+                                            <span class="sale-account-num">#1</span>
+                                            <input type="text" class="sale-service-name" placeholder="Nombre del servicio (ej: Netflix)" value="Cuenta 1">
+                                        </div>
+                                        <button type="button" class="sale-account-del-btn" onclick="window.removeSaleCredentialCard(this)" title="Quitar cuenta" style="display:none;">✕ Quitar</button>
+                                    </div>
+                                    <div class="form-row" style="margin-bottom:0.55rem;">
+                                        <div class="form-group half">
+                                            <label class="cred-email-label">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                                                Correo <span class="label-optional">(Opcional)</span>
+                                            </label>
+                                            <input type="text" class="sale-email-input" placeholder="correo@ejemplo.com">
+                                        </div>
+                                        <div class="form-group half">
+                                            <label class="cred-password-label">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                                Contraseña <span class="label-optional">(Opcional)</span>
+                                            </label>
+                                            <input type="text" class="sale-password-input" placeholder="Contraseña de acceso">
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group half">
+                                            <label>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                                Perfil / Pantalla <span class="label-optional">(Opcional)</span>
+                                            </label>
+                                            <input type="text" class="sale-profile-input" placeholder="Ej: Perfil 1 / Juan">
+                                        </div>
+                                        <div class="form-group half">
+                                            <label>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="m7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                                PIN del Perfil <span class="label-optional">(Opcional)</span>
+                                            </label>
+                                            <input type="text" class="sale-pin-input" placeholder="Ej: 1234">
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
+
+                            <button type="button" class="btn-add-sale-account" onclick="window.addSaleCredentialCard()">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                <span>+ Agregar otra cuenta a esta venta</span>
+                            </button>
                         </div>
                         <div class="sale-summary" id="sale-summary" style="display:none;">
                             <div class="sale-summary-header">
@@ -1314,39 +1355,38 @@
                         </div>
                     </div>
 
-                    <!-- Credenciales para Combo (múltiples productos) -->
+                    <!-- Plataformas que componen el Combo -->
                     <div id="cp-combo-credentials" class="cp-card-block" style="display:none;">
                         <div class="cp-block-header">
                             <span class="cp-block-title">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
-                                Cuentas que componen el Combo
+                                Plataformas del Combo
                             </span>
+                            <span class="cp-block-hint" id="cp-combo-count-label">2 plataformas</span>
+                        </div>
+                        <div class="cp-combo-hint-banner">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                            <span>En el catálogo solo defines qué plataformas incluye el combo. Los correos y contraseñas de cada cuenta se asignan al <strong>Registrar la Venta</strong>.</span>
                         </div>
                         <div id="cp-combo-items">
-                            <div class="combo-credential-item" data-index="1">
-                                <div class="combo-item-header">Producto 1</div>
-                                <div class="ga-form-group" style="margin-bottom:0.5rem;">
-                                    <input type="text" class="combo-product-name" placeholder="Nombre del producto (ej: Netflix)">
+                            <div class="combo-platform-row" data-index="1">
+                                <div class="combo-row-badge">#1</div>
+                                <div class="ga-form-group" style="flex:1; margin-bottom:0;">
+                                    <input type="text" class="combo-product-name" placeholder="Nombre de la plataforma (ej: Netflix)">
                                 </div>
-                                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
-                                    <input type="text" class="combo-email" placeholder="Correo">
-                                    <input type="text" class="combo-password" placeholder="Contraseña">
-                                </div>
+                                <button type="button" class="combo-del-btn" onclick="window.removeComboItem(this)" title="Quitar plataforma" style="display:none;">✕</button>
                             </div>
-                            <div class="combo-credential-item" data-index="2">
-                                <div class="combo-item-header">Producto 2</div>
-                                <div class="ga-form-group" style="margin-bottom:0.5rem;">
-                                    <input type="text" class="combo-product-name" placeholder="Nombre del producto (ej: Disney+)">
+                            <div class="combo-platform-row" data-index="2">
+                                <div class="combo-row-badge">#2</div>
+                                <div class="ga-form-group" style="flex:1; margin-bottom:0;">
+                                    <input type="text" class="combo-product-name" placeholder="Nombre de la plataforma (ej: Disney+)">
                                 </div>
-                                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
-                                    <input type="text" class="combo-email" placeholder="Correo">
-                                    <input type="text" class="combo-password" placeholder="Contraseña">
-                                </div>
+                                <button type="button" class="combo-del-btn" onclick="window.removeComboItem(this)" title="Quitar plataforma">✕</button>
                             </div>
                         </div>
                         <button type="button" class="combo-add-btn" onclick="window.addComboItem()">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
-                            Agregar otro producto al combo
+                            <span>+ Agregar otra plataforma al combo</span>
                         </button>
                     </div>
 

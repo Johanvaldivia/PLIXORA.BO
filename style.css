@@ -3217,3 +3217,259 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
         padding-right: 1rem;
     }
 }
+
+/* ============================================================ */
+/* COMBO PLATFORM EDITOR (CATÁLOGO - NUEVO PRODUCTO)           */
+/* ============================================================ */
+.cp-combo-hint-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    background: rgba(59, 130, 246, 0.08);
+    border: 1px solid rgba(59, 130, 246, 0.22);
+    color: var(--text-main);
+    padding: 0.65rem 0.85rem;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    margin-bottom: 0.85rem;
+}
+.cp-combo-hint-banner svg {
+    color: #3b82f6;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+[data-theme="dark"] .cp-combo-hint-banner {
+    background: rgba(59, 130, 246, 0.12);
+    border-color: rgba(59, 130, 246, 0.3);
+}
+
+.combo-platform-row {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin-bottom: 0.55rem;
+    animation: cpFadeIn 0.2s ease;
+}
+
+.combo-row-badge {
+    background: rgba(254, 91, 41, 0.12);
+    color: var(--orange);
+    border: 1px solid rgba(254, 91, 41, 0.25);
+    font-size: 0.78rem;
+    font-weight: 800;
+    border-radius: 8px;
+    min-width: 32px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.combo-del-btn {
+    width: 36px;
+    height: 38px;
+    border-radius: 8px;
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    background: rgba(239, 68, 68, 0.08);
+    color: #ef4444;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.88rem;
+    font-weight: 700;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+.combo-del-btn:hover {
+    background: #ef4444;
+    color: #fff;
+    border-color: #ef4444;
+    transform: scale(1.05);
+}
+
+.combo-add-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    width: 100%;
+    padding: 0.65rem 1rem;
+    border-radius: 10px;
+    border: 1.5px dashed rgba(254, 91, 41, 0.35);
+    background: rgba(254, 91, 41, 0.06);
+    color: var(--orange);
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 0.35rem;
+}
+.combo-add-btn:hover {
+    background: rgba(254, 91, 41, 0.14);
+    border-color: var(--orange);
+    transform: translateY(-1px);
+}
+
+/* ============================================================ */
+/* BUILDER DE CUENTAS EN REGISTRAR NUEVA VENTA                 */
+/* ============================================================ */
+.sale-creds-section {
+    margin-top: 0.85rem;
+    margin-bottom: 1.15rem;
+    background: var(--bg-card);
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 1.1rem;
+    box-shadow: 0 4px 18px -4px rgba(0, 0, 0, 0.04);
+}
+[data-theme="dark"] .sale-creds-section {
+    background: rgba(255, 255, 255, 0.015);
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+.sale-creds-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 0.75rem;
+    margin-bottom: 0.85rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.sale-creds-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+.sale-creds-title svg {
+    color: var(--orange);
+}
+
+.sale-creds-badge {
+    font-size: 0.74rem;
+    font-weight: 700;
+    background: rgba(254, 91, 41, 0.12);
+    color: var(--orange);
+    border: 1px solid rgba(254, 91, 41, 0.25);
+    padding: 0.2rem 0.65rem;
+    border-radius: 20px;
+}
+
+.sale-account-card {
+    background: #fbfcfe;
+    border: 1px solid rgba(0, 0, 0, 0.07);
+    border-radius: 12px;
+    padding: 0.95rem;
+    margin-bottom: 0.85rem;
+    transition: all 0.2s ease;
+    animation: cpSlideUp 0.25s ease-out;
+}
+.sale-account-card:hover {
+    border-color: rgba(254, 91, 41, 0.3);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.04);
+}
+[data-theme="dark"] .sale-account-card {
+    background: rgba(255, 255, 255, 0.025);
+    border-color: rgba(255, 255, 255, 0.07);
+}
+[data-theme="dark"] .sale-account-card:hover {
+    border-color: rgba(254, 91, 41, 0.4);
+}
+
+.sale-account-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.55rem;
+    border-bottom: 1px dashed rgba(0, 0, 0, 0.08);
+}
+[data-theme="dark"] .sale-account-card-header {
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+.sale-account-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1;
+}
+
+.sale-account-num {
+    background: linear-gradient(135deg, var(--orange), #ff7e5f);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 800;
+    border-radius: 6px;
+    padding: 0.2rem 0.55rem;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.sale-service-name {
+    font-weight: 700 !important;
+    font-size: 0.88rem !important;
+    color: var(--text-main) !important;
+    background: transparent !important;
+    border: 1px solid transparent !important;
+    border-radius: 6px !important;
+    padding: 0.25rem 0.5rem !important;
+    transition: all 0.2s ease !important;
+    width: 100% !important;
+    max-width: 260px !important;
+}
+.sale-service-name:focus, .sale-service-name:hover {
+    border-color: var(--border) !important;
+    background: var(--bg-card) !important;
+}
+
+.sale-account-del-btn {
+    background: rgba(239, 68, 68, 0.08);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    font-size: 0.76rem;
+    font-weight: 700;
+    padding: 0.3rem 0.65rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+.sale-account-del-btn:hover {
+    background: #ef4444;
+    color: #fff;
+    border-color: #ef4444;
+}
+
+.btn-add-sale-account {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    border: 1.5px dashed rgba(254, 91, 41, 0.4);
+    background: rgba(254, 91, 41, 0.05);
+    color: var(--orange);
+    font-size: 0.86rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.btn-add-sale-account:hover {
+    background: rgba(254, 91, 41, 0.12);
+    border-color: var(--orange);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(254, 91, 41, 0.15);
+}
+.btn-add-sale-account:active {
+    transform: translateY(0);
+}

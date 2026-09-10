@@ -121,8 +121,11 @@ window.generateSaleDetailsText = function(sale) {
             sale.credentials.forEach((cred, index) => {
                 const i = index + 1;
                 message = message
+                    .replace(new RegExp(`{servicio_${i}}`, 'g'), cred.serviceName || `Cuenta ${i}`)
                     .replace(new RegExp(`{correo_${i}}`, 'g'), cred.email || '')
-                    .replace(new RegExp(`{contrasena_${i}}`, 'g'), cred.password || '');
+                    .replace(new RegExp(`{contrasena_${i}}`, 'g'), cred.password || '')
+                    .replace(new RegExp(`{perfil_${i}}`, 'g'), cred.profileName || '')
+                    .replace(new RegExp(`{pin_${i}}`, 'g'), cred.profilePin || '');
             });
             // Legacy/fallback replacements if the template just uses {correo}
             message = message
@@ -151,6 +154,44 @@ window.generateSaleDetailsText = function(sale) {
     // Standard prohibition (applies to ALL products)
     const prohibicion = `\n⚠️ _Prohibido cambiar la contraseña, correo o tocar la facturación. Caso contrario, se dará de baja automáticamente._`;
     const footer = `\n_PLIXORA.BO — Gracias por tu compra 🧡_`;
+
+    // ── Formato especial para COMBOS y Ventas Multicuenta ──
+    const hasMultipleCreds = sale.credentials && sale.credentials.length > 1;
+    const isCombo = prodName.includes('combo') || hasMultipleCreds;
+
+    if (hasMultipleCreds || isCombo) {
+        let credsBlock = `📦 *DETALLES DE TUS CUENTAS Y ACCESOS:*\n\n`;
+        const credsList = (sale.credentials && sale.credentials.length > 0) ? sale.credentials : [
+            { serviceName: sale.productName, email: sale.email, password: sale.password, profileName: sale.profileName, profilePin: sale.profilePin }
+        ];
+
+        credsList.forEach((cred, idx) => {
+            const title = cred.serviceName || `Cuenta ${idx + 1}`;
+            credsBlock += `🔹 *${idx + 1}. ${title}*\n`;
+            if (cred.email) credsBlock += `📧 *Correo:* \`${cred.email}\`\n`;
+            if (cred.password) credsBlock += `🔑 *Contraseña:* \`${cred.password}\`\n`;
+            if (cred.profileName) credsBlock += `👤 *Perfil:* \`${cred.profileName}\`\n`;
+            if (cred.profilePin) credsBlock += `🔢 *PIN:* \`${cred.profilePin}\`\n`;
+            credsBlock += `\n`;
+        });
+
+        return `━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+               `      *PLIXORA.BO* 🌟\n` +
+               `  🔥 *ENTREGA DE COMBO / CUENTAS*\n` +
+               `━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+               codeLine +
+               `Hola *${clienteName}* 👋\n` +
+               `¡Tus accesos ya están activos y listos para disfrutar! 🎉\n\n` +
+               duracionLine +
+               credsBlock +
+               `🛡️ *RECOMENDACIONES IMPORTANTES:*\n` +
+               `✅ Usa cada cuenta según los dispositivos acordados.\n` +
+               `✅ Guarda tus credenciales en un lugar seguro.\n` +
+               `⚠️ _Prohibido cambiar la contraseña, correo o tocar la facturación. Caso contrario, se dará de baja automáticamente._\n\n` +
+               `━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+               `_PLIXORA.BO — Gracias por tu compra 🧡_\n` +
+               `_Ante cualquier consulta o soporte, estamos para ayudarte._`;
+    }
 
     // ── CapCut Pro ──
     if (prodName.includes('capcut')) {
@@ -390,12 +431,27 @@ window.generateSaleDetailsText = function(sale) {
                prohibicion + `\n` + footer;
     }
 
-    // ── Combos y cualquier otro producto ──
+    // ── Cualquier otro producto ──
+    let credsPart = '';
+    if (sale.credentials && sale.credentials.length > 0) {
+        sale.credentials.forEach((cred, idx) => {
+            const label = sale.credentials.length > 1 ? ` (${cred.serviceName || `Cuenta ${idx + 1}`})` : '';
+            if (cred.email) credsPart += `📧 *Correo${label}:* \`${cred.email}\`\n`;
+            if (cred.password) credsPart += `🔑 *Contraseña${label}:* \`${cred.password}\`\n`;
+            if (cred.profileName) credsPart += `👤 *Perfil${label}:* \`${cred.profileName}\`\n`;
+            if (cred.profilePin) credsPart += `🔢 *PIN${label}:* \`${cred.profilePin}\`\n`;
+        });
+    } else {
+        if (sale.email) credsPart += `📧 *Correo:* \`${sale.email}\`\n`;
+        if (sale.password) credsPart += `🔑 *Contraseña:* \`${sale.password}\`\n`;
+        if (sale.profileName) credsPart += `👤 *Perfil:* \`${sale.profileName}\`\n`;
+        if (sale.profilePin) credsPart += `🔢 *PIN:* \`${sale.profilePin}\`\n`;
+    }
+
     return `*PLIXORA.BO* | 🛒 *${sale.productName}*\n` +
            codeLine + `\n` +
            duracionLine +
-           (sale.email ? `📧 *Correo:* \`${sale.email}\`\n` : '') +
-           (sale.password ? `🔑 *Contraseña:* \`${sale.password}\`\n` : '') +
+           credsPart +
            prohibicion + `\n` + footer;
 }
 
