@@ -131,72 +131,71 @@
                         </button>
                     </div>
                 </div>
-                <div class="ga-stats-ribbon">
-                    <div class="ga-stat-item">
-                        <span class="ga-stat-tag">Invertido</span>
-                        <span class="ga-stat-val ga-val-cost">${accountCost.toFixed(2)} Bs</span>
+                <div class="ga-finance-hud">
+                    <div class="ga-hud-cell ga-hud-cost">
+                        <span class="ga-hud-label">Inversión</span>
+                        <span class="ga-hud-val">${accountCost.toFixed(2)} <small>Bs</small></span>
                     </div>
-                    <div class="ga-stat-divider"></div>
-                    <div class="ga-stat-item">
-                        <span class="ga-stat-tag">Recaudado</span>
-                        <span class="ga-stat-val ga-val-revenue">${totalRevenue.toFixed(2)} Bs</span>
+                    <div class="ga-hud-cell ga-hud-rev">
+                        <span class="ga-hud-label">Cobrado</span>
+                        <span class="ga-hud-val">${totalRevenue.toFixed(2)} <small>Bs</small></span>
                     </div>
-                    <div class="ga-stat-divider"></div>
-                    <div class="ga-stat-item">
-                        <span class="ga-stat-tag">Ganancia</span>
-                        <span class="ga-stat-val ${profit >= 0 ? 'ga-val-profit-pos' : 'ga-val-profit-neg'}">${profit >= 0 ? '+' : ''}${profit.toFixed(2)} Bs</span>
+                    <div class="ga-hud-cell ${profit >= 0 ? 'ga-hud-profit-pos' : 'ga-hud-profit-neg'}">
+                        <span class="ga-hud-label">Ganancia</span>
+                        <span class="ga-hud-val">${profit >= 0 ? '+' : ''}${profit.toFixed(2)} <small>Bs</small></span>
                     </div>
                 </div>
-                <div class="ga-card-members-title" style="display:flex;align-items:center;gap:0.4rem;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                    <span>Miembros (${slotsUsed})</span>
+                <div class="ga-card-members-header">
+                    <div class="ga-members-heading">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        <span>Perfiles Asignados</span>
+                    </div>
+                    <span class="ga-members-count">${slotsUsed}/${maxSlots}</span>
                 </div>
                 <div class="ga-members-list" id="ga-members-${acc.id}">
-                    ${members.length === 0 ? '<p class="ga-no-members">Sin miembros aún</p>' :
-                        members.map((m, i) => `
-                            <div class="ga-member-row">
-                                <div class="ga-member-info">
-                                    <span class="ga-member-badge">${i + 1}</span>
-                                    <div>
-                                        <span class="ga-member-name">${m.name}</span>
-                                        <div class="ga-member-meta">
-                                            <span class="ga-member-phone">📱 ${m.phone}</span>
-                                            <span class="ga-member-date">📅 ${m.addedAt ? new Date(m.addedAt).toLocaleDateString('es-BO', {day:'2-digit', month:'short'}) : '—'}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="ga-member-actions-right">
-                                    <span class="ga-member-sale">Venta: ${(parseFloat(m.price) || 0).toFixed(2)} Bs</span>
-                                    <div class="ga-member-btns">
-                                        <a class="ga-btn-wa-direct" href="https://wa.me/${(m.phone || '').replace(/[^0-9]/g,'')}" target="_blank" title="Abrir chat de WhatsApp">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.555 4.126 1.528 5.86L.06 23.708a.5.5 0 00.633.632l5.848-1.468A11.948 11.948 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.94 0-3.757-.565-5.285-1.539l-.379-.229-3.477.873.887-3.477-.248-.394A9.96 9.96 0 012 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"/></svg>
-                                        </a>
-                                        <button class="ga-btn-resend" onclick="window.gaResendToMember('${acc.id}', ${i})" title="Reenviar datos por WhatsApp">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2Z"/></svg>
-                                        </button>
-                                        <button class="ga-btn-remove-member" onclick="window.gaRemoveMember('${acc.id}', ${i})" title="Eliminar miembro">✕</button>
-                                    </div>
-                                </div>
+                    ${members.length === 0 ? '<div class="ga-no-members">Sin clientes asignados todavía</div>' : ''}
+                    ${members.map((m, i) => `
+                        <div class="ga-member-slot">
+                            <span class="ga-slot-num">#${i + 1}</span>
+                            <div class="ga-slot-client">
+                                <span class="ga-slot-name" title="${m.name}">${m.name}</span>
+                                <span class="ga-slot-phone">${m.phone ? '📱 ' + m.phone : '—'}</span>
                             </div>
-                        `).join('')
-                    }
+                            <span class="ga-slot-sale">${(parseFloat(m.price) || 0).toFixed(2)} Bs</span>
+                            <div class="ga-slot-btns">
+                                <a class="ga-slot-btn ga-slot-wa" href="https://wa.me/${(m.phone || '').replace(/[^0-9]/g,'')}" target="_blank" title="Abrir WhatsApp">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.555 4.126 1.528 5.86L.06 23.708a.5.5 0 00.633.632l5.848-1.468A11.948 11.948 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.94 0-3.757-.565-5.285-1.539l-.379-.229-3.477.873.887-3.477-.248-.394A9.96 9.96 0 012 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"/></svg>
+                                </a>
+                                <button class="ga-slot-btn ga-slot-resend" onclick="window.gaResendToMember('${acc.id}', ${i})" title="Reenviar datos por WhatsApp">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2Z"/></svg>
+                                </button>
+                                <button class="ga-slot-btn ga-slot-del" onclick="window.gaRemoveMember('${acc.id}', ${i})" title="Quitar miembro">✕</button>
+                            </div>
+                        </div>
+                    `).join('')}
+                    ${slotsUsed < maxSlots ? `
+                        <div class="ga-slot-empty" onclick="window.gaOpenAddMember('${acc.id}', '${acc.serviceName}', ${maxSlots}, ${slotsUsed})" title="Clic para asignar cliente">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            <span>Perfil ${slotsUsed + 1} disponible</span>
+                        </div>
+                    ` : ''}
                 </div>
                 <div class="ga-card-actions-v2">
                     <button class="ga-action-btn-primary" onclick="window.gaOpenAddMember('${acc.id}', '${acc.serviceName}', ${maxSlots}, ${slotsUsed})">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" width="17" height="17"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
                         <span>Agregar Cliente</span>
                     </button>
                     <div class="ga-action-tools-row">
                         <button class="ga-tool-btn ga-tool-replace" onclick="window.gaOpenReplace('${acc.id}', '${acc.serviceName}')" title="Reemplazar cuenta por caída o cambio">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
                             <span>Reemplazar</span>
                         </button>
                         <button class="ga-tool-btn ga-tool-notify" onclick="window.gaBulkNotify('${acc.id}')" title="Enviar aviso masivo a todos los miembros">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.555 4.126 1.528 5.86L.06 23.708a.5.5 0 00.633.632l5.848-1.468A11.948 11.948 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.94 0-3.757-.565-5.285-1.539l-.379-.229-3.477.873.887-3.477-.248-.394A9.96 9.96 0 012 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"/></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.555 4.126 1.528 5.86L.06 23.708a.5.5 0 00.633.632l5.848-1.468A11.948 11.948 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.94 0-3.757-.565-5.285-1.539l-.379-.229-3.477.873.887-3.477-.248-.394A9.96 9.96 0 012 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"/></svg>
                             <span>Aviso Masivo</span>
                         </button>
                         <button class="ga-tool-btn ga-tool-delete" onclick="window.gaDeleteAccount('${acc.id}', '${acc.serviceName}')" title="Eliminar cuenta grupal">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                         </button>
                     </div>
                 </div>
