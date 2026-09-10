@@ -532,7 +532,8 @@ function createProductCard(product) {
             if (product.credentials.profilePin) parts.push(`🔒 PIN: ${product.credentials.profilePin}`);
             credsProfileHTML = `<div style="font-size:0.75rem; color:var(--orange); background:rgba(254,91,41,0.08); border:1px solid rgba(254,91,41,0.2); border-radius:6px; padding:2px 7px; margin-top:5px; display:inline-block; font-weight:600;">${parts.join(' • ')}</div>`;
         } else if (product.comboServices && product.comboServices.length > 0) {
-            credsProfileHTML = `<div style="font-size:0.75rem; color:#ef4444; background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.2); border-radius:6px; padding:2px 7px; margin-top:5px; display:inline-block; font-weight:600;">📦 Incluye: ${product.comboServices.join(' + ')}</div>`;
+            const listStr = product.comboServices.map(c => typeof c === 'object' ? `${c.name} (${c.duration || product.duration})` : c).join(' • ');
+            credsProfileHTML = `<div style="font-size:0.75rem; color:#ef4444; background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.2); border-radius:6px; padding:2px 7px; margin-top:5px; display:inline-block; font-weight:600;">📦 Incluye: ${listStr}</div>`;
         }
 
         customActionsHTML = `
@@ -590,13 +591,17 @@ function setupHistoryControls() {
 }
 
 // ---- FORMULARIO NUEVA VENTA ----
-window.createSaleAccountCardHTML = function(index, serviceName = '', email = '', password = '', profileName = '', profilePin = '') {
+window.createSaleAccountCardHTML = function(index, serviceName = '', duration = '1 Mes', email = '', password = '', profileName = '', profilePin = '') {
     return `
         <div class="sale-account-card credential-group" data-index="${index}">
             <div class="sale-account-card-header">
                 <div class="sale-account-title">
                     <span class="sale-account-num">#${index}</span>
                     <input type="text" class="sale-service-name" placeholder="Nombre de la cuenta (ej: Netflix)" value="${serviceName || `Cuenta ${index}`}">
+                    <div class="sale-account-dur-wrap" title="Duración de esta cuenta">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        <input type="text" class="sale-account-duration" placeholder="Duración" value="${duration || '1 Mes'}">
+                    </div>
                 </div>
                 <button type="button" class="sale-account-del-btn" onclick="window.removeSaleCredentialCard(this)" title="Quitar cuenta">✕ Quitar</button>
             </div>
@@ -636,24 +641,26 @@ window.createSaleAccountCardHTML = function(index, serviceName = '', email = '',
     `;
 };
 
-window.renderSaleCredentialCards = function(servicesList = []) {
+window.renderSaleCredentialCards = function(servicesList = [], defaultDuration = '1 Mes') {
     const container = document.getElementById('dynamic-credentials-container');
     if (!container) return;
     
     container.innerHTML = '';
-    const list = servicesList.length > 0 ? servicesList : ['Cuenta 1'];
+    const list = servicesList.length > 0 ? servicesList : [{ name: 'Cuenta 1', duration: defaultDuration }];
     list.forEach((srv, idx) => {
-        container.insertAdjacentHTML('beforeend', window.createSaleAccountCardHTML(idx + 1, srv));
+        const srvName = typeof srv === 'object' && srv !== null ? (srv.name || `Cuenta ${idx + 1}`) : srv;
+        const srvDur = typeof srv === 'object' && srv !== null ? (srv.duration || defaultDuration) : defaultDuration;
+        container.insertAdjacentHTML('beforeend', window.createSaleAccountCardHTML(idx + 1, srvName, srvDur));
     });
     window.updateSaleCredentialIndexes();
 };
 
-window.addSaleCredentialCard = function(defaultServiceName = '') {
+window.addSaleCredentialCard = function(defaultServiceName = '', defaultDuration = '1 Mes') {
     const container = document.getElementById('dynamic-credentials-container');
     if (!container) return;
     const cards = container.querySelectorAll('.sale-account-card');
     const newIdx = cards.length + 1;
-    container.insertAdjacentHTML('beforeend', window.createSaleAccountCardHTML(newIdx, defaultServiceName));
+    container.insertAdjacentHTML('beforeend', window.createSaleAccountCardHTML(newIdx, defaultServiceName, defaultDuration));
     window.updateSaleCredentialIndexes();
     
     const lastCard = container.lastElementChild;
@@ -752,19 +759,19 @@ function populateSelect() {
             let servicesToRender = [];
             if (isCombo) {
                 if (p.comboServices && p.comboServices.length > 0) {
-                    servicesToRender = [...p.comboServices];
+                    servicesToRender = p.comboServices.map(c => typeof c === 'object' ? c : { name: c, duration: p.duration || '1 Mes' });
                 } else if (p.credentials && p.credentials.combo && p.credentials.combo.length > 0) {
-                    servicesToRender = p.credentials.combo.map(c => c.name || 'Cuenta');
+                    servicesToRender = p.credentials.combo.map(c => ({ name: c.name || 'Cuenta', duration: c.duration || p.duration || '1 Mes' }));
                 } else if (p.features && p.features.length > 1) {
-                    servicesToRender = [...p.features];
+                    servicesToRender = p.features.map(f => ({ name: f, duration: p.duration || '1 Mes' }));
                 } else {
                     const count = p.accountsCount || 2;
-                    for (let i = 1; i <= count; i++) servicesToRender.push(`Cuenta ${i}`);
+                    for (let i = 1; i <= count; i++) servicesToRender.push({ name: `Cuenta ${i}`, duration: p.duration || '1 Mes' });
                 }
             } else {
-                servicesToRender = [p.name];
+                servicesToRender = [{ name: p.name, duration: p.duration || '1 Mes' }];
             }
-            window.renderSaleCredentialCards(servicesToRender);
+            window.renderSaleCredentialCards(servicesToRender, p.duration || '1 Mes');
         }
     });
 }
@@ -813,12 +820,14 @@ function setupForm() {
         const credentials = [];
         credentialCards.forEach((card, idx) => {
             const serviceName = card.querySelector('.sale-service-name')?.value.trim() || `Cuenta ${idx + 1}`;
+            const duration = card.querySelector('.sale-account-duration')?.value.trim() || product.duration || '1 Mes';
             const email = card.querySelector('.sale-email-input')?.value.trim() || '';
             const password = card.querySelector('.sale-password-input')?.value.trim() || '';
             const profileName = card.querySelector('.sale-profile-input')?.value.trim() || '';
             const profilePin = card.querySelector('.sale-pin-input')?.value.trim() || '';
             credentials.push({
                 serviceName,
+                duration,
                 email,
                 password,
                 profileName,
@@ -1415,7 +1424,7 @@ window.selectProductType = function(type) {
     }
 };
 
-window.addComboItem = function(initialName = '') {
+window.addComboItem = function(initialName = '', initialDuration = '1 Mes') {
     const container = document.getElementById('cp-combo-items');
     if (!container) return;
     const items = container.querySelectorAll('.combo-platform-row');
@@ -1426,8 +1435,11 @@ window.addComboItem = function(initialName = '') {
     item.dataset.index = count;
     item.innerHTML = `
         <div class="combo-row-badge">#${count}</div>
-        <div class="ga-form-group" style="flex:1; margin-bottom:0;">
+        <div class="ga-form-group" style="flex:2; margin-bottom:0;">
             <input type="text" class="combo-product-name" placeholder="Nombre de la plataforma (ej: Max)" value="${initialName}">
+        </div>
+        <div class="ga-form-group" style="flex:1; min-width:115px; margin-bottom:0;">
+            <input type="text" class="combo-platform-duration" placeholder="Duración" value="${initialDuration || '1 Mes'}">
         </div>
         <button type="button" class="combo-del-btn" onclick="window.removeComboItem(this)" title="Quitar plataforma">✕</button>
     `;
@@ -1542,15 +1554,21 @@ window.openCustomPlanModal = function() {
         comboContainer.innerHTML = `
             <div class="combo-platform-row" data-index="1">
                 <div class="combo-row-badge">#1</div>
-                <div class="ga-form-group" style="flex:1; margin-bottom:0;">
+                <div class="ga-form-group" style="flex:2; margin-bottom:0;">
                     <input type="text" class="combo-product-name" placeholder="Nombre de la plataforma (ej: Netflix)">
+                </div>
+                <div class="ga-form-group" style="flex:1; min-width:115px; margin-bottom:0;">
+                    <input type="text" class="combo-platform-duration" placeholder="Duración" value="1 Mes">
                 </div>
                 <button type="button" class="combo-del-btn" onclick="window.removeComboItem(this)" title="Quitar plataforma" style="display:none;">✕</button>
             </div>
             <div class="combo-platform-row" data-index="2">
                 <div class="combo-row-badge">#2</div>
-                <div class="ga-form-group" style="flex:1; margin-bottom:0;">
+                <div class="ga-form-group" style="flex:2; margin-bottom:0;">
                     <input type="text" class="combo-product-name" placeholder="Nombre de la plataforma (ej: Disney+)">
+                </div>
+                <div class="ga-form-group" style="flex:1; min-width:115px; margin-bottom:0;">
+                    <input type="text" class="combo-platform-duration" placeholder="Duración" value="1 Mes">
                 </div>
                 <button type="button" class="combo-del-btn" onclick="window.removeComboItem(this)" title="Quitar plataforma">✕</button>
             </div>
@@ -1614,17 +1632,21 @@ window.submitCustomPlan = async function() {
     let credentials = {};
     let comboServices = [];
     if (category === 'combo') {
-        const comboInputs = document.querySelectorAll('.combo-product-name');
-        comboInputs.forEach((inp, i) => {
-            const val = inp.value.trim();
-            if (val) {
-                comboServices.push(val);
-            } else {
-                comboServices.push(`Plataforma ${i + 1}`);
-            }
+        const comboRows = document.querySelectorAll('#cp-combo-items .combo-platform-row');
+        comboRows.forEach((row, i) => {
+            const nameInput = row.querySelector('.combo-product-name');
+            const durInput = row.querySelector('.combo-platform-duration');
+            const srvName = (nameInput && nameInput.value.trim()) ? nameInput.value.trim() : `Plataforma ${i + 1}`;
+            const srvDur = (durInput && durInput.value.trim()) ? durInput.value.trim() : (duration || '1 Mes');
+            comboServices.push({ name: srvName, duration: srvDur });
         });
-        if (comboServices.length === 0) comboServices = ['Plataforma 1', 'Plataforma 2'];
-        credentials.combo = comboServices.map(srvName => ({ name: srvName }));
+        if (comboServices.length === 0) {
+            comboServices = [
+                { name: 'Plataforma 1', duration: duration || '1 Mes' },
+                { name: 'Plataforma 2', duration: duration || '1 Mes' }
+            ];
+        }
+        credentials.combo = comboServices.map(srv => ({ name: srv.name, duration: srv.duration }));
     } else {
         credentials.email = document.getElementById('cp-single-email')?.value?.trim() || '';
         credentials.password = document.getElementById('cp-single-password')?.value?.trim() || '';
@@ -1640,7 +1662,7 @@ window.submitCustomPlan = async function() {
         salePrice,
         cost,
         profit: salePrice - cost,
-        features: features.length > 0 ? features : (category === 'combo' ? comboServices : []),
+        features: features.length > 0 ? features : (category === 'combo' ? comboServices.map(s => `${s.name} (${s.duration})`) : []),
         type: category === 'combo' ? 'combo' : 'single',
         accountsCount: category === 'combo' ? comboServices.length : 1,
         comboServices: category === 'combo' ? comboServices : [],
@@ -1732,9 +1754,11 @@ window.editCustomPlan = function(id) {
             comboContainer.innerHTML = '';
             const services = (plan.comboServices && plan.comboServices.length > 0)
                 ? plan.comboServices
-                : (plan.credentials && plan.credentials.combo ? plan.credentials.combo.map(c => c.name) : ['Plataforma 1', 'Plataforma 2']);
+                : (plan.credentials && plan.credentials.combo ? plan.credentials.combo : ['Plataforma 1', 'Plataforma 2']);
             services.forEach(srv => {
-                window.addComboItem(srv);
+                const srvName = typeof srv === 'object' ? (srv.name || '') : srv;
+                const srvDur = typeof srv === 'object' ? (srv.duration || plan.duration || '1 Mes') : (plan.duration || '1 Mes');
+                window.addComboItem(srvName, srvDur);
             });
             window.updateComboIndexes();
         }

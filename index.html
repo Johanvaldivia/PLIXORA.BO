@@ -476,6 +476,10 @@
                                         <div class="sale-account-title">
                                             <span class="sale-account-num">#1</span>
                                             <input type="text" class="sale-service-name" placeholder="Nombre del servicio (ej: Netflix)" value="Cuenta 1">
+                                            <div class="sale-account-dur-wrap" title="Duración de esta cuenta">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                                <input type="text" class="sale-account-duration" placeholder="Duración" value="1 Mes">
+                                            </div>
                                         </div>
                                         <button type="button" class="sale-account-del-btn" onclick="window.removeSaleCredentialCard(this)" title="Quitar cuenta" style="display:none;">✕ Quitar</button>
                                     </div>
@@ -1371,15 +1375,21 @@
                         <div id="cp-combo-items">
                             <div class="combo-platform-row" data-index="1">
                                 <div class="combo-row-badge">#1</div>
-                                <div class="ga-form-group" style="flex:1; margin-bottom:0;">
-                                    <input type="text" class="combo-product-name" placeholder="Nombre de la plataforma (ej: Netflix)">
+                                <div class="ga-form-group" style="flex:2; margin-bottom:0;">
+                                    <input type="text" class="combo-product-name" placeholder="Plataforma (ej: Netflix)">
+                                </div>
+                                <div class="ga-form-group" style="flex:1; min-width:115px; margin-bottom:0;">
+                                    <input type="text" class="combo-platform-duration" placeholder="Duración" value="1 Mes">
                                 </div>
                                 <button type="button" class="combo-del-btn" onclick="window.removeComboItem(this)" title="Quitar plataforma" style="display:none;">✕</button>
                             </div>
                             <div class="combo-platform-row" data-index="2">
                                 <div class="combo-row-badge">#2</div>
-                                <div class="ga-form-group" style="flex:1; margin-bottom:0;">
-                                    <input type="text" class="combo-product-name" placeholder="Nombre de la plataforma (ej: Disney+)">
+                                <div class="ga-form-group" style="flex:2; margin-bottom:0;">
+                                    <input type="text" class="combo-product-name" placeholder="Plataforma (ej: HBO Max)">
+                                </div>
+                                <div class="ga-form-group" style="flex:1; min-width:115px; margin-bottom:0;">
+                                    <input type="text" class="combo-platform-duration" placeholder="Duración" value="1 Mes">
                                 </div>
                                 <button type="button" class="combo-del-btn" onclick="window.removeComboItem(this)" title="Quitar plataforma">✕</button>
                             </div>

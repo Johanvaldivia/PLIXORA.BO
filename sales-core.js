@@ -167,7 +167,8 @@ window.generateSaleDetailsText = function(sale) {
 
         credsList.forEach((cred, idx) => {
             const title = cred.serviceName || `Cuenta ${idx + 1}`;
-            credsBlock += `🔹 *${idx + 1}. ${title}*\n`;
+            const durText = cred.duration ? ` (⏳ Duración: ${cred.duration})` : '';
+            credsBlock += `🔹 *${idx + 1}. ${title}*${durText}\n`;
             if (cred.email) credsBlock += `📧 *Correo:* \`${cred.email}\`\n`;
             if (cred.password) credsBlock += `🔑 *Contraseña:* \`${cred.password}\`\n`;
             if (cred.profileName) credsBlock += `👤 *Perfil:* \`${cred.profileName}\`\n`;
@@ -435,7 +436,8 @@ window.generateSaleDetailsText = function(sale) {
     let credsPart = '';
     if (sale.credentials && sale.credentials.length > 0) {
         sale.credentials.forEach((cred, idx) => {
-            const label = sale.credentials.length > 1 ? ` (${cred.serviceName || `Cuenta ${idx + 1}`})` : '';
+            const durText = cred.duration ? ` - ⏳ ${cred.duration}` : '';
+            const label = sale.credentials.length > 1 ? ` (${cred.serviceName || `Cuenta ${idx + 1}`}${durText})` : (cred.duration ? ` (⏳ ${cred.duration})` : '');
             if (cred.email) credsPart += `📧 *Correo${label}:* \`${cred.email}\`\n`;
             if (cred.password) credsPart += `🔑 *Contraseña${label}:* \`${cred.password}\`\n`;
             if (cred.profileName) credsPart += `👤 *Perfil${label}:* \`${cred.profileName}\`\n`;
