@@ -501,6 +501,7 @@ function renderCatalog(filter) {
 function createProductCard(product) {
     const card = document.createElement('div');
     card.className = 'product-card';
+    card.id = 'product-card-' + (product.id || 'p-' + Math.random().toString(36).substr(2, 9));
     const isCombo = product.type === 'combo';
     const isCompleta = product.category === 'completa';
     let badgeText = 'PERFIL';
@@ -520,9 +521,18 @@ function createProductCard(product) {
     
     let customBadgeHTML = '';
     let customActionsHTML = '';
+    let credsProfileHTML = '';
     
     if (product.isCustom) {
         customBadgeHTML = `<div class="custom-plan-badge"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg> Personalizado</div>`;
+        
+        if (product.credentials && (product.credentials.profileName || product.credentials.profilePin)) {
+            const parts = [];
+            if (product.credentials.profileName) parts.push(`👤 ${product.credentials.profileName}`);
+            if (product.credentials.profilePin) parts.push(`🔒 PIN: ${product.credentials.profilePin}`);
+            credsProfileHTML = `<div style="font-size:0.75rem; color:var(--orange); background:rgba(254,91,41,0.08); border:1px solid rgba(254,91,41,0.2); border-radius:6px; padding:2px 7px; margin-top:5px; display:inline-block; font-weight:600;">${parts.join(' • ')}</div>`;
+        }
+
         customActionsHTML = `
             <div class="plan-actions">
                 <button class="plan-btn" onclick="window.editCustomPlan('${product.id}')"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg> Editar</button>
@@ -536,6 +546,7 @@ function createProductCard(product) {
         <div class="product-badge" ${badgeStyle} ${product.isCustom ? 'style="top: 2.8rem;"' : ''}>${badgeText}</div>
         <div class="product-type">${product.duration}</div>
         <h3 class="product-title">${product.name}</h3>
+        ${credsProfileHTML}
         <div class="product-price">${priceDisplay}</div>
         <ul class="product-features">${product.features.map(f => `<li>${f}</li>`).join('')}</ul>
         <div class="product-profit">${profitDisplay}</div>
@@ -1183,8 +1194,80 @@ window.closeContactsModal = function() {
 
 
 // ==========================================
-// SISTEMA DE PRODUCTOS PERSONALIZADOS
+// SISTEMA DE PRODUCTOS PERSONALIZADOS (MODERNO & DINÁMICO)
 // ==========================================
+
+const SERVICE_PRESETS = [
+    { id: 'netflix', name: 'Netflix 4K UHD', type: 'individual', icon: '🍿', color: '#E50914', duration: '1 Mes', features: ['Calidad 4K HDR', '1 Pantalla privada', 'Descargas activadas', 'Garantía total'], defaultSale: 35, defaultCost: 20 },
+    { id: 'disney', name: 'Disney+ Premium', type: 'individual', icon: '🏰', color: '#113CCF', duration: '1 Mes', features: ['Calidad 4K UHD', 'Catálogo Disney/Marvel/Star Wars', 'Audio Dolby Atmos'], defaultSale: 25, defaultCost: 15 },
+    { id: 'max', name: 'Max Platino', type: 'individual', icon: '⚡', color: '#002BE7', duration: '1 Mes', features: ['Calidad 4K UHD', 'Contenido HBO + Discovery', 'Sin anuncios'], defaultSale: 25, defaultCost: 15 },
+    { id: 'youtube', name: 'YouTube Premium', type: 'individual', icon: '▶️', color: '#FF0000', duration: '1 Mes', features: ['Sin anuncios', 'Reproducción en segundo plano', 'YouTube Music incluido'], defaultSale: 20, defaultCost: 10 },
+    { id: 'spotify', name: 'Spotify Premium', type: 'individual', icon: '🎵', color: '#1DB954', duration: '1 Mes', features: ['Sin anuncios', 'Descargas offline', 'Calidad 320kbps'], defaultSale: 20, defaultCost: 10 },
+    { id: 'prime', name: 'Prime Video', type: 'individual', icon: '📦', color: '#00A8E1', duration: '1 Mes', features: ['Calidad 4K UHD', 'Catálogo Prime completo', '1 Pantalla privada'], defaultSale: 20, defaultCost: 12 },
+    { id: 'magis', name: 'Magis TV Pro', type: 'completa', icon: '📺', color: '#FF6B00', duration: '1 Mes', features: ['1200+ Canales en vivo', 'Series y películas', 'Deportes y PPV'], defaultSale: 65, defaultCost: 40 },
+    { id: 'canva', name: 'Canva Pro', type: 'individual', icon: '🎨', color: '#00C4CC', duration: '1 Mes', features: ['100M+ Recursos premium', 'Kit de marcas y fuentes', 'Descargas ilimitadas HD'], defaultSale: 25, defaultCost: 10 },
+    { id: 'capcut', name: 'CapCut Pro', type: 'individual', icon: '🎬', color: '#00E5FF', duration: '1 Mes', features: ['Efectos y transiciones Pro', 'Eliminador de fondo IA', 'Exportación 4K 60fps'], defaultSale: 25, defaultCost: 12 }
+];
+
+window.renderServicePresets = function() {
+    const container = document.getElementById('cp-presets-grid');
+    if (!container) return;
+    container.innerHTML = '';
+    
+    SERVICE_PRESETS.forEach(preset => {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'cp-preset-chip';
+        chip.dataset.presetId = preset.id;
+        chip.innerHTML = `
+            <span class="cp-preset-chip-dot" style="background:${preset.color};"></span>
+            <span>${preset.icon} ${preset.name}</span>
+        `;
+        chip.onclick = () => window.applyServicePreset(preset.id);
+        container.appendChild(chip);
+    });
+};
+
+window.applyServicePreset = function(presetId) {
+    const preset = SERVICE_PRESETS.find(p => p.id === presetId);
+    if (!preset) return;
+
+    // Actualizar campos
+    document.getElementById('cp-name').value = preset.name;
+    window.selectProductType(preset.type);
+    window.setDurationPreset(preset.duration);
+    document.getElementById('cp-features').value = preset.features.join(', ');
+    
+    // Si los precios están vacíos o en 0, sugerir precios recomendados
+    const saleInp = document.getElementById('cp-salePrice');
+    const costInp = document.getElementById('cp-cost');
+    if (!saleInp.value || parseFloat(saleInp.value) === 0) saleInp.value = preset.defaultSale;
+    if (!costInp.value || parseFloat(costInp.value) === 0) costInp.value = preset.defaultCost;
+    
+    // Generar plantilla inicial
+    document.getElementById('cp-wa-template').value = window.generateLocalWaTemplate(
+        preset.name,
+        preset.type,
+        preset.duration,
+        preset.features
+    );
+
+    // Resaltar chip activo
+    document.querySelectorAll('.cp-preset-chip').forEach(c => {
+        c.classList.toggle('active', c.dataset.presetId === presetId);
+    });
+
+    window.calcCustomProfit();
+};
+
+window.setDurationPreset = function(durationText) {
+    const inp = document.getElementById('cp-duration');
+    if (inp) inp.value = durationText;
+
+    document.querySelectorAll('.cp-chip-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent.trim().toLowerCase() === durationText.trim().toLowerCase());
+    });
+};
 
 window.selectProductType = function(type) {
     // Update hidden input
@@ -1195,16 +1278,22 @@ window.selectProductType = function(type) {
         btn.classList.toggle('active', btn.dataset.type === type);
     });
     
-    // Show/hide credential sections with animation
     const singleCreds = document.getElementById('cp-single-credentials');
+    const profileFields = document.getElementById('cp-profile-fields');
     const comboCreds = document.getElementById('cp-combo-credentials');
     
     if (type === 'combo') {
         if (singleCreds) singleCreds.style.display = 'none';
         if (comboCreds) comboCreds.style.display = 'block';
-        document.getElementById('cp-accounts-count').value = document.querySelectorAll('.combo-credential-item').length;
-    } else {
+        document.getElementById('cp-accounts-count').value = document.querySelectorAll('.combo-credential-item').length || 1;
+    } else if (type === 'individual') {
         if (singleCreds) singleCreds.style.display = 'block';
+        if (profileFields) profileFields.style.display = 'grid';
+        if (comboCreds) comboCreds.style.display = 'none';
+        document.getElementById('cp-accounts-count').value = 1;
+    } else { // completa
+        if (singleCreds) singleCreds.style.display = 'block';
+        if (profileFields) profileFields.style.display = 'none';
         if (comboCreds) comboCreds.style.display = 'none';
         document.getElementById('cp-accounts-count').value = 1;
     }
@@ -1221,7 +1310,7 @@ window.addComboItem = function() {
     item.innerHTML = `
         <div class="combo-item-header">Producto ${count}</div>
         <div class="ga-form-group" style="margin-bottom:0.5rem;">
-            <input type="text" class="combo-product-name" placeholder="Nombre del producto">
+            <input type="text" class="combo-product-name" placeholder="Nombre del producto (ej: Max)">
         </div>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
             <input type="text" class="combo-email" placeholder="Correo" style="width:100%;padding:0.55rem 0.75rem;border-radius:10px;border:1.5px solid var(--border);background:var(--bg-main);color:var(--text-main);font-family:'Inter',sans-serif;font-size:0.88rem;box-sizing:border-box;">
@@ -1233,16 +1322,69 @@ window.addComboItem = function() {
     item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 };
 
+window.toggleWAPlateAccordion = function() {
+    const body = document.getElementById('cp-accordion-body');
+    const acc = document.getElementById('cp-wa-accordion');
+    if (!body || !acc) return;
+    
+    const isHidden = body.style.display === 'none' || !body.style.display;
+    body.style.display = isHidden ? 'block' : 'none';
+    acc.classList.toggle('expanded', isHidden);
+};
+
+window.insertWATag = function(tag) {
+    const textarea = document.getElementById('cp-wa-template');
+    if (!textarea) return;
+    
+    const start = textarea.selectionStart || 0;
+    const end = textarea.selectionEnd || 0;
+    const text = textarea.value;
+    
+    textarea.value = text.substring(0, start) + tag + text.substring(end);
+    textarea.selectionStart = textarea.selectionEnd = start + tag.length;
+    textarea.focus();
+};
+
+window.calcCustomProfit = function() {
+    const sale = parseFloat(document.getElementById('cp-salePrice').value) || 0;
+    const cost = parseFloat(document.getElementById('cp-cost').value) || 0;
+    const profit = sale - cost;
+    const margin = sale > 0 ? Math.round((profit / sale) * 100) : 0;
+    
+    const profitEl = document.getElementById('cp-profit-preview');
+    const marginEl = document.getElementById('cp-margin-preview');
+    const statusEl = document.getElementById('cp-profit-status');
+    const cardEl = document.getElementById('cp-profit-card');
+
+    if (profitEl) profitEl.textContent = `${profit.toFixed(2)} Bs`;
+    if (marginEl) marginEl.textContent = `${margin}%`;
+
+    if (statusEl && cardEl) {
+        if (profit > 0) {
+            cardEl.classList.remove('warning');
+            statusEl.textContent = `✅ Rentable (${margin}%)`;
+        } else if (profit === 0) {
+            cardEl.classList.add('warning');
+            statusEl.textContent = `⚠️ Sin margen (0%)`;
+        } else {
+            cardEl.classList.add('warning');
+            statusEl.textContent = `🔴 Pérdida (${profit.toFixed(2)} Bs)`;
+        }
+    }
+};
+
 window.openCustomPlanModal = function() {
-    document.getElementById('custom-plan-title').innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg> Nuevo Producto';
+    document.getElementById('custom-plan-title').textContent = 'Nuevo Producto';
     document.getElementById('custom-plan-form').reset();
     document.getElementById('cp-id').value = '';
     document.getElementById('cp-wa-template').value = '';
     document.getElementById('cp-accounts-count').value = 1;
-    document.getElementById('cp-profit-preview').textContent = '0.00 Bs';
     
-    // Reset switch to 'individual'
-    window.selectProductType('individual');
+    // Clear profile & PIN inputs
+    const profileInp = document.getElementById('cp-single-profile');
+    const pinInp = document.getElementById('cp-single-pin');
+    if (profileInp) profileInp.value = '';
+    if (pinInp) pinInp.value = '';
     
     // Clear credentials inputs
     const singleEmail = document.getElementById('cp-single-email');
@@ -1253,10 +1395,28 @@ window.openCustomPlanModal = function() {
     const comboContainer = document.getElementById('cp-combo-items');
     if (comboContainer) {
         comboContainer.querySelectorAll('input').forEach(inp => inp.value = '');
-        while (comboContainer.children.length > 3) {
+        while (comboContainer.children.length > 2) {
             comboContainer.removeChild(comboContainer.lastChild);
         }
     }
+
+    // Render & reset presets
+    window.renderServicePresets();
+    document.querySelectorAll('.cp-preset-chip').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.cp-chip-btn').forEach(b => b.classList.remove('active'));
+
+    // Collapse WA accordion by default
+    const body = document.getElementById('cp-accordion-body');
+    const acc = document.getElementById('cp-wa-accordion');
+    if (body) body.style.display = 'none';
+    if (acc) acc.classList.remove('expanded');
+
+    // Default duration chip
+    window.setDurationPreset('1 Mes');
+
+    // Reset switch to 'individual'
+    window.selectProductType('individual');
+    window.calcCustomProfit();
     
     document.getElementById('custom-plan-modal').style.display = 'flex';
 };
@@ -1265,18 +1425,15 @@ window.closeCustomPlanModal = function() {
     document.getElementById('custom-plan-modal').style.display = 'none';
 };
 
-window.calcCustomProfit = function() {
-    const sale = parseFloat(document.getElementById('cp-salePrice').value) || 0;
-    const cost = parseFloat(document.getElementById('cp-cost').value) || 0;
-    const profit = (sale - cost).toFixed(2);
-    const el = document.getElementById('cp-profit-preview');
-    if (el) {
-        el.textContent = `${profit} Bs`;
-        el.style.color = profit >= 0 ? 'var(--green)' : 'var(--accent-red)';
-    }
-};
-
 window.submitCustomPlan = async function() {
+    const name = document.getElementById('cp-name').value.trim();
+    if (!name) {
+        showToast('⚠️ Ingresa un nombre para el producto');
+        document.getElementById('cp-name').focus();
+        return;
+    }
+
+    const duration = document.getElementById('cp-duration').value.trim() || '1 Mes';
     const id = document.getElementById('cp-id').value || `cp-${Date.now()}`;
     const featuresStr = document.getElementById('cp-features').value;
     const features = featuresStr ? featuresStr.split(',').map(f => f.trim()).filter(f => f) : [];
@@ -1285,12 +1442,12 @@ window.submitCustomPlan = async function() {
     const cost = parseFloat(document.getElementById('cp-cost').value) || 0;
     const category = document.getElementById('cp-category').value;
 
-    let waTemplate = document.getElementById('cp-wa-template').value;
+    let waTemplate = document.getElementById('cp-wa-template').value.trim();
     if (!waTemplate) {
         waTemplate = window.generateLocalWaTemplate(
-            document.getElementById('cp-name').value.trim(),
+            name,
             category,
-            document.getElementById('cp-duration').value.trim(),
+            duration,
             features
         );
     }
@@ -1310,13 +1467,15 @@ window.submitCustomPlan = async function() {
     } else {
         credentials.email = document.getElementById('cp-single-email')?.value?.trim() || '';
         credentials.password = document.getElementById('cp-single-password')?.value?.trim() || '';
+        credentials.profileName = document.getElementById('cp-single-profile')?.value?.trim() || '';
+        credentials.profilePin = document.getElementById('cp-single-pin')?.value?.trim() || '';
     }
 
     const plan = {
         id,
-        name: document.getElementById('cp-name').value.trim(),
+        name,
         category,
-        duration: document.getElementById('cp-duration').value.trim(),
+        duration,
         salePrice,
         cost,
         profit: salePrice - cost,
@@ -1329,37 +1488,58 @@ window.submitCustomPlan = async function() {
         createdAt: new Date().toISOString()
     };
 
+    // 1. Inmediatamente actualizar memoria local
+    const existingIdx = customPlans.findIndex(p => p.id === id);
+    if (existingIdx >= 0) {
+        customPlans[existingIdx] = plan;
+    } else {
+        customPlans.unshift(plan);
+    }
+    window.customPlans = customPlans;
+
+    // 2. Guardar en localStorage de inmediato
     try {
-        if (!db) throw new Error("Firebase no inicializado");
-        
-        const btn = document.querySelector('#custom-plan-form .ga-btn-submit');
-        const ogText = btn ? btn.textContent : 'Guardar Plan';
-        if (btn) {
-            btn.textContent = 'Guardando...';
-            btn.disabled = true;
-        }
+        localStorage.setItem('plixora_custom_plans', JSON.stringify(customPlans));
+    } catch(err) {
+        console.warn('Error guardando en localStorage:', err);
+    }
 
-        await db.collection('plixora_custom_plans').doc(id).set(plan);
-        window.closeCustomPlanModal();
-        showToast('✅ Producto guardado exitosamente');
-        
-        if (btn) {
-            btn.textContent = ogText;
-            btn.disabled = false;
+    // 3. Renderizar de inmediato el catálogo y selector de ventas
+    try {
+        renderCatalog('all');
+        document.querySelectorAll('.filter-btn').forEach(b => {
+            b.classList.toggle('active', b.dataset.filter === 'all');
+        });
+        if (typeof window.populateSelect === 'function') {
+            window.populateSelect();
         }
+    } catch(err) {
+        console.error('Error renderizando catálogo:', err);
+    }
 
-        setTimeout(() => {
-            window.showCustomPlanPreview(plan);
-        }, 300);
+    // 4. Cerrar modal y mostrar confirmación
+    window.closeCustomPlanModal();
+    showToast('✅ ¡Producto guardado y visible en el catálogo!');
 
-    } catch (e) {
-        console.error('Error guardando producto:', e);
-        showToast('❌ Error al guardar el producto');
-        const btn = document.querySelector('#custom-plan-form .ga-btn-submit');
-        if (btn) {
-            btn.textContent = 'Guardar Plan';
-            btn.disabled = false;
+    // 5. Scroll suave y efecto resplandor en la tarjeta creada
+    setTimeout(() => {
+        const newCard = document.getElementById('product-card-' + plan.id);
+        if (newCard) {
+            newCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            newCard.classList.add('new-product-highlight');
+            setTimeout(() => newCard.classList.remove('new-product-highlight'), 3000);
         }
+    }, 100);
+
+    // 6. Sincronizar asíncronamente en segundo plano con Firestore
+    if (typeof db !== 'undefined' && db) {
+        db.collection('plixora_custom_plans').doc(id).set(plan)
+            .then(() => {
+                console.log('✅ Plan sincronizado exitosamente en la nube Firestore:', id);
+            })
+            .catch(e => {
+                console.warn('⚠️ Guardado local exitoso. Firestore se sincronizará cuando haya conexión:', e);
+            });
     }
 };
 
@@ -1367,7 +1547,7 @@ window.editCustomPlan = function(id) {
     const plan = customPlans.find(p => p.id === id);
     if (!plan) return;
 
-    document.getElementById('custom-plan-title').innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg> Editar Producto';
+    document.getElementById('custom-plan-title').textContent = 'Editar Producto';
     document.getElementById('cp-id').value = plan.id;
     document.getElementById('cp-name').value = plan.name;
     
@@ -1375,10 +1555,15 @@ window.editCustomPlan = function(id) {
     
     document.getElementById('cp-accounts-count').value = plan.accountsCount || 1;
     document.getElementById('cp-duration').value = plan.duration;
+    window.setDurationPreset(plan.duration);
+    
     document.getElementById('cp-salePrice').value = plan.salePrice;
     document.getElementById('cp-cost').value = plan.cost;
     document.getElementById('cp-features').value = plan.features ? plan.features.join(', ') : '';
     document.getElementById('cp-wa-template').value = plan.aiWamessageTemplate || '';
+    
+    // Preset bar setup
+    window.renderServicePresets();
     
     if (plan.credentials) {
         if (plan.category === 'combo' && plan.credentials.combo) {
@@ -1402,8 +1587,13 @@ window.editCustomPlan = function(id) {
         } else {
             const singleEmail = document.getElementById('cp-single-email');
             const singlePass = document.getElementById('cp-single-password');
+            const singleProfile = document.getElementById('cp-single-profile');
+            const singlePin = document.getElementById('cp-single-pin');
+
             if (singleEmail) singleEmail.value = plan.credentials.email || '';
             if (singlePass) singlePass.value = plan.credentials.password || '';
+            if (singleProfile) singleProfile.value = plan.credentials.profileName || '';
+            if (singlePin) singlePin.value = plan.credentials.profilePin || '';
         }
     }
     
@@ -1414,13 +1604,27 @@ window.editCustomPlan = function(id) {
 window.deleteCustomPlan = async function(id, name) {
     if (!confirm(`¿Estás seguro de que quieres eliminar el producto "${name}"?\nEsto NO afectará a las ventas ya registradas.`)) return;
 
+    // 1. Eliminar inmediatamente de memoria y localStorage
+    customPlans = customPlans.filter(p => p.id !== id);
+    window.customPlans = customPlans;
     try {
-        if (!db) throw new Error("Firebase no inicializado");
-        await db.collection('plixora_custom_plans').doc(id).delete();
-        showToast('✅ Producto eliminado exitosamente');
+        localStorage.setItem('plixora_custom_plans', JSON.stringify(customPlans));
+    } catch(e) {}
+
+    // 2. Re-renderizar catálogo inmediatamente
+    renderCatalog('all');
+    if (typeof window.populateSelect === 'function') {
+        window.populateSelect();
+    }
+    showToast('✅ Producto eliminado del catálogo');
+
+    // 3. Sincronizar borrado en Firestore
+    try {
+        if (typeof db !== 'undefined' && db) {
+            await db.collection('plixora_custom_plans').doc(id).delete();
+        }
     } catch (e) {
-        console.error('Error eliminando producto:', e);
-        showToast('❌ Error al eliminar el producto');
+        console.error('Error eliminando producto de Firestore:', e);
     }
 };
 
@@ -1656,7 +1860,7 @@ window.generateLocalWaTemplate = function(name, category, duration, features, ac
         rules = '• 📺 *LÍMITE DE PANTALLA:* Solo se permite reproducir en *1 dispositivo a la vez*.\n• Prohibido cambiar el nombre del perfil.\n• Puedes crear un PIN en tu perfil si deseas mayor privacidad.';
     } else if (lowerName.includes('spotify') || lowerName.includes('sp')) {
         rules = '• Inicia sesión directamente ingresando correo y contraseña en Spotify.\n• No usar "Iniciar sesión con Google".';
-    } else if (lowerName.includes('hbo') || lowerName.includes('disney') || lowerName.includes('prime')) {
+    } else if (lowerName.includes('hbo') || lowerName.includes('disney') || lowerName.includes('prime') || lowerName.includes('max')) {
         rules = '• Usar únicamente el perfil asignado.\n• No alterar la facturación o planes contratados.';
     }
 
@@ -1672,6 +1876,10 @@ window.generateLocalWaTemplate = function(name, category, duration, features, ac
         credsBlock += `┌─────────────────────────\n`;
         credsBlock += `│ 📧 *Correo:* \`{correo}\`\n`;
         credsBlock += `│ 🔑 *Contraseña:* \`{contrasena}\`\n`;
+        if (category === 'individual') {
+            credsBlock += `│ 👤 *Perfil:* {perfil}\n`;
+            credsBlock += `│ 🔒 *PIN:* {pin}\n`;
+        }
         credsBlock += `└─────────────────────────\n`;
     }
 
@@ -1711,9 +1919,12 @@ window.showCustomPlanPreview = function(plan) {
     let previewText = template
         .replace(/{cliente}/g, 'Johan Valdivia')
         .replace(/{pedido}/g, 'PLX-MOCK12')
+        .replace(/{producto}/g, plan.name)
         .replace(/{duracion}/g, plan.duration)
-        .replace(/{correo}/g, 'cliente-premium@plixora.bo')
-        .replace(/{contrasena}/g, 'plixora2026*');
+        .replace(/{correo}/g, (plan.credentials && plan.credentials.email) || 'cliente-premium@plixora.bo')
+        .replace(/{contrasena}/g, (plan.credentials && plan.credentials.password) || 'plixora2026*')
+        .replace(/{perfil}/g, (plan.credentials && plan.credentials.profileName) || 'Perfil 2')
+        .replace(/{pin}/g, (plan.credentials && plan.credentials.profilePin) || '1234');
 
     if (plan.credentials && plan.credentials.combo) {
         plan.credentials.combo.forEach((c, idx) => {

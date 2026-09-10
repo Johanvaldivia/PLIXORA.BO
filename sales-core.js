@@ -112,7 +112,10 @@ window.generateSaleDetailsText = function(sale) {
         let message = matchingPlan.aiWamessageTemplate
             .replace(/{cliente}/g, clienteName)
             .replace(/{pedido}/g, sale.orderCode || 'PLX-####')
-            .replace(/{duracion}/g, matchingPlan.duration);
+            .replace(/{producto}/g, matchingPlan.name)
+            .replace(/{duracion}/g, matchingPlan.duration)
+            .replace(/{perfil}/g, sale.profileName || sale.profile || (matchingPlan.credentials && matchingPlan.credentials.profileName) || 'Perfil Asignado')
+            .replace(/{pin}/g, sale.profilePin || sale.pin || (matchingPlan.credentials && matchingPlan.credentials.profilePin) || 'Sin PIN');
 
         if (sale.credentials && sale.credentials.length > 0) {
             sale.credentials.forEach((cred, index) => {
