@@ -125,7 +125,12 @@ function createClient() {
             '--no-zygote',
             '--disable-gpu',
             '--disable-extensions',
-            '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'
+            '--disable-features=IsolateOrigins,site-per-process,AudioServiceOutOfProcess',
+            '--disable-site-isolation-trials',
+            '--disable-background-timer-throttling',
+            '--disable-backgrounding-occluded-windows',
+            '--disable-breakpad',
+            '--disable-component-update'
         ]
     };
 
@@ -139,9 +144,7 @@ function createClient() {
         }),
         puppeteer: puppeteerConfig,
         webVersionCache: {
-            type: 'remote',
-            remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/{version}.html',
-            strict: false
+            type: 'none'
         }
     });
 }
@@ -464,6 +467,32 @@ app.get('/status', (req, res) => {
     });
 });
 
+// ── Helper Seguro para Enviar Mensajes con Auto-Recuperación ──
+async function safeSendMessage(chatId, content, options) {
+    try {
+        return await client.sendMessage(chatId, content, options);
+    } catch (err) {
+        const errMsg = (err && err.message) ? err.message : String(err);
+        if (errMsg.includes('detached Frame') || errMsg.includes('Execution context was destroyed')) {
+            console.warn('⚠️ Frame desvinculado detectado en sendMessage. Intentando auto-recuperar navegador...');
+            if (client && client.pupPage && !client.pupPage.isClosed()) {
+                try {
+                    await client.pupPage.reload({ waitUntil: 'domcontentloaded', timeout: 15000 });
+                    await new Promise(r => setTimeout(r, 2000));
+                    return await client.sendMessage(chatId, content, options);
+                } catch (retryErr) {
+                    console.error('❌ Error al reintentar tras reload:', retryErr.message);
+                }
+            }
+            setTimeout(() => {
+                if (!isRestarting) startClient();
+            }, 1000);
+            throw new Error('El navegador de WhatsApp se estaba sincronizando en segundo plano. Ya se ha restablecido; por favor presiona Enviar nuevamente.');
+        }
+        throw err;
+    }
+}
+
 // ── API: Enviar Mensaje de Texto ──────────────────────────────
 app.post('/api/send-message', requireToken, async (req, res) => {
     try {
@@ -482,7 +511,7 @@ app.post('/api/send-message', requireToken, async (req, res) => {
         }
 
         const chatId = fp + '@c.us';
-        await client.sendMessage(chatId, String(message));
+        await safeSendMessage(chatId, String(message));
         console.log(`💬 Mensaje enviado exitosamente a ${fp}`);
         return res.status(200).json({ success: true, message: 'Mensaje enviado correctamente.' });
     } catch (error) {
@@ -522,7 +551,7 @@ app.post('/api/send-image', requireToken, async (req, res) => {
         }
 
         const chatId = fp + '@c.us';
-        await client.sendMessage(chatId, media, { caption: caption || '' });
+        await safeSendMessage(chatId, media, { caption: caption || '' });
         console.log(`🖼️ Imagen enviada exitosamente a ${fp}`);
         return res.status(200).json({ success: true, message: 'Imagen enviada correctamente.' });
     } catch (error) {
