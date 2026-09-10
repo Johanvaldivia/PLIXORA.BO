@@ -13,6 +13,7 @@
     function initAuth() {
         if (typeof firebase === 'undefined' || !firebase.auth) {
             console.warn('⚠️ Firebase Auth SDK not loaded');
+            hideLogin();
             showApp(); // fallback: show app if SDK missing
             return;
         }
@@ -165,14 +166,17 @@
         const screen = document.getElementById('login-screen');
         if (!screen) return;
 
-        // Fade out animation
+        // Immediate pointer-events release + fade out animation
+        screen.style.pointerEvents = 'none';
         screen.classList.add('fade-out');
         setTimeout(function () {
             screen.classList.add('hidden-login');
-        }, 500);
+            screen.style.display = 'none';
+        }, 400);
     }
 
     function showApp() {
+        hideLogin();
         const app = document.getElementById('app-content');
         if (app) {
             app.style.display = '';

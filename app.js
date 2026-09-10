@@ -18,6 +18,9 @@ window.customPlans = customPlans;
 let db = null;
 let unsubscribe = null;
 let unsubscribeCustomPlans = null;
+let plixoraContacts = JSON.parse(localStorage.getItem('plixora_contacts')) || [];
+let contactsUnsubscribe = null;
+window.plixoraContacts = plixoraContacts;
 
 const debouncedUpdateDashboard = window.debounce(function() {
     if (typeof updateDashboard === 'function') updateDashboard();
@@ -73,7 +76,7 @@ function initTheme() {
 }
 
 // ---- INICIALIZACIÓN ----
-document.addEventListener('DOMContentLoaded', () => {
+function initApp() {
     initTheme();
     setupNavigation();
     setupNotificationBell();
@@ -83,9 +86,9 @@ document.addEventListener('DOMContentLoaded', () => {
     updateCurrentDate();
     setupPeriodTabs();
     setupHistoryControls();
-    initContacts();
+    if (typeof initContacts === 'function') initContacts();
     initFirebase();
-});
+}
 
 // ---- NOTIFICATION BELL ----
 function setupNotificationBell() {
@@ -431,12 +434,26 @@ function setCloudStatus(status, detail) {
 function setupNavigation() {
     // Desktop top nav buttons
     document.querySelectorAll('.nav-item').forEach(item => {
-        item.addEventListener('click', () => navigateTo(item.dataset.target));
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            navigateTo(item.dataset.target);
+        });
     });
 
     // Mobile pill nav buttons
     document.querySelectorAll('.pill-nav-item[data-target]').forEach(item => {
-        item.addEventListener('click', () => navigateTo(item.dataset.target));
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            navigateTo(item.dataset.target);
+        });
+    });
+
+    // Delegación a nivel de document para máxima confiabilidad (inmune a re-renders o retardos)
+    document.addEventListener('click', (e) => {
+        const navBtn = e.target.closest('.nav-item, .pill-nav-item');
+        if (navBtn && navBtn.dataset && navBtn.dataset.target) {
+            navigateTo(navBtn.dataset.target);
+        }
     });
 }
 
@@ -811,7 +828,8 @@ let currentEditingSaleId = null;
 
 
 // ---- GENERAR MENÚ WA ----
-btnGenerateWA.addEventListener('click', () => {
+if (btnGenerateWA) {
+    btnGenerateWA.addEventListener('click', () => {
     const text = `🏪 *PLIXORA.BO – CATÁLOGO GENERAL*
 
 🎬 *CAPCUT PRO*
@@ -918,7 +936,8 @@ btnGenerateWA.addEventListener('click', () => {
 📲 *WhatsApp:* 73651440`;
 
     window.copyToClipboardWithToast(text, 'Menú');
-});
+    });
+}
 
 // ---- GENERAR MENÚ TV PARA WHATSAPP ----
 window.copyTVMenu = function() {
@@ -1144,12 +1163,11 @@ function navigateTo(target) {
 
     try { document.querySelector('.main-content').scrollTo({ top:0, behavior:'smooth' }); } catch(e){}
 }
+window.navigateTo = navigateTo;
 
 // ============================================================
 // MÓDULO: CLIENTES FRECUENTES (Contactos)
 // ============================================================
-let plixoraContacts = [];
-let contactsUnsubscribe = null;
 
 
 
@@ -1163,11 +1181,6 @@ window.closeContactsModal = function() {
 
 
 
-
-// ============================================================
-// MÓDULO: REEMPLAZAR CUENTA
-// ============================================================
-let pendingReplaceSaleId = null;
 
 // ==========================================
 // SISTEMA DE PRODUCTOS PERSONALIZADOS
@@ -1961,3 +1974,12 @@ document.addEventListener('DOMContentLoaded', () => {
         startWaBotPolling();
     }
 })();
+
+// =============================================================
+// BOOTSTRAP INITIALIZATION
+// =============================================================
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp);
+} else {
+    initApp();
+}

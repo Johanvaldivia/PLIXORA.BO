@@ -32,10 +32,11 @@
 }
 .login-screen.fade-out {
     opacity: 0;
-    pointer-events: none;
+    pointer-events: none !important;
 }
 .login-screen.hidden-login {
     display: none !important;
+    pointer-events: none !important;
 }
 
 .login-container {
