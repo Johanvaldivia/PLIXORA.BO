@@ -6,10 +6,10 @@
     <title>PLIXORA.BO - Sistema de Ventas</title>
     <link rel="icon" href="logo.jpg">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=2.5">
-    <link rel="stylesheet" href="login.css?v=2.5">
-    <link rel="stylesheet" href="analytics.css?v=2.5">
-    <link rel="stylesheet" href="group-accounts.css?v=2.5">
+    <link rel="stylesheet" href="style.css?v=2.9">
+    <link rel="stylesheet" href="login.css?v=2.9">
+    <link rel="stylesheet" href="analytics.css?v=2.9">
+    <link rel="stylesheet" href="group-accounts.css?v=2.9">
     <script>
         (function () {
             try {
@@ -644,10 +644,16 @@
                         <h2><span class="nf-n-badge">N</span> Gestión Netflix</h2>
                         <p class="subtitle">Administra cuentas y perfiles de Netflix</p>
                     </div>
-                    <button class="btn btn-primary" onclick="openNFAddModal()">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-                        Nueva Cuenta
-                    </button>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button type="button" class="btn btn-secondary" onclick="window.openNFPricingModal()" style="display:inline-flex;align-items:center;gap:6px;padding:0.55rem 0.95rem;font-size:0.85rem;border-radius:10px;font-weight:600;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text-main);" title="Configurar costos y precios de venta">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" style="width:16px;height:16px;color:var(--orange);"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+                            <span>Costos y Precios</span>
+                        </button>
+                        <button class="btn btn-primary" onclick="openNFAddModal()">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                            Nueva Cuenta
+                        </button>
+                    </div>
                 </div>
                 <!-- Metrics -->
                 <div class="nf-metrics">
@@ -924,11 +930,11 @@
                 <div class="form-row"><div class="form-group half"><label>Nombre del cliente *</label><input id="nf-a-cliente" type="text" placeholder="Ej: Juan Pérez" required></div><div class="form-group half"><label>WhatsApp *</label><input id="nf-a-wa" type="text" placeholder="Ej: 73651440" required></div></div>
                 <div class="form-row"><div class="form-group half"><label>Fecha inicio</label><input id="nf-a-inicio" type="date"></div><div class="form-group half"><label>Fecha vencimiento *</label><input id="nf-a-venc" type="date" required></div></div>
                 <div class="form-row"><div class="form-group"><label>Observación</label><input id="nf-a-obs" type="text" placeholder="Opcional..."></div></div>
-                <div style="display:flex;gap:0.5rem;margin-top:1rem;padding-top:0.75rem;border-top:1px solid var(--border)">
-                    <button type="button" class="btn btn-outline" onclick="closeNFAssign()" style="flex:0 0 auto;padding:0.55rem 1.1rem;font-size:0.82rem;border-radius:10px">Cancelar</button>
-                    <div style="flex:1;display:flex;gap:0.5rem;justify-content:flex-end">
-                        <button type="submit" class="btn btn-primary" style="flex:0 0 auto;padding:0.55rem 1.2rem;font-size:0.82rem;border-radius:10px;box-shadow:0 2px 8px rgba(254,91,41,0.25)">Guardar</button>
-                        <button type="button" class="btn" onclick="submitNFAssignAndSend()" style="flex:0 0 auto;padding:0.55rem 1.2rem;font-size:0.82rem;border-radius:10px;background:linear-gradient(135deg,#25d366,#128c7e);color:#fff;box-shadow:0 2px 8px rgba(37,211,102,0.3)">Enviar por WA</button>
+                <div style="display:flex;gap:0.5rem;margin-top:1rem;padding-top:0.75rem;border-top:1px solid var(--border);flex-wrap:wrap;">
+                    <button type="button" class="btn btn-outline" onclick="closeNFAssign()" style="flex:1 1 auto;padding:0.55rem 1rem;font-size:0.82rem;border-radius:10px">Cancelar</button>
+                    <div style="flex:2 1 200px;display:flex;gap:0.5rem;justify-content:flex-end;flex-wrap:wrap;">
+                        <button type="submit" class="btn btn-primary" style="flex:1 1 90px;padding:0.55rem 1rem;font-size:0.82rem;border-radius:10px;box-shadow:0 2px 8px rgba(254,91,41,0.25)">Guardar</button>
+                        <button type="button" class="btn" onclick="submitNFAssignAndSend()" style="flex:1 1 120px;padding:0.55rem 1rem;font-size:0.82rem;border-radius:10px;background:linear-gradient(135deg,#25d366,#128c7e);color:#fff;box-shadow:0 2px 8px rgba(37,211,102,0.3)">Enviar por WA</button>
                     </div>
                 </div>
             </form>
@@ -1221,9 +1227,9 @@
                     <input type="number" id="ga-member-price" placeholder="Ej: 15" step="0.01" min="0">
                 </div>
             </div>
-            <div style="display:flex;gap:0.75rem;margin-top:0.5rem;">
-                <button id="ga-btn-save-only" class="ga-btn-submit" style="background:#374151;flex:1;" onclick="gaSaveOnlyMember()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Solo Guardar</button>
-                <button id="ga-btn-save-send" class="ga-btn-submit" style="flex:1;" onclick="gaSubmitNewMember()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9z"/></svg> Agregar y Enviar por WhatsApp</button>
+            <div class="ga-modal-btn-row">
+                <button id="ga-btn-save-send" class="ga-btn-submit" onclick="gaSubmitNewMember()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9z"/></svg> Agregar y Enviar por WhatsApp</button>
+                <button id="ga-btn-save-only" class="ga-btn-submit" style="background:#374151; opacity:0.85;" onclick="gaSaveOnlyMember()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Solo Guardar</button>
             </div>
         </div>
     </div>
@@ -1514,6 +1520,206 @@
         </div>
     </div>
 
+    <!-- Modal: Editar Precio de Producto del Catálogo -->
+    <div id="catalog-edit-price-modal" class="cp-modal-overlay" style="display:none">
+        <div class="cp-modal-container" style="max-width: 440px;">
+            <div class="cp-modal-header">
+                <div class="cp-modal-title-wrap">
+                    <div class="cp-title-icon" style="background: rgba(254,91,41,0.12); color: var(--orange);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    </div>
+                    <div>
+                        <h3 id="cep-product-title" style="margin:0; font-size:1.1rem; font-weight:700;">Editar Precio</h3>
+                        <span id="cep-product-subtitle" class="cp-modal-subtitle" style="font-size:0.8rem; color:var(--text-muted);">Ajusta el precio y costo de este producto</span>
+                    </div>
+                </div>
+                <button type="button" class="cp-close-btn" onclick="window.closeEditProductPriceModal()" title="Cerrar modal">✕</button>
+            </div>
+
+            <form id="catalog-edit-price-form" onsubmit="event.preventDefault(); window.saveCatalogProductPrice();" style="display:flex; flex-direction:column; flex:1; min-height:0; margin:0;">
+                <input type="hidden" id="cep-product-id">
+                
+                <div class="cp-modal-body" style="padding: 1.25rem 1.5rem;">
+                    <!-- Badge del producto seleccionado -->
+                    <div style="display:flex; align-items:center; justify-content:space-between; background:var(--bg-input); border:1px solid var(--border); border-radius:10px; padding:0.75rem 1rem; margin-bottom:1rem;">
+                        <span id="cep-product-name-badge" style="font-weight:700; font-size:0.92rem; color:var(--text-main);">Producto</span>
+                        <span id="cep-product-duration-badge" style="font-size:0.75rem; background:rgba(254,91,41,0.12); color:var(--orange); font-weight:600; padding:2px 8px; border-radius:6px;">1 Mes</span>
+                    </div>
+
+                    <!-- Campos de Precio y Costo -->
+                    <div class="cp-form-row" style="margin-bottom:1rem;">
+                        <div class="ga-form-group" style="margin-bottom:0;">
+                            <label style="font-size:0.82rem; font-weight:600; margin-bottom:0.35rem; display:block;">Precio Venta (Bs) *</label>
+                            <input type="number" id="cep-sale-price" placeholder="Ej: 15" step="0.5" required oninput="window.calcCatalogEditProfit()" style="font-size:16px; font-weight:700; padding:0.6rem 0.8rem;">
+                        </div>
+                        <div class="ga-form-group" style="margin-bottom:0;">
+                            <label style="font-size:0.82rem; font-weight:600; margin-bottom:0.35rem; display:block;">Costo Compra (Bs) *</label>
+                            <input type="number" id="cep-cost" placeholder="Ej: 8" step="0.5" required oninput="window.calcCatalogEditProfit()" style="font-size:16px; font-weight:700; padding:0.6rem 0.8rem;">
+                        </div>
+                    </div>
+
+                    <!-- Tarjeta de Ganancia en Vivo -->
+                    <div class="cp-profit-card" id="cep-profit-card" style="margin-bottom:0.5rem; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:10px; padding:0.85rem 1rem; display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <span style="display:block; font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px;">Ganancia Neta</span>
+                            <span id="cep-profit-preview" style="font-size:1.25rem; font-weight:800; color:#10b981;">0.00 Bs</span>
+                        </div>
+                        <div>
+                            <span id="cep-margin-badge" style="font-size:0.78rem; font-weight:700; padding:4px 10px; border-radius:20px; background:rgba(16,185,129,0.12); color:#10b981;">0% Margen</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cp-modal-footer" style="padding:1rem 1.5rem; border-top:1px solid var(--border); display:flex; gap:0.6rem; justify-content:flex-end;">
+                    <button type="button" class="btn btn-outline" onclick="window.closeEditProductPriceModal()" style="padding:0.6rem 1.2rem; border-radius:10px; font-size:0.85rem;">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" style="padding:0.6rem 1.4rem; border-radius:10px; font-size:0.85rem; font-weight:700; background:var(--gradient); border:none; box-shadow:0 2px 10px rgba(254,91,41,0.3);">
+                        💾 Guardar Precio
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Configuración de Costos y Precios Netflix -->
+    <div id="nf-pricing-modal" class="cp-modal-overlay" style="display:none">
+        <div class="cp-modal-container" style="max-width: 520px;">
+            <div class="cp-modal-header">
+                <div class="cp-modal-title-wrap">
+                    <div class="cp-title-icon" style="background: rgba(229,9,20,0.12); color: #E50914;">
+                        <span style="font-weight:900; font-size:1.2rem; line-height:1;">N</span>
+                    </div>
+                    <div>
+                        <h3 style="margin:0; font-size:1.1rem; font-weight:700;">Costos y Precios de Netflix</h3>
+                        <span class="cp-modal-subtitle" style="font-size:0.8rem; color:var(--text-muted);">Calcula automáticamente costos por perfil y ganancias</span>
+                    </div>
+                </div>
+                <button type="button" class="cp-close-btn" onclick="window.closeNFPricingModal()" title="Cerrar modal">✕</button>
+            </div>
+
+            <form id="nf-pricing-form" onsubmit="event.preventDefault(); window.saveNFPricing();" style="display:flex; flex-direction:column; flex:1; min-height:0; margin:0;">
+                <div class="cp-modal-body" style="padding: 1.25rem 1.5rem;">
+                    
+                    <!-- Tarjeta Costo Cuenta Completa -->
+                    <div class="cp-card-block" style="background:rgba(229,9,20,0.04); border:1px solid rgba(229,9,20,0.2); border-radius:12px; padding:1rem; margin-bottom:1.25rem;">
+                        <div class="ga-form-group" style="margin-bottom:0.6rem;">
+                            <label style="font-size:0.85rem; font-weight:700; color:var(--text-main); display:flex; align-items:center; justify-content:space-between;">
+                                <span>💵 ¿Cuánto te costó la cuenta completa? (en Bolivianos)</span>
+                            </label>
+                            <div style="position:relative; display:flex; align-items:center;">
+                                <input type="number" id="nfp-account-cost" placeholder="Ej: 50" step="0.5" required oninput="window.calcNFPricingLive()" style="font-size:16px; font-weight:800; padding:0.65rem 0.9rem; border-radius:8px; border:1px solid var(--border); background:var(--bg-input); color:var(--text-main); width:100%;">
+                                <span style="position:absolute; right:12px; font-weight:700; color:var(--text-muted); font-size:0.9rem;">Bs</span>
+                            </div>
+                        </div>
+
+                        <!-- Badge cálculo automático ÷ 5 -->
+                        <div style="background:rgba(255,255,255,0.05); border-radius:8px; padding:0.6rem 0.85rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px;">
+                            <div style="display:flex; align-items:center; gap:6px;">
+                                <span style="font-size:0.8rem; color:var(--text-muted);">Costo por perfil (1 mes):</span>
+                                <span style="font-size:0.75rem; color:var(--text-muted); opacity:0.8;">(÷ 5 perfiles)</span>
+                            </div>
+                            <span id="nfp-profile-cost-display" style="font-size:1.05rem; font-weight:800; color:#10b981;">10.00 Bs</span>
+                        </div>
+                    </div>
+
+                    <!-- Planes de Venta: 1m, 2m, 3m, 4m -->
+                    <div style="margin-bottom:0.75rem;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.6rem;">
+                            <span style="font-weight:700; font-size:0.85rem; color:var(--text-main);">Configura el Precio de Venta por Plan</span>
+                            <span style="font-size:0.75rem; color:var(--text-muted);">Ganancias automáticas</span>
+                        </div>
+
+                        <div style="display:flex; flex-direction:column; gap:0.65rem;" id="nfp-plans-container">
+                            
+                            <!-- 1 Mes -->
+                            <div class="nfp-plan-row" style="background:var(--bg-input); border:1px solid var(--border); border-radius:10px; padding:0.7rem 0.9rem; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+                                <div style="min-width:70px;">
+                                    <span style="font-weight:700; font-size:0.9rem; color:var(--text-main); display:block;">1 Mes</span>
+                                    <span id="nfp-cost-1m" style="font-size:0.72rem; color:var(--text-muted);">Costo: 10 Bs</span>
+                                </div>
+                                <div style="display:flex; align-items:center; gap:6px;">
+                                    <span style="font-size:0.78rem; color:var(--text-muted);">Venta:</span>
+                                    <div style="position:relative; width:85px;">
+                                        <input type="number" id="nfp-price-1m" value="15" step="0.5" required oninput="window.calcNFPricingLive()" style="width:100%; font-size:16px; font-weight:700; padding:0.4rem 0.5rem; padding-right:1.4rem; border-radius:6px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-main);">
+                                        <span style="position:absolute; right:6px; top:50%; transform:translateY(-50%); font-size:0.75rem; color:var(--text-muted);">Bs</span>
+                                    </div>
+                                </div>
+                                <div style="text-align:right; min-width:85px;">
+                                    <span style="font-size:0.7rem; color:var(--text-muted); display:block;">Ganancia</span>
+                                    <span id="nfp-profit-1m" style="font-weight:800; font-size:0.9rem; color:#10b981;">+5.00 Bs</span>
+                                </div>
+                            </div>
+
+                            <!-- 2 Meses -->
+                            <div class="nfp-plan-row" style="background:var(--bg-input); border:1px solid var(--border); border-radius:10px; padding:0.7rem 0.9rem; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+                                <div style="min-width:70px;">
+                                    <span style="font-weight:700; font-size:0.9rem; color:var(--text-main); display:block;">2 Meses</span>
+                                    <span id="nfp-cost-2m" style="font-size:0.72rem; color:var(--text-muted);">Costo: 20 Bs</span>
+                                </div>
+                                <div style="display:flex; align-items:center; gap:6px;">
+                                    <span style="font-size:0.78rem; color:var(--text-muted);">Venta:</span>
+                                    <div style="position:relative; width:85px;">
+                                        <input type="number" id="nfp-price-2m" value="29" step="0.5" required oninput="window.calcNFPricingLive()" style="width:100%; font-size:16px; font-weight:700; padding:0.4rem 0.5rem; padding-right:1.4rem; border-radius:6px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-main);">
+                                        <span style="position:absolute; right:6px; top:50%; transform:translateY(-50%); font-size:0.75rem; color:var(--text-muted);">Bs</span>
+                                    </div>
+                                </div>
+                                <div style="text-align:right; min-width:85px;">
+                                    <span style="font-size:0.7rem; color:var(--text-muted); display:block;">Ganancia</span>
+                                    <span id="nfp-profit-2m" style="font-weight:800; font-size:0.9rem; color:#10b981;">+9.00 Bs</span>
+                                </div>
+                            </div>
+
+                            <!-- 3 Meses -->
+                            <div class="nfp-plan-row" style="background:var(--bg-input); border:1px solid var(--border); border-radius:10px; padding:0.7rem 0.9rem; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+                                <div style="min-width:70px;">
+                                    <span style="font-weight:700; font-size:0.9rem; color:var(--text-main); display:block;">3 Meses</span>
+                                    <span id="nfp-cost-3m" style="font-size:0.72rem; color:var(--text-muted);">Costo: 30 Bs</span>
+                                </div>
+                                <div style="display:flex; align-items:center; gap:6px;">
+                                    <span style="font-size:0.78rem; color:var(--text-muted);">Venta:</span>
+                                    <div style="position:relative; width:85px;">
+                                        <input type="number" id="nfp-price-3m" value="40" step="0.5" required oninput="window.calcNFPricingLive()" style="width:100%; font-size:16px; font-weight:700; padding:0.4rem 0.5rem; padding-right:1.4rem; border-radius:6px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-main);">
+                                        <span style="position:absolute; right:6px; top:50%; transform:translateY(-50%); font-size:0.75rem; color:var(--text-muted);">Bs</span>
+                                    </div>
+                                </div>
+                                <div style="text-align:right; min-width:85px;">
+                                    <span style="font-size:0.7rem; color:var(--text-muted); display:block;">Ganancia</span>
+                                    <span id="nfp-profit-3m" style="font-weight:800; font-size:0.9rem; color:#10b981;">+10.00 Bs</span>
+                                </div>
+                            </div>
+
+                            <!-- 4 Meses -->
+                            <div class="nfp-plan-row" style="background:var(--bg-input); border:1px solid var(--border); border-radius:10px; padding:0.7rem 0.9rem; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+                                <div style="min-width:70px;">
+                                    <span style="font-weight:700; font-size:0.9rem; color:var(--text-main); display:block;">4 Meses</span>
+                                    <span id="nfp-cost-4m" style="font-size:0.72rem; color:var(--text-muted);">Costo: 40 Bs</span>
+                                </div>
+                                <div style="display:flex; align-items:center; gap:6px;">
+                                    <span style="font-size:0.78rem; color:var(--text-muted);">Venta:</span>
+                                    <div style="position:relative; width:85px;">
+                                        <input type="number" id="nfp-price-4m" value="55" step="0.5" required oninput="window.calcNFPricingLive()" style="width:100%; font-size:16px; font-weight:700; padding:0.4rem 0.5rem; padding-right:1.4rem; border-radius:6px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-main);">
+                                        <span style="position:absolute; right:6px; top:50%; transform:translateY(-50%); font-size:0.75rem; color:var(--text-muted);">Bs</span>
+                                    </div>
+                                </div>
+                                <div style="text-align:right; min-width:85px;">
+                                    <span style="font-size:0.7rem; color:var(--text-muted); display:block;">Ganancia</span>
+                                    <span id="nfp-profit-4m" style="font-weight:800; font-size:0.9rem; color:#10b981;">+15.00 Bs</span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cp-modal-footer" style="padding:1rem 1.5rem; border-top:1px solid var(--border); display:flex; gap:0.6rem; justify-content:flex-end;">
+                    <button type="button" class="btn btn-outline" onclick="window.closeNFPricingModal()" style="padding:0.6rem 1.2rem; border-radius:10px; font-size:0.85rem;">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" style="padding:0.6rem 1.4rem; border-radius:10px; font-size:0.85rem; font-weight:700; background:linear-gradient(135deg, #E50914, #B81D24); border:none; box-shadow:0 2px 10px rgba(229,9,20,0.35);">
+                        💾 Guardar Precios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Modal: Vista Previa de Entrega en WhatsApp -->
     <div id="wa-preview-modal" class="ga-overlay" style="display:none">
         <div class="ga-modal" style="max-width: 420px; padding: 0; overflow: hidden; background: #efeae2; border-radius: 16px;">
@@ -1624,19 +1830,19 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-    <script src="config.js?v=2.5"></script>
-    <script src="firebase-config.js?v=2.5"></script>
-    <script src="auth.js?v=2.5"></script>
-    <script src="catalog-data.js?v=2.5"></script>
-    <script src="sales-core.js?v=2.5"></script>
-    <script src="dashboard.js?v=2.5"></script>
-    <script src="contacts.js?v=2.5"></script>
-    <script src="history-actions.js?v=2.5"></script>
-    <script src="replace-account.js?v=2.5"></script>
-    <script src="app.js?v=2.5"></script>
-    <script src="netflix.js?v=2.5"></script>
-    <script src="analytics.js?v=2.5"></script>
-    <script src="group-accounts.js?v=2.5"></script>
-    <script src="shader-bg.js?v=2.5"></script>
+    <script src="config.js?v=2.9"></script>
+    <script src="firebase-config.js?v=2.9"></script>
+    <script src="auth.js?v=2.9"></script>
+    <script src="catalog-data.js?v=2.9"></script>
+    <script src="sales-core.js?v=2.9"></script>
+    <script src="dashboard.js?v=2.9"></script>
+    <script src="contacts.js?v=2.9"></script>
+    <script src="history-actions.js?v=2.9"></script>
+    <script src="replace-account.js?v=2.9"></script>
+    <script src="app.js?v=2.9"></script>
+    <script src="netflix.js?v=2.9"></script>
+    <script src="analytics.js?v=2.9"></script>
+    <script src="group-accounts.js?v=2.9"></script>
+    <script src="shader-bg.js?v=2.9"></script>
 </body>
 </html>

@@ -13,11 +13,66 @@
     let transferSourceAccountId = null;
     let transferSourceProfileIdx = null;
 
+    const defaultNfPricing = {
+        accountCost: 50,
+        profileCost: 10,
+        plan1m: { price: 15, cost: 10, profit: 5 },
+        plan2m: { price: 29, cost: 20, profit: 9 },
+        plan3m: { price: 40, cost: 30, profit: 10 },
+        plan4m: { price: 55, cost: 40, profit: 15 }
+    };
+    let nfPricing = JSON.parse(localStorage.getItem('plixora_nf_pricing')) || defaultNfPricing;
+    window.nfPricing = nfPricing;
+
+    function getNFPlanPriceAndProfit(plan) {
+        if (plan === '1m') {
+            return {
+                precio: Number(nfPricing.plan1m?.price ?? 15),
+                profit: Number(nfPricing.plan1m?.profit ?? 5)
+            };
+        } else if (plan === '2m') {
+            return {
+                precio: Number(nfPricing.plan2m?.price ?? 29),
+                profit: Number(nfPricing.plan2m?.profit ?? 9)
+            };
+        } else if (plan === '3m') {
+            return {
+                precio: Number(nfPricing.plan3m?.price ?? 40),
+                profit: Number(nfPricing.plan3m?.profit ?? 10)
+            };
+        } else if (plan === '4m') {
+            return {
+                precio: Number(nfPricing.plan4m?.price ?? 55),
+                profit: Number(nfPricing.plan4m?.profit ?? 15)
+            };
+        }
+        return { precio: 0, profit: 0 };
+    }
+
     // ── Exponer db desde app.js ──────────────────────────────
     window.nfSetDb = function (firebaseDb) {
         db = firebaseDb;
         loadAccounts();
+        loadPricing();
     };
+
+    function loadPricing() {
+        if (!db) return;
+        db.collection('settings').doc('netflix_pricing')
+            .onSnapshot(
+                doc => {
+                    if (doc.exists) {
+                        const data = doc.data();
+                        nfPricing = { ...defaultNfPricing, ...data };
+                        window.nfPricing = nfPricing;
+                        batchedLSSetItem('plixora_nf_pricing', JSON.stringify(nfPricing));
+                        if (typeof updateNFPlanDropdown === 'function') updateNFPlanDropdown();
+                        if (typeof syncNFWithCatalog === 'function') syncNFWithCatalog();
+                    }
+                },
+                err => console.error('Error Firestore netflix_pricing:', err)
+            );
+    }
 
     window.nfInitLocal = function () {
         nfAccounts = JSON.parse(localStorage.getItem('nf_accounts') || '[]');
@@ -636,12 +691,7 @@
         const plan    = document.getElementById('nf-a-plan').value;
         const obs     = document.getElementById('nf-a-obs').value.trim();
 
-        let precio = 0;
-        let profit = 0;
-        if (plan === '1m') { precio = 15; profit = 7; }
-        else if (plan === '2m') { precio = 29; profit = 13; }
-        else if (plan === '3m') { precio = 40; profit = 16; }
-        else if (plan === '4m') { precio = 55; profit = 32; }
+        const { precio, profit } = getNFPlanPriceAndProfit(plan);
 
         const acc = nfAccounts.find(a => a.id === currentDetailId);
         if (!acc) return;
@@ -718,12 +768,7 @@
         const plan    = document.getElementById('nf-a-plan').value;
         const obs     = document.getElementById('nf-a-obs').value.trim();
 
-        let precio = 0;
-        let profit = 0;
-        if (plan === '1m') { precio = 15; profit = 7; }
-        else if (plan === '2m') { precio = 29; profit = 13; }
-        else if (plan === '3m') { precio = 40; profit = 16; }
-        else if (plan === '4m') { precio = 55; profit = 32; }
+        const { precio, profit } = getNFPlanPriceAndProfit(plan);
 
         const acc = nfAccounts.find(a => a.id === currentDetailId);
         if (!acc) return;
@@ -886,11 +931,7 @@
         const venc = toLocalDateStr(vencDate);
 
         // Price/profit
-        let precio = 0, profit = 0;
-        if (plan === '1m') { precio = 15; profit = 7; }
-        else if (plan === '2m') { precio = 29; profit = 13; }
-        else if (plan === '3m') { precio = 40; profit = 16; }
-        else if (plan === '4m') { precio = 55; profit = 32; }
+        const { precio, profit } = getNFPlanPriceAndProfit(plan);
 
         const newCode = generateOrderCode();
 
@@ -1372,5 +1413,192 @@
             console.error('nfSyncProfileEdit error:', e);
         }
     };
+
+    // ── GESTIÓN DE COSTOS Y PRECIOS NETFLIX ───────────────────
+    window.openNFPricingModal = function () {
+        const modal = document.getElementById('nf-pricing-modal');
+        if (!modal) return;
+
+        const accCostInput = document.getElementById('nfp-account-cost');
+        const p1Input = document.getElementById('nfp-price-1m');
+        const p2Input = document.getElementById('nfp-price-2m');
+        const p3Input = document.getElementById('nfp-price-3m');
+        const p4Input = document.getElementById('nfp-price-4m');
+
+        if (accCostInput) accCostInput.value = nfPricing.accountCost ?? 50;
+        if (p1Input) p1Input.value = nfPricing.plan1m?.price ?? 15;
+        if (p2Input) p2Input.value = nfPricing.plan2m?.price ?? 29;
+        if (p3Input) p3Input.value = nfPricing.plan3m?.price ?? 40;
+        if (p4Input) p4Input.value = nfPricing.plan4m?.price ?? 55;
+
+        window.calcNFPricingLive();
+        modal.style.display = 'flex';
+    };
+
+    window.closeNFPricingModal = function () {
+        const modal = document.getElementById('nf-pricing-modal');
+        if (modal) modal.style.display = 'none';
+    };
+
+    window.calcNFPricingLive = function () {
+        const accCost = parseFloat(document.getElementById('nfp-account-cost')?.value) || 0;
+        // La cuenta completa de Netflix tiene 5 perfiles
+        const profileCost = Math.round((accCost / 5) * 100) / 100;
+
+        const profileCostDisplay = document.getElementById('nfp-profile-cost-display');
+        if (profileCostDisplay) {
+            profileCostDisplay.textContent = `${profileCost.toFixed(2)} Bs`;
+        }
+
+        const plans = [
+            { key: '1m', months: 1, priceInput: 'nfp-price-1m', costEl: 'nfp-cost-1m', profitEl: 'nfp-profit-1m' },
+            { key: '2m', months: 2, priceInput: 'nfp-price-2m', costEl: 'nfp-cost-2m', profitEl: 'nfp-profit-2m' },
+            { key: '3m', months: 3, priceInput: 'nfp-price-3m', costEl: 'nfp-cost-3m', profitEl: 'nfp-profit-3m' },
+            { key: '4m', months: 4, priceInput: 'nfp-price-4m', costEl: 'nfp-cost-4m', profitEl: 'nfp-profit-4m' }
+        ];
+
+        plans.forEach(plan => {
+            const planCost = Math.round(profileCost * plan.months * 100) / 100;
+            const planPrice = parseFloat(document.getElementById(plan.priceInput)?.value) || 0;
+            const profit = Math.round((planPrice - planCost) * 100) / 100;
+
+            const cEl = document.getElementById(plan.costEl);
+            const pEl = document.getElementById(plan.profitEl);
+
+            if (cEl) cEl.textContent = `Costo: ${planCost.toFixed(2)} Bs`;
+            if (pEl) {
+                pEl.textContent = `${profit >= 0 ? '+' : ''}${profit.toFixed(2)} Bs`;
+                pEl.style.color = profit >= 0 ? '#10b981' : '#ef4444';
+            }
+        });
+    };
+
+    window.saveNFPricing = async function () {
+        const accCost = parseFloat(document.getElementById('nfp-account-cost')?.value);
+        if (isNaN(accCost) || accCost < 0) {
+            if (typeof showToast === 'function') showToast('⚠️ Ingresa el costo de la cuenta en Bs');
+            return;
+        }
+
+        const profileCost = Math.round((accCost / 5) * 100) / 100;
+
+        const p1 = parseFloat(document.getElementById('nfp-price-1m')?.value) || 15;
+        const p2 = parseFloat(document.getElementById('nfp-price-2m')?.value) || 29;
+        const p3 = parseFloat(document.getElementById('nfp-price-3m')?.value) || 40;
+        const p4 = parseFloat(document.getElementById('nfp-price-4m')?.value) || 55;
+
+        const cost1 = Math.round(profileCost * 1 * 100) / 100;
+        const cost2 = Math.round(profileCost * 2 * 100) / 100;
+        const cost3 = Math.round(profileCost * 3 * 100) / 100;
+        const cost4 = Math.round(profileCost * 4 * 100) / 100;
+
+        nfPricing = {
+            accountCost: accCost,
+            profileCost: profileCost,
+            plan1m: { price: p1, cost: cost1, profit: Math.round((p1 - cost1) * 100) / 100 },
+            plan2m: { price: p2, cost: cost2, profit: Math.round((p2 - cost2) * 100) / 100 },
+            plan3m: { price: p3, cost: cost3, profit: Math.round((p3 - cost3) * 100) / 100 },
+            plan4m: { price: p4, cost: cost4, profit: Math.round((p4 - cost4) * 100) / 100 },
+            updatedAt: new Date().toISOString()
+        };
+        window.nfPricing = nfPricing;
+
+        batchedLSSetItem('plixora_nf_pricing', JSON.stringify(nfPricing));
+
+        if (db) {
+            try {
+                await db.collection('settings').doc('netflix_pricing').set(nfPricing, { merge: true });
+                console.log('✅ netflix_pricing guardado en Firestore');
+            } catch (e) {
+                console.warn('Error guardando netflix_pricing en Firestore:', e);
+            }
+        }
+
+        updateNFPlanDropdown();
+        syncNFWithCatalog();
+
+        window.closeNFPricingModal();
+        if (typeof showToast === 'function') {
+            showToast('✅ Costos y precios de Netflix guardados');
+        }
+    };
+
+    function updateNFPlanDropdown() {
+        const planSelect = document.getElementById('nf-a-plan');
+        const transferSelect = document.getElementById('nf-transfer-plan');
+        const p1 = nfPricing.plan1m?.price ?? 15;
+        const p2 = nfPricing.plan2m?.price ?? 29;
+        const p3 = nfPricing.plan3m?.price ?? 40;
+        const p4 = nfPricing.plan4m?.price ?? 55;
+
+        const optionsHtml = `
+            <option value="1m">1 Mes (${p1} Bs)</option>
+            <option value="2m">2 Meses (${p2} Bs)</option>
+            <option value="3m">3 Meses (${p3} Bs)</option>
+            <option value="4m">4 Meses (${p4} Bs)</option>
+        `;
+
+        if (planSelect) {
+            const curVal = planSelect.value;
+            planSelect.innerHTML = `<option value="" disabled ${!curVal ? 'selected' : ''}>Selecciona un plan...</option>` + optionsHtml;
+            if (curVal) planSelect.value = curVal;
+        }
+        if (transferSelect) {
+            const curVal = transferSelect.value;
+            transferSelect.innerHTML = `<option value="" disabled ${!curVal ? 'selected' : ''}>Selecciona duración...</option>` + optionsHtml;
+            if (curVal) transferSelect.value = curVal;
+        }
+    }
+    window.updateNFPlanDropdown = updateNFPlanDropdown;
+
+    function syncNFWithCatalog() {
+        if (!window.catalogData) return;
+        const item1 = window.catalogData.find(p => p.id === 'nf-1m');
+        if (item1 && nfPricing.plan1m) {
+            item1.salePrice = nfPricing.plan1m.price;
+            item1.cost = nfPricing.plan1m.cost;
+            item1.profit = nfPricing.plan1m.profit;
+        }
+        const item2 = window.catalogData.find(p => p.id === 'nf-2m');
+        if (item2 && nfPricing.plan2m) {
+            item2.salePrice = nfPricing.plan2m.price;
+            item2.cost = nfPricing.plan2m.cost;
+            item2.profit = nfPricing.plan2m.profit;
+        }
+        const itemCC = window.catalogData.find(p => p.id === 'nf-cc');
+        if (itemCC && nfPricing.accountCost) {
+            itemCC.cost = nfPricing.accountCost;
+            itemCC.profit = Math.round((itemCC.salePrice - itemCC.cost) * 100) / 100;
+        }
+
+        if (window.catalogOverrides) {
+            if (nfPricing.plan1m) window.catalogOverrides['nf-1m'] = { salePrice: nfPricing.plan1m.price, cost: nfPricing.plan1m.cost, profit: nfPricing.plan1m.profit };
+            if (nfPricing.plan2m) window.catalogOverrides['nf-2m'] = { salePrice: nfPricing.plan2m.price, cost: nfPricing.plan2m.cost, profit: nfPricing.plan2m.profit };
+            if (itemCC) window.catalogOverrides['nf-cc'] = { salePrice: itemCC.salePrice, cost: itemCC.cost, profit: itemCC.profit };
+            try {
+                localStorage.setItem('plixora_catalog_overrides', JSON.stringify(window.catalogOverrides));
+            } catch(e) {}
+        }
+
+        if (typeof window.renderCatalog === 'function') {
+            const activeFilter = document.querySelector('.filter-btn.active');
+            window.renderCatalog(activeFilter ? activeFilter.dataset.filter : 'all');
+        }
+        if (typeof window.populateSelect === 'function') {
+            window.populateSelect();
+        }
+    }
+    window.syncNFWithCatalog = syncNFWithCatalog;
+
+    // Inicializar dropdown de planes y sincronización con catálogo
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            updateNFPlanDropdown();
+            syncNFWithCatalog();
+        });
+    } else {
+        updateNFPlanDropdown();
+        syncNFWithCatalog();
+    }
 
 })();

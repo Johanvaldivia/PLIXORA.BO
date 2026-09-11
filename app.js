@@ -15,12 +15,30 @@
 let sales = JSON.parse(localStorage.getItem('plixora_sales')) || [];
 let customPlans = JSON.parse(localStorage.getItem('plixora_custom_plans')) || [];
 window.customPlans = customPlans;
+let catalogOverrides = JSON.parse(localStorage.getItem('plixora_catalog_overrides')) || {};
+window.catalogOverrides = catalogOverrides;
 let db = null;
 let unsubscribe = null;
 let unsubscribeCustomPlans = null;
+let unsubscribeCatalogOverrides = null;
 let plixoraContacts = JSON.parse(localStorage.getItem('plixora_contacts')) || [];
 let contactsUnsubscribe = null;
 window.plixoraContacts = plixoraContacts;
+
+function applyCatalogOverrides() {
+    if (!window.catalogData) return;
+    Object.keys(catalogOverrides).forEach(id => {
+        const item = window.catalogData.find(p => p.id === id);
+        if (item) {
+            const ov = catalogOverrides[id];
+            if (ov.salePrice !== undefined) item.salePrice = Number(ov.salePrice);
+            if (ov.cost !== undefined) item.cost = Number(ov.cost);
+            if (ov.profit !== undefined) item.profit = Number(ov.profit);
+            else if (ov.salePrice !== undefined && ov.cost !== undefined) item.profit = Math.round((item.salePrice - item.cost) * 100) / 100;
+        }
+    });
+}
+window.applyCatalogOverrides = applyCatalogOverrides;
 
 const debouncedUpdateDashboard = window.debounce(function() {
     if (typeof updateDashboard === 'function') updateDashboard();
@@ -80,6 +98,7 @@ function initApp() {
     initTheme();
     setupNavigation();
     setupNotificationBell();
+    applyCatalogOverrides();
     renderCatalog('all');
     populateSelect();
     setupForm();
@@ -305,6 +324,22 @@ function initFirebase() {
                 console.error('Error Firebase custom_plans:', error);
                 customPlans = JSON.parse(localStorage.getItem('plixora_custom_plans')) || [];
                 window.customPlans = customPlans;
+            });
+
+        // Listener para Sobrescritura de Precios del Catálogo
+        unsubscribeCatalogOverrides = db.collection('settings').doc('catalog_overrides')
+            .onSnapshot(doc => {
+                if (doc.exists) {
+                    catalogOverrides = doc.data() || {};
+                    window.catalogOverrides = catalogOverrides;
+                    localStorage.setItem('plixora_catalog_overrides', JSON.stringify(catalogOverrides));
+                    applyCatalogOverrides();
+                    const activeFilter = document.querySelector('.filter-btn.active');
+                    renderCatalog(activeFilter ? activeFilter.dataset.filter : 'all');
+                    if (typeof populateSelect === 'function') populateSelect();
+                }
+            }, error => {
+                console.error('Error Firebase catalog_overrides:', error);
             });
 
         // Verificar conexión real con Firestore después de 5s
@@ -537,9 +572,23 @@ function createProductCard(product) {
         }
 
         customActionsHTML = `
-            <div class="plan-actions">
+            <div class="plan-actions" style="margin-top:auto; padding-top:0.75rem;">
                 <button class="plan-btn" onclick="window.editCustomPlan('${product.id}')"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg> Editar</button>
                 <button class="plan-btn plan-btn-delete" onclick="window.deleteCustomPlan('${product.id}', '${product.name}')"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Eliminar</button>
+            </div>
+        `;
+    }
+
+    let actionsHTML = '';
+    if (product.isCustom) {
+        actionsHTML = customActionsHTML;
+    } else {
+        actionsHTML = `
+            <div class="plan-actions" style="margin-top:auto; padding-top:0.75rem;">
+                <button type="button" class="plan-btn" onclick="window.openEditProductPriceModal('${product.id}')" style="width:100%; justify-content:center; gap:6px; font-weight:600;" title="Modificar precio de venta y costo">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                    <span>Editar Precio</span>
+                </button>
             </div>
         `;
     }
@@ -553,7 +602,7 @@ function createProductCard(product) {
         <div class="product-price">${priceDisplay}</div>
         <ul class="product-features">${product.features.map(f => `<li>${f}</li>`).join('')}</ul>
         <div class="product-profit">${profitDisplay}</div>
-        ${customActionsHTML}
+        ${actionsHTML}
     `;
     return card;
 }
@@ -1277,7 +1326,12 @@ function navigateTo(target) {
 
     document.querySelectorAll('.pill-nav-item[data-target]').forEach(n => n.classList.remove('active'));
     const pillBtn = document.querySelector(`.pill-nav-item[data-target="${target}"]`);
-    if (pillBtn) pillBtn.classList.add('active');
+    if (pillBtn) {
+        pillBtn.classList.add('active');
+        try {
+            pillBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        } catch(e) {}
+    }
 
     const views = document.querySelectorAll('.view');
     views.forEach(v => {
@@ -1298,6 +1352,7 @@ function navigateTo(target) {
     }
 
     try { document.querySelector('.main-content').scrollTo({ top:0, behavior:'smooth' }); } catch(e){}
+    try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch(e){}
 }
 window.navigateTo = navigateTo;
 
@@ -1803,6 +1858,124 @@ window.deleteCustomPlan = async function(id, name) {
     } catch (e) {
         console.error('Error eliminando producto de Firestore:', e);
     }
+};
+
+// ==========================================
+// MODAL: EDICIÓN RÁPIDA DE PRECIOS DEL CATÁLOGO
+// ==========================================
+window.openEditProductPriceModal = function(productId) {
+    const allProds = [...(window.catalogData || []), ...(window.customPlans || [])];
+    const product = allProds.find(p => p.id === productId);
+    if (!product) return;
+
+    const modal = document.getElementById('catalog-edit-price-modal');
+    if (!modal) return;
+
+    document.getElementById('cep-product-id').value = product.id;
+    document.getElementById('cep-product-title').textContent = `Editar: ${product.name}`;
+    document.getElementById('cep-product-name-badge').textContent = product.name;
+    document.getElementById('cep-product-duration-badge').textContent = product.duration || '1 Mes';
+    document.getElementById('cep-sale-price').value = product.salePrice ?? 0;
+    document.getElementById('cep-cost').value = product.cost ?? 0;
+
+    window.calcCatalogEditProfit();
+    modal.style.display = 'flex';
+};
+
+window.closeEditProductPriceModal = function() {
+    const modal = document.getElementById('catalog-edit-price-modal');
+    if (modal) modal.style.display = 'none';
+};
+
+window.calcCatalogEditProfit = function() {
+    const salePrice = parseFloat(document.getElementById('cep-sale-price').value) || 0;
+    const cost = parseFloat(document.getElementById('cep-cost').value) || 0;
+    const profit = Math.round((salePrice - cost) * 100) / 100;
+    const margin = salePrice > 0 ? Math.round((profit / salePrice) * 100) : 0;
+
+    const profitEl = document.getElementById('cep-profit-preview');
+    const marginEl = document.getElementById('cep-margin-badge');
+
+    if (profitEl) {
+        profitEl.textContent = `${profit >= 0 ? '+' : ''}${profit.toFixed(2)} Bs`;
+        profitEl.style.color = profit >= 0 ? '#10b981' : '#ef4444';
+    }
+    if (marginEl) {
+        marginEl.textContent = `${margin}% Margen`;
+        marginEl.style.background = profit >= 0 ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)';
+        marginEl.style.color = profit >= 0 ? '#10b981' : '#ef4444';
+    }
+};
+
+window.saveCatalogProductPrice = async function() {
+    const id = document.getElementById('cep-product-id').value;
+    const salePrice = parseFloat(document.getElementById('cep-sale-price').value);
+    const cost = parseFloat(document.getElementById('cep-cost').value);
+
+    if (isNaN(salePrice) || isNaN(cost)) {
+        showToast('⚠️ Ingresa un precio y costo válidos');
+        return;
+    }
+
+    const profit = Math.round((salePrice - cost) * 100) / 100;
+
+    // 1. Verificar si es producto estándar del catálogo o personalizado
+    const standardItem = (window.catalogData || []).find(p => p.id === id);
+    if (standardItem) {
+        standardItem.salePrice = salePrice;
+        standardItem.cost = cost;
+        standardItem.profit = profit;
+
+        catalogOverrides[id] = { salePrice, cost, profit, updatedAt: new Date().toISOString() };
+        window.catalogOverrides = catalogOverrides;
+        try {
+            localStorage.setItem('plixora_catalog_overrides', JSON.stringify(catalogOverrides));
+        } catch(e) {
+            console.warn('Error guardando catalogOverrides local:', e);
+        }
+
+        if (typeof db !== 'undefined' && db) {
+            db.collection('settings').doc('catalog_overrides').set(catalogOverrides, { merge: true })
+                .then(() => console.log('✅ Sobrescritura de precios sincronizada en Firestore'))
+                .catch(e => console.warn('Error sincronizando catalog_overrides:', e));
+        }
+    } else {
+        const customPlan = (customPlans || []).find(p => p.id === id);
+        if (customPlan) {
+            customPlan.salePrice = salePrice;
+            customPlan.cost = cost;
+            customPlan.profit = profit;
+            try {
+                localStorage.setItem('plixora_custom_plans', JSON.stringify(customPlans));
+            } catch(e) {}
+            if (typeof db !== 'undefined' && db) {
+                db.collection('plixora_custom_plans').doc(id).update({ salePrice, cost, profit })
+                    .catch(e => console.warn('Error actualizando custom_plan:', e));
+            }
+        }
+    }
+
+    // 2. Re-renderizar catálogo y selectores de venta
+    const activeFilter = document.querySelector('.filter-btn.active');
+    renderCatalog(activeFilter ? activeFilter.dataset.filter : 'all');
+    if (typeof populateSelect === 'function') {
+        populateSelect();
+    }
+
+    // 3. Si el producto estaba seleccionado en el formulario de ventas, actualizar resumen
+    const currentSelectedId = selectProduct ? selectProduct.value : null;
+    if (currentSelectedId === id) {
+        const summaryPrice = document.getElementById('summary-price');
+        const summaryCost = document.getElementById('summary-cost');
+        const summaryProfit = document.getElementById('summary-profit');
+        if (summaryPrice) summaryPrice.textContent = `${salePrice} Bs`;
+        if (summaryCost) summaryCost.textContent = `${cost} Bs`;
+        if (summaryProfit) summaryProfit.textContent = `${profit} Bs`;
+    }
+
+    // 4. Cerrar modal y notificar
+    window.closeEditProductPriceModal();
+    showToast('✅ Precio actualizado correctamente');
 };
 
 // ==========================================

@@ -1704,113 +1704,284 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
 
 
 @media (max-width:900px) {
-    body { height:auto; overflow:auto; }
+    html, body {
+        height: auto;
+        overflow-x: hidden !important;
+        position: relative;
+        width: 100%;
+        max-width: 100vw;
+    }
     .sidebar { display:none; }
-    .app-container { flex-direction:column; height:auto; min-height:100vh; }
+    .app-container {
+        flex-direction: column;
+        height: auto;
+        min-height: 100vh;
+        overflow-x: hidden !important;
+        width: 100%;
+    }
     .top-nav-menu { display:none; }
     .top-navbar {
-        width: calc(100% - 32px);
+        width: calc(100% - 20px);
         max-width: none;
         justify-content: space-between;
         gap: 0;
-        top: 16px;
-        padding: 0 0.75rem 0 1rem;
+        top: 10px;
+        height: 50px;
+        padding: 0 0.5rem 0 0.75rem;
+        box-sizing: border-box;
+    }
+    .brand-logo {
+        width: 32px;
+        height: 32px;
+    }
+    .brand-text { display: none; }
+    .top-navbar-right {
+        gap: 0.35rem;
+        margin-left: 0;
+    }
+    .wa-status-btn {
+        padding: 0.3rem 0.5rem;
+        height: 34px;
+        border-radius: 99px;
+    }
+    .wa-status-label {
+        display: none !important;
+    }
+    .top-nav-btn.icon-btn {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+    }
+    .theme-switch-wrapper {
+        width: 58px;
+        height: 30px;
+    }
+    .owner-avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 0.78rem;
     }
     .owner-name { display: none; }
     .owner-badge.top-nav-profile { padding: 0; background: transparent !important; border: none !important; }
     .owner-badge.top-nav-profile:hover { background: transparent !important; }
-    .main-content { flex:1; overflow:visible; padding-top:0; }
-    .view.active { height:auto; overflow:visible; padding-bottom:7rem; }
-    #dashboard,#catalog,#newsale,#history,#netflix,#analytics,#group-accounts { padding:5.5rem 1rem 6.5rem; }
 
-    .pill-nav { display: flex; }
+    .main-content {
+        flex: 1;
+        overflow-x: hidden !important;
+        overflow-y: visible;
+        padding-top: 0;
+        width: 100%;
+    }
+    .view.active {
+        height: auto;
+        overflow-x: hidden !important;
+        overflow-y: visible;
+        padding-bottom: 5.5rem;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    #dashboard,#catalog,#newsale,#history,#netflix,#analytics,#group-accounts {
+        padding: 4.8rem 1rem 5.5rem;
+        box-sizing: border-box;
+    }
 
-    .period-tabs { padding-top:0.75rem; }
-    .tab-group { flex-wrap:wrap; border-radius:12px; }
-    .tab-btn { padding:0.5rem 1rem; font-size:0.82rem; }
-    .metrics-grid { grid-template-columns:1fr; gap:0.75rem; margin-bottom:1.25rem; }
-    .metric-card { padding:1rem 1.1rem; }
-    .metric-value { font-size:1.5rem; }
+    /* Floating Pill Nav on Mobile */
+    .pill-nav {
+        display: flex;
+        height: 50px;
+        padding: 4px 6px;
+        bottom: 12px;
+        gap: 2px;
+        max-width: 96vw;
+        box-sizing: border-box;
+    }
+    .pill-nav-item {
+        height: 42px;
+        min-width: 40px;
+        min-height: 42px;
+        padding: 0 8px;
+    }
+    .pill-nav-item svg {
+        width: 20px;
+        height: 20px;
+    }
+    .pill-nav-item.active {
+        padding: 0 12px;
+    }
+    .pill-nav-item.active .pill-nav-label-wrap {
+        width: 52px;
+        margin-left: 5px;
+    }
+    .pill-nav-label {
+        font-size: 0.68rem;
+    }
 
-    .table-container { overflow-x:auto; -webkit-overflow-scrolling:touch; border-radius:12px; }
-    .sales-table { min-width:600px; }
-    .sales-table th,.sales-table td { padding:0.55rem 0.65rem; font-size:0.78rem; white-space:nowrap; }
+    /* Headers */
+    .view-header, .nf-view-header {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+    }
+    .view-header h2, .nf-view-header h2 {
+        font-size: 1.25rem;
+        line-height: 1.3;
+    }
+    .view-header .ga-btn-add-account-main,
+    .nf-view-header .ga-btn-add-account-main,
+    .nf-view-header .btn-primary {
+        width: 100%;
+        justify-content: center;
+        min-height: 42px;
+    }
 
-    .products-grid { grid-template-columns:1fr; }
-    .product-card { padding:1.1rem; }
-    .catalog-filters { overflow-x:auto; flex-wrap:nowrap; padding-bottom:0.25rem; scrollbar-width:none; }
-    .catalog-filters::-webkit-scrollbar { display:none; }
-    .filter-btn { flex-shrink:0; white-space:nowrap; }
+    /* Dashboard */
+    .period-tabs {
+        padding-top: 0.5rem;
+        overflow-x: auto;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+    }
+    .period-tabs::-webkit-scrollbar { display: none; }
+    .tab-group {
+        display: flex;
+        flex-wrap: nowrap;
+        border-radius: 12px;
+        width: max-content;
+        min-width: 100%;
+    }
+    .tab-btn {
+        padding: 0.5rem 0.85rem;
+        font-size: 0.8rem;
+        white-space: nowrap;
+        flex: 1;
+        text-align: center;
+    }
+    .metrics-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+    }
+    .metric-card { padding: 1rem; border-radius: 16px; }
+    .metric-value { font-size: 1.45rem; }
 
-    .form-container { padding:1.25rem; max-width:100%; margin-bottom:1.5rem; }
-    .form-row { flex-direction:column; }
-    .form-group label { word-break:break-word; white-space:normal; }
-    .form-group input,.form-group select { padding:0.7rem 0.85rem; font-size:16px; }
-    .btn-block { margin-bottom:1rem; }
+    /* Tables */
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 12px;
+        width: 100%;
+    }
+    .sales-table { min-width: 540px; }
+    .sales-table th, .sales-table td { padding: 0.55rem 0.65rem; font-size: 0.78rem; }
 
-    .history-controls { flex-direction:column !important; gap:0.75rem !important; align-items:stretch !important; }
-    .history-controls .search-box { min-width:0 !important; width:100% !important; flex:none !important; position:static !important; }
-    .history-controls .search-box input { width:100% !important; box-sizing:border-box !important; }
-    .history-controls .catalog-filters { flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; -ms-overflow-style:none; }
-    .history-controls .catalog-filters::-webkit-scrollbar { display:none; }
+    /* Catalog */
+    .products-grid { grid-template-columns: 1fr; gap: 0.85rem; }
+    .product-card { padding: 1rem; border-radius: 16px; }
+    .catalog-filters {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        padding: 0.2rem 0.2rem 0.4rem;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        gap: 0.45rem;
+    }
+    .catalog-filters::-webkit-scrollbar { display: none; }
+    .filter-btn { flex-shrink: 0; white-space: nowrap; padding: 0.45rem 0.85rem; font-size: 0.82rem; }
 
-    .nf-modal { width:calc(100% - 1.5rem) !important; max-width:none !important; }
-    #expiration-alerts-content > div { grid-template-columns:1fr !important; }
-    #toast-container { bottom:5.5rem; }
-    .toast { font-size:0.82rem; }
-    #cloud-status-indicator { font-size:0.7rem !important; padding:0.2rem 0.6rem !important; }
+    /* Forms */
+    .form-container { padding: 1.1rem; max-width: 100%; margin-bottom: 1.25rem; border-radius: 16px; }
+    .form-row { flex-direction: column; gap: 0.75rem; }
+    .form-group label { word-break: break-word; white-space: normal; font-size: 0.82rem; }
+    .form-group input, .form-group select, .form-group textarea,
+    input, select, textarea {
+        padding: 0.7rem 0.85rem;
+        font-size: 16px !important; /* Previene auto-zoom en Safari iOS */
+    }
+    .btn-block { margin-bottom: 1rem; }
 
+    /* History Controls */
+    .history-controls { flex-direction: column !important; gap: 0.75rem !important; align-items: stretch !important; }
+    .history-controls .search-box { min-width: 0 !important; width: 100% !important; flex: none !important; }
+    .history-controls .search-box input { width: 100% !important; box-sizing: border-box !important; }
+
+    /* Modals & Popups */
     .notif-dropdown {
         position: fixed;
-        top: 80px;
-        left: 16px;
-        right: 16px;
+        top: 68px;
+        left: 12px;
+        right: 12px;
         width: auto;
         max-width: none;
     }
+    .profile-dropdown {
+        position: fixed;
+        top: 68px;
+        right: 12px;
+        width: calc(100% - 24px);
+        max-width: 240px;
+    }
+    #toast-container { bottom: 5rem; }
+    .toast { font-size: 0.8rem; padding: 0.6rem 1.1rem; }
+    #wa-toast-container { bottom: 5.5rem; }
 
-    .top-navbar-right { gap: 0.25rem; }
-    .brand-text { display: none; }
+    /* Netflix Module */
+    .nf-metrics { grid-template-columns: repeat(2, 1fr); gap: 0.65rem; }
+    .nf-stat-card { padding: 0.75rem; border-radius: 14px; }
+    .nf-stat-value { font-size: 1.25rem; }
 
-    .view-header h2 { font-size:1.3rem; }
+    /* Analytics */
+    .an-summary-grid { grid-template-columns: 1fr; gap: 0.75rem; }
+    .an-summary-card { padding: 0.95rem; gap: 0.85rem; border-radius: 16px; }
+    .an-card-value { font-size: 1.35rem; }
+    .an-card-icon { width: 42px; height: 42px; border-radius: 12px; }
+    .an-card-icon svg { width: 20px; height: 20px; }
+    .an-chart-card { padding: 0.95rem; border-radius: 16px; }
+    .an-chart-card h3 { font-size: 0.95rem; margin-bottom: 0.75rem; }
 
-    .ga-card-actions { flex-direction:column; }
-    .ga-card-actions .ga-btn { width:100%; justify-content:center; min-height:44px; }
-    .ga-card { padding:1.1rem; }
-    .ga-card-header { flex-direction:column; align-items:flex-start; gap:0.75rem; }
-    .ga-header-badges { flex-direction:row; align-items:center; gap:0.5rem; }
-    .ga-cred-label { min-width:auto; }
-    .ga-cred-row { flex-direction:column; align-items:flex-start; }
-    .ga-card-stats { grid-template-columns:repeat(3,1fr); gap:0.5rem; }
-    .ga-form-row { grid-template-columns:1fr; }
-    .ga-modal { padding:1.25rem; }
-
-    .an-summary-grid { grid-template-columns:1fr; gap:1rem; }
-    .an-card-value { font-size:1.4rem; }
-    .an-summary-card { padding:1rem; gap:1rem; }
-    .an-card-icon { width:44px; height:44px; border-radius:12px; }
-    .an-card-icon svg { width:22px; height:22px; }
-    .an-chart-card { padding:1rem; }
-    .an-chart-card h3 { font-size:1rem; margin-bottom:1rem; }
-
-    .btn, .ga-btn, .filter-btn { min-height:44px; }
+    .btn, .ga-btn, .filter-btn { min-height: 42px; }
 }
 
-@media (max-width:400px) {
-    
-    
-    .nf-metrics { grid-template-columns:1fr !important; }
-    #dashboard,#catalog,#newsale,#history,#netflix,#analytics,#group-accounts { padding:5.5rem 0.75rem 6.5rem; }
-    .view-header h2 { font-size:1.15rem; }
-    .metric-value { font-size:1.3rem; }
-    .metric-card { padding:0.85rem 0.9rem; }
-    .tab-btn { padding:0.45rem 0.75rem; font-size:0.78rem; }
-    .ga-card { padding:0.9rem; }
-    .ga-stat-value { font-size:0.88rem; }
-    .ga-cred-value { font-size:0.82rem; }
-    .nf-stat-value { font-size:1.3rem; }
-    .an-card-value { font-size:1.2rem; }
-    .an-summary-card { padding:0.85rem; }
+@media (max-width:420px) {
+    #dashboard,#catalog,#newsale,#history,#netflix,#analytics,#group-accounts {
+        padding: 4.4rem 0.65rem 5.2rem;
+    }
+    .view-header h2, .nf-view-header h2 { font-size: 1.15rem; }
+    .metric-value { font-size: 1.25rem; }
+    .metric-card { padding: 0.8rem 0.85rem; }
+    .tab-btn { padding: 0.4rem 0.65rem; font-size: 0.76rem; }
+    .nf-metrics { grid-template-columns: 1fr !important; }
+    .nf-stat-value { font-size: 1.2rem; }
+    .an-card-value { font-size: 1.15rem; }
+    .an-summary-card { padding: 0.8rem; }
+
+    .pill-nav {
+        height: 46px;
+        padding: 3px 4px;
+        bottom: 10px;
+        max-width: 98vw;
+    }
+    .pill-nav-item {
+        height: 38px;
+        min-width: 36px;
+        min-height: 38px;
+        padding: 0 5px;
+    }
+    .pill-nav-item svg {
+        width: 18px;
+        height: 18px;
+    }
+    .pill-nav-item.active {
+        padding: 0 9px;
+    }
+    .pill-nav-item.active .pill-nav-label-wrap {
+        width: 44px;
+        margin-left: 4px;
+    }
+    .pill-nav-label {
+        font-size: 0.64rem;
+    }
 }
 
 /* =========================================
@@ -3211,10 +3382,33 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
     .cp-modal-container {
         max-height: 94vh !important;
         border-radius: 16px !important;
+        width: 100% !important;
     }
     .cp-modal-header, .cp-modal-footer, .cp-modal-body {
         padding-left: 1rem;
         padding-right: 1rem;
+    }
+    .product-type-btn {
+        padding: 0.5rem 0.25rem;
+        font-size: 0.74rem;
+        gap: 0.25rem;
+    }
+    .product-type-btn svg {
+        width: 13px;
+        height: 13px;
+    }
+    .cp-modal-footer {
+        display: flex;
+        gap: 0.5rem;
+    }
+    .cp-btn-cancel {
+        flex: 1;
+        text-align: center;
+        justify-content: center;
+    }
+    .cp-btn-submit {
+        flex: 2;
+        justify-content: center;
     }
 }
 
@@ -3522,3 +3716,97 @@ body, main, .sidebar, .page-topbar, .mobile-header, .card, .section-card, .sales
 .btn-add-sale-account:active {
     transform: translateY(0);
 }
+
+/* ============================================================ */
+/* PRECIOS Y COSTOS: CATALOGO Y NETFLIX                         */
+/* ============================================================ */
+.nfp-plan-row {
+    transition: all 0.2s ease;
+}
+.nfp-plan-row:hover {
+    border-color: rgba(229, 9, 20, 0.4) !important;
+    background: rgba(229, 9, 20, 0.03) !important;
+}
+
+/* ── REFUERZO Y ARMONÍA RESPONSIVA PARA DISPOSITIVOS MÓVILES (TODAS LAS SECCIONES) ── */
+@media (max-width: 480px) {
+    /* 1. Modal de Precios de Netflix */
+    .nfp-plan-row {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 8px !important;
+        padding: 0.75rem 0.85rem !important;
+    }
+    .nfp-plan-row > div {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        width: 100% !important;
+    }
+
+    /* 2. Modales del Catálogo y Formularios */
+    .cp-form-row {
+        grid-template-columns: 1fr !important;
+        gap: 0.75rem !important;
+    }
+    .cp-modal-container {
+        max-height: 94vh !important;
+        width: 100% !important;
+        border-radius: 16px !important;
+    }
+
+    /* 3. Encabezados de Gestión Netflix y Vistas con botones apilados simétricos */
+    .nf-view-header > div:last-child {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .nf-view-header > div:last-child .btn {
+        width: 100% !important;
+        justify-content: center;
+        min-height: 42px;
+    }
+
+    /* 4. Formulario de Nueva Venta - Tarjetas de Cuentas Dinámicas */
+    .sale-account-card-header {
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+    }
+    .sale-account-title {
+        flex-wrap: wrap !important;
+        gap: 0.45rem !important;
+        width: 100% !important;
+    }
+    .sale-service-name {
+        max-width: 135px !important;
+    }
+    .sale-account-dur-wrap {
+        padding: 0.2rem 0.45rem !important;
+    }
+    .sale-account-del-btn {
+        margin-left: auto;
+    }
+
+    /* 5. Alertas de Vencimiento en Historial */
+    #expiration-alerts-content > div {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* 6. Barra de Navegación Flotante Inferior (.pill-nav) */
+    .pill-nav {
+        overflow-x: auto !important;
+        scrollbar-width: none !important;
+        -webkit-overflow-scrolling: touch !important;
+        max-width: calc(100vw - 16px) !important;
+    }
+    .pill-nav::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    /* 7. Desplazamiento táctil suave para todas las tablas */
+    .table-container {
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
