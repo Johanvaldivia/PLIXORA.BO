@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PLIXORA.BO - Sistema de Ventas</title>
-    <link rel="icon" href="logo.jpg">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" href="MODO%20DIA.png">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css?v=4.3">
-    <link rel="stylesheet" href="login.css?v=3.2">
+    <link rel="stylesheet" href="login.css?v=4.0">
     <link rel="stylesheet" href="analytics.css?v=3.2">
     <link rel="stylesheet" href="group-accounts.css?v=4.0">
     <script>
@@ -27,144 +27,159 @@
          LOGIN SCREEN
          ======================== -->
     <div id="login-screen" class="login-screen">
-        <div class="login-container">
-            <!-- Center: Form -->
-            <div class="login-center">
-                <div class="glow-orb" aria-hidden="true"></div>
+        <!-- Floating Theme Toggle (Sol / Luna) -->
+        <button type="button" class="login-theme-toggle" id="login-theme-toggle" title="Alternar Modo Día / Noche">
+            <!-- Icono Luna (visible en modo día) -->
+            <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+            </svg>
+            <!-- Icono Sol (visible en modo noche) -->
+            <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="4"></circle>
+                <path d="M12 2v2"></path>
+                <path d="M12 20v2"></path>
+                <path d="m4.93 4.93 1.41 1.41"></path>
+                <path d="m17.66 17.66 1.41 1.41"></path>
+                <path d="M2 12h2"></path>
+                <path d="M20 12h2"></path>
+                <path d="m6.34 17.66-1.41 1.41"></path>
+                <path d="m19.07 4.93-1.41 1.41"></path>
+            </svg>
+        </button>
 
-                <form class="card-login" id="login-form" novalidate onsubmit="event.preventDefault();">
-                  <div class="brand">
-                    <div class="brand-badge">P</div>
-                    <div class="brand-word">PLIXORA<span>.BO</span></div>
-                  </div>
-
-                  <h1>Bienvenido</h1>
-                  <p class="subtitle">Ingresa tus credenciales para continuar</p>
-
-                  <div class="field">
-                    <label for="login-email">Correo electrónico</label>
-                    <div class="field-wrap">
-                      <input type="email" id="login-email" name="email" placeholder="admin@plixora.bo" autocomplete="username" required>
-                    </div>
-                  </div>
-
-                  <div class="field pw">
-                    <label for="login-password">Contraseña</label>
-                    <div class="field-wrap">
-                      <input type="password" id="login-password" name="password" placeholder="••••••••••••" autocomplete="current-password" required>
-                      <button type="button" class="toggle-pw" id="toggle-password" aria-label="Mostrar contraseña">
-                        <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                          <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path>
-                          <circle cx="12" cy="12" r="3"></circle>
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
-
-                  <div class="row-between">
-                    <label class="checkbox-wrap">
-                      <input type="checkbox" id="remember-me" checked>
-                      <span class="checkbox-box">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                          <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                      </span>
-                      <span>Mantener sesión activa</span>
-                    </label>
-                  </div>
-
-                  <button type="submit" id="login-submit" class="btn-submit">
-                    <span class="btn-text">Iniciar Sesión</span>
-                    <div class="btn-spinner" style="display:none; width:20px; height:20px; border:2px solid #fff; border-top-color:transparent; border-radius:50%; animation:spin 1s linear infinite; margin:0 auto;"></div>
-                  </button>
-
-                  <div id="login-error" class="login-error" style="color: #ff5e3a; text-align: center; margin-top: 10px; font-size: 13px;"></div>
-
-                  <div class="footer-note">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <rect x="3" y="11" width="18" height="11" rx="2"></rect>
-                      <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                    </svg>
-                    Acceso exclusivo para administradores
-                  </div>
-                </form>
-            </div>
+        <!-- Ambient Background Orbs -->
+        <div aria-hidden="true" class="login-ambient-orbs">
+            <div class="ambient-orb-1"></div>
+            <div class="ambient-orb-2"></div>
+            <div class="ambient-orb-3"></div>
         </div>
+
+        <!-- Main Card Container -->
+        <main class="login-card-container">
+            <div class="login-auth-card animate-cascade delay-card" id="login-auth-card">
+                <div aria-hidden="true" class="login-card-halo"></div>
+
+                <!-- Brand Header -->
+                <header class="login-brand-header">
+                    <div class="login-logo-emblem-wrap animate-cascade delay-logo" title="plixora.bo">
+                        <div class="login-logo-emblem">
+                            <img src="MODO%20NOCHE.png" alt="PLIXORA Logo" class="login-emblem-img theme-logo-dark">
+                            <img src="MODO%20DIA.png" alt="PLIXORA Logo" class="login-emblem-img theme-logo-light">
+                        </div>
+                    </div>
+                    <div class="animate-cascade delay-title">
+                        <h1 class="login-title">Bienvenido a plixora.bo</h1>
+                        <p class="login-subtitle">Inicia sesión para continuar en tu cuenta</p>
+                    </div>
+                </header>
+
+                <!-- Login Form -->
+                <form class="login-form-stack" id="login-form" novalidate onsubmit="event.preventDefault();">
+                    <!-- Campo: Correo o Teléfono -->
+                    <div class="login-field-group animate-cascade delay-field-1">
+                        <label class="login-field-label" for="login-email">Correo electrónico o teléfono</label>
+                        <div class="login-input-wrap">
+                            <input class="login-input" id="login-email" name="identifier" type="text" placeholder="Ingresa tu correo o teléfono" value="admin@plixora.bo" autocomplete="username" required>
+                        </div>
+                    </div>
+
+                    <!-- Campo: Contraseña -->
+                    <div class="login-field-group animate-cascade delay-field-2">
+                        <div class="login-field-header-row">
+                            <label class="login-field-label" for="login-password">Contraseña</label>
+                            <a href="#" class="login-link-forgot" onclick="event.preventDefault(); if (typeof window.showToast === 'function') window.showToast('Contraseña de administrador gestionada en Firebase.'); else alert('Contraseña gestionada en Firebase Console.');">¿Olvidaste tu contraseña?</a>
+                        </div>
+                        <div class="login-input-wrap">
+                            <input class="login-input login-input-pw" id="login-password" name="password" type="password" placeholder="••••••••" autocomplete="current-password" required>
+                            <button type="button" class="login-toggle-pw-btn" id="toggle-password" aria-label="Mostrar contraseña">Mostrar</button>
+                        </div>
+                    </div>
+
+                    <!-- Botón Iniciar Sesión -->
+                    <div class="animate-cascade delay-btn" style="padding-top: 0.25rem;">
+                        <button type="submit" id="login-submit" class="login-btn-submit btn-shimmer">
+                            <span class="login-btn-text">Iniciar Sesión</span>
+                            <div class="login-spinner"></div>
+                        </button>
+                    </div>
+
+                    <!-- Contenedor de Error -->
+                    <div id="login-error" class="login-error-msg"></div>
+                </form>
+
+                <!-- Divisor Social -->
+                <div class="login-social-divider animate-cascade delay-divider">
+                    <span>o continuar con</span>
+                </div>
+
+                <!-- Botones Sociales (Google y GitHub) -->
+                <div class="login-social-grid animate-cascade delay-social">
+                    <button type="button" class="login-social-btn" onclick="if (typeof window.showToast === 'function') window.showToast('Acceso exclusivo para administradores con correo');">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z" fill="#4285F4"></path>
+                            <path d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.26v3.15C3.25 21.36 7.33 24 12 24z" fill="#34A853"></path>
+                            <path d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.14-1.55.38-2.27V6.58H1.26C.46 8.16 0 9.94 0 12s.46 3.84 1.26 5.42l4.02-3.15z" fill="#FBBC05"></path>
+                            <path d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.25 2.64 1.26 6.58l4.02 3.15c.95-2.83 3.6-4.98 6.72-4.98z" fill="#EA4335"></path>
+                        </svg>
+                        <span>Google</span>
+                    </button>
+                    <button type="button" class="login-social-btn" onclick="if (typeof window.showToast === 'function') window.showToast('Acceso exclusivo para administradores con correo');">
+                        <svg fill="currentColor" viewBox="0 0 24 24">
+                            <path clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" fill-rule="evenodd"></path>
+                        </svg>
+                        <span>GitHub</span>
+                    </button>
+                </div>
+
+                <!-- Footer Registro -->
+                <footer class="login-footer-prompt animate-cascade delay-footer">
+                    ¿No tienes una cuenta? <a href="#" onclick="event.preventDefault(); if (typeof window.showToast === 'function') window.showToast('Acceso exclusivo para administradores');">Regístrate</a>
+                </footer>
+            </div>
+
+            <!-- Watermark -->
+            <aside class="login-watermark animate-cascade delay-domain">
+                plixora.bo • Acceso Seguro
+            </aside>
+        </main>
     </div>
-    
+
     <script>
-        // SHADER LINES BACKGROUND (Canvas-based, replaces Three.js version)
-        document.addEventListener("DOMContentLoaded", () => {
-            const container = document.getElementById('login-screen');
-            if (!container) return;
-
-            const canvas = document.createElement('canvas');
-            canvas.style.position = 'absolute';
-            canvas.style.top = '0';
-            canvas.style.left = '0';
-            canvas.style.width = '100%';
-            canvas.style.height = '100%';
-            canvas.style.zIndex = '0';
-            container.insertBefore(canvas, container.firstChild);
-
-            const ctx = canvas.getContext('2d');
-            let animId = null;
-            let time = 0;
-            let W, H;
-
-            function resize() {
-                W = canvas.width = container.clientWidth;
-                H = canvas.height = container.clientHeight;
-                if (window.innerWidth < 768) {
-                    draw(); // Redibuja la versión estática en resize en móviles
-                }
-            }
-            resize();
-            window.addEventListener("resize", resize, false);
-
-            function draw() {
-                if (container.classList.contains('hidden-login')) {
-                    animId = null; // Detiene el bucle completamente al ocultarse
-                    return;
-                }
-
-                ctx.fillStyle = '#08090f';
-                ctx.fillRect(0, 0, W, H);
-
-                const spacing = 42;
-                const cols = Math.ceil(W / spacing) + 2;
-                const rows = Math.ceil(H / spacing) + 2;
-
-                for (let r = 0; r < rows; r++) {
-                    for (let c = 0; c < cols; c++) {
-                        const x = c * spacing + (r % 2) * (spacing / 2);
-                        const y = r * spacing;
-                        const sx = x + Math.sin(time + y * 0.02) * 6;
-                        const sy = y + Math.cos(time + x * 0.02) * 6;
-                        const wave = 0.5 + 0.5 * Math.sin(time * 2 + x * 0.01 + y * 0.01);
-                        const alpha = 0.12 + 0.22 * wave;
-
-                        if ((r + c) % 4 === 0) {
-                            ctx.fillStyle = `rgba(254, 91, 41, ${alpha * 0.85})`;
-                        } else {
-                            ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.65})`;
-                        }
-                        ctx.beginPath();
-                        ctx.arc(sx, sy, 1.4, 0, Math.PI * 2);
-                        ctx.fill();
-                    }
-                }
-
-                if (window.innerWidth < 768) {
-                    animId = null; // En móviles no corre el bucle de animación, se dibuja estático una vez
-                    return;
-                }
-
-                time += 0.006;
-                animId = requestAnimationFrame(draw);
+        // Interactive Handlers: Theme Toggle, Password Visibility, 3D Card Tilt
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeBtn = document.getElementById('login-theme-toggle');
+            if (themeBtn) {
+                themeBtn.addEventListener('click', () => {
+                    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+                    const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                    document.documentElement.setAttribute('data-theme', nextTheme);
+                    try { localStorage.setItem('theme', nextTheme); } catch (e) {}
+                });
             }
 
-            draw();
+
+            // 3D Card Tilt in Dark Mode on Pointer Devices
+            const authCard = document.getElementById('login-auth-card');
+            if (authCard && window.matchMedia('(pointer: fine)').matches && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                authCard.addEventListener('mousemove', (e) => {
+                    if (document.documentElement.getAttribute('data-theme') !== 'dark') return;
+                    const rect = authCard.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    const rotateX = ((y - centerY) / centerY) * -3.5;
+                    const rotateY = ((x - centerX) / centerX) * 3.5;
+                    authCard.style.transform = `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg)`;
+                });
+                authCard.addEventListener('mouseleave', () => {
+                    authCard.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)';
+                    authCard.style.transition = 'transform 0.5s ease';
+                });
+                authCard.addEventListener('mouseenter', () => {
+                    authCard.style.transition = 'transform 0.1s ease-out';
+                });
+            }
         });
     </script>
 
@@ -179,7 +194,8 @@
         <header class="top-navbar">
             <div class="top-navbar-left">
                 <div class="brand-logo">
-                    <img src="logo.jpg" alt="PLIXORA Logo" style="width:100%; height:100%; object-fit:cover; border-radius:10px;">
+                    <img src="MODO%20NOCHE.png" alt="PLIXORA Logo" class="theme-logo-dark">
+                    <img src="MODO%20DIA.png" alt="PLIXORA Logo" class="theme-logo-light">
                 </div>
                 <div class="brand-text">
                     <h1 id="typewriter-text">PLIXORA.BO</h1>
@@ -1984,7 +2000,8 @@
                 <div style="display: flex; align-items: center; gap: 0.6rem;">
                     <button onclick="window.closeWaPreviewModal()" style="background: none; border: none; color: #fff; font-size: 1.2rem; cursor: pointer; padding: 0;">←</button>
                     <div style="width: 38px; height: 38px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid rgba(0,0,0,0.05);">
-                        <img src="logo.jpg" alt="Logo" style="width: 100%; height: 100%; object-fit: cover;">
+                        <img src="MODO%20DIA.png" alt="Logo" class="theme-logo-light" style="width: 100%; height: 100%; object-fit: cover;">
+                        <img src="MODO%20NOCHE.jpg" alt="Logo" class="theme-logo-dark" style="width: 100%; height: 100%; object-fit: cover;">
                     </div>
                     <div>
                         <h4 style="margin: 0; font-size: 0.92rem; font-weight: 600;">Plixora Soporte</h4>

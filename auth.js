@@ -224,12 +224,20 @@
         const isPassword = input.type === 'password';
         input.type = isPassword ? 'text' : 'password';
 
-        // Switch icon
+        // Switch icon or text
         const eyeIcon = btn.querySelector('svg');
         if (eyeIcon) {
             eyeIcon.innerHTML = isPassword
                 ? '<path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a21.8 21.8 0 0 1 5.06-6.06M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a21.8 21.8 0 0 1-3.22 4.44M14.12 14.12a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>'
                 : '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path><circle cx="12" cy="12" r="3"></circle>';
+        } else {
+            btn.style.opacity = '0';
+            btn.style.transform = 'scale(0.85)';
+            setTimeout(() => {
+                btn.textContent = isPassword ? 'Ocultar' : 'Mostrar';
+                btn.style.opacity = '1';
+                btn.style.transform = 'scale(1)';
+            }, 100);
         }
     }
 
