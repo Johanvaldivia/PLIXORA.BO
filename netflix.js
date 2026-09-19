@@ -6,7 +6,7 @@
     'use strict';
 
     let db = null;
-    let nfAccounts = [];
+    let nfAccounts = JSON.parse(localStorage.getItem('nf_accounts') || '[]');
     let nfFilter = 'all';
     let currentDetailId = null;
     let assignProfileIndex = null;
@@ -76,7 +76,9 @@
 
     window.nfInitLocal = function () {
         nfAccounts = JSON.parse(localStorage.getItem('nf_accounts') || '[]');
-        renderAll();
+        const nfView = document.getElementById('netflix');
+        const isVisible = nfView && nfView.classList.contains('active');
+        renderAll(isVisible);
     };
 
     // ── FIREBASE LOAD ────────────────────────────────────────
@@ -88,7 +90,9 @@
                 snap => {
                     nfAccounts = snap.docs.map(d => ({ ...d.data(), id: d.id }));
                     batchedLSSetItem('nf_accounts', JSON.stringify(nfAccounts));
-                    renderAll();
+                    const nfView = document.getElementById('netflix');
+                    const isVisible = nfView && nfView.classList.contains('active');
+                    renderAll(isVisible);
                     if (currentDetailId && document.getElementById('nf-detail-modal').style.display !== 'none') {
                         renderDetailModal(currentDetailId);
                     }
@@ -172,13 +176,55 @@
     }
 
     // ── RENDER ALL ───────────────────────────────────────────
-    window.nfRenderAll = function renderAll() {
-        renderStats();
+    function renderAll(forceFromZero = false) {
+        renderStats(forceFromZero);
         renderAccountsList();
+    }
+    window.nfRenderAll = renderAll;
+
+    // Interactive count-up animation with expo ease-out curve matching reference
+    function animateNFStatCounter(elementId, target, forceFromZero = false) {
+        const el = document.getElementById(elementId);
+        if (!el) return;
+        const targetVal = parseInt(target, 10);
+        if (isNaN(targetVal)) {
+            el.textContent = target;
+            return;
+        }
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            el.textContent = targetVal;
+            el.setAttribute('data-last-val', targetVal);
+            return;
+        }
+        const lastValAttr = el.getAttribute('data-last-val');
+        const startVal = forceFromZero ? 0 : (lastValAttr !== null ? parseInt(lastValAttr, 10) : 0);
+        el.setAttribute('data-last-val', targetVal);
+        el.textContent = startVal;
+
+        const duration = 1200; // ms
+        const startTime = performance.now();
+
+        function updateCount(currentTime) {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            // Ease-out expo curve for sleek snap matching reference
+            const easeOut = 1 - Math.pow(2, -10 * progress);
+            const currentVal = Math.round(startVal + (targetVal - startVal) * easeOut);
+
+            el.textContent = currentVal;
+
+            if (progress < 1) {
+                requestAnimationFrame(updateCount);
+            } else {
+                el.textContent = targetVal;
+            }
+        }
+
+        requestAnimationFrame(updateCount);
     }
 
     // ── STATS ────────────────────────────────────────────────
-    function renderStats() {
+    function renderStats(forceFromZero = false) {
         try {
             let occupied = 0;
             const activeAccounts = nfAccounts.filter(a => {
@@ -197,15 +243,52 @@
                 });
             });
             const total = activeAccounts.length * 5;
-            setText('nf-stat-accounts', activeAccounts.length);
-            setText('nf-stat-total', total);
-            setText('nf-stat-occupied', occupied);
-            setText('nf-stat-free', total - occupied);
-            setText('nf-stat-closed', closedAccountsCount);
+            animateNFStatCounter('nf-stat-accounts', activeAccounts.length, forceFromZero);
+            animateNFStatCounter('nf-stat-total', total, forceFromZero);
+            animateNFStatCounter('nf-stat-occupied', occupied, forceFromZero);
+            animateNFStatCounter('nf-stat-free', total - occupied, forceFromZero);
+            animateNFStatCounter('nf-stat-closed', closedAccountsCount, forceFromZero);
         } catch (e) {
             console.error('Error in renderStats:', e);
         }
     }
+
+    // Trigger entrance animation for Netflix view cards
+    window.triggerNetflixCardsEntrance = function () {
+        requestAnimationFrame(() => {
+            const header = document.querySelector('.nf-view-header');
+            if (header) {
+                header.classList.remove('animate-fade-in-up');
+                header.style.animation = 'none';
+                void header.offsetWidth;
+                header.style.animation = '';
+                header.style.animationDelay = '0.05s';
+                header.classList.add('animate-fade-in-up');
+            }
+
+            const cards = document.querySelectorAll('.nf-metrics .nf-stat-card');
+            cards.forEach((card, idx) => {
+                card.classList.remove('animate-fade-in-up');
+                card.style.animation = 'none';
+                void card.offsetWidth; // force reflow
+                card.style.animation = '';
+                card.style.animationDelay = `${0.12 + idx * 0.06}s`;
+                card.classList.add('animate-fade-in-up');
+            });
+
+            const filters = document.querySelector('#netflix .catalog-filters');
+            if (filters) {
+                filters.classList.remove('animate-fade-in-up');
+                filters.style.animation = 'none';
+                void filters.offsetWidth;
+                filters.style.animation = '';
+                filters.style.animationDelay = '0.42s';
+                filters.classList.add('animate-fade-in-up');
+            }
+
+            renderStats(true);
+        });
+    };
 
     // ── ACCOUNTS LIST ────────────────────────────────────────
     function renderAccountsList() {
@@ -294,8 +377,8 @@
                     </td>
                     <td style="font-size:0.8rem;color:var(--text-muted)">${fecha}</td>
                     <td>
-                        <button class="btn-icon view" onclick="window.nfOpenDetail('${acc.id}')" title="Ver detalle" style="width:34px;height:34px">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.641 0-8.574-3.007-9.964-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        <button class="btn-icon view" onclick="window.nfOpenDetail('${acc.id}')" title="Ver detalle">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.641 0-8.574-3.007-9.964-7.178Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0Z"/></svg>
                         </button>
                     </td>
                 </tr>`;
@@ -486,7 +569,7 @@
                     ${occ ? `
                         <button class="btn-icon send" title="Enviar datos por WhatsApp" onclick="window.nfSendAccess('${accountId}',${i})">${svgSend}</button>
                         <button class="btn-icon view" title="Ver Detalle" onclick="window.nfViewSale('${accountId}',${i})">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.641 0-8.574-3.007-9.964-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.641 0-8.574-3.007-9.964-7.178Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0Z"/></svg>
                         </button>
                         <button class="btn-icon transfer" title="Transferir perfil" onclick="window.nfOpenTransfer('${accountId}',${i})">${svgTransfer}</button>
                         <button class="btn-icon notify ${p.notifiedRenewal ? 'active' : ''}" title="${p.notifiedRenewal ? 'Aviso Enviado' : 'Avisar renovación'}" onclick="window.nfNotify('${accountId}',${i})">${svgWA}</button>
@@ -513,7 +596,13 @@
         if (!currentDetailId) return;
         const acc = nfAccounts.find(a => a.id === currentDetailId);
         if (!acc) return;
-        if (!confirm(`¿Marcar la cuenta ${acc.codigo} como CERRADA? Ya no contará en los activos.`)) return;
+        const confirmed = await window.plixoraConfirm({
+            title: '¿Estás seguro?',
+            message: `¿Marcar la cuenta ${acc.codigo} como CERRADA? Ya no contará en los activos.`,
+            confirmText: 'Sí, cerrar cuenta',
+            cancelText: 'No'
+        });
+        if (!confirmed) return;
         try {
             acc.estado = 'cerrada';
             if (db) {
@@ -535,7 +624,13 @@
         if (!currentDetailId) return;
         const acc = nfAccounts.find(a => a.id === currentDetailId);
         if (!acc) return;
-        if (!confirm(`¿Eliminar la cuenta ${acc.codigo} (${acc.correo}) y todos sus perfiles? También se eliminarán los registros de venta asociados.`)) return;
+        const confirmed = await window.plixoraConfirm({
+            title: '¿Estás seguro?',
+            message: `¿Eliminar la cuenta ${acc.codigo} (${acc.correo}) y todos sus perfiles? También se eliminarán los registros de venta asociados.`,
+            confirmText: 'Sí, eliminar cuenta',
+            cancelText: 'No'
+        });
+        if (!confirmed) return;
         try {
             // Delete all associated sales first
             await deleteAllSalesForAccount(acc);
@@ -864,35 +959,152 @@
     };
 
     // ── TRANSFER PROFILE ─────────────────────────────────────
+    let transferSourceOriginalVenc = '';
+
+    window.nfSetTransferPago = function (isPago) {
+        const btnNoPago = document.getElementById('nf-btn-no-pago');
+        const btnSiPago = document.getElementById('nf-btn-si-pago');
+        const blockSiPago = document.getElementById('nf-block-si-pago');
+        const hiddenIsPago = document.getElementById('nf-transfer-is-pago');
+
+        if (isPago === null || isPago === undefined) {
+            // Estado inicial: Ninguno seleccionado
+            if (hiddenIsPago) hiddenIsPago.value = '';
+            if (btnNoPago) {
+                btnNoPago.style.border = '1.5px solid var(--border)';
+                btnNoPago.style.background = 'var(--bg-card)';
+                btnNoPago.style.color = 'var(--text-muted)';
+                btnNoPago.style.fontWeight = '600';
+                btnNoPago.style.borderRadius = '8px';
+            }
+            if (btnSiPago) {
+                btnSiPago.style.border = '1.5px solid var(--border)';
+                btnSiPago.style.background = 'var(--bg-card)';
+                btnSiPago.style.color = 'var(--text-muted)';
+                btnSiPago.style.fontWeight = '600';
+                btnSiPago.style.borderRadius = '8px';
+            }
+            if (blockSiPago) blockSiPago.style.display = 'none';
+            return;
+        }
+
+        if (hiddenIsPago) hiddenIsPago.value = isPago ? 'true' : 'false';
+
+        if (!isPago) {
+            // Activar botón NO PAGÓ (verde)
+            if (btnNoPago) {
+                btnNoPago.style.border = '2px solid #10b981';
+                btnNoPago.style.background = 'rgba(16,185,129,0.15)';
+                btnNoPago.style.color = '#10b981';
+                btnNoPago.style.fontWeight = '700';
+                btnNoPago.style.borderRadius = '8px';
+            }
+            // Desactivar botón SÍ PAGÓ
+            if (btnSiPago) {
+                btnSiPago.style.border = '1.5px solid var(--border)';
+                btnSiPago.style.background = 'var(--bg-card)';
+                btnSiPago.style.color = 'var(--text-muted)';
+                btnSiPago.style.fontWeight = '600';
+                btnSiPago.style.borderRadius = '8px';
+            }
+            if (blockSiPago) blockSiPago.style.display = 'none';
+
+            // Conservar vencimiento original
+            const vencInput = document.getElementById('nf-transfer-venc');
+            if (vencInput) {
+                vencInput.value = transferSourceOriginalVenc || toLocalDateStr(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000));
+            }
+        } else {
+            // Desactivar botón NO PAGÓ
+            if (btnNoPago) {
+                btnNoPago.style.border = '1.5px solid var(--border)';
+                btnNoPago.style.background = 'var(--bg-card)';
+                btnNoPago.style.color = 'var(--text-muted)';
+                btnNoPago.style.fontWeight = '600';
+                btnNoPago.style.borderRadius = '8px';
+            }
+            // Activar botón SÍ PAGÓ (dorado/ámbar)
+            if (btnSiPago) {
+                btnSiPago.style.border = '2px solid #f59e0b';
+                btnSiPago.style.background = 'rgba(245,158,11,0.15)';
+                btnSiPago.style.color = '#f59e0b';
+                btnSiPago.style.fontWeight = '700';
+                btnSiPago.style.borderRadius = '8px';
+            }
+            if (blockSiPago) blockSiPago.style.display = 'block';
+
+            // Calcular nuevo vencimiento según el plan seleccionado
+            window.nfUpdateTransferVencFromPlan();
+        }
+    };
+
+    window.nfUpdateTransferVencFromPlan = function () {
+        const plan = document.getElementById('nf-transfer-plan')?.value || '1m';
+        const months = parseInt(plan.replace('m', '')) || 1;
+        const d = new Date();
+        d.setMonth(d.getMonth() + months);
+        d.setDate(d.getDate() - 1);
+        const vencInput = document.getElementById('nf-transfer-venc');
+        if (vencInput) vencInput.value = toLocalDateStr(d);
+    };
+
     window.nfOpenTransfer = function (accountId, idx) {
         const acc = nfAccounts.find(a => a.id === accountId);
         if (!acc) return;
         const p = acc.perfiles[idx];
+        if (!p) return;
 
         transferSourceAccountId = accountId;
         transferSourceProfileIdx = idx;
+        transferSourceOriginalVenc = p.vencimiento || '';
 
-        // Show source info
-        document.getElementById('nf-transfer-source').textContent =
-            `${p.cliente} — ${p.nombre.toUpperCase()} — ${p.whatsapp}`;
+        // Cliente y detalles de origen
+        const elCliente = document.getElementById('nf-transfer-source-cliente');
+        if (elCliente) elCliente.textContent = p.cliente || 'Sin nombre';
 
-        // Populate destination accounts (active with free profiles, excluding current)
+        const elInfo = document.getElementById('nf-transfer-source-info');
+        if (elInfo) {
+            elInfo.textContent = `Perfil ${p.nombre.toUpperCase()} • ${p.whatsapp ? 'WA: ' + p.whatsapp : 'Sin WA'} • Cuenta ${acc.codigo}`;
+        }
+
+        // Badge de plan
+        const planBadge = document.getElementById('nf-transfer-plan-badge');
+        const planMonths = parseInt((p.plan || '').replace('m', '')) || 1;
+        if (planBadge) {
+            if (planMonths >= 2) {
+                planBadge.textContent = `${planMonths} MESES`;
+                planBadge.style.display = 'inline-block';
+            } else {
+                planBadge.textContent = '1 MES';
+                planBadge.style.display = 'inline-block';
+            }
+        }
+
+        // Popular cuentas destino
         const destSelect = document.getElementById('nf-transfer-dest');
-        destSelect.innerHTML = '<option value="" disabled selected>Selecciona cuenta destino...</option>';
+        if (destSelect) {
+            destSelect.innerHTML = '<option value="" disabled selected>Selecciona cuenta destino...</option>';
+            nfAccounts
+                .filter(a => a.id !== accountId && (a.estado || '').toLowerCase() !== 'cerrada')
+                .filter(a => (a.perfiles || []).some(pr => pr && pr.estado === 'libre'))
+                .forEach(a => {
+                    const freeCount = (a.perfiles || []).filter(pr => pr && pr.estado === 'libre').length;
+                    const opt = document.createElement('option');
+                    opt.value = a.id;
+                    opt.textContent = `${a.codigo} — ${a.correo} (${freeCount} libre${freeCount > 1 ? 's' : ''})`;
+                    destSelect.appendChild(opt);
+                });
+        }
 
-        nfAccounts
-            .filter(a => a.id !== accountId && (a.estado || '').toLowerCase() !== 'cerrada')
-            .filter(a => (a.perfiles || []).some(pr => pr && pr.estado === 'libre'))
-            .forEach(a => {
-                const freeCount = (a.perfiles || []).filter(pr => pr && pr.estado === 'libre').length;
-                const opt = document.createElement('option');
-                opt.value = a.id;
-                opt.textContent = `${a.codigo} — ${a.correo} (${freeCount} perfil${freeCount > 1 ? 'es' : ''} libre${freeCount > 1 ? 's' : ''})`;
-                destSelect.appendChild(opt);
-            });
+        // Estado inicial: ninguno seleccionado para obligar a elegir
+        window.nfSetTransferPago(null);
 
-        // Reset plan
-        document.getElementById('nf-transfer-plan').value = '';
+        // Listener para cambio de plan si decide pagar
+        const transferPlanEl = document.getElementById('nf-transfer-plan');
+        if (transferPlanEl && !transferPlanEl._listenerAdded) {
+            transferPlanEl.addEventListener('change', window.nfUpdateTransferVencFromPlan);
+            transferPlanEl._listenerAdded = true;
+        }
 
         document.getElementById('nf-transfer-modal').style.display = 'flex';
     };
@@ -901,42 +1113,72 @@
         document.getElementById('nf-transfer-modal').style.display = 'none';
         transferSourceAccountId = null;
         transferSourceProfileIdx = null;
+        transferSourceOriginalVenc = '';
     };
 
-    window.confirmNFTransfer = async function () {
+    window.confirmNFTransfer = async function (sendWhatsAppAfter = false) {
         const destAccountId = document.getElementById('nf-transfer-dest').value;
-        const plan = document.getElementById('nf-transfer-plan').value;
+        const isPagoVal = document.getElementById('nf-transfer-is-pago')?.value;
 
         if (!destAccountId) { showNFToast('❌ Selecciona una cuenta destino'); return; }
-        if (!plan) { showNFToast('❌ Selecciona la duración del plan'); return; }
+
+        if (isPagoVal !== 'true' && isPagoVal !== 'false') {
+            showNFToast('⚠️ Debes seleccionar si NO PAGÓ o SÍ PAGÓ');
+            const btnsWrap = document.getElementById('nf-transfer-pago-buttons');
+            if (btnsWrap) {
+                btnsWrap.classList.remove('shake-error');
+                void btnsWrap.offsetWidth;
+                btnsWrap.classList.add('shake-error');
+            }
+            return;
+        }
+
+        const isPago = isPagoVal === 'true';
+
+        if (!destAccountId) { showNFToast('❌ Selecciona una cuenta destino'); return; }
 
         const srcAcc = nfAccounts.find(a => a.id === transferSourceAccountId);
         const destAcc = nfAccounts.find(a => a.id === destAccountId);
         if (!srcAcc || !destAcc) return;
 
         const srcProfile = srcAcc.perfiles[transferSourceProfileIdx];
+        if (!srcProfile) return;
 
-        // Find first free profile in destination
+        // Buscar primer perfil libre en la cuenta destino
         const destIdx = destAcc.perfiles.findIndex(p => p && p.estado === 'libre');
         if (destIdx === -1) { showNFToast('❌ No hay perfiles libres en esa cuenta'); return; }
 
-        // Calculate dates
         const today = new Date();
         const inicio = toLocalDateStr(today);
-        const vencDate = new Date(today);
-        vencDate.setHours(12, 0, 0, 0);
-        const months = parseInt(plan.replace('m', ''));
-        vencDate.setMonth(vencDate.getMonth() + months);
-        vencDate.setDate(vencDate.getDate() - 1); // Aviso 1 día antes del corte
-        const venc = toLocalDateStr(vencDate);
 
-        // Price/profit
-        const { precio, profit } = getNFPlanPriceAndProfit(plan);
+        // Determinar fecha de vencimiento y plan en la nueva cuenta
+        let destVenc = '';
+        let destPlan = srcProfile.plan || '1m';
+        let salePlan = '1m';
 
-        const newCode = generateOrderCode();
+        if (isPago) {
+            // El cliente pagó ahora: usar el plan seleccionado y calcular vencimiento nuevo
+            salePlan = document.getElementById('nf-transfer-plan')?.value || '1m';
+            destPlan = salePlan;
+            const months = parseInt(destPlan.replace('m', '')) || 1;
+            const vencDate = new Date(today);
+            vencDate.setHours(12, 0, 0, 0);
+            vencDate.setMonth(vencDate.getMonth() + months);
+            vencDate.setDate(vencDate.getDate() - 1);
+            destVenc = toLocalDateStr(vencDate);
+        } else {
+            // El cliente NO pagó ahora (ya pagó antes): mantener su vencimiento original
+            destVenc = transferSourceOriginalVenc || toLocalDateStr(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000));
+        }
 
-        // Update destination profile with transferred data
+        // Copia de seguridad para rollback en caso de error
+        const destAccSnapshot = JSON.parse(JSON.stringify(destAcc));
+        const srcAccSnapshot = JSON.parse(JSON.stringify(srcAcc));
+
+        // Actualizar perfil destino con los datos transferidos
         const destPerfiles = [...destAcc.perfiles];
+        const existingOrderCode = srcProfile.orderCode || generateOrderCode();
+
         destPerfiles[destIdx] = {
             ...destPerfiles[destIdx],
             nombre: srcProfile.nombre,
@@ -944,50 +1186,94 @@
             cliente: srcProfile.cliente,
             whatsapp: srcProfile.whatsapp,
             inicio: inicio,
-            vencimiento: venc,
-            plan: plan,
-            obs: `Transferido desde ${srcAcc.codigo}`,
-            orderCode: newCode
+            vencimiento: destVenc,
+            plan: destPlan,
+            obs: (srcProfile.obs ? srcProfile.obs + ' — ' : '') + `Transferido desde ${srcAcc.codigo}`,
+            orderCode: existingOrderCode
         };
-
-        // Optimistic update
-        const destAccSnapshot = JSON.parse(JSON.stringify(destAcc));
         destAcc.perfiles = destPerfiles;
+
+        // Siempre liberar el perfil en la cuenta origen de forma limpia
+        const srcPerfiles = [...srcAcc.perfiles];
+        srcPerfiles[transferSourceProfileIdx] = {
+            nombre: srcProfile.nombre,
+            estado: 'libre',
+            cliente: '',
+            whatsapp: '',
+            inicio: '',
+            vencimiento: '',
+            plan: '',
+            obs: ''
+        };
+        srcAcc.perfiles = srcPerfiles;
+
+        // Actualización optimista local
         batchedLSSetItem('nf_accounts', JSON.stringify(nfAccounts));
         window.nfRenderAll();
         closeNFTransfer();
 
-        // Re-render detail modal if open
+        // Re-render modal de detalle si está abierto
         if (currentDetailId && document.getElementById('nf-detail-modal').style.display !== 'none') {
             window.nfRenderDetailModal(currentDetailId);
         }
 
-        showNFToast(`✅ ${srcProfile.cliente} transferido a ${destAcc.codigo} — Perfil ${destPerfiles[destIdx].nombre}`);
+        showNFToast(`✅ ${srcProfile.cliente} transferido a ${destAcc.codigo}${isPago ? ' (Venta registrada)' : ' (Sin cobro)'}`);
 
         try {
             if (db) {
+                // Guardar ambas cuentas en Firestore
                 await db.collection('netflix_accounts').doc(destAccountId).update({ perfiles: destPerfiles });
-                // Register sale
-                if (precio > 0) {
-                    const sale = {
-                        id: Date.now().toString(),
-                        orderCode: newCode,
-                        date: new Date().toISOString(),
-                        productName: `Netflix Perfil ${destPerfiles[destIdx].nombre} (${destAcc.codigo})${plan !== '1m' ? ' [' + plan.replace('m', ' Meses') + ']' : ''}`,
-                        price: precio,
-                        profit: profit,
-                        customerName: srcProfile.cliente,
-                        customer: srcProfile.whatsapp,
-                        email: destAcc.correo,
-                        password: destAcc.password,
-                        expireDate: new Date(venc).toISOString()
-                    };
-                    await db.collection('plixora_sales').doc(sale.id).set(sale);
+                await db.collection('netflix_accounts').doc(srcAcc.id).update({ perfiles: srcPerfiles });
+
+                if (isPago) {
+                    // SÍ PAGÓ: Registrar la venta en plixora_sales
+                    const { precio, profit } = getNFPlanPriceAndProfit(salePlan);
+                    if (precio > 0) {
+                        const newCode = generateOrderCode();
+                        const sale = {
+                            id: Date.now().toString(),
+                            orderCode: newCode,
+                            date: new Date().toISOString(),
+                            productName: `Netflix Perfil ${destPerfiles[destIdx].nombre} (${destAcc.codigo})${salePlan !== '1m' ? ' [' + salePlan.replace('m', ' Meses') + ']' : ''}`,
+                            price: precio,
+                            profit: profit,
+                            customerName: srcProfile.cliente,
+                            customer: srcProfile.whatsapp,
+                            email: destAcc.correo,
+                            password: destAcc.password,
+                            expireDate: new Date(destVenc + 'T12:00:00').toISOString()
+                        };
+                        await db.collection('plixora_sales').doc(sale.id).set(sale);
+                    }
+                } else {
+                    // NO PAGÓ (DEFAULT): Actualizar credenciales en la venta previa si existe, SIN crear venta nueva
+                    if (existingOrderCode) {
+                        try {
+                            const snap = await db.collection('plixora_sales').where('orderCode', '==', existingOrderCode).get();
+                            if (!snap.empty) {
+                                await snap.docs[0].ref.update({
+                                    email: destAcc.correo,
+                                    password: destAcc.password,
+                                    productName: `Netflix Perfil ${destPerfiles[destIdx].nombre} (${destAcc.codigo})${srcProfile.plan && srcProfile.plan !== '1m' ? ' [' + srcProfile.plan.replace('m', ' Meses') + ']' : ''}`
+                                });
+                            }
+                        } catch (saleUpdateErr) {
+                            console.warn('Nota: no se pudo actualizar venta existente:', saleUpdateErr);
+                        }
+                    }
                 }
             }
+
+            // Si el usuario eligió "Transferir y Enviar WA", abrir vista previa de credenciales
+            if (sendWhatsAppAfter && srcProfile.whatsapp) {
+                setTimeout(() => {
+                    window.nfSendAccess(destAccountId, destIdx);
+                }, 400);
+            }
         } catch (e) {
-            // Rollback on error
+            // Rollback en caso de error
             Object.assign(destAcc, destAccSnapshot);
+            Object.assign(srcAcc, srcAccSnapshot);
             batchedLSSetItem('nf_accounts', JSON.stringify(nfAccounts));
             window.nfRenderAll();
             alert('Error al transferir: ' + e.message);
@@ -1322,11 +1608,19 @@
 
 
     window.nfFree = async function (accountId, idx) {
-        if (!confirm('¿Liberar este perfil? Se borrarán los datos del cliente asignado y su registro de venta (si existe).')) return;
         const acc = nfAccounts.find(a => a.id === accountId);
         if (!acc) return;
         const perfiles = [...acc.perfiles];
         const p = perfiles[idx];
+        const pName = p ? p.nombre : `Perfil ${idx + 1}`;
+
+        const confirmed = await window.plixoraConfirm({
+            title: '¿Estás seguro?',
+            message: `¿Liberar el ${pName}? Se borrarán los datos del cliente asignado y su registro de venta.`,
+            confirmText: 'Sí, liberar perfil',
+            cancelText: 'No'
+        });
+        if (!confirmed) return;
 
         // Eliminar del historial de ventas usando orderCode
         if (p.orderCode) {
@@ -1595,10 +1889,12 @@
         document.addEventListener('DOMContentLoaded', () => {
             updateNFPlanDropdown();
             syncNFWithCatalog();
+            renderAll(false);
         });
     } else {
         updateNFPlanDropdown();
         syncNFWithCatalog();
+        renderAll(false);
     }
 
 })();

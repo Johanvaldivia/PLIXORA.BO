@@ -24,6 +24,7 @@ const BOT_TOKEN = process.env.WA_BOT_TOKEN || '';
 
 // ── Estado del bot ────────────────────────────────────────────
 let currentQR = null;
+let currentQRImage = null;
 let isClientReady = false;
 let statusMsg = 'Iniciando servicio...';
 let loadingPercent = 0;
@@ -32,6 +33,7 @@ let client = null;
 let isRestarting = false;
 let retryCount = 0;
 const MAX_RETRIES = 10;
+const REAL_CHROME_UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36';
 
 // ── Detección de Chrome/Chromium ──────────────────────────────
 const possiblePaths = [
@@ -71,12 +73,25 @@ if (executablePath) {
     console.warn('⚠️ No se encontró Chrome en rutas fijas. Usando navegador integrado de Puppeteer...');
 }
 
-// ── Limpieza de locks huérfanos de Chromium (Windows) ─────────
+// ── Limpieza de locks huérfanos y procesos zombies de Chromium ──
 function cleanStaleChromiumLocks() {
+    // 1. Matar procesos de Chromium/Edge huérfanos de la sesión del bot (sin tocar navegadores personales)
+    try {
+        if (process.platform === 'win32') {
+            const { spawnSync } = require('child_process');
+            const psScript = "Get-CimInstance Win32_Process | Where-Object { ($_.Name -eq 'chrome.exe' -or $_.Name -eq 'msedge.exe') -and ($_.CommandLine -like '*wwebjs_auth*' -or $_.CommandLine -like '*whatsapp-bot*') } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }";
+            spawnSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', psScript], { timeout: 8000 });
+        } else {
+            const { execSync } = require('child_process');
+            execSync('pkill -9 -f "wwebjs_auth" || true', { stdio: 'ignore' });
+        }
+    } catch (e) { /* ignorar si no hay procesos huérfanos */ }
+
+    // 2. Eliminar archivos de bloqueo (locks) que impiden a Puppeteer iniciar
     const sessionDir = path.join(__dirname, '.wwebjs_auth', 'session');
     if (!fs.existsSync(sessionDir)) return;
 
-    const lockFiles = ['SingletonLock', 'SingletonCookie', 'SingletonSocket'];
+    const lockFiles = ['SingletonLock', 'SingletonCookie', 'SingletonSocket', 'lockfile', 'DevToolsActivePort'];
     for (const file of lockFiles) {
         const fp = path.join(sessionDir, file);
         if (fs.existsSync(fp)) {
@@ -84,30 +99,56 @@ function cleanStaleChromiumLocks() {
                 fs.unlinkSync(fp);
                 console.log(`🧹 Lock huérfano eliminado: ${file}`);
             } catch (e) {
-                // Si el archivo está ocupado por otro proceso, no forzar
+                if (process.platform === 'win32') {
+                    try {
+                        const { execSync } = require('child_process');
+                        execSync(`cmd /c "del /f /q \\"${fp}\\"" >nul 2>&1`, { timeout: 2000 });
+                    } catch (err) {}
+                }
             }
+        }
+    }
+
+    const defaultLocks = [
+        path.join(sessionDir, 'Default', 'lockfile'),
+        path.join(sessionDir, 'Default', 'LOCK')
+    ];
+    for (const fp of defaultLocks) {
+        if (fs.existsSync(fp)) {
+            try {
+                fs.unlinkSync(fp);
+            } catch (e) {}
         }
     }
 }
 
 // ── Destrucción segura del cliente anterior ───────────────────
 async function safeDestroyClient() {
-    if (!client) return;
-    try {
-        console.log('🛑 Cerrando cliente previo con seguridad...');
-        client.removeAllListeners();
-        // Intentar destruir el cliente y cerrar el navegador
-        await Promise.race([
-            client.destroy(),
-            new Promise(r => setTimeout(r, 6000))
-        ]);
-        console.log('✅ Cliente previo cerrado.');
-    } catch (e) {
-        console.warn('⚠️ Nota al cerrar cliente previo:', e.message);
-    } finally {
-        client = null;
-        cleanStaleChromiumLocks();
+    if (client) {
+        try {
+            console.log('🛑 Cerrando cliente previo con seguridad...');
+            try {
+                if (client.pupBrowser && typeof client.pupBrowser.process === 'function') {
+                    const proc = client.pupBrowser.process();
+                    if (proc && proc.pid && process.platform === 'win32') {
+                        const { execSync } = require('child_process');
+                        execSync(`taskkill /F /T /PID ${proc.pid} >nul 2>&1`, { timeout: 3000 });
+                    }
+                }
+            } catch (e) {}
+
+            client.removeAllListeners();
+            await Promise.race([
+                client.destroy(),
+                new Promise(r => setTimeout(r, 2000))
+            ]);
+            console.log('✅ Cliente previo cerrado.');
+        } catch (e) {
+            console.warn('⚠️ Nota al cerrar cliente previo:', e.message);
+        }
     }
+    client = null;
+    cleanStaleChromiumLocks();
 }
 
 // ── Crear y configurar cliente ────────────────────────────────
@@ -125,8 +166,8 @@ function createClient() {
             '--no-zygote',
             '--disable-gpu',
             '--disable-extensions',
-            '--disable-features=IsolateOrigins,site-per-process,AudioServiceOutOfProcess',
-            '--disable-site-isolation-trials',
+            '--disable-blink-features=AutomationControlled',
+            `--user-agent=${REAL_CHROME_UA}`,
             '--disable-background-timer-throttling',
             '--disable-backgrounding-occluded-windows',
             '--disable-breakpad',
@@ -143,6 +184,10 @@ function createClient() {
             dataPath: path.join(__dirname, '.wwebjs_auth')
         }),
         puppeteer: puppeteerConfig,
+        userAgent: REAL_CHROME_UA,
+        takeoverOnConflict: true,
+        takeoverTimeoutMs: 1000,
+        qrMaxRetries: 0,
         webVersionCache: {
             type: 'none'
         }
@@ -164,10 +209,15 @@ async function startClient() {
 
         client = createClient();
 
-        client.on('qr', (qr) => {
+        client.on('qr', async (qr) => {
             currentQR = qr;
             retryCount = 0;
             statusMsg = 'PENDIENTE: Escanea el código QR con WhatsApp Business';
+            try {
+                currentQRImage = await QRCode.toDataURL(qr, { width: 320, margin: 2 });
+            } catch (e) {
+                currentQRImage = null;
+            }
             console.log('\n===================================================');
             console.log('📱 CÓDIGO QR DISPONIBLE:');
             console.log(`   Abre en tu navegador: http://localhost:${PORT}/qr`);
@@ -181,12 +231,14 @@ async function startClient() {
         client.on('loading_screen', (percent, message) => {
             loadingPercent = percent;
             currentQR = null;
+            currentQRImage = null;
             statusMsg = `Sincronizando chats (${percent}%)...`;
             console.log(`⏳ Cargando WhatsApp: ${percent}% - ${message || 'Sincronizando'}`);
         });
 
         client.on('authenticated', () => {
             currentQR = null;
+            currentQRImage = null;
             retryCount = 0;
             statusMsg = 'Autenticado correctamente. Sincronizando sesión...';
             console.log('✅ Autenticación exitosa. Cargando WhatsApp Web...');
@@ -194,6 +246,7 @@ async function startClient() {
 
         client.on('ready', () => {
             currentQR = null;
+            currentQRImage = null;
             isClientReady = true;
             loadingPercent = 100;
             retryCount = 0;
@@ -205,30 +258,17 @@ async function startClient() {
         client.on('disconnected', async (reason) => {
             isClientReady = false;
             currentQR = null;
+            currentQRImage = null;
             loadingPercent = 0;
             statusMsg = 'Desconectado: ' + reason;
             console.log('⚠️ Cliente desconectado. Motivo:', reason);
 
-            // Si el usuario cerró sesión expresamente desde el móvil:
-            if (reason === 'LOGOUT') {
-                console.log('📱 Sesión cerrada desde el celular. Se generará un nuevo QR...');
-                const authPath = path.join(__dirname, '.wwebjs_auth');
-                try {
-                    fs.rmSync(authPath, { recursive: true, force: true });
-                } catch (e) { /* ignore */ }
-                setTimeout(() => {
-                    retryCount = 0;
-                    startClient();
-                }, 3000);
-                return;
-            }
-
-            // Para cualquier otra caída (red, reconexión, reinicio):
-            // NUNCA borrar la carpeta de sesión. Mantener sesión y reconectar.
-            console.log('↻ Reconectando en 5s manteniendo la sesión guardada...');
+            // NUNCA borrar la carpeta .wwebjs_auth automáticamente.
+            // Preservar la sesión y reconectar de inmediato.
+            console.log('↻ Reconectando en 4s manteniendo la sesión guardada...');
             setTimeout(() => {
                 startClient();
-            }, 5000);
+            }, 4000);
         });
 
         client.on('auth_failure', (msg) => {
@@ -252,6 +292,12 @@ async function startClient() {
         const msg = err && err.message ? err.message : String(err);
         console.error('❌ Error iniciando cliente WhatsApp:', msg);
         statusMsg = 'Error de inicio: ' + msg;
+
+        // Si el fallo fue por bloqueo de navegador o lockfile huérfano, limpiar agresivamente
+        if (msg.includes('already running') || msg.includes('userDataDir') || msg.includes('ProcessSingleton')) {
+            console.log('🧹 Detectado bloqueo de Chromium/Puppeteer. Limpiando procesos huérfanos y locks...');
+            cleanStaleChromiumLocks();
+        }
 
         if (retryCount < MAX_RETRIES && !isClientReady) {
             retryCount++;
@@ -440,12 +486,19 @@ app.get('/qr', async (req, res) => {
 
 // Endpoint de reinicio manual
 app.get('/api/restart-bot', async (req, res) => {
-    console.log('🔄 Petición manual de reinicio del bot...');
-    res.send('<body style="background:#111;color:#0f0;font-family:sans-serif;text-align:center;padding:50px;"><h2>↻ Reiniciando bot...</h2><p>Redirigiendo a /qr en 4 segundos...</p><script>setTimeout(()=>location.href="/qr",4000)</script></body>');
+    console.log('🔄 Petición de reinicio/recuperación del bot...');
+    isRestarting = false;
+    retryCount = 0;
+
+    if (req.headers.accept && req.headers.accept.includes('text/html')) {
+        res.send('<body style="background:#111;color:#0f0;font-family:sans-serif;text-align:center;padding:50px;"><h2>↻ Reiniciando bot...</h2><p>Redirigiendo a /qr en 3 segundos...</p><script>setTimeout(()=>location.href="/qr",3000)</script></body>');
+    } else {
+        res.json({ success: true, message: 'Reiniciando cliente de WhatsApp...' });
+    }
+
     setTimeout(() => {
-        retryCount = 0;
         startClient();
-    }, 1000);
+    }, 500);
 });
 
 // Estado en JSON para el frontend
@@ -460,11 +513,27 @@ app.get('/status', (req, res) => {
         status: statusMsg,
         hasQR: !!currentQR,
         qr: currentQR,
+        qrImage: currentQRImage,
         phone: phone,
         loadingPercent: loadingPercent,
         uptime: `${h}h ${m}m`,
         uptimeSeconds: uptimeS
     });
+});
+
+// Endpoint que devuelve directamente la imagen PNG del QR
+app.get('/api/qr-image', async (req, res) => {
+    if (!currentQR) {
+        return res.status(404).send('No hay código QR pendiente.');
+    }
+    try {
+        res.setHeader('Content-Type', 'image/png');
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+        const buffer = await QRCode.toBuffer(currentQR, { width: 320, margin: 2 });
+        res.send(buffer);
+    } catch (e) {
+        res.status(500).send('Error generando imagen QR');
+    }
 });
 
 // ── Helper Seguro para Enviar Mensajes con Auto-Recuperación ──

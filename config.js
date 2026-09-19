@@ -48,6 +48,10 @@
 
     // ── Global WA Notifications ─────────────────────────────────
     window.showWAToast = function(msg = 'Mensaje Enviado') {
+        if (typeof window.showToast === 'function') {
+            window.showToast('WhatsApp', msg, 'success');
+            return;
+        }
         const container = document.getElementById('wa-toast-container');
         if (!container) return;
         const toast = document.createElement('div');
@@ -198,4 +202,94 @@
             }
         };
     })();
+
+    // ── MODAL UNIVERSAL DE CONFIRMACIÓN (ESTILO MINIMAL SHIELD) ──
+    let _confirmResolve = null;
+
+    window.plixoraConfirm = function ({
+        title = '¿Estás seguro?',
+        message = 'Puedes volver a iniciar sesión más tarde en tu cuenta.',
+        confirmText = 'Sí, continuar',
+        cancelText = 'No'
+    } = {}) {
+        return new Promise((resolve) => {
+            const overlay = document.getElementById('plx-confirm-overlay');
+            const titleEl = document.getElementById('plx-confirm-title');
+            const msgEl = document.getElementById('plx-confirm-msg');
+            const btnCancel = document.getElementById('plx-confirm-btn-cancel');
+            const btnOk = document.getElementById('plx-confirm-btn-ok');
+
+            if (!overlay) {
+                return resolve(window.confirm(`${title}\n\n${message}`));
+            }
+
+            if (_confirmResolve) {
+                _confirmResolve(false);
+            }
+            _confirmResolve = resolve;
+
+            if (titleEl) titleEl.textContent = title;
+            if (msgEl) msgEl.textContent = message;
+            if (btnCancel) btnCancel.textContent = cancelText;
+            if (btnOk) btnOk.textContent = confirmText;
+
+            overlay.style.display = 'flex';
+            void overlay.offsetWidth; // trigger reflow for smooth transition
+            overlay.classList.add('active');
+
+            const cleanup = (result) => {
+                overlay.classList.remove('active');
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                }, 220);
+
+                window.removeEventListener('keydown', onKeyDown);
+                overlay.removeEventListener('click', onBackdrop);
+                btnCancel.onclick = null;
+                btnOk.onclick = null;
+
+                if (_confirmResolve) {
+                    const cb = _confirmResolve;
+                    _confirmResolve = null;
+                    cb(result);
+                }
+            };
+
+            const onKeyDown = (e) => {
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    cleanup(false);
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    cleanup(true);
+                }
+            };
+
+            const onBackdrop = (e) => {
+                if (e.target === overlay) {
+                    cleanup(false);
+                }
+            };
+
+            btnCancel.onclick = () => cleanup(false);
+            btnOk.onclick = () => cleanup(true);
+
+            window.addEventListener('keydown', onKeyDown);
+            overlay.addEventListener('click', onBackdrop);
+        });
+    };
+
+    window.confirmLogout = async function () {
+        const confirmed = await window.plixoraConfirm({
+            title: '¿Estás seguro?',
+            message: 'Puedes volver a iniciar sesión más tarde en tu cuenta.',
+            confirmText: 'Sí, cerrar sesión',
+            cancelText: 'No'
+        });
+        if (confirmed) {
+            if (typeof window.plixoraLogout === 'function') {
+                window.plixoraLogout();
+            }
+        }
+    };
 })();

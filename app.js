@@ -61,6 +61,9 @@ function applyTheme(theme) {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem("theme", theme);
     syncThemeButtons(theme);
+    if (typeof window.renderIncidentReportCard === 'function') {
+        window.renderIncidentReportCard();
+    }
 }
 
 function toggleTheme() {
@@ -242,7 +245,10 @@ function initFirebase() {
                 snapshot => {
                     const fromServer = !snapshot.metadata.fromCache;
                     sales = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
-                    localStorage.setItem('plixora_sales', JSON.stringify(sales));
+                    // Defer heavy serialization to idle time to avoid blocking scroll/UI
+                    (window.requestIdleCallback || setTimeout)(() => {
+                        try { localStorage.setItem('plixora_sales', JSON.stringify(sales)); } catch(e) {}
+                    });
                     debouncedUpdateDashboard();
 
                     // Conectar el módulo Netflix a Firebase en cuanto haya datos (caché o servidor)
@@ -794,62 +800,74 @@ function populateSelect() {
     if (grpTV.children.length > 0) selectProduct.appendChild(grpTV);
     if (grpCustom.children.length > 0) selectProduct.appendChild(grpCustom);
 
-    selectProduct.addEventListener('change', e => {
-        const allProds = [...catalogData, ...customPlans];
-        const p = allProds.find(x => x.id === e.target.value);
-        if (p) {
-            document.getElementById('summary-price').textContent  = `${p.salePrice} Bs`;
-            document.getElementById('summary-cost').textContent   = `${p.cost} Bs`;
-            document.getElementById('summary-profit').textContent = `${p.profit} Bs`;
-            saleSummary.style.display = 'block';
+    // NOTE: The 'change' listener is registered once in setupForm(), NOT here.
+    // Previously it was here, causing a memory leak (new listener added on every call).
+}
 
-            // Generar campos de credenciales según el producto o combo seleccionado
-            const isCombo = p.category === 'combo' || p.type === 'combo' || (p.comboServices && p.comboServices.length > 1);
-            let servicesToRender = [];
-            if (isCombo) {
-                if (p.comboServices && p.comboServices.length > 0) {
-                    servicesToRender = p.comboServices.map(c => typeof c === 'object' ? c : { name: c, duration: p.duration || '1 Mes' });
-                } else if (p.credentials && p.credentials.combo && p.credentials.combo.length > 0) {
-                    servicesToRender = p.credentials.combo.map(c => ({ name: c.name || 'Cuenta', duration: c.duration || p.duration || '1 Mes' }));
-                } else if (p.features && p.features.length > 1) {
-                    servicesToRender = p.features.map(f => ({ name: f, duration: p.duration || '1 Mes' }));
-                } else {
-                    const count = p.accountsCount || 2;
-                    for (let i = 1; i <= count; i++) servicesToRender.push({ name: `Cuenta ${i}`, duration: p.duration || '1 Mes' });
-                }
+// ── Single change handler for product select (registered once in setupForm) ──
+function handleProductChange(e) {
+    const allProds = [...catalogData, ...customPlans];
+    const p = allProds.find(x => x.id === e.target.value);
+    if (p) {
+        document.getElementById('summary-price').textContent  = `${p.salePrice} Bs`;
+        document.getElementById('summary-cost').textContent   = `${p.cost} Bs`;
+        document.getElementById('summary-profit').textContent = `${p.profit} Bs`;
+        saleSummary.style.display = 'block';
+
+        // Generar campos de credenciales según el producto o combo seleccionado
+        const isCombo = p.category === 'combo' || p.type === 'combo' || (p.comboServices && p.comboServices.length > 1);
+        let servicesToRender = [];
+        if (isCombo) {
+            if (p.comboServices && p.comboServices.length > 0) {
+                servicesToRender = p.comboServices.map(c => typeof c === 'object' ? c : { name: c, duration: p.duration || '1 Mes' });
+            } else if (p.credentials && p.credentials.combo && p.credentials.combo.length > 0) {
+                servicesToRender = p.credentials.combo.map(c => ({ name: c.name || 'Cuenta', duration: c.duration || p.duration || '1 Mes' }));
+            } else if (p.features && p.features.length > 1) {
+                servicesToRender = p.features.map(f => ({ name: f, duration: p.duration || '1 Mes' }));
             } else {
-                servicesToRender = [{ name: p.name, duration: p.duration || '1 Mes' }];
+                const count = p.accountsCount || 2;
+                for (let i = 1; i <= count; i++) servicesToRender.push({ name: `Cuenta ${i}`, duration: p.duration || '1 Mes' });
             }
-            window.renderSaleCredentialCards(servicesToRender, p.duration || '1 Mes');
+        } else {
+            servicesToRender = [{ name: p.name, duration: p.duration || '1 Mes' }];
         }
-    });
+        window.renderSaleCredentialCards(servicesToRender, p.duration || '1 Mes');
+    }
 }
 
 function setupForm() {
+    selectProduct.removeEventListener('change', handleProductChange);
+    selectProduct.addEventListener('change', handleProductChange);
     formNewSale.addEventListener('submit', async e => {
         e.preventDefault();
 
         let hasError = false;
 
+        // Collect elements that need shake animation
+        const elementsToShake = [];
+
         const productId = selectProduct.value;
         if (!productId) {
-            selectProduct.classList.remove('shake-error');
-            void selectProduct.offsetWidth;
-            selectProduct.classList.add('shake-error');
+            elementsToShake.push(selectProduct);
             hasError = true;
         }
 
         const requiredInputs = formNewSale.querySelectorAll('input[required]');
         requiredInputs.forEach(input => {
             if (!input.value.trim()) {
-                input.classList.remove('shake-error');
-                void input.offsetWidth;
-                input.classList.add('shake-error');
+                elementsToShake.push(input);
                 hasError = true;
             } else {
                 input.classList.remove('shake-error');
             }
         });
+
+        // Batch reflow: remove class from all, force ONE reflow, then add class to all
+        if (elementsToShake.length > 0) {
+            elementsToShake.forEach(el => el.classList.remove('shake-error'));
+            void selectProduct.offsetWidth; // Single forced reflow for the batch
+            elementsToShake.forEach(el => el.classList.add('shake-error'));
+        }
 
         if (hasError) return;
 
@@ -1249,26 +1267,215 @@ window.copyTVMenu = function() {
     window.copyToClipboardWithToast(text, 'Menú TV');
 };
 
-// ---- TOAST ----
-function showToast(message, durationMs) {
+// ---- TOAST (SISTEMA DE NOTIFICACIONES PROFESIONAL) ----
+const PLX_TOAST_ICONS = {
+    success: '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12.5 10.5 15 16 9.5"></polyline></svg>',
+    info: '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>',
+    warning: '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',
+    error: '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>',
+    close: '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>'
+};
+
+function parseToastArgs(arg1, arg2, arg3, arg4) {
+    let title = '';
+    let desc = '';
+    let type = 'info';
+    let durationMs = 3800;
+
+    if (typeof arg1 === 'object' && arg1 !== null) {
+        title = arg1.title || '';
+        desc = arg1.message || arg1.desc || '';
+        type = arg1.type || 'info';
+        durationMs = arg1.duration || arg1.durationMs || 3800;
+    } else if (typeof arg2 === 'string') {
+        title = arg1 || '';
+        desc = arg2 || '';
+        type = arg3 || 'info';
+        durationMs = typeof arg4 === 'number' ? arg4 : 3800;
+    } else {
+        const raw = String(arg1 || '').trim();
+        durationMs = typeof arg2 === 'number' ? arg2 : 3800;
+
+        // Detectar tipo de alerta por emojis o palabras clave
+        if (/✅|✔|✔️|🎉/.test(raw)) {
+            type = 'success';
+        } else if (/❌|🚫|⛔|Error\b|falló|fallo/i.test(raw)) {
+            type = 'error';
+        } else if (/⚠️|🚨|Advertencia|Atención|Alerta/i.test(raw)) {
+            type = 'warning';
+        } else if (/ℹ️|ℹ|📋|📤|🗑️|🔄|📱|💬/.test(raw)) {
+            type = 'info';
+        } else if (/éxito|exito|guardado|actualizado|creado|eliminado/i.test(raw)) {
+            type = 'success';
+        }
+
+        // Limpiar emojis iniciales
+        let clean = raw.replace(/^[\s✅❌⚠️ℹ️ℹ📋📤🗑️🔄🎉🚨🚫⛔📱💬]+/, '').trim();
+
+        // 1. Si contiene salto de línea
+        if (clean.includes('\n')) {
+            const parts = clean.split('\n').map(s => s.trim()).filter(Boolean);
+            title = parts[0] || '';
+            desc = parts.slice(1).join(' ');
+        }
+        // 2. Si contiene separador ": " (ej. "Error: Servidor no responde" o "Guardado: Tus cambios fueron guardados")
+        else if (/:\s+/.test(clean)) {
+            const colonIdx = clean.indexOf(': ');
+            title = clean.substring(0, colonIdx).trim();
+            desc = clean.substring(colonIdx + 2).trim();
+        }
+        // 3. Si contiene guión largo " — "
+        else if (clean.includes(' — ')) {
+            const parts = clean.split(' — ');
+            title = parts[0].trim();
+            desc = parts.slice(1).join(' — ').trim();
+        }
+        // 4. Si contiene dos frases separadas por punto y espacio
+        else if (/\.\s+/.test(clean)) {
+            const dotIdx = clean.search(/\.\s+/);
+            title = clean.substring(0, dotIdx).trim();
+            desc = clean.substring(dotIdx + 2).trim();
+        }
+        // 5. Casos semánticos específicos frecuentes en el sistema
+        else if (/^Aviso enviado a\s+/i.test(clean)) {
+            title = 'Aviso enviado';
+            desc = clean;
+        } else if (/copiado al portapapeles/i.test(clean)) {
+            title = 'Copiado al portapapeles';
+            desc = clean.replace(/copiado al portapapeles/i, '').trim() || '';
+        } else if (/^Enviando/i.test(clean)) {
+            title = 'Procesando';
+            desc = clean;
+        } else if (clean.toLowerCase() === 'detalle copiado') {
+            title = 'Detalle copiado';
+            desc = 'Texto copiado al portapapeles con éxito.';
+        } else if (clean.toLowerCase() === 'venta eliminada') {
+            title = 'Venta eliminada';
+            desc = 'El registro fue eliminado correctamente.';
+        } else {
+            // Regla por defecto según tipo
+            if (type === 'error') {
+                title = 'Error';
+                desc = clean;
+            } else if (type === 'warning') {
+                title = 'Atención';
+                desc = clean;
+            } else if (type === 'success') {
+                if (clean.length > 28) {
+                    title = 'Operación exitosa';
+                    desc = clean;
+                } else {
+                    title = clean;
+                    desc = '';
+                }
+            } else {
+                if (clean.length > 28) {
+                    title = 'Información';
+                    desc = clean;
+                } else {
+                    title = clean;
+                    desc = '';
+                }
+            }
+        }
+    }
+
+    if (!['success', 'info', 'warning', 'error'].includes(type)) type = 'info';
+    return { title, desc, type, durationMs };
+}
+
+function showToast(arg1, arg2, arg3, arg4) {
+    const { title, desc, type, durationMs } = parseToastArgs(arg1, arg2, arg3, arg4);
+    if (!title && !desc) return;
+
     const container = document.getElementById('toast-container') || (function() {
         const c = document.createElement('div');
         c.id = 'toast-container';
-        c.style.cssText = 'position:fixed;bottom:2.5rem;left:50%;transform:translateX(-50%);z-index:999999;display:flex;flex-direction:column-reverse;align-items:center;gap:0.5rem;pointer-events:none;';
         document.body.appendChild(c);
         return c;
     })();
+
+    // Limitar máximo 4 toasts visibles simultáneos para no saturar la pantalla
+    const currentToasts = container.querySelectorAll('.toast:not(.hide)');
+    if (currentToasts.length >= 4) {
+        const oldest = currentToasts[0];
+        oldest.classList.remove('show');
+        oldest.classList.add('hide');
+        setTimeout(() => { if (oldest.parentNode) oldest.parentNode.removeChild(oldest); }, 220);
+    }
+
     const toast = document.createElement('div');
-    toast.className = 'toast show';
-    toast.textContent = message;
+    toast.className = `toast toast-type-${type}`;
     toast.setAttribute('role', 'alert');
     toast.setAttribute('aria-live', 'polite');
+
+    const iconWrap = document.createElement('div');
+    iconWrap.className = 'toast-icon-wrap';
+    iconWrap.innerHTML = PLX_TOAST_ICONS[type] || PLX_TOAST_ICONS.info;
+    toast.appendChild(iconWrap);
+
+    const body = document.createElement('div');
+    body.className = 'toast-body';
+
+    const titleEl = document.createElement('div');
+    titleEl.className = 'toast-title';
+    titleEl.textContent = title;
+    body.appendChild(titleEl);
+
+    if (desc) {
+        const descEl = document.createElement('div');
+        descEl.className = 'toast-desc';
+        descEl.textContent = desc;
+        body.appendChild(descEl);
+    }
+    toast.appendChild(body);
+
+    const closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.className = 'toast-close-btn';
+    closeBtn.setAttribute('aria-label', 'Cerrar notificación');
+    closeBtn.setAttribute('title', 'Cerrar');
+    closeBtn.innerHTML = PLX_TOAST_ICONS.close;
+    toast.appendChild(closeBtn);
+
     container.appendChild(toast);
-    const dur = durationMs || 3000;
-    setTimeout(() => {
+
+    // Animación suave de entrada
+    requestAnimationFrame(() => {
+        toast.classList.add('show');
+    });
+
+    let dismissTimer = null;
+    let isDismissed = false;
+
+    const dismiss = () => {
+        if (isDismissed) return;
+        isDismissed = true;
+        if (dismissTimer) clearTimeout(dismissTimer);
         toast.classList.remove('show');
-        setTimeout(() => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 350);
-    }, dur);
+        toast.classList.add('hide');
+        setTimeout(() => {
+            if (toast.parentNode) toast.parentNode.removeChild(toast);
+        }, 250);
+    };
+
+    closeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dismiss();
+    });
+
+    // Pausar el temporizador si el usuario pasa el cursor para leerlo
+    toast.addEventListener('mouseenter', () => {
+        if (dismissTimer) clearTimeout(dismissTimer);
+    });
+
+    toast.addEventListener('mouseleave', () => {
+        if (!isDismissed) {
+            dismissTimer = setTimeout(dismiss, 1800);
+        }
+    });
+
+    dismissTimer = setTimeout(dismiss, durationMs);
 }
 window.showToast = showToast;
 
@@ -1349,6 +1556,19 @@ function navigateTo(target) {
 
     if (target === 'analytics' && typeof window.renderAnalytics === 'function') {
         window.renderAnalytics();
+    }
+    if (target === 'dashboard') {
+        if (typeof window.triggerMetricCardsEntrance === 'function') {
+            window.triggerMetricCardsEntrance();
+        }
+        if (typeof window.renderIncidentReportCard === 'function') {
+            setTimeout(window.renderIncidentReportCard, 100);
+        }
+    }
+    if (target === 'netflix') {
+        if (typeof window.triggerNetflixCardsEntrance === 'function') {
+            window.triggerNetflixCardsEntrance();
+        }
     }
 
     try { document.querySelector('.main-content').scrollTo({ top:0, behavior:'smooth' }); } catch(e){}
@@ -1834,7 +2054,13 @@ window.editCustomPlan = function(id) {
 };
 
 window.deleteCustomPlan = async function(id, name) {
-    if (!confirm(`¿Estás seguro de que quieres eliminar el producto "${name}"?\nEsto NO afectará a las ventas ya registradas.`)) return;
+    const confirmed = await window.plixoraConfirm({
+        title: '¿Estás seguro?',
+        message: `¿Eliminar el producto "${name}"? Esto no afectará a las ventas ya registradas.`,
+        confirmText: 'Sí, eliminar',
+        cancelText: 'No'
+    });
+    if (!confirmed) return;
 
     // 1. Eliminar inmediatamente de memoria y localStorage
     customPlans = customPlans.filter(p => p.id !== id);
@@ -2443,19 +2669,53 @@ document.addEventListener('DOMContentLoaded', () => {
         showToast('✅ URL del bot guardada');
     };
 
-    window.launchLocalBot = function() {
+    window.launchLocalBot = async function() {
         if (!window.PLIXORA_CONFIG.IS_LOCAL) {
             showToast('💻 El bot opera en tu computadora. Usa el lanzador en tu PC.');
             return;
         }
-        window.location.href = 'plixora://start';
-        showToast('🚀 Iniciando bot de WhatsApp en segundo plano...');
+        showToast('🚀 Conectando bot de WhatsApp...');
+
+        // 1. Si el servidor local ya está activo en segundo plano, pedir reinicio/recuperación
+        let serverActive = false;
+        try {
+            const botBase = window.PLIXORA_CONFIG.BOT_BASE_URL || 'http://localhost:3000';
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), 1800);
+            const res = await fetch(botBase + '/api/restart-bot', { signal: controller.signal });
+            clearTimeout(timer);
+            serverActive = res.ok;
+            if (serverActive) {
+                showToast('🔄 Reiniciando y desbloqueando sesión del bot...');
+            }
+        } catch (e) {
+            serverActive = false;
+        }
+
+        // 2. Si el servidor no estaba activo, lanzarlo mediante el protocolo silencioso
+        if (!serverActive) {
+            try {
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = 'plixora://start';
+                document.body.appendChild(iframe);
+                setTimeout(() => {
+                    try { document.body.removeChild(iframe); } catch(err) {}
+                }, 2000);
+            } catch (err) {
+                window.location.href = 'plixora://start';
+            }
+        }
+
         setTimeout(() => {
             window.checkWaBotModalStatus(false);
-        }, 3500);
+        }, 3000);
         setTimeout(() => {
             window.checkWaBotModalStatus(false);
-        }, 7000);
+        }, 6000);
+        setTimeout(() => {
+            window.checkWaBotModalStatus(false);
+        }, 10000);
     };
 
     window.checkWaBotModalStatus = async function(showToastFeedback) {
@@ -2503,15 +2763,21 @@ document.addEventListener('DOMContentLoaded', () => {
             badge.style.background = 'rgba(245,158,11,0.15)';
             badge.style.color = '#f59e0b';
             badge.textContent = '● ESCANEAR QR';
-            detail.textContent = 'Se requiere vincular con WhatsApp Business.';
+            detail.textContent = 'Escanea el código QR para vincular WhatsApp Business.';
             if (phoneRow) phoneRow.style.display = 'none';
             if (qrContainer) {
                 qrContainer.style.display = 'block';
                 if (qrImgDiv) {
-                    qrImgDiv.innerHTML = '<a href="' + (window.PLIXORA_CONFIG.BOT_BASE_URL) + '/qr" target="_blank" style="color:#25D366;font-weight:bold;text-decoration:underline;">Abrir página /qr para escanear</a>';
+                    const qrSrc = data.qrImage || (window.PLIXORA_CONFIG.BOT_BASE_URL + '/api/qr-image?t=' + Date.now());
+                    qrImgDiv.innerHTML = `
+                        <div style="position:relative; display:inline-block; margin:0 auto;">
+                            <img id="wa-qr-modal-preview" src="${qrSrc}" alt="Código QR WhatsApp" style="width:230px; height:230px; display:block; border-radius:10px; border:1px solid #cbd5e1; object-fit:contain; background:#fff; margin:0 auto;" />
+                        </div>
+                    `;
                 }
             }
-            if (showToastFeedback) showToast('⚠️ Escanea el código QR en /qr');
+            if (showToastFeedback) showToast('📱 Escanea el código QR con WhatsApp Business');
+            startModalQrAutoRefresh();
         } else {
             badge.style.background = 'rgba(239,68,68,0.15)';
             badge.style.color = '#ef4444';
@@ -2521,6 +2787,53 @@ document.addEventListener('DOMContentLoaded', () => {
             if (qrContainer) qrContainer.style.display = 'none';
             if (showToastFeedback) showToast('❌ Bot no alcanzable (' + (data.status || 'apagado') + ')');
         }
+    };
+
+    // Auto-refresco del QR en vivo mientras el modal esté visible
+    let modalQrInterval = null;
+    function startModalQrAutoRefresh() {
+        if (modalQrInterval) return;
+        modalQrInterval = setInterval(async () => {
+            const modal = document.getElementById('wa-bot-modal');
+            if (!modal || modal.style.display === 'none') {
+                clearInterval(modalQrInterval);
+                modalQrInterval = null;
+                return;
+            }
+            const data = await window.checkWaBotStatus();
+            window.updateWaBotIndicator(data);
+            if (data.ready) {
+                clearInterval(modalQrInterval);
+                modalQrInterval = null;
+                window.checkWaBotModalStatus(false);
+                showToast('🎉 ¡WhatsApp conectado con éxito!');
+            } else if (data.hasQR) {
+                const img = document.getElementById('wa-qr-modal-preview');
+                const newSrc = data.qrImage || (window.PLIXORA_CONFIG.BOT_BASE_URL + '/api/qr-image?t=' + Date.now());
+                if (img && data.qrImage && img.src !== data.qrImage) {
+                    img.src = data.qrImage;
+                }
+            }
+        }, 2500);
+    }
+
+    // Botón manual para refrescar el QR
+    window.refreshWaQR = async function() {
+        const icon = document.getElementById('wa-qr-btn-icon');
+        if (icon) {
+            icon.style.display = 'inline-block';
+            icon.style.transform = 'rotate(360deg)';
+            icon.style.transition = 'transform 0.5s ease';
+            setTimeout(() => { if (icon) icon.style.transform = 'none'; }, 600);
+        }
+        showToast('↻ Refrescando código QR...');
+        try {
+            const botBase = window.PLIXORA_CONFIG.BOT_BASE_URL || 'http://localhost:3000';
+            await fetch(botBase + '/api/restart-bot');
+        } catch (e) {}
+        setTimeout(() => {
+            window.checkWaBotModalStatus(false);
+        }, 1200);
     };
 
     // Polling en segundo plano cada 30s

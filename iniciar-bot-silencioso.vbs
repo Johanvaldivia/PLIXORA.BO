@@ -19,10 +19,16 @@ If Err.Number = 0 Then
 End If
 On Error GoTo 0
 
-' 2. Si ya est? corriendo, salir pac?ficamente
+' 2. Si ya está corriendo, enviar orden de reinicio/recuperación limpia
 If isAlreadyRunning Then
+    On Error Resume Next
+    Set xmlHttp2 = CreateObject("MSXML2.ServerXMLHTTP.6.0")
+    xmlHttp2.setTimeouts 1500, 1500, 1500, 1500
+    xmlHttp2.open "GET", "http://127.0.0.1:3000/api/restart-bot", False
+    xmlHttp2.send
+    On Error GoTo 0
     WScript.Quit 0
 End If
 
-' 3. Si no est? corriendo, ejecutar run-bot.bat de forma 100% invisible (ventana 0)
-WshShell.Run """" & batPath & """", 0, False
+' 3. Si no está corriendo, ejecutar run-bot.bat de forma 100% invisible (ventana 0)
+WshShell.Run "cmd.exe /c """ & batPath & """", 0, False

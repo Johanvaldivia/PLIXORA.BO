@@ -1,5 +1,6 @@
 // =============================================================
-// PLIXORA.BO — Módulo de Cuentas Grupales v2
+// PLIXORA.BO — Módulo de Cuentas Grupales v4.0
+// Diseño: VERSION 2 (Modo Noche) & VERSION 2.1 (Modo Día)
 // Gestión de cuentas compartidas con reemplazo y notificación WA
 // =============================================================
 
@@ -15,24 +16,22 @@
 
     // ── INIT ──────────────────────────────────────────────────────
     function init() {
-        // UI initialization
         const addBtn = document.getElementById('ga-btn-add-account');
         if (addBtn) addBtn.addEventListener('click', openAddAccountModal);
         window.renderGroupAccounts = renderAll;
 
-        // Password visibility toggle via event delegation
-        document.addEventListener('click', function(e) {
-            const pw = e.target.closest('.ga-password');
-            if (!pw) return;
-            const password = pw.dataset.password || '—';
-            if (pw.dataset.visible === 'true') {
-                pw.dataset.visible = 'false';
-                pw.textContent = '••••••••';
-            } else {
-                pw.dataset.visible = 'true';
-                pw.textContent = password;
-            }
-        });
+        // Observer to re-trigger count-up when group-accounts view becomes active
+        const gaSection = document.getElementById('group-accounts');
+        if (gaSection && window.MutationObserver) {
+            const observer = new MutationObserver(mutations => {
+                mutations.forEach(m => {
+                    if (m.attributeName === 'class' && gaSection.classList.contains('active')) {
+                        triggerGACountUp();
+                    }
+                });
+            });
+            observer.observe(gaSection, { attributes: true });
+        }
     }
 
     // Called by app.js when Firebase is ready
@@ -69,6 +68,52 @@
         return (typeof window.nowBolivia === 'function' ? window.nowBolivia() : new Date()) > exp;
     }
 
+    // ── SERVICE LOGO RESOLVER ──────────────────────────────────────
+    function getServiceLogo(serviceName) {
+        const s = (serviceName || '').toLowerCase();
+        
+        if (s.includes('disney') && (s.includes('hbo') || s.includes('max'))) {
+            return `
+                <div style="display:flex;align-items:center;justify-content:center;gap:3px;">
+                    <img src="assets/logos/disney.svg" alt="Disney+" style="width:16px;height:16px;object-fit:contain;">
+                    <span style="font-size:10px;font-weight:800;color:var(--ga-text-muted);line-height:1;">+</span>
+                    <img src="assets/logos/hbomax-dark.png" alt="HBO Max" style="width:16px;height:16px;object-fit:contain;">
+                </div>
+            `;
+        }
+        if (s.includes('disney')) {
+            return `<img src="assets/logos/disney.svg" alt="Disney+" style="width:24px;height:24px;object-fit:contain;">`;
+        }
+        if (s.includes('hbo') || s.includes('max')) {
+            return `<img src="assets/logos/hbomax-dark.png" alt="HBO Max" style="width:24px;height:24px;object-fit:contain;">`;
+        }
+        if (s.includes('prime')) {
+            return `<img src="assets/logos/primevideo.svg" alt="Prime Video" style="width:24px;height:24px;object-fit:contain;">`;
+        }
+        if (s.includes('netflix')) {
+            return `<img src="assets/logos/netflix.png" alt="Netflix" style="width:22px;height:22px;object-fit:contain;">`;
+        }
+        if (s.includes('spotify')) {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            const spLogo = isDark ? 'assets/logos/spotify-dark.png' : 'assets/logos/spotify-light.png';
+            return `<img src="${spLogo}" alt="Spotify" style="width:22px;height:22px;object-fit:contain;">`;
+        }
+        if (s.includes('youtube')) {
+            return `<img src="assets/logos/youtube.svg" alt="YouTube" style="width:24px;height:24px;object-fit:contain;">`;
+        }
+        if (s.includes('capcut')) {
+            return `<img src="assets/logos/capcut.svg" alt="CapCut" style="width:24px;height:24px;object-fit:contain;">`;
+        }
+
+        // Lucide Icon: Tv2 fallback
+        return `
+            <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24">
+                <rect height="14" rx="2" width="20" x="2" y="7"></rect>
+                <path d="M17 2l-5 5-5-5"></path>
+            </svg>
+        `;
+    }
+
     // ── RENDER ALL ────────────────────────────────────────────────
     function renderAll() {
         const grid = document.getElementById('ga-accounts-grid');
@@ -83,7 +128,7 @@
         }
         if (empty) empty.style.display = 'none';
 
-        gaAccounts.forEach(acc => {
+        gaAccounts.forEach((acc, cardIdx) => {
             const members = acc.members || [];
             const accountCost = parseFloat(acc.accountCost) || 0;
             const totalRevenue = members.reduce((s, m) => s + (parseFloat(m.price) || 0), 0);
@@ -93,116 +138,295 @@
             const expDate = formatExpDate(acc.createdAt);
             const expired = isExpired(acc.createdAt);
 
-            const card = document.createElement('div');
-            card.className = 'ga-card';
+            const safeServiceName = (acc.serviceName || 'Servicio').replace(/"/g, '&quot;');
+            const safeEmail = (acc.email || '').replace(/"/g, '&quot;');
+            const safePass = (acc.password || '').replace(/"/g, '&quot;');
+
+            const card = document.createElement('article');
+            card.className = `ga-card animate-card`;
             card.innerHTML = `
-                <div class="ga-card-header">
-                    <div class="ga-card-title">
-                        <span class="ga-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/></svg></span>
-                        <div>
-                            <h3>${acc.serviceName}</h3>
-                            <p class="ga-card-subtitle">${slotsUsed}/${maxSlots} perfiles ocupados</p>
-                        </div>
-                    </div>
-                    <div class="ga-header-badges">
-                        <div class="ga-card-status ${slotsUsed >= maxSlots ? 'ga-full' : 'ga-available'}">
-                            ${slotsUsed >= maxSlots ? 'Llena' : 'Disponible'}
-                        </div>
-                        <div class="ga-card-expiry ${expired ? 'ga-expired' : ''}">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px; vertical-align:text-top;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Vence: ${expDate}
-                        </div>
-                    </div>
-                </div>
-                <div class="ga-card-creds">
-                    <div class="ga-cred-row">
-                        <span class="ga-cred-label"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> Correo:</span>
-                        <span class="ga-cred-value" title="${(acc.email || '').replace(/"/g,'&quot;')}">${acc.email || '—'}</span>
-                        <button class="ga-copy-btn" onclick="window.gaCopyToClipboard('${(acc.email || '').replace(/'/g, "\\'").replace(/\\/g, '\\\\')}', 'Correo', this)" title="Copiar correo">
-                            <svg class="icon-copy" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                            <svg class="icon-check" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                        </button>
-                    </div>
-                    <div class="ga-cred-row">
-                        <span class="ga-cred-label"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg> Contraseña:</span>
-                        <span class="ga-cred-value ga-password" data-password="${(acc.password || '—').replace(/"/g,'&quot;').replace(/</g,'&lt;')}">••••••••</span>
-                        <button class="ga-copy-btn" onclick="window.gaCopyToClipboard('${(acc.password || '').replace(/'/g, "\\'").replace(/\\/g, '\\\\')}', 'Contraseña', this)" title="Copiar contraseña">
-                            <svg class="icon-copy" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                            <svg class="icon-check" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                        </button>
-                    </div>
-                </div>
-                <div class="ga-finance-hud">
-                    <div class="ga-hud-cell ga-hud-cost">
-                        <span class="ga-hud-label">Inversión</span>
-                        <span class="ga-hud-val">${accountCost.toFixed(2)} <small>Bs</small></span>
-                    </div>
-                    <div class="ga-hud-cell ga-hud-rev">
-                        <span class="ga-hud-label">Cobrado</span>
-                        <span class="ga-hud-val">${totalRevenue.toFixed(2)} <small>Bs</small></span>
-                    </div>
-                    <div class="ga-hud-cell ${profit >= 0 ? 'ga-hud-profit-pos' : 'ga-hud-profit-neg'}">
-                        <span class="ga-hud-label">Ganancia</span>
-                        <span class="ga-hud-val">${profit >= 0 ? '+' : ''}${profit.toFixed(2)} <small>Bs</small></span>
-                    </div>
-                </div>
-                <div class="ga-card-members-header">
-                    <div class="ga-members-heading">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                        <span>Perfiles Asignados</span>
-                    </div>
-                    <span class="ga-members-count">${slotsUsed}/${maxSlots}</span>
-                </div>
-                <div class="ga-members-list" id="ga-members-${acc.id}">
-                    ${members.length === 0 ? '<div class="ga-no-members">Sin clientes asignados todavía</div>' : ''}
-                    ${members.map((m, i) => `
-                        <div class="ga-member-slot">
-                            <span class="ga-slot-num">#${i + 1}</span>
-                            <div class="ga-slot-client">
-                                <span class="ga-slot-name" title="${(m.name || '').replace(/"/g,'&quot;')}">${m.name || 'Cliente'}</span>
-                                <span class="ga-slot-phone">${m.phone ? '📱 ' + m.phone : '—'}</span>
+                <div class="ga-card-inner-stack">
+                    <!-- Top Row: Logo/Icon + Service Title + Badges -->
+                    <div class="ga-card-top">
+                        <div class="ga-card-service-info">
+                            <div class="ga-service-icon-box">
+                                ${getServiceLogo(acc.serviceName)}
                             </div>
-                            <span class="ga-slot-sale">${(parseFloat(m.price) || 0).toFixed(2)} Bs</span>
-                            <div class="ga-slot-btns">
-                                <a class="ga-slot-btn ga-slot-wa" href="https://wa.me/${(m.phone || '').replace(/[^0-9]/g,'')}" target="_blank" title="Abrir WhatsApp">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.555 4.126 1.528 5.86L.06 23.708a.5.5 0 00.633.632l5.848-1.468A11.948 11.948 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.94 0-3.757-.565-5.285-1.539l-.379-.229-3.477.873.887-3.477-.248-.394A9.96 9.96 0 012 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"/></svg>
-                                </a>
-                                <button class="ga-slot-btn ga-slot-resend" onclick="window.gaResendToMember('${acc.id}', ${i})" title="Reenviar datos por WhatsApp">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2Z"/></svg>
-                                </button>
-                                <button class="ga-slot-btn ga-slot-del" onclick="window.gaRemoveMember('${acc.id}', ${i})" title="Quitar miembro">✕</button>
+                            <div class="ga-service-text">
+                                <h2 class="ga-service-title" title="${safeServiceName}">${safeServiceName}</h2>
+                                <p class="ga-service-sub">${slotsUsed}/${maxSlots} perfiles ocupados</p>
                             </div>
                         </div>
-                    `).join('')}
-                    ${slotsUsed < maxSlots ? `
-                        <div class="ga-slot-empty" onclick="window.gaOpenAddMember('${acc.id}', '${acc.serviceName}', ${maxSlots}, ${slotsUsed})" title="Clic para asignar cliente">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                            <span>Perfil ${slotsUsed + 1} disponible</span>
+                        <div class="ga-card-top-badges">
+                            <span class="ga-badge-status ${slotsUsed >= maxSlots ? 'full badge-subtle-pulse' : 'avail'}">
+                                ${slotsUsed >= maxSlots ? 'LLENA' : 'CON LIBRES'}
+                            </span>
+                            <span class="ga-badge-expiry" title="Fecha de vencimiento">
+                                <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewBox="0 0 24 24">
+                                    <rect height="18" rx="2" width="18" x="3" y="4"></rect>
+                                    <line x1="16" x2="16" y1="2" y2="6"></line>
+                                    <line x1="8" x2="8" y1="2" y2="6"></line>
+                                    <line x1="3" x2="21" y1="10" y2="10"></line>
+                                </svg>
+                                <span>Vence: ${expDate}</span>
+                            </span>
                         </div>
-                    ` : ''}
+                    </div>
+
+                    <!-- Credentials Box -->
+                    <div class="ga-creds-box">
+                        <!-- Email -->
+                        <div class="ga-cred-row">
+                            <div class="ga-cred-data">
+                                <svg class="ga-cred-icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewBox="0 0 24 24">
+                                    <rect height="16" rx="2" width="20" x="2" y="4"></rect>
+                                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+                                </svg>
+                                <span class="ga-cred-lbl">Correo:</span>
+                                <span class="ga-cred-val" title="${safeEmail}">${safeEmail || '—'}</span>
+                            </div>
+                            <button class="ga-copy-trigger" onclick="window.gaTriggerCopy('${(acc.email || '').replace(/'/g, "\\'").replace(/\\/g, '\\\\')}', this, 'Correo')" title="Copiar Correo" type="button">
+                                <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewBox="0 0 24 24">
+                                    <rect height="13" rx="2" ry="2" width="13" x="9" y="9"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <!-- Password -->
+                        <div class="ga-cred-row border-top-subtle">
+                            <div class="ga-cred-data">
+                                <svg class="ga-cred-icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewBox="0 0 24 24">
+                                    <circle cx="7.5" cy="15.5" r="5.5"></circle>
+                                    <path d="m21 2-9.6 9.6"></path>
+                                    <path d="m15.5 7.5 3 3"></path>
+                                </svg>
+                                <span class="ga-cred-lbl">Contraseña:</span>
+                                <span class="ga-cred-val ga-cred-pass" data-password="${safePass}" data-visible="false" onclick="window.gaTogglePassword(this)" title="Clic para ver/ocultar">••••••••</span>
+                            </div>
+                            <button class="ga-copy-trigger" onclick="window.gaTriggerCopy('${(acc.password || '').replace(/'/g, "\\'").replace(/\\/g, '\\\\')}', this, 'Contraseña')" title="Copiar Contraseña" type="button">
+                                <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewBox="0 0 24 24">
+                                    <rect height="13" rx="2" ry="2" width="13" x="9" y="9"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Financial Badges -->
+                    <div class="ga-finance-grid">
+                        <div class="ga-finance-cell">
+                            <span class="ga-finance-label">INVERSIÓN</span>
+                            <span class="ga-finance-num invest">
+                                <span class="count-up-metric" data-value="${accountCost.toFixed(2)}">0.00</span>
+                                <span class="ga-finance-unit">Bs</span>
+                            </span>
+                        </div>
+                        <div class="ga-finance-cell">
+                            <span class="ga-finance-label">COBRADO</span>
+                            <span class="ga-finance-num charged">
+                                <span class="count-up-metric" data-value="${totalRevenue.toFixed(2)}">0.00</span>
+                                <span class="ga-finance-unit">Bs</span>
+                            </span>
+                        </div>
+                        <div class="ga-finance-cell">
+                            <span class="ga-finance-label">GANANCIA</span>
+                            <span class="ga-finance-num ${profit >= 0 ? 'profit pulse-profit' : 'loss'}">
+                                <span class="count-up-metric" data-prefix="${profit >= 0 ? '+' : ''}" data-value="${profit.toFixed(2)}">${profit >= 0 ? '+' : ''}0.00</span>
+                                <span class="ga-finance-unit">Bs</span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Section: Assigned Profiles -->
+                    <div class="ga-members-section">
+                        <div class="ga-members-header">
+                            <div class="ga-members-title">
+                                <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewBox="0 0 24 24">
+                                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="9" cy="7" r="4"></circle>
+                                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                </svg>
+                                <span>Perfiles Asignados</span>
+                            </div>
+                            <span class="ga-members-count-pill">${slotsUsed}/${maxSlots}</span>
+                        </div>
+
+                        <!-- Profile Rows List -->
+                        <div class="ga-members-list">
+                            ${members.map((m, i) => {
+                                const mName = (m.name || 'Cliente').replace(/"/g, '&quot;');
+                                const rawPhone = (m.phone || '').replace(/[^0-9]/g, '');
+                                const displayPrice = (parseFloat(m.price) || 0).toFixed(2);
+                                return `
+                                    <div class="profile-item">
+                                        <div class="ga-profile-left">
+                                            <span class="ga-profile-num-badge">#${i + 1}</span>
+                                            <div class="ga-profile-user-info">
+                                                <p class="ga-profile-name" title="${mName}">${mName}</p>
+                                                <p class="ga-profile-phone">
+                                                    <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewBox="0 0 24 24">
+                                                        <rect height="18" rx="2" width="12" x="6" y="3"></rect>
+                                                        <line x1="12" x2="12.01" y1="18" y2="18"></line>
+                                                    </svg>
+                                                    ${m.phone || '—'}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="ga-profile-right">
+                                            <span class="ga-profile-price-tag">${displayPrice} Bs</span>
+                                            <!-- WhatsApp -->
+                                            <a class="ga-btn-action ga-btn-action-wa" href="https://wa.me/${rawPhone}" target="_blank" title="Abrir WhatsApp">
+                                                <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewBox="0 0 24 24">
+                                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                                </svg>
+                                            </a>
+                                            <!-- Notificar -->
+                                            <button class="ga-btn-action ga-btn-action-notify" onclick="window.gaResendToMember('${acc.id}', ${i})" title="Reenviar datos por WhatsApp" type="button">
+                                                <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewBox="0 0 24 24">
+                                                    <line x1="22" x2="11" y1="2" y2="13"></line>
+                                                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                                </svg>
+                                            </button>
+                                            <!-- Eliminar -->
+                                            <button class="ga-btn-action ga-btn-action-delete" onclick="window.gaRemoveMember('${acc.id}', ${i}, this)" title="Eliminar perfil" type="button">
+                                                <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewBox="0 0 24 24">
+                                                    <path d="M18 6 6 18"></path>
+                                                    <path d="m6 6 12 12"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+
+                            ${slotsUsed < maxSlots ? `
+                                <div class="ga-slot-available-btn" onclick="window.gaOpenAddMember('${acc.id}', '${(acc.serviceName || '').replace(/'/g, "\\'")}', ${maxSlots}, ${slotsUsed})">
+                                    <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24">
+                                        <path d="M12 5v14"></path>
+                                        <path d="M5 12h14"></path>
+                                    </svg>
+                                    <span>Perfil ${slotsUsed + 1} disponible — Asignar cliente</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
                 </div>
-                <div class="ga-card-actions-v2">
-                    <button class="ga-action-btn-primary" onclick="window.gaOpenAddMember('${acc.id}', '${acc.serviceName}', ${maxSlots}, ${slotsUsed})">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+
+                <!-- Card Footer & Tools -->
+                <div class="ga-card-footer">
+                    <button class="ga-btn-add-client-card" onclick="window.gaOpenAddMember('${acc.id}', '${(acc.serviceName || '').replace(/'/g, "\\'")}', ${maxSlots}, ${slotsUsed})" type="button">
+                        <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M12 5v14"></path>
+                            <path d="M5 12h14"></path>
+                        </svg>
                         <span>Agregar Cliente</span>
                     </button>
-                    <div class="ga-action-tools-row">
-                        <button class="ga-tool-btn ga-tool-replace" onclick="window.gaOpenReplace('${acc.id}', '${acc.serviceName}')" title="Reemplazar cuenta por caída o cambio">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                    <div class="ga-footer-tools-grid">
+                        <button class="ga-tool-action-btn ga-tool-btn-replace" onclick="window.gaOpenReplace('${acc.id}', '${(acc.serviceName || '').replace(/'/g, "\\'")}')" title="Reemplazar cuenta por caída" type="button">
+                            <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                                <path d="M3 3v5h5"></path>
+                            </svg>
                             <span>Reemplazar</span>
                         </button>
-                        <button class="ga-tool-btn ga-tool-notify" onclick="window.gaBulkNotify('${acc.id}')" title="Enviar aviso masivo a todos los miembros">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.555 4.126 1.528 5.86L.06 23.708a.5.5 0 00.633.632l5.848-1.468A11.948 11.948 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.94 0-3.757-.565-5.285-1.539l-.379-.229-3.477.873.887-3.477-.248-.394A9.96 9.96 0 012 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"/></svg>
-                            <span>Aviso Masivo</span>
+                        <button class="ga-tool-action-btn ga-tool-btn-notify" onclick="window.gaBulkNotify('${acc.id}')" title="Enviar aviso masivo a todos los miembros" type="button">
+                            <svg fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                            </svg>
+                            <span>Aviso</span>
                         </button>
-                        <button class="ga-tool-btn ga-tool-delete" onclick="window.gaDeleteAccount('${acc.id}', '${acc.serviceName}')" title="Eliminar cuenta grupal">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        <button class="ga-tool-action-btn ga-tool-btn-delete" onclick="window.gaDeleteAccount('${acc.id}', '${(acc.serviceName || '').replace(/'/g, "\\'")}')" title="Eliminar cuenta grupal" type="button">
+                            <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
                         </button>
                     </div>
                 </div>
             `;
             grid.appendChild(card);
         });
+
+        // Trigger smooth progressive count-up animations
+        triggerGACountUp();
     }
+
+    // ── PROGRESSIVE COUNT-UP ANIMATION (EASING CUBIC) ──────────────
+    function triggerGACountUp() {
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const countUpElements = document.querySelectorAll('#group-accounts .count-up-metric');
+        if (!countUpElements.length) return;
+
+        if (prefersReducedMotion) {
+            countUpElements.forEach(el => {
+                const rawTarget = parseFloat(el.getAttribute('data-value')) || 0;
+                const prefix = el.getAttribute('data-prefix') || '';
+                el.textContent = (prefix && rawTarget > 0 ? prefix : '') + rawTarget.toFixed(2);
+            });
+            return;
+        }
+
+        countUpElements.forEach(el => {
+            const rawTarget = parseFloat(el.getAttribute('data-value')) || 0;
+            const prefix = el.getAttribute('data-prefix') || (rawTarget > 0 && el.parentElement && el.parentElement.textContent.includes('+') ? '+' : '');
+            const duration = 1200;
+            const startTimestamp = performance.now();
+
+            function updateNumber(now) {
+                const progress = Math.min((now - startTimestamp) / duration, 1);
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                const current = rawTarget * easeOut;
+                el.textContent = (prefix && current > 0 ? prefix : '') + current.toFixed(2);
+
+                if (progress < 1) {
+                    requestAnimationFrame(updateNumber);
+                } else {
+                    el.textContent = (prefix && rawTarget > 0 ? prefix : '') + rawTarget.toFixed(2);
+                }
+            }
+
+            requestAnimationFrame(updateNumber);
+        });
+    }
+
+    // ── MICRO-INTERACTIONS: COPY TO CLIPBOARD ─────────────────────
+    window.gaTriggerCopy = function(text, btn, label) {
+        if (!text) return;
+        navigator.clipboard.writeText(text).then(() => {
+            showToast(`${label || 'Dato'} copiado al portapapeles`);
+        }).catch(() => {
+            showToast('Texto copiado');
+        });
+
+        if (btn) {
+            const originalHTML = btn.innerHTML;
+            btn.classList.add('copied');
+            btn.innerHTML = `
+                <svg fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+            `;
+            setTimeout(() => {
+                btn.classList.remove('copied');
+                btn.innerHTML = originalHTML;
+            }, 1500);
+        }
+    };
+
+    // ── PASSWORD TOGGLE ───────────────────────────────────────────
+    window.gaTogglePassword = function(span) {
+        if (!span) return;
+        const pass = span.getAttribute('data-password') || '';
+        const isVisible = span.getAttribute('data-visible') === 'true';
+        if (isVisible) {
+            span.textContent = '••••••••';
+            span.setAttribute('data-visible', 'false');
+        } else {
+            span.textContent = pass;
+            span.setAttribute('data-visible', 'true');
+        }
+    };
 
     // ── MODAL: ADD ACCOUNT ────────────────────────────────────────
     function openAddAccountModal() {
@@ -272,7 +496,6 @@
         let phone = document.getElementById('ga-member-phone').value.trim();
         const price = document.getElementById('ga-member-price').value.trim();
 
-        // Standardize phone number using app.js function if available
         if (typeof window.sanitizeBoliviaPhone === 'function') {
             phone = window.sanitizeBoliviaPhone(phone);
         }
@@ -282,7 +505,6 @@
             return;
         }
 
-        // Disable buttons to prevent double-click
         const btnSave = document.getElementById('ga-btn-save-only');
         const btnSend = document.getElementById('ga-btn-save-send');
         if (btnSave) btnSave.disabled = true;
@@ -292,7 +514,6 @@
             const account = gaAccounts.find(a => a.id === accountId);
             if (!account) { showToast('❌ Cuenta no encontrada.'); return; }
 
-            // Use spread to avoid mutating cached data
             const members = [...(account.members || [])];
             const profileNum = members.length + 1;
             const salePrice = parseFloat(price);
@@ -306,7 +527,7 @@
 
             await gaDB.collection('group_accounts').doc(accountId).update({ members });
 
-            // Register sale in main sales history (FIXED: correct collection + ID)
+            // Register sale in main sales history
             try {
                 const saleId = Date.now().toString();
                 const saleData = {
@@ -327,12 +548,10 @@
             }
 
             if (sendWhatsApp) {
-                // Build delivery message based on service type
                 const svcLower = (account.serviceName || '').toLowerCase();
                 let msg = '';
 
                 if (svcLower.includes('disney') || svcLower.includes('hbo')) {
-                    // Disney + HBO Max combo message
                     msg = `🎬 *PLIXORA.BO — Cuenta de Streaming*\n\n` +
                           `Hola *${name}* 👋\n\n` +
                           `Tu cuenta de *${account.serviceName}* ya está lista. Aquí están tus datos de acceso:\n\n` +
@@ -347,7 +566,6 @@
                           `🔧 _En caso de que la cuenta se caiga o esté fuera de servicio, el reemplazo se realiza en un plazo máximo de *24 horas*._\n\n` +
                           `_PLIXORA.BO — Gracias por tu compra 🧡_`;
                 } else if (svcLower.includes('prime')) {
-                    // Prime Video message
                     msg = `🎬 *PLIXORA.BO — Cuenta de Streaming*\n\n` +
                           `Hola *${name}* 👋\n\n` +
                           `Tu cuenta de *${account.serviceName}* ya está lista. Aquí están tus datos de acceso:\n\n` +
@@ -363,7 +581,6 @@
                           `🔧 _En caso de que la cuenta se caiga o esté fuera de servicio, el reemplazo se realiza en un plazo máximo de *24 horas*._\n\n` +
                           `_PLIXORA.BO — Gracias por tu compra 🧡_`;
                 } else {
-                    // Generic streaming message
                     msg = `🎬 *PLIXORA.BO — Cuenta de Streaming*\n\n` +
                           `Hola *${name}* 👋\n\n` +
                           `Tu cuenta de *${account.serviceName}* ya está lista para que la disfrutes. Aquí están tus datos de acceso:\n\n` +
@@ -397,23 +614,40 @@
         } catch (e) {
             showToast('❌ Error: ' + e.message);
         } finally {
-            // Re-enable buttons
             if (btnSave) btnSave.disabled = false;
             if (btnSend) btnSend.disabled = false;
         }
     }
 
-    // Two public functions for the two buttons
     window.gaSubmitNewMember = function () { return saveNewMember(true); };
     window.gaSaveOnlyMember = function () { return saveNewMember(false); };
 
     // ── REMOVE MEMBER ─────────────────────────────────────────────
-    window.gaRemoveMember = async function (accountId, memberIndex) {
-        if (!confirm('¿Estás seguro de eliminar este miembro?')) return;
+    window.gaRemoveMember = async function (accountId, memberIndex, btnEl) {
+        const account = gaAccounts.find(a => a.id === accountId);
+        if (!account) return;
+        const members = [...(account.members || [])];
+        const m = members[memberIndex];
+        const mName = m ? (m.name || `Perfil ${memberIndex + 1}`) : `Perfil ${memberIndex + 1}`;
+
+        const confirmed = await window.plixoraConfirm({
+            title: '¿Estás seguro?',
+            message: `¿Eliminar a ${mName} de esta cuenta? Sus datos se liberarán de la cuenta grupal.`,
+            confirmText: 'Sí, eliminar miembro',
+            cancelText: 'No'
+        });
+        if (!confirmed) return;
+
+        if (btnEl) {
+            const row = btnEl.closest('.profile-item');
+            if (row) {
+                row.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+                row.style.opacity = '0';
+                row.style.transform = 'translateX(-12px) scale(0.96)';
+            }
+        }
+
         try {
-            const account = gaAccounts.find(a => a.id === accountId);
-            if (!account) return;
-            const members = [...(account.members || [])];
             members.splice(memberIndex, 1);
             await gaDB.collection('group_accounts').doc(accountId).update({ members });
             showToast('✅ Miembro eliminado.');
@@ -435,7 +669,7 @@
         if (account && listEl) {
             const members = account.members || [];
             if (members.length === 0) {
-                listEl.innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;">No hay miembros para notificar.</p>';
+                listEl.innerHTML = '<p style="color:var(--ga-text-muted);font-size:0.85rem;">No hay miembros para notificar.</p>';
             } else {
                 listEl.innerHTML = members.map(m =>
                     `<div class="ga-notify-item">📱 <strong>${m.name}</strong> — ${m.phone}</div>`
@@ -466,7 +700,7 @@
             await gaDB.collection('group_accounts').doc(accountId).update({
                 email: newEmail,
                 password: newPassword,
-                createdAt: new Date().toISOString() // Reset 1 month timer
+                createdAt: new Date().toISOString()
             });
 
             const members = account.members || [];
@@ -508,7 +742,13 @@
 
     // ── DELETE ACCOUNT ────────────────────────────────────────────
     window.gaDeleteAccount = async function (accountId, serviceName) {
-        if (!confirm(`¿Estás seguro de eliminar la cuenta grupal "${serviceName}"? Se perderán todos los miembros.`)) return;
+        const confirmed = await window.plixoraConfirm({
+            title: '¿Estás seguro?',
+            message: `¿Eliminar la cuenta grupal "${serviceName}"? Se perderán todos los miembros asignados.`,
+            confirmText: 'Sí, eliminar cuenta',
+            cancelText: 'No'
+        });
+        if (!confirmed) return;
         try {
             await gaDB.collection('group_accounts').doc(accountId).delete();
             showToast('✅ Cuenta grupal eliminada.');
@@ -516,6 +756,7 @@
             showToast('❌ Error: ' + e.message);
         }
     };
+
     // ── BULK NOTIFY (Aviso Masivo) ─────────────────────────────────
     window.gaBulkNotify = async function (accountId) {
         const account = gaAccounts.find(a => a.id === accountId);
@@ -599,32 +840,6 @@
         }
     };
 
-    // ── COPIAR AL PORTAPAPELES ────────────────────────────────────
-    window.gaCopyToClipboard = function(text, labelOrBtn, maybeBtn) {
-        let label = 'Dato';
-        let btnEl = null;
-        if (typeof labelOrBtn === 'string') {
-            label = labelOrBtn;
-            btnEl = maybeBtn;
-        } else {
-            btnEl = labelOrBtn;
-        }
-
-        if (typeof window.copyToClipboardWithToast === 'function') {
-            window.copyToClipboardWithToast(text, label, btnEl);
-            return;
-        }
-        navigator.clipboard.writeText(text).then(() => {
-            showToast(`📋 ${label} copiado al portapapeles`);
-            if (btnEl) {
-                btnEl.classList.add('copied');
-                setTimeout(() => btnEl.classList.remove('copied'), 1800);
-            }
-        }).catch(() => {
-            showToast('❌ No se pudo copiar');
-        });
-    };
-
     // ── REENVIAR DATOS A UN MIEMBRO ──────────────────────────────
     window.gaResendToMember = async function(accountId, memberIndex) {
         const account = gaAccounts.find(a => a.id === accountId);
@@ -670,17 +885,20 @@
         }
     };
 
-    // ── TOAST helper ──────────────────────────────────────────────
+    // ── TOAST HELPER ──────────────────────────────────────────────
     function showToast(msg) {
+        const toast = document.getElementById('ga-toast-notify');
+        const toastMsg = document.getElementById('ga-toast-message');
+        if (toast && toastMsg) {
+            toastMsg.textContent = msg;
+            toast.classList.add('show');
+            clearTimeout(window._gaToastTimer);
+            window._gaToastTimer = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2200);
+        }
         if (typeof window.showToast === 'function') {
             window.showToast(msg);
-        } else {
-            const t = document.getElementById('toast');
-            if (t) {
-                t.textContent = msg;
-                t.classList.add('show');
-                setTimeout(() => t.classList.remove('show'), 3000);
-            }
         }
     }
 

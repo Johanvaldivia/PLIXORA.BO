@@ -34,6 +34,11 @@ service cloud.firestore {
       allow read, write: if isAdmin();
     }
 
+    // Configuración global y ajustes (catalog_overrides, netflix_pricing)
+    match /settings/{doc} {
+      allow read, write: if isAdmin();
+    }
+
     // Rechazar cualquier otra ruta no autorizada
     match /{document=**} {
       allow read, write: if false;

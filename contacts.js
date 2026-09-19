@@ -183,7 +183,13 @@ window.addContactManual = async function() {
 };
 
 window.deleteContact = async function(id) {
-    if (!confirm('¿Eliminar este contacto?')) return;
+    const confirmed = await window.plixoraConfirm({
+        title: '¿Estás seguro?',
+        message: '¿Eliminar este cliente de tu lista de contactos?',
+        confirmText: 'Sí, eliminar',
+        cancelText: 'No'
+    });
+    if (!confirmed) return;
     if (db) {
         try {
             await db.collection('plixora_contacts').doc(id).delete();

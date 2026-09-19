@@ -21,6 +21,14 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
+REM Limpiar procesos zombis y bloqueos previos
+powershell -NoProfile -NonInteractive -Command "Get-CimInstance Win32_Process -Filter \"Name = 'chrome.exe' or Name = 'msedge.exe'\" | Where-Object { $_.CommandLine -like '*wwebjs_auth*' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }" >nul 2>&1
+del /f /q "%~dp0.wwebjs_auth\session\lockfile" >nul 2>&1
+del /f /q "%~dp0.wwebjs_auth\session\Singleton*" >nul 2>&1
+del /f /q "%~dp0.wwebjs_auth\session\DevToolsActivePort" >nul 2>&1
+del /f /q "%~dp0.wwebjs_auth\session\Default\LOCK" >nul 2>&1
+del /f /q "%~dp0.wwebjs_auth\session\Default\lockfile" >nul 2>&1
+
 REM Abrir página QR en el navegador tras 3 segundos en segundo plano
 start "" /b cmd /c "timeout /t 3 /nobreak >nul & start http://localhost:3000/qr"
 

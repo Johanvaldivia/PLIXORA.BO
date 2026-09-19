@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Cuentas Grupales - Panel de Gestión</title>
+<!-- Tailwind CSS v3 with forms and container-queries -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brandDark: '#0d0f12',
+            cardBg: '#15161e',
+            innerCard: '#101117',
+            cardBorder: '#232532',
+            brandOrange: '#ff5722',
+            profitGreen: '#10b981',
+            investRed: '#ef4444',
+            chargedBlue: '#38bdf8'
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+<!-- Google Fonts: Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Custom Styles for Dot Matrix Background & Specific Micro-Interactions -->
+<style data-purpose="background-pattern">
+    body {
+      background-color: #0b0c10;
+      background-image: radial-gradient(#242735 1px, transparent 1px);
+      background-size: 24px 24px;
+      color: #e2e8f0;
+      min-height: 100vh;
+      font-family: 'Inter', sans-serif;
+    }
+  </style>
+<style data-purpose="editable-styling">
+    [contenteditable="true"]:focus {
+      outline: 1px dashed #ff5722;
+      border-radius: 4px;
+      padding: 0 4px;
+      background-color: rgba(255, 87, 34, 0.08);
+    }
+  </style>
+<style data-purpose="animations">
+    @keyframes subtleGreenPulse {
+      0%, 100% {
+        text-shadow: 0 0 0px rgba(16, 185, 129, 0);
+      }
+      50% {
+        text-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+      }
+    }
+
+    .pulse-profit {
+      animation: subtleGreenPulse 3.5s ease-in-out infinite;
+    }
+
+    @keyframes subtleBadgeGaze {
+      0%, 100% {
+        opacity: 1;
+        border-color: rgba(239, 68, 68, 0.45);
+      }
+      50% {
+        opacity: 0.85;
+        border-color: rgba(239, 68, 68, 0.2);
+      }
+    }
+
+    .badge-subtle-pulse {
+      animation: subtleBadgeGaze 2.6s ease-in-out infinite;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .animate-header {
+      animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .animate-card-1 {
+      animation: fadeInUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+    }
+    .animate-card-2 {
+      animation: fadeInUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+    }
+    .animate-card-3 {
+      animation: fadeInUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+    }
+
+    .profile-item {
+      animation: fadeInUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .profile-item:nth-child(1) { animation-delay: 0.22s; }
+    .profile-item:nth-child(2) { animation-delay: 0.28s; }
+    .profile-item:nth-child(3) { animation-delay: 0.34s; }
+    .profile-item:nth-child(4) { animation-delay: 0.40s; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, ::before, ::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body class="p-4 md:p-8 flex flex-col justify-start items-center selection:bg-orange-500 selection:text-white">
+<!-- BEGIN: MainContainer -->
+<main class="w-full max-w-[1520px] mx-auto space-y-6">
+<!-- BEGIN: HeaderSection -->
+<header class="animate-header flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 py-2 border-b border-white/[0.05] pb-6">
+<div class="space-y-1">
+<h1 class="text-2xl md:text-3xl font-bold tracking-tight text-white flex items-center gap-3">
+<!-- Lucide Icon: Users -->
+<div class="p-2 rounded-xl bg-[#171922] border border-[#262837] text-gray-200 flex items-center justify-center shadow-inner">
+<svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24">
+<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+<circle cx="9" cy="7" r="4"></circle>
+<path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+<path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+</svg>
+</div>
+<span contenteditable="true" title="Clic para editar título">Cuentas Grupales</span>
+</h1>
+<p class="text-sm text-gray-400" contenteditable="true">Gestiona cuentas compartidas y notifica cambios automáticamente</p>
+</div>
+<!-- Action Button: + Nueva Cuenta (Lucide Plus) -->
+<button class="inline-flex items-center gap-2 bg-gradient-to-r from-[#ff5a2b] to-[#ff3b14] hover:from-[#ff693d] hover:to-[#ff4e26] hover:shadow-[0_0_22px_rgba(255,90,43,0.35)] active:scale-[0.98] text-white font-semibold text-sm px-5 py-2.5 rounded-xl shadow-lg shadow-orange-950/40 border border-orange-400/20 transition-all duration-200 cursor-pointer" id="btn-nueva-cuenta" type="button">
+<svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
+<path d="M5 12h14"></path>
+<path d="M12 5v14"></path>
+</svg>
+<span>Nueva Cuenta</span>
+</button>
+</header>
+<!-- END: HeaderSection -->
+<!-- BEGIN: GridCardsSection -->
+<section aria-label="Tarjetas de Cuentas Compartidas" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+<!-- CARD 1 -->
+<!-- BEGIN: AccountCard1 -->
+<article class="animate-card-1 bg-[#15161e] border border-[#232532] hover:border-[#353849] rounded-2xl p-5 flex flex-col justify-between shadow-xl shadow-black/50 transition-colors duration-300">
+<div class="space-y-4">
+<!-- Top Row: Screen Icon + Service Title + Badges -->
+<div class="flex items-start justify-between gap-2">
+<div class="flex items-start gap-3 min-w-0">
+<div class="w-10 h-10 rounded-xl bg-[#20181b] border border-[#ff5a2b]/25 text-[#ff6738] flex items-center justify-center shrink-0 shadow-sm">
+<!-- Lucide Icon: Tv2 -->
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24">
+<rect height="14" rx="2" width="20" x="2" y="7"></rect>
+<path d="M17 2l-5 5-5-5"></path>
+</svg>
+</div>
+<div class="min-w-0">
+<h2 class="text-sm font-bold text-white tracking-wide uppercase truncate" contenteditable="true">DISNEY PLUS + HBO MAX</h2>
+<p class="text-xs text-gray-400 font-medium" contenteditable="true">5/5 perfiles ocupados</p>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1.5 shrink-0">
+<span class="badge-subtle-pulse text-[10px] font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#351417] text-[#ff4d4f] border border-[#5a1c22]">LLENA</span>
+<!-- Badge Vence con Lucide Calendar -->
+<span class="text-[11px] font-medium text-[#ff7173] bg-[#291316] border border-[#4d1d23] px-2 py-0.5 rounded-lg flex items-center gap-1.5 transition-opacity duration-200 hover:opacity-90">
+<svg class="w-3.5 h-3.5 text-[#ff5f60] shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24">
+<rect height="18" rx="2" width="18" x="3" y="4"></rect>
+<line x1="16" x2="16" y1="2" y2="6"></line>
+<line x1="8" x2="8" y1="2" y2="6"></line>
+<line x1="3" x2="21" y1="10" y2="10"></line>
+</svg>
+<span contenteditable="true">Vence: 20/Sep</span>
+</span>
+</div>
+</div>
+<!-- Credentials Box -->
+<div class="bg-[#0f1016] border border-[#1f212d] rounded-xl p-3 space-y-2 text-xs">
+<!-- Email -->
+<div class="flex items-center justify-between text-gray-300 group/cred gap-2">
+<div class="flex items-center gap-2 overflow-hidden min-w-0">
+<svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24">
+<rect height="16" rx="2" width="20" x="2" y="4"></rect>
+<path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+</svg>
+<span class="text-gray-400 shrink-0">Correo:</span>
+<span class="font-medium text-white truncate" contenteditable="true" data-copy-val="faldon.villancico0v@icloud.com">faldon.villancico0v@icloud.com</span>
+</div>
+<button class="copy-trigger inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#181a24] hover:bg-[#232635] text-gray-400 hover:text-white border border-[#27293a] transition-all duration-150 shrink-0" data-copy="faldon.villancico0v@icloud.com" title="Copiar Correo" type="button">
+<svg class="copy-icon w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24">
+<rect height="13" rx="2" ry="2" width="13" x="9" y="9"></rect>
+<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+</svg>
+</button>
+</div>
+<!-- Password -->
+<div class="flex items-center justify-between text-gray-300 pt-1.5 border-t border-white/[0.04] group/cred gap-2">
+<div class="flex items-center gap-2 overflow-hidden min-w-0">
+<svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24">
+<circle cx="7.5" cy="15.5" r="5.5"></circle>
+<path d="m21 2-9.6 9.6"></path>
+<path d="m15.5 7.5 3 3"></path>
+</svg>
+<span class="text-gray-400 shrink-0">Contraseña:</span>
+<span class="tracking-widest font-mono text-xs text-white" contenteditable="true" data-copy-val="Pass123456">••••••••</span>
+</div>
+<button class="copy-trigger inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#181a24] hover:bg-[#232635] text-gray-400 hover:text-white border border-[#27293a] transition-all duration-150 shrink-0" data-copy="Pass123456" title="Copiar Contraseña" type="button">
+<svg class="copy-icon w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24">
+<rect height="13" rx="2" ry="2" width="13" x="9" y="9"></rect>
+<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+</svg>
+</button>
+</div>
+</div>
+<!-- Financial Badges -->
+<div class="grid grid-cols-3 gap-2 text-center text-xs">
+<div class="bg-[#0f1016] border border-[#1f212d] hover:border-[#2a2d3e] transition-colors rounded-xl py-2 px-1">
+<span class="block text-[10px] uppercase tracking-wider text-gray-400 font-semibold mb-0.5">INVERSIÓN</span>
+<span class="text-[#ff4d4f] font-bold text-sm font-mono" contenteditable="true"><span class="count-up-metric" data-value="35.00">0.00</span> <span class="text-xs font-normal text-gray-400">Bs</span></span>
+</div>
+<div class="bg-[#0f1016] border border-[#1f212d] hover:border-[#2a2d3e] transition-colors rounded-xl py-2 px-1">
+<span class="block text-[10px] uppercase tracking-wider text-gray-400 font-semibold mb-0.5">COBRADO</span>
+<span class="text-[#38bdf8] font-bold text-sm font-mono" contenteditable="true"><span class="count-up-metric" data-value="60.00">0.00</span> <span class="text-xs font-normal text-gray-400">Bs</span></span>
+</div>
+<div class="bg-[#0f1016] border border-[#1f212d] hover:border-[#2a2d3e] transition-colors rounded-xl py-2 px-1">
+<span class="block text-[10px] uppercase tracking-wider text-gray-400 font-semibold mb-0.5">GANANCIA</span>
+<span class="text-[#10b981] font-bold text-sm font-mono pulse-profit" contenteditable="true"><span class="count-up-metric" data-prefix="+" data-value="25.00">+0.00</span> <span class="text-xs font-normal text-gray-400">Bs</span></span>
+</div>
+</div>
+<!-- Section: Assigned Profiles -->
+<div class="pt-1">
+<div class="flex items-center justify-between text-xs font-semibold mb-2.5">
+<div class="flex items-center gap-1.5 text-gray-200">
+<!-- Lucide Icon: Users -->
+<svg class="w-4 h-4 text-[#ff7043]" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24">
+<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+<circle cx="9" cy="7" r="4"></circle>
+<path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+<path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+</svg>
+<span>Perfiles Asignados</span>
+</div>
+<span class="text-[11px] bg-[#1a1c26] text-gray-300 border border-[#272a39] px-2 py-0.5 rounded-md font-mono font-medium">5/5</span>
+</div>
+<!-- Profile Rows List -->
+<div class="space-y-1.5">
+<!-- Row #1 -->
+<div class="profile-item bg-[#0f1016] border border-[#1f212d] hover:border-[#2e3143] rounded-xl p-2 flex items-center justify-between gap-2 text-xs transition-colors duration-150">
+<div class="flex items-center gap-2.5 overflow-hidden min-w-0">
+<span class="w-6 h-6 flex items-center justify-center rounded-lg bg-[#181a24] text-gray-400 font-semibold text-[11px] shrink-0 border border-white/[0.04]">#1</span>
+<div class="min-w-0">
+<p class="font-semibold text-white uppercase text-[12px] truncate leading-tight" contenteditable="true">CLIENTE FIEL</p>
+<p class="text-[11px] text-gray-400 flex items-center gap-1 font-mono leading-none mt-1" contenteditable="true">
+<svg class="w-3 h-3 text-gray-400 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><rect height="18" rx="2" width="12" x="6" y="3"></rect><line x1="12" x2="12.01" y1="18" y2="18"></line></svg> 74430427
+                    </p>
+</div>
+</div>
+<div class="flex items-center gap-1.5 shrink-0">
+<span class="px-2 py-0.5 bg-[#0e271f] text-[#10b981] border border-[#144937] rounded-md font-semibold font-mono text-[11px]" contenteditable="true">8.00 Bs</span>
+<!-- Button WhatsApp (Lucide MessageSquare) -->
+<button class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#181a24] hover:bg-[#12281e] hover:text-[#10b981] hover:border-[#10b981]/40 active:scale-95 text-gray-400 border border-[#262837] transition-all duration-150" title="WhatsApp" type="button">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24">
+<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+</svg>
+</button>
+<!-- Button Notificar (Lucide Send) -->
+<button class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#181a24] hover:bg-[#142636] hover:text-[#38bdf8] hover:border-[#38bdf8]/40 active:scale-95 text-gray-400 border border-[#262837] transition-all duration-150" title="Notificar" type="button">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24">
+<line x1="22" x2="11" y1="2" y2="13"></line>
+<polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+</svg>
+</button>
+<!-- Button Eliminar (Lucide X) -->
+<button class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#181a24] hover:bg-[#2b1619] hover:text-[#ff4d4f] hover:border-[#ff4d4f]/40 active:scale-95 text-gray-400 border border-[#262837] transition-all duration-150" title="Eliminar" type="button">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24">
+<path d="M18 6 6 18"></path>
+<path d="m6 6 12 12"></path>
+</svg>
+</button>
+</div>
+</div>
+<!-- Row #2 -->
+<div class="profile-item bg-[#0f1016] border border-[#1f212d] hover:border-[#2e3143] rounded-xl p-2 flex items-center justify-between gap-2 text-xs transition-colors duration-150">
+<div class="flex items-center gap-2.5 overflow-hidden min-w-0">
+<span class="w-6 h-6 flex items-center justify-center rounded-lg bg-[#181a24] text-gray-400 font-semibold text-[11px] shrink-0 border border-white/[0.04]">#2</span>
+<div class="min-w-0">
+<p class="font-semibold text-white text-[12px] truncate leading-tight" contenteditable="true">sergio</p>
+<p class="text-[11px] text-gray-400 flex items-center gap-1 font-mono leading-none mt-1" contenteditable="true">
+<svg class="w-3 h-3 text-gray-400 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><rect height="18" rx="2" width="12" x="6" y="3"></rect><line x1="12" x2="12.01" y1="18" y2="18"></line></svg> 73642921
+                    </p>
+</div>
+</div>
+<div class="flex items-center gap-1.5 shrink-0">
+<span class="px-2 py-0.5 bg-[#0e271f] text-[#10b981] border border-[#144937] rounded-md font-semibold font-mono text-[11px]" contenteditable="true">10.00 Bs</span>
+<button class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#181a24] hover:bg-[#12281e] hover:text-[#10b981] hover:border-[#10b981]/40 active:scale-95 text-gray-400 border border-[#262837] transition-all duration-150" title="WhatsApp" type="button">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+</button>
+<button class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#181a24] hover:bg-[#142636] hover:text-[#38bdf8] hover:border-[#38bdf8]/40 active:scale-95 text-gray-400 border border-[#262837] transition-all duration-150" title="Notificar" type="button">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><line x1="22" x2="11" y1="2" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+</button>
+<button class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#181a24] hover:bg-[#2b1619] hover:text-[#ff4d4f] hover:border-[#ff4d4f]/40 active:scale-95 text-gray-400 border border-[#262837] transition-all duration-150" title="Eliminar" type="button">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+</button>
+</div>
+</div>
+<!-- Row #3 -->
+<div class="profile-item bg-[#0f1016] border border-[#1f212d] hover:border-[#2e3143] rounded-xl p-2 flex items-center justify-between gap-2 text-xs transition-colors duration-150">
+<div class="flex items-center gap-2.5 overflow-hidden min-w-0">
+<span class="w-6 h-6 flex items-center justify-center rounded-lg bg-[#181a24] text-gray-400 font-semibold text-[11px] shrink-0 border border-white/[0.04]">#3</span>
+<div class="min-w-0">
+<p class="font-semibold text-white text-[12px] truncate leading-tight" contenteditable="true">Edivania</p>
+<p class="text-[11px] text-gray-400 flex items-center gap-1 font-mono leading-none mt-1" contenteditable="true">
+<svg class="w-3 h-3 text-gray-400 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><rect height="18" rx="2" width="12" x="6" y="3"></rect><line x1="12" x2="12.01" y1="18" y2="18"></line></svg> 78479163
+                    </p>
+</div>
+</div>
+<div class="flex items-center gap-1.5 shrink-0">
+<span class="px-2 py-0.5 bg-[#0e271f] text-[#10b981] border border-[#144937] rounded-md font-semibold font-mono text-[11px]" contenteditable="true">14.00 Bs</span>
+<button class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#181a24] hover:bg-[#12281e] hover:text-[#10b981] hover:border-[#10b981]/40 active:scale-95 text-gray-400 border border-[#262837] transition-all duration-150" title="WhatsApp" type="button">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+</button>
+<button class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#181a24] hover:bg-[#142636] hover:text-[#38bdf8] hover:border-[#38bdf8]/40 active:scale-95 text-gray-400 border border-[#262837] transition-all duration-150" title="Notificar" type="button">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><line x1="22" x2="11" y1="2" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+</button>
+<button class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#181a24] hover:bg-[#2b1619] hover:text-[#ff4d4f] hover:border-[#ff4d4f]/40 active:scale-95 text-gray-400 border border-[#262837] transition-all duration-150" title="Eliminar" type="button">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+</button>
+</div>
+</div>
+<!-- Row #4 -->
+<div class="profile-item bg-[#0f1016] border border-[#1f212d] hover:border-[#2e3143] rounded-xl p-2 flex items-center justify-between gap-2 text-xs transition-colors duration-150">
+<div class="flex items-center gap-2.5 overflow-hidden min-w-0">
+<span class="w-6 h-6 flex items-center justify-center rounded-lg bg-[#181a24] text-gray-400 font-semibold text-[11px] shrink-0 border border-white/[0.04]">#4</span>
+<div class="min-w-0">
+<p class="font-semibold text-white uppercase text-[12px] truncate leading-tight" contenteditable="true">ALEJANDRO</p>
+<p class="text-[11px] text-gray-400 flex items-center gap-1 font-mono leading-none mt-1" contenteditable="true">
+<svg class="w-3 h-3 text-gray-400 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><rect height="18" rx="2" width="12" x="6" y="3"></rect><line x1="12" x2="12.01" y1="18" y2="18"></line></svg> 75691470
+                    </p>
+</div>
+</div>
+<div class="flex items-center gap-1.5 shrink-0">
+<span class="px-2 py-0.5 bg-[#0e271f] text-[#10b981] border border-[#144937] rounded-md font-semibold font-mono text-[11px]" contenteditable="true">10.00 Bs</span>
+<button class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#181a24] hover:bg-[#12281e] hover:text-[#10b981] hover:border-[#10b981]/40 active:scale-95 text-gray-400 border border-[#262837] transition-all duration-150" title="WhatsApp" type="button">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+</button>
+<button class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#181a24] hover:bg-[#142636] hover:text-[#38bdf8] hover:border-[#38bdf8]/40 active:scale-95 text-gray-400 border border-[#262837] transition-all duration-150" title="Notificar" type="button">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><line x1="22" x2="11" y1="2" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+</button>
+<button class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#181a24] hover:bg-[#2b1619] hover:text-[#ff4d4f] hover:border-[#ff4d4f]/40 active:scale-95 text-gray-400 border border-[#262837] transition-all duration-150" title="Eliminar" type="button">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</article>
+<!-- END: AccountCard1 -->
+<!-- CARD 2 -->
+<!-- BEGIN: AccountCard2 -->
+<article class="animate-card-2 bg-[#15161e] border border-[#232532] hover:border-[#353849] rounded-2xl p-5 flex flex-col justify-between shadow-xl shadow-black/50 transition-colors duration-300">
+<div class="space-y-4">
+<!-- Top Row -->
+<div class="flex items-start justify-between gap-2">
+<div class="flex items-start gap-3 min-w-0">
+<div class="w-10 h-10 rounded-xl bg-[#20181b] border border-[#ff5a2b]/25 text-[#ff6738] flex items-center justify-center shrink-0 shadow-sm">
+<!-- Lucide Icon: Tv2 -->
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24">
+<rect height="14" rx="2" width="20" x="2" y="7"></rect>
+<path d="M17 2l-5 5-5-5"></path>
+</svg>
+</div>
+<div class="min-w-0">
+<h2 class="text-sm font-bold text-white tracking-wide uppercase truncate" contenteditable="true">DISNEY PLUS + HBO MAX</h2>
+<p class="text-xs text-gray-400 font-medium" contenteditable="true">4/4 perfiles ocupados</p>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1.5 shrink-0">
+<span class="badge-subtle-pulse text-[10px] font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#351417] text-[#ff4d4f] border border-[#5a1c22]">LLENA</span>
+<span class="text-[11px] font-medium text-[#ff7173] bg-[#291316] border border-[#4d1d23] px-2 py-0.5 rounded-lg flex items-center gap-1.5 transition-opacity duration-200 hover:opacity-90">
+<svg class="w-3.5 h-3.5 text-[#ff5f60] shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24">
+<rect height="18" rx="2" width="18" x="3" y="4"></rect>
+<line x1="16" x2="16" y1="2" y2="6"></line>
+<line x1="8" x2="8" y1="2" y2="6"></line>
+<line x1="3" x2="21" y1="10" y2="10"></line>
+</svg>
+<span contenteditable="true">Vence: 4/Ago</span>
+</span>
+</div>
+</div>
+<!-- Credentials Box -->
+<div class="bg-[#0f1016] border border-[#1f212d] rounded-xl p-3 space-y-2 text-xs">
+<!-- Email -->
+<div class="flex items-center justify-between text-gray-300 group/cred gap-2">
+<div class="flex items-center gap-2 overflow-hidden min-w-0">
+<svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24">
+<rect height="16" rx="2" width="20" x="2" y="4"></rect>
+<path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+</svg>
+<span class="text-gray-400 shrink-0">Correo:</span>
+<span class="font-medium text-white truncate" contenteditable="true" data-copy-val="durable.disolvente6u@icloud.com">durable.disolvente6u@icloud.com</span>
+</div>
+<button class="copy-trigger inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#181a24] hover:bg-[#232635] text-gray-400 hover:text-white border border-[#27293a] transition-all duration-150 shrink-0" data-copy="durable.disolvente6u@icloud.com" title="Copiar Correo" type="button">
+<svg class="copy-icon w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24">
+<rect height="13" rx="2" ry="2" width="13" x="9" y="9"></rect>
+<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+</svg>
+</button>
+</div>
+<!-- Password -->
+<div class="flex items-center justify-between text-gray-300 pt-1.5 border-t border-white/[0.04] group/cred gap-2">
+<div class="flex items-center gap-2 overflow-hidden min-w-0">
+<svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24">
+<circle cx="7.5" cy="15.5" r="5.5"></circle>
+<path d="m21 2-9.6 9.6"></path>
+<path d="m15.5 7.5 3 3"></path>
+</svg>
+<span class="text-gray-400 shrink-0">Contraseña:</span>
+<span class="tracking-widest font-mono text-xs text-white" contenteditable="true" data-copy-val="Pass654321">••••••••</span>
+</div>
+<button class="copy-trigger inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#181a24] hover:bg-[#232635] text-gray-400 hover:text-white border border-[#27293a] transition-all duration-150 shrink-0" data-copy="Pass654321" title="Copiar Contraseña" type="button">
+<svg class="copy-icon w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24">
+<rect height="13" rx="2" ry="2" width="13" x="9" y="9"></rect>
+<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+</svg>
+</button>
+</div>
+</div>
+<!-- Financial Badges -->
+<div class="grid grid-cols-3 gap-2 text-center text-xs">
+<div class="bg-[#0f1016] border border-[#1f212d] hover:border-[#2a2d3e] transition-colors rounded-xl py-2 px-1">
+<span class="block text-[10px] uppercase tracking-wider text-gray-400 font-semibold mb-0.5">INVERSIÓN</span>
+<span class="text-[#ff4d4f] font-bold text-sm font-mono" contenteditable="true"><span class="count-up-metric" data-value="23.00">0.00</span> <span class="text-xs font-normal text-gray-400">Bs</span></span>
+</div>
+<div class="bg-[#0f1016] border border-[#1f212d] hover:border-[#2a2d3e] transition-colors rounded-xl py-2 px-1">
+<span class="block text-[10px] uppercase tracking-wider text-gray-400 font-semibold mb-0.5">COBRADO</span>
+<span class="text-[#38bdf8] font-bold text-sm font-mono" contenteditable="true"><span class="count-up-metric" data-value="49.00">0.00</span> <span class="text-xs font-normal text-gray-400">Bs</span></span>
+</div>
+<div class="bg-[#0f1016] border border-[#1f212d] hover:border-[#2a2d3e] transition-colors rounded-xl py-2 px-1">
+<span class="block text-[10px] uppercase tracking-wider text-gray-400 font-semibold mb-0.5">GANANCIA</span>
+<span class="text-[#10b981] font-bold text-sm font-mono pulse-profit" contenteditable="true"><span class="count-up-metric" data-prefix="+" data-value="26.00">+0.00</span> <span class="text-xs font-normal text-gray-400">Bs</span></span>
+</div>
+</div>
+<!-- Section: Assigned Profiles -->
+<div class="pt-1">
+<div class="flex items-center justify-between text-xs font-semibold mb-2.5">
+<div class="flex items-center gap-1.5 text-gray-200">
+<svg class="w-4 h-4 text-[#ff7043]" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24">
+<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+<circle cx="9" cy="7" r="4"></circle>
+<path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+<path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+</svg>
+<span>Perfiles Asignados</span>
+</div>
+<span class="text-[11px] bg-[#1a1c26] text-gray-300 border border-[#272a39] px-2 py-0.5 rounded-md font-mono font-medium">4/4</span>
+</div>
+<!-- Profile Rows List -->
+<div class="space-y-1.5">
+<!-- Row #1 -->
+<div class="profile-item bg-[#0f1016] border border-[#1f212d] hover:border-[#2e3143] rounded-xl p-2 flex items-center justify-between gap-2 text-xs transition-colors duration-150">
+<div class="flex items-center gap-2.5 overflow-hidden min-w-0">
+<span class="w-6 h-6 flex items-center justify-center rounded-lg bg-[#181a24] text-gray-400 font-semibold text-[11px] shrink-0 border border-white/[0.04]">#1</span>
+<div class="min-w-0">
+<p class="font-semibold text-white uppercase text-[12px] truncate leading-tight" contenteditable="true">FABIAN OMAR</p>
+<p class="text-[11px] text-gray-400 flex items-center gap-1 font-mono leading-none mt-1" contenteditable="true">
+<svg class="w-3 h-3 text-gray-400 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><rect height="18" rx="2" width="12" x="6" y="3"></rect><line x1="12" x2="12.01" y1="18" y2="18"></line></svg> 74430427
+                    </p>
+</div>
+</div>
+<div class="flex items-center gap-1.5 shrink-0">
+<span class="px-2 py-0.5 bg-[#0e271f] text-[#10b981] border border-[#144937] rounded-md font-semibold font-mono text-[11px]" contenteditable="true">7.00 Bs</span>
+<button class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#181a24] hover:bg-[#12281e] hover:text-[#10b981] hover:border-[#10b981]/40 active:scale-95 text-gray-400 border border-[#262837] transition-all duration-150" title="WhatsApp" type="button">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+</button>
+<button class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#181a24] hover:bg-[#142636] hover:text-[#38bdf8] hover:border-[#38bdf8]/40 active:scale-95 text-gray-400 border border-[#262837] transition-all duration-150" title="Notificar" type="button">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><line x1="22" x2="11" y1="2" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+</button>
+<button class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#181a24] hover:bg-[#2b1619] hover:text-[#ff4d4f] hover:border-[#ff4d4f]/40 active:scale-95 text-gray-400 border border-[#262837] transition-all duration-150" title="Eliminar" type="button">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+</button>
+</div>
+</div>
+<!-- Row #2 -->
+<div class="profile-item bg-[#0f1016] border border-[#1f212d] hover:border-[#2e3143] rounded-xl p-2 flex items-center justify-between gap-2 text-xs transition-colors duration-150">
+<div class="flex items-center gap-2.5 overflow-hidden min-w-0">
+<span class="w-6 h-6 flex items-center justify-center rounded-lg bg-[#181a24] text-gray-400 font-semibold text-[11px] shrink-0 border border-white/[0.04]">#2</span>
+<div class="min-w-0">
+<p class="font-semibold text-white text-[12px] truncate leading-tight" contenteditable="true">Carlos</p>
+<p class="text-[11px] text-gray-400 flex items-center gap-1 font-mono leading-none mt-1" contenteditable="true">
+<svg class="w-3 h-3 text-gray-400 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><rect height="18" rx="2" width="12" x="6" y="3"></rect><line x1="12" x2="12.01" y1="18" y2="18"></line></svg> +591 74938999
+                    </p>
+</div>
+</div>
+<div class="flex items-center gap-1.5 shrink-0">
+<span class="px-2 py-0.5 bg-[#0e271f] text-[#10b981] border border-[#144937] rounded-md font-semibold font-mono text-[11px]" contenteditable="true">15.00 Bs</span>
+<button class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#181a24] hover:bg-[#12281e] hover:text-[#10b981] hover:border-[#10b981]/40 active:scale-95 text-gray-400 border border-[#262837] transition-all duration-150" title="WhatsApp" type="button">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+</button>
+<button class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#181a24] hover:bg-[#142636] hover:text-[#38bdf8] hover:border-[#38bdf8]/40 active:scale-95 text-gray-400 border border-[#262837] transition-all duration-150" title="Notificar" type="button">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><line x1="22" x2="11" y1="2" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+</button>
+<button class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#181a24] hover:bg-[#2b1619] hover:text-[#ff4d4f] hover:border-[#ff4d4f]/40 active:scale-95 text-gray-400 border border-[#262837] transition-all duration-150" title="Eliminar" type="button">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+</button>
+</div>
+</div>
+<!-- Row #3 -->
+<div class="profile-item bg-[#0f1016] border border-[#1f212d] hover:border-[#2e3143] rounded-xl p-2 flex items-center justify-between gap-2 text-xs transition-colors duration-150">
+<div class="flex items-center gap-2.5 overflow-hidden min-w-0">
+<span class="w-6 h-6 flex items-center justify-center rounded-lg bg-[#181a24] text-gray-400 font-semibold text-[11px] shrink-0 border border-white/[0.04]">#3</span>
+<div class="min-w-0">
+<p class="font-semibold text-white text-[12px] truncate leading-tight" contenteditable="true">Alejo</p>
+<p class="text-[11px] text-gray-400 flex items-center gap-1 font-mono leading-none mt-1" contenteditable="true">
+<svg class="w-3 h-3 text-gray-400 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><rect height="18" rx="2" width="12" x="6" y="3"></rect><line x1="12" x2="12.01" y1="18" y2="18"></line></svg> +591 65049263
+                    </p>
+</div>
+</div>
+<div class="flex items-center gap-1.5 shrink-0">
+<span class="px-2 py-0.5 bg-[#0e271f] text-[#10b981] border border-[#144937] rounded-md font-semibold font-mono text-[11px]" contenteditable="true">15.00 Bs</span>
+<button class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#181a24] hover:bg-[#12281e] hover:text-[#10b981] hover:border-[#10b981]/40 active:scale-95 text-gray-400 border border-[#262837] transition-all duration-150" title="WhatsApp" type="button">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+</button>
+<button class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#181a24] hover:bg-[#142636] hover:text-[#38bdf8] hover:border-[#38bdf8]/40 active:scale-95 text-gray-400 border border-[#262837] transition-all duration-150" title="Notificar" type="button">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><line x1="22" x2="11" y1="2" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+</button>
+<button class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#181a24] hover:bg-[#2b1619] hover:text-[#ff4d4f] hover:border-[#ff4d4f]/40 active:scale-95 text-gray-400 border border-[#262837] transition-all duration-150" title="Eliminar" type="button">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+</button>
+</div>
+</div>
+<!-- Row #4 -->
+<div class="profile-item bg-[#0f1016] border border-[#1f212d] hover:border-[#2e3143] rounded-xl p-2 flex items-center justify-between gap-2 text-xs transition-colors duration-150">
+<div class="flex items-center gap-2.5 overflow-hidden min-w-0">
+<span class="w-6 h-6 flex items-center justify-center rounded-lg bg-[#181a24] text-gray-400 font-semibold text-[11px] shrink-0 border border-white/[0.04]">#4</span>
+<div class="min-w-0">
+<p class="font-semibold text-white text-[12px] truncate leading-tight" contenteditable="true">Elvis</p>
+<p class="text-[11px] text-gray-400 flex items-center gap-1 font-mono leading-none mt-1" contenteditable="true">
+<svg class="w-3 h-3 text-gray-400 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><rect height="18" rx="2" width="12" x="6" y="3"></rect><line x1="12" x2="12.01" y1="18" y2="18"></line></svg> 73340475
+                    </p>
+</div>
+</div>
+<div class="flex items-center gap-1.5 shrink-0">
+<span class="px-2 py-0.5 bg-[#0e271f] text-[#10b981] border border-[#144937] rounded-md font-semibold font-mono text-[11px]" contenteditable="true">12.00 Bs</span>
+<button class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#181a24] hover:bg-[#12281e] hover:text-[#10b981] hover:border-[#10b981]/40 active:scale-95 text-gray-400 border border-[#262837] transition-all duration-150" title="WhatsApp" type="button">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+</button>
+<button class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#181a24] hover:bg-[#142636] hover:text-[#38bdf8] hover:border-[#38bdf8]/40 active:scale-95 text-gray-400 border border-[#262837] transition-all duration-150" title="Notificar" type="button">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><line x1="22" x2="11" y1="2" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+</button>
+<button class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#181a24] hover:bg-[#2b1619] hover:text-[#ff4d4f] hover:border-[#ff4d4f]/40 active:scale-95 text-gray-400 border border-[#262837] transition-all duration-150" title="Eliminar" type="button">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</article>
+<!-- END: AccountCard2 -->
+<!-- CARD 3 -->
+<!-- BEGIN: AccountCard3 -->
+<article class="animate-card-3 bg-[#15161e] border border-[#232532] hover:border-[#353849] rounded-2xl p-5 flex flex-col justify-between shadow-xl shadow-black/50 transition-colors duration-300">
+<div class="space-y-4">
+<!-- Top Row -->
+<div class="flex items-start justify-between gap-2">
+<div class="flex items-start gap-3 min-w-0">
+<div class="w-10 h-10 rounded-xl bg-[#20181b] border border-[#ff5a2b]/25 text-[#ff6738] flex items-center justify-center shrink-0 shadow-sm">
+<!-- Lucide Icon: Tv2 -->
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24">
+<rect height="14" rx="2" width="20" x="2" y="7"></rect>
+<path d="M17 2l-5 5-5-5"></path>
+</svg>
+</div>
+<div class="min-w-0">
+<h2 class="text-sm font-bold text-white tracking-wide uppercase truncate" contenteditable="true">DISNEY PLUS + HBO MAX</h2>
+<p class="text-xs text-gray-400 font-medium" contenteditable="true">3/3 perfiles ocupados</p>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1.5 shrink-0">
+<span class="badge-subtle-pulse text-[10px] font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#351417] text-[#ff4d4f] border border-[#5a1c22]">LLENA</span>
+<span class="text-[11px] font-medium text-[#ff7173] bg-[#291316] border border-[#4d1d23] px-2 py-0.5 rounded-lg flex items-center gap-1.5 transition-opacity duration-200 hover:opacity-90">
+<svg class="w-3.5 h-3.5 text-[#ff5f60] shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24">
+<rect height="18" rx="2" width="18" x="3" y="4"></rect>
+<line x1="16" x2="16" y1="2" y2="6"></line>
+<line x1="8" x2="8" y1="2" y2="6"></line>
+<line x1="3" x2="21" y1="10" y2="10"></line>
+</svg>
+<span contenteditable="true">Vence: 4/Ago</span>
+</span>
+</div>
+</div>
+<!-- Credentials Box -->
+<div class="bg-[#0f1016] border border-[#1f212d] rounded-xl p-3 space-y-2 text-xs">
+<!-- Email -->
+<div class="flex items-center justify-between text-gray-300 group/cred gap-2">
+<div class="flex items-center gap-2 overflow-hidden min-w-0">
+<svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24">
+<rect height="16" rx="2" width="20" x="2" y="4"></rect>
+<path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+</svg>
+<span class="text-gray-400 shrink-0">Correo:</span>
+<span class="font-medium text-white truncate" contenteditable="true" data-copy-val="bisteces.marchoso_6b@icloud.com">bisteces.marchoso_6b@icloud.com</span>
+</div>
+<button class="copy-trigger inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#181a24] hover:bg-[#232635] text-gray-400 hover:text-white border border-[#27293a] transition-all duration-150 shrink-0" data-copy="bisteces.marchoso_6b@icloud.com" title="Copiar Correo" type="button">
+<svg class="copy-icon w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24">
+<rect height="13" rx="2" ry="2" width="13" x="9" y="9"></rect>
+<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+</svg>
+</button>
+</div>
+<!-- Password -->
+<div class="flex items-center justify-between text-gray-300 pt-1.5 border-t border-white/[0.04] group/cred gap-2">
+<div class="flex items-center gap-2 overflow-hidden min-w-0">
+<svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24">
+<circle cx="7.5" cy="15.5" r="5.5"></circle>
+<path d="m21 2-9.6 9.6"></path>
+<path d="m15.5 7.5 3 3"></path>
+</svg>
+<span class="text-gray-400 shrink-0">Contraseña:</span>
+<span class="tracking-widest font-mono text-xs text-white" contenteditable="true" data-copy-val="Pass789123">••••••••</span>
+</div>
+<button class="copy-trigger inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#181a24] hover:bg-[#232635] text-gray-400 hover:text-white border border-[#27293a] transition-all duration-150 shrink-0" data-copy="Pass789123" title="Copiar Contraseña" type="button">
+<svg class="copy-icon w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24">
+<rect height="13" rx="2" ry="2" width="13" x="9" y="9"></rect>
+<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+</svg>
+</button>
+</div>
+</div>
+<!-- Financial Badges -->
+<div class="grid grid-cols-3 gap-2 text-center text-xs">
+<div class="bg-[#0f1016] border border-[#1f212d] hover:border-[#2a2d3e] transition-colors rounded-xl py-2 px-1">
+<span class="block text-[10px] uppercase tracking-wider text-gray-400 font-semibold mb-0.5">INVERSIÓN</span>
+<span class="text-[#ff4d4f] font-bold text-sm font-mono" contenteditable="true"><span class="count-up-metric" data-value="36.00">0.00</span> <span class="text-xs font-normal text-gray-400">Bs</span></span>
+</div>
+<div class="bg-[#0f1016] border border-[#1f212d] hover:border-[#2a2d3e] transition-colors rounded-xl py-2 px-1">
+<span class="block text-[10px] uppercase tracking-wider text-gray-400 font-semibold mb-0.5">COBRADO</span>
+<span class="text-[#38bdf8] font-bold text-sm font-mono" contenteditable="true"><span class="count-up-metric" data-value="35.00">0.00</span> <span class="text-xs font-normal text-gray-400">Bs</span></span>
+</div>
+<div class="bg-[#0f1016] border border-[#1f212d] hover:border-[#2a2d3e] transition-colors rounded-xl py-2 px-1">
+<span class="block text-[10px] uppercase tracking-wider text-gray-400 font-semibold mb-0.5">GANANCIA</span>
+<span class="text-[#ff4d4f] font-bold text-sm font-mono" contenteditable="true"><span class="count-up-metric" data-prefix="" data-value="-1.00">-0.00</span> <span class="text-xs font-normal text-gray-400">Bs</span></span>
+</div>
+</div>
+<!-- Section: Assigned Profiles -->
+<div class="pt-1">
+<div class="flex items-center justify-between text-xs font-semibold mb-2.5">
+<div class="flex items-center gap-1.5 text-gray-200">
+<svg class="w-4 h-4 text-[#ff7043]" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24">
+<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+<circle cx="9" cy="7" r="4"></circle>
+<path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+<path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+</svg>
+<span>Perfiles Asignados</span>
+</div>
+<span class="text-[11px] bg-[#1a1c26] text-gray-300 border border-[#272a39] px-2 py-0.5 rounded-md font-mono font-medium">3/3</span>
+</div>
+<!-- Profile Rows List -->
+<div class="space-y-1.5">
+<!-- Row #1 -->
+<div class="profile-item bg-[#0f1016] border border-[#1f212d] hover:border-[#2e3143] rounded-xl p-2 flex items-center justify-between gap-2 text-xs transition-colors duration-150">
+<div class="flex items-center gap-2.5 overflow-hidden min-w-0">
+<span class="w-6 h-6 flex items-center justify-center rounded-lg bg-[#181a24] text-gray-400 font-semibold text-[11px] shrink-0 border border-white/[0.04]">#1</span>
+<div class="min-w-0">
+<p class="font-semibold text-white text-[12px] truncate leading-tight" contenteditable="true">Edivania</p>
+<p class="text-[11px] text-gray-400 flex items-center gap-1 font-mono leading-none mt-1" contenteditable="true">
+<svg class="w-3 h-3 text-gray-400 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><rect height="18" rx="2" width="12" x="6" y="3"></rect><line x1="12" x2="12.01" y1="18" y2="18"></line></svg> 78479163
+                    </p>
+</div>
+</div>
+<div class="flex items-center gap-1.5 shrink-0">
+<span class="px-2 py-0.5 bg-[#0e271f] text-[#10b981] border border-[#144937] rounded-md font-semibold font-mono text-[11px]" contenteditable="true">15.00 Bs</span>
+<button class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#181a24] hover:bg-[#12281e] hover:text-[#10b981] hover:border-[#10b981]/40 active:scale-95 text-gray-400 border border-[#262837] transition-all duration-150" title="WhatsApp" type="button">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+</button>
+<button class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#181a24] hover:bg-[#142636] hover:text-[#38bdf8] hover:border-[#38bdf8]/40 active:scale-95 text-gray-400 border border-[#262837] transition-all duration-150" title="Notificar" type="button">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><line x1="22" x2="11" y1="2" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+</button>
+<button class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#181a24] hover:bg-[#2b1619] hover:text-[#ff4d4f] hover:border-[#ff4d4f]/40 active:scale-95 text-gray-400 border border-[#262837] transition-all duration-150" title="Eliminar" type="button">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+</button>
+</div>
+</div>
+<!-- Row #2 -->
+<div class="profile-item bg-[#0f1016] border border-[#1f212d] hover:border-[#2e3143] rounded-xl p-2 flex items-center justify-between gap-2 text-xs transition-colors duration-150">
+<div class="flex items-center gap-2.5 overflow-hidden min-w-0">
+<span class="w-6 h-6 flex items-center justify-center rounded-lg bg-[#181a24] text-gray-400 font-semibold text-[11px] shrink-0 border border-white/[0.04]">#2</span>
+<div class="min-w-0">
+<p class="font-semibold text-white text-[12px] truncate leading-tight" contenteditable="true">Ozil</p>
+<p class="text-[11px] text-gray-400 flex items-center gap-1 font-mono leading-none mt-1" contenteditable="true">
+<svg class="w-3 h-3 text-gray-400 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><rect height="18" rx="2" width="12" x="6" y="3"></rect><line x1="12" x2="12.01" y1="18" y2="18"></line></svg> +591 78953308
+                    </p>
+</div>
+</div>
+<div class="flex items-center gap-1.5 shrink-0">
+<span class="px-2 py-0.5 bg-[#0e271f] text-[#10b981] border border-[#144937] rounded-md font-semibold font-mono text-[11px]" contenteditable="true">10.00 Bs</span>
+<button class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#181a24] hover:bg-[#12281e] hover:text-[#10b981] hover:border-[#10b981]/40 active:scale-95 text-gray-400 border border-[#262837] transition-all duration-150" title="WhatsApp" type="button">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+</button>
+<button class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#181a24] hover:bg-[#142636] hover:text-[#38bdf8] hover:border-[#38bdf8]/40 active:scale-95 text-gray-400 border border-[#262837] transition-all duration-150" title="Notificar" type="button">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><line x1="22" x2="11" y1="2" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+</button>
+<button class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#181a24] hover:bg-[#2b1619] hover:text-[#ff4d4f] hover:border-[#ff4d4f]/40 active:scale-95 text-gray-400 border border-[#262837] transition-all duration-150" title="Eliminar" type="button">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+</button>
+</div>
+</div>
+<!-- Row #3 -->
+<div class="profile-item bg-[#0f1016] border border-[#1f212d] hover:border-[#2e3143] rounded-xl p-2 flex items-center justify-between gap-2 text-xs transition-colors duration-150">
+<div class="flex items-center gap-2.5 overflow-hidden min-w-0">
+<span class="w-6 h-6 flex items-center justify-center rounded-lg bg-[#181a24] text-gray-400 font-semibold text-[11px] shrink-0 border border-white/[0.04]">#3</span>
+<div class="min-w-0">
+<p class="font-semibold text-white text-[12px] truncate leading-tight" contenteditable="true">Nicole</p>
+<p class="text-[11px] text-gray-400 flex items-center gap-1 font-mono leading-none mt-1" contenteditable="true">
+<svg class="w-3 h-3 text-gray-400 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><rect height="18" rx="2" width="12" x="6" y="3"></rect><line x1="12" x2="12.01" y1="18" y2="18"></line></svg> +591 75650364
+                    </p>
+</div>
+</div>
+<div class="flex items-center gap-1.5 shrink-0">
+<span class="px-2 py-0.5 bg-[#0e271f] text-[#10b981] border border-[#144937] rounded-md font-semibold font-mono text-[11px]" contenteditable="true">10.00 Bs</span>
+<button class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#181a24] hover:bg-[#12281e] hover:text-[#10b981] hover:border-[#10b981]/40 active:scale-95 text-gray-400 border border-[#262837] transition-all duration-150" title="WhatsApp" type="button">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+</button>
+<button class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#181a24] hover:bg-[#142636] hover:text-[#38bdf8] hover:border-[#38bdf8]/40 active:scale-95 text-gray-400 border border-[#262837] transition-all duration-150" title="Notificar" type="button">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><line x1="22" x2="11" y1="2" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+</button>
+<button class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#181a24] hover:bg-[#2b1619] hover:text-[#ff4d4f] hover:border-[#ff4d4f]/40 active:scale-95 text-gray-400 border border-[#262837] transition-all duration-150" title="Eliminar" type="button">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</article>
+<!-- END: AccountCard3 -->
+</section>
+<!-- END: GridCardsSection -->
+<!-- Toast Notification for clipboard feedback with Lucide Check -->
+<div class="fixed bottom-6 right-6 bg-[#161822] text-emerald-400 border border-emerald-500/30 px-4 py-2.5 rounded-xl text-xs font-semibold shadow-2xl opacity-0 pointer-events-none transition-all duration-300 flex items-center gap-2.5 z-50 transform translate-y-2 backdrop-blur-md" id="toast-notify">
+<svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
+<polyline points="20 6 9 17 4 12"></polyline>
+</svg>
+<span id="toast-message">Copiado al portapapeles</span>
+</div>
+</main>
+<!-- END: MainContainer -->
+<!-- BEGIN: InteractiveScripts -->
+<script data-purpose="clipboard-and-actions">
+    document.addEventListener('DOMContentLoaded', () => {
+      const toast = document.getElementById('toast-notify');
+      const toastMsg = document.getElementById('toast-message');
+      let toastTimer = null;
+
+      function showToast(text) {
+        if (!toast) return;
+        clearTimeout(toastTimer);
+        toastMsg.textContent = text;
+        toast.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-2');
+        toast.classList.add('opacity-100', 'translate-y-0');
+        toastTimer = setTimeout(() => {
+          toast.classList.remove('opacity-100', 'translate-y-0');
+          toast.classList.add('opacity-0', 'pointer-events-none', 'translate-y-2');
+        }, 2200);
+      }
+
+      // Numerical Count-up for metrics
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const countUpElements = document.querySelectorAll('.count-up-metric');
+
+      if (!prefersReducedMotion) {
+        countUpElements.forEach(el => {
+          const rawTarget = parseFloat(el.getAttribute('data-value')) || 0;
+          const prefix = el.getAttribute('data-prefix') || (rawTarget > 0 && el.parentElement.textContent.includes('+') ? '+' : '');
+          const duration = 1200;
+          const startTimestamp = performance.now();
+
+          function updateNumber(now) {
+            const progress = Math.min((now - startTimestamp) / duration, 1);
+            const easeOut = 1 - Math.pow(1 - progress, 3);
+            const current = rawTarget * easeOut;
+            el.textContent = (prefix && current > 0 ? prefix : '') + current.toFixed(2);
+
+            if (progress < 1) {
+              requestAnimationFrame(updateNumber);
+            } else {
+              el.textContent = (prefix && rawTarget > 0 ? prefix : '') + rawTarget.toFixed(2);
+            }
+          }
+
+          requestAnimationFrame(updateNumber);
+        });
+      } else {
+        countUpElements.forEach(el => {
+          const rawTarget = parseFloat(el.getAttribute('data-value')) || 0;
+          const prefix = el.getAttribute('data-prefix') || '';
+          el.textContent = (prefix && rawTarget > 0 ? prefix : '') + rawTarget.toFixed(2);
+        });
+      }
+
+      // Copy credentials handler with micro-interaction feedback (Lucide check icon + toast)
+      document.querySelectorAll('.copy-trigger').forEach(button => {
+        button.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const targetText = button.getAttribute('data-copy');
+          const originalHTML = button.innerHTML;
+
+          if (targetText) {
+            navigator.clipboard.writeText(targetText).then(() => {
+              showToast(`Copiado: ${targetText}`);
+            }).catch(() => {
+              showToast('Texto copiado');
+            });
+
+            // Instant feedback with Lucide Check icon
+            button.classList.add('text-emerald-400', 'bg-emerald-950/40', 'border-emerald-500/40');
+            button.innerHTML = `
+              <svg class="w-3.5 h-3.5 text-emerald-400 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            `;
+
+            setTimeout(() => {
+              button.classList.remove('text-emerald-400', 'bg-emerald-950/40', 'border-emerald-500/40');
+              button.innerHTML = originalHTML;
+            }, 1500);
+          }
+        });
+      });
+
+      // Simple click action for button "+ Nueva Cuenta"
+      const newAccountBtn = document.getElementById('btn-nueva-cuenta');
+      if (newAccountBtn) {
+        newAccountBtn.addEventListener('click', () => {
+          showToast('Modal de nueva cuenta abierto');
+        });
+      }
+
+      // Action buttons within profile rows (WhatsApp, Notificar, Eliminar)
+      document.querySelectorAll('button[title="WhatsApp"]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          showToast('Iniciando chat de WhatsApp...');
+        });
+      });
+
+      document.querySelectorAll('button[title="Notificar"]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          showToast('Notificación enviada al cliente');
+        });
+      });
+
+      document.querySelectorAll('button[title="Eliminar"]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const row = btn.closest('.profile-item');
+          if (row && confirm('¿Deseas desasignar este perfil?')) {
+            row.style.transition = 'opacity 0.25s ease, transform 0.25s ease, height 0.25s ease, margin 0.25s ease';
+            row.style.opacity = '0';
+            row.style.transform = 'translateX(-10px) scale(0.96)';
+            setTimeout(() => {
+              row.remove();
+              showToast('Perfil desasignado');
+            }, 250);
+          }
+        });
+      });
+    });
+  </script>
+<!-- END: InteractiveScripts -->
+</body></html>

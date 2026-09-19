@@ -91,7 +91,13 @@ window.confirmHistNotifySend = async function() {
 };
 
 window.deleteSale = async function(id) {
-    if (!confirm('¿Estás seguro de eliminar este registro?')) return;
+    const confirmed = await window.plixoraConfirm({
+        title: '¿Estás seguro?',
+        message: '¿Eliminar este registro de venta del historial de forma permanente?',
+        confirmText: 'Sí, eliminar',
+        cancelText: 'No'
+    });
+    if (!confirmed) return;
     try {
         await removeSale(id);
         showToast('🗑️ Venta eliminada');
