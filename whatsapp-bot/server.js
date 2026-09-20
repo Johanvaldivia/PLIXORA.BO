@@ -21,6 +21,7 @@ const {
     useMultiFileAuthState,
     DisconnectReason,
     fetchLatestBaileysVersion,
+    makeCacheableSignalKeyStore,
     Browsers
 } = require('@whiskeysockets/baileys');
 
@@ -28,6 +29,17 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const BOT_TOKEN = process.env.WA_BOT_TOKEN || 'f58v6XkUscoxyIEGVgez7dRuJLHq4Sip';
 const AUTH_DIR = path.join(__dirname, 'auth_info_baileys');
+
+// ── Almacén en Memoria para Reintentos E2EE (Soluciona "Esperando mensaje...") ──
+const sentMessagesStore = new Map();
+function storeSentMessage(id, message) {
+    if (!id || !message) return;
+    if (sentMessagesStore.size > 1500) {
+        const firstKey = sentMessagesStore.keys().next().value;
+        sentMessagesStore.delete(firstKey);
+    }
+    sentMessagesStore.set(id, message);
+}
 
 // ── Estado del bot ────────────────────────────────────────────
 let sock = null;
@@ -98,16 +110,34 @@ async function startBaileys() {
             version,
             logger,
             printQRInTerminal: false,
-            auth: state,
+            auth: {
+                creds: state.creds,
+                keys: makeCacheableSignalKeyStore(state.keys, logger)
+            },
             browser: Browsers.ubuntu('Chrome'),
             syncFullHistory: false,
             generateHighQualityLinkPreview: false,
             connectTimeoutMs: 30000,
             keepAliveIntervalMs: 15000,
-            defaultQueryTimeoutMs: 60000
+            defaultQueryTimeoutMs: 60000,
+            getMessage: async (key) => {
+                if (key && key.id && sentMessagesStore.has(key.id)) {
+                    return sentMessagesStore.get(key.id);
+                }
+                return undefined;
+            }
         });
 
         sock.ev.on('creds.update', saveCreds);
+
+        // Guardar mensajes recibidos/enviados para responder a peticiones de retry E2EE
+        sock.ev.on('messages.upsert', async ({ messages }) => {
+            for (const msg of messages) {
+                if (msg.key && msg.key.id && msg.message) {
+                    storeSentMessage(msg.key.id, msg.message);
+                }
+            }
+        });
 
         sock.ev.on('connection.update', async (update) => {
             const { connection, lastDisconnect, qr } = update;
@@ -548,7 +578,10 @@ app.post('/api/send-message', requireToken, async (req, res) => {
         const jid = formatJid(phone);
 
         await messageQueue.enqueue(async () => {
-            await sock.sendMessage(jid, { text: String(message) });
+            const sent = await sock.sendMessage(jid, { text: String(message) });
+            if (sent && sent.key && sent.key.id && sent.message) {
+                storeSentMessage(sent.key.id, sent.message);
+            }
         });
 
         console.log(`💬 Mensaje enviado con éxito a ${jid}`);
@@ -591,10 +624,13 @@ app.post('/api/send-image', requireToken, async (req, res) => {
         }
 
         await messageQueue.enqueue(async () => {
-            await sock.sendMessage(jid, {
+            const sent = await sock.sendMessage(jid, {
                 image: imageBuffer,
                 caption: caption || ''
             });
+            if (sent && sent.key && sent.key.id && sent.message) {
+                storeSentMessage(sent.key.id, sent.message);
+            }
         });
 
         console.log(`🖼️ Imagen enviada con éxito a ${jid}`);
