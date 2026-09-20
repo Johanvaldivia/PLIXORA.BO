@@ -2588,7 +2588,7 @@ window.formatWhatsappMarkdown = function(text) {
 
 
 // =============================================================
-// WHATSAPP BOT STATUS & MODAL CONTROLLER
+// WHATSAPP BOT STATUS & MODAL CONTROLLER (VIRTUAL 24/7)
 // =============================================================
 (function() {
     let pollIntervalId = null;
@@ -2601,29 +2601,22 @@ window.formatWhatsappMarkdown = function(text) {
 
         dot.classList.remove('online', 'pending', 'offline', 'local-only');
 
-        if (data && data.isRemoteMode) {
-            dot.classList.add('local-only');
-            label.textContent = 'Bot Local';
-            if (btn) btn.title = 'Bot de WhatsApp (Se ejecuta de forma local en tu computadora)';
-            return;
-        }
-
-        if (!data || (!data.ready && !data.hasQR && data.status && data.status.includes('apagado'))) {
+        if (!data || (!data.ready && !data.hasQR && data.status && (data.status.includes('apagado') || data.status.includes('no alcanzable')))) {
             dot.classList.add('offline');
             label.textContent = 'Bot Off';
-            if (btn) btn.title = 'Bot de WhatsApp apagado o no iniciado';
+            if (btn) btn.title = 'Bot Virtual de WhatsApp no alcanzable o desconectado';
         } else if (data.ready) {
             dot.classList.add('online');
-            label.textContent = 'Bot Activo';
-            if (btn) btn.title = 'Bot de WhatsApp Conectado (' + (data.phone ? '+' + data.phone : 'Listo') + ')';
+            label.textContent = 'Bot Virtual';
+            if (btn) btn.title = 'Bot Virtual Conectado en Oracle Cloud (' + (data.phone ? '+' + data.phone : '24/7') + ')';
         } else if (data.hasQR) {
             dot.classList.add('pending');
-            label.textContent = 'Escanear QR';
-            if (btn) btn.title = 'Bot de WhatsApp requiere escanear QR';
+            label.textContent = 'Vincular QR';
+            if (btn) btn.title = 'Bot Virtual requiere escanear código QR';
         } else {
             dot.classList.add('pending');
-            label.textContent = 'Iniciando...';
-            if (btn) btn.title = data.status || 'Iniciando bot...';
+            label.textContent = 'Verificando...';
+            if (btn) btn.title = data.status || 'Comprobando Bot Virtual...';
         }
     };
 
@@ -2633,12 +2626,12 @@ window.formatWhatsappMarkdown = function(text) {
 
         const customInput = document.getElementById('wa-bot-custom-url');
         if (customInput) {
-            customInput.value = localStorage.getItem('plixora_bot_url') || window.PLIXORA_CONFIG.BOT_BASE_URL || 'http://localhost:3000';
+            customInput.value = localStorage.getItem('plixora_bot_url') || window.PLIXORA_CONFIG.BOT_BASE_URL || 'http://plixora-bot.duckdns.org:3000';
         }
 
         const qrLink = document.getElementById('wa-bot-open-qr-link');
         if (qrLink) {
-            qrLink.href = (window.PLIXORA_CONFIG.BOT_BASE_URL || 'http://localhost:3000') + '/qr';
+            qrLink.href = (window.PLIXORA_CONFIG.BOT_BASE_URL || 'http://plixora-bot.duckdns.org:3000') + '/qr';
         }
 
         modal.style.display = 'flex';
@@ -2655,57 +2648,31 @@ window.formatWhatsappMarkdown = function(text) {
         if (!input) return;
         const val = input.value.trim();
         window.setCustomBotUrl(val);
-        showToast('✅ URL del bot guardada');
+        showToast('✅ Dirección del bot virtual guardada');
     };
 
-    window.launchLocalBot = async function() {
-        if (!window.PLIXORA_CONFIG.IS_LOCAL) {
-            showToast('💻 El bot opera en tu computadora. Usa el lanzador en tu PC.');
-            return;
-        }
-        showToast('🚀 Conectando bot de WhatsApp...');
-
-        // 1. Si el servidor local ya está activo en segundo plano, pedir reinicio/recuperación
-        let serverActive = false;
+    // Reiniciar / reactivar bot virtual en la nube
+    window.restartVirtualBot = async function() {
+        showToast('↻ Contactando Bot Virtual en la nube...');
+        const botBase = window.PLIXORA_CONFIG.BOT_BASE_URL || 'http://plixora-bot.duckdns.org:3000';
         try {
-            const botBase = window.PLIXORA_CONFIG.BOT_BASE_URL || 'http://localhost:3000';
             const controller = new AbortController();
-            const timer = setTimeout(() => controller.abort(), 1800);
+            const timer = setTimeout(() => controller.abort(), 4000);
             const res = await fetch(botBase + '/api/restart-bot', { signal: controller.signal });
             clearTimeout(timer);
-            serverActive = res.ok;
-            if (serverActive) {
-                showToast('🔄 Reiniciando y desbloqueando sesión del bot...');
+            if (res.ok) {
+                showToast('🔄 Orden de reinicio enviada al Bot Virtual');
+            } else {
+                showToast('⚠️ No se pudo reiniciar el bot virtual (HTTP ' + res.status + ')');
             }
         } catch (e) {
-            serverActive = false;
+            showToast('❌ Servidor virtual no responde. Verifica tu consola Oracle Cloud.');
         }
-
-        // 2. Si el servidor no estaba activo, lanzarlo mediante el protocolo silencioso
-        if (!serverActive) {
-            try {
-                const iframe = document.createElement('iframe');
-                iframe.style.display = 'none';
-                iframe.src = 'plixora://start';
-                document.body.appendChild(iframe);
-                setTimeout(() => {
-                    try { document.body.removeChild(iframe); } catch(err) {}
-                }, 2000);
-            } catch (err) {
-                window.location.href = 'plixora://start';
-            }
-        }
-
         setTimeout(() => {
             window.checkWaBotModalStatus(false);
-        }, 3000);
-        setTimeout(() => {
-            window.checkWaBotModalStatus(false);
-        }, 6000);
-        setTimeout(() => {
-            window.checkWaBotModalStatus(false);
-        }, 10000);
+        }, 2500);
     };
+    window.launchLocalBot = window.restartVirtualBot;
 
     window.checkWaBotModalStatus = async function(showToastFeedback) {
         const badge = document.getElementById('wa-bot-status-badge');
@@ -2726,33 +2693,22 @@ window.formatWhatsappMarkdown = function(text) {
 
         if (!badge || !detail) return;
 
-        if (data.isRemoteMode) {
-            badge.style.background = 'rgba(59, 130, 246, 0.15)';
-            badge.style.color = '#3b82f6';
-            badge.textContent = '● PC LOCAL';
-            detail.innerHTML = 'El bot de WhatsApp está diseñado para ejecutarse localmente en tu computadora.<br><br>💡 Para vincularlo y usarlo, abre el sistema en tu PC mediante <b>INICIAR_SISTEMA.bat</b>. Si cuentas con un túnel HTTPS (Cloudflare o VPS), puedes configurarlo abajo.';
-            if (phoneRow) phoneRow.style.display = 'none';
-            if (qrContainer) qrContainer.style.display = 'none';
-            if (showToastFeedback) showToast('💻 El bot opera de forma local en tu PC');
-            return;
-        }
-
         if (data.ready) {
             badge.style.background = 'rgba(37,211,102,0.15)';
             badge.style.color = '#25D366';
-            badge.textContent = '● CONECTADO';
-            detail.textContent = data.status || 'El bot está conectado y listo para enviar mensajes.';
+            badge.textContent = '● VIRTUAL 24/7';
+            detail.textContent = data.status || 'El bot virtual está conectado en la nube y listo para despachar.';
             if (data.phone) {
                 if (phoneRow) phoneRow.style.display = 'block';
                 if (phoneVal) phoneVal.textContent = '+' + data.phone;
             }
             if (qrContainer) qrContainer.style.display = 'none';
-            if (showToastFeedback) showToast('✅ Bot conectado correctamente');
+            if (showToastFeedback) showToast('✅ Bot Virtual conectado correctamente (+591 ' + (data.phone || '') + ')');
         } else if (data.hasQR) {
             badge.style.background = 'rgba(245,158,11,0.15)';
             badge.style.color = '#f59e0b';
             badge.textContent = '● ESCANEAR QR';
-            detail.textContent = 'Escanea el código QR para vincular WhatsApp Business.';
+            detail.textContent = 'Escanea el código QR para vincular WhatsApp Business con el Bot Virtual.';
             if (phoneRow) phoneRow.style.display = 'none';
             if (qrContainer) {
                 qrContainer.style.display = 'block';
@@ -2771,10 +2727,10 @@ window.formatWhatsappMarkdown = function(text) {
             badge.style.background = 'rgba(239,68,68,0.15)';
             badge.style.color = '#ef4444';
             badge.textContent = '● DESCONECTADO';
-            detail.textContent = data.status || 'No se pudo contactar al bot. Inicia INICIAR_BOT.bat en tu PC.';
+            detail.textContent = data.status || 'El bot virtual en Oracle Cloud no responde. Verifica tu máquina virtual o el Respaldo Tangible.';
             if (phoneRow) phoneRow.style.display = 'none';
             if (qrContainer) qrContainer.style.display = 'none';
-            if (showToastFeedback) showToast('❌ Bot no alcanzable (' + (data.status || 'apagado') + ')');
+            if (showToastFeedback) showToast('❌ Bot Virtual no alcanzable (' + (data.status || 'apagado') + ')');
         }
     };
 
@@ -2795,7 +2751,7 @@ window.formatWhatsappMarkdown = function(text) {
                 clearInterval(modalQrInterval);
                 modalQrInterval = null;
                 window.checkWaBotModalStatus(false);
-                showToast('🎉 ¡WhatsApp conectado con éxito!');
+                showToast('🎉 ¡WhatsApp conectado con éxito en la nube!');
             } else if (data.hasQR) {
                 const img = document.getElementById('wa-qr-modal-preview');
                 const newSrc = data.qrImage || (window.PLIXORA_CONFIG.BOT_BASE_URL + '/api/qr-image?t=' + Date.now());
@@ -2815,9 +2771,9 @@ window.formatWhatsappMarkdown = function(text) {
             icon.style.transition = 'transform 0.5s ease';
             setTimeout(() => { if (icon) icon.style.transform = 'none'; }, 600);
         }
-        showToast('↻ Refrescando código QR...');
+        showToast('↻ Solicitando nuevo código QR a la nube...');
         try {
-            const botBase = window.PLIXORA_CONFIG.BOT_BASE_URL || 'http://localhost:3000';
+            const botBase = window.PLIXORA_CONFIG.BOT_BASE_URL || 'http://plixora-bot.duckdns.org:3000';
             await fetch(botBase + '/api/restart-bot');
         } catch (e) {}
         setTimeout(() => {
@@ -2825,15 +2781,9 @@ window.formatWhatsappMarkdown = function(text) {
         }, 1200);
     };
 
-    // Polling en segundo plano cada 30s
+    // Polling en segundo plano cada 30s al Bot Virtual
     function startWaBotPolling() {
         if (pollIntervalId) clearInterval(pollIntervalId);
-
-        // Si estamos en entorno remoto sin URL personalizada configurada, no hacemos polling contra localhost
-        if (!window.PLIXORA_CONFIG.IS_LOCAL && !localStorage.getItem('plixora_bot_url')) {
-            window.updateWaBotIndicator({ isRemoteMode: true });
-            return;
-        }
 
         setTimeout(async () => {
             const data = await window.checkWaBotStatus();

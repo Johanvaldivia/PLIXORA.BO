@@ -22,16 +22,14 @@
         } catch(e) { return null; }
     })();
 
-    // Base URL del bot: Nube Oracle Cloud 24/7 (plixora-bot.duckdns.org) con soporte local
+    // Base URL del bot: 100% Nube Virtual Oracle Cloud 24/7 (plixora-bot.duckdns.org)
     const cloudBot = 'http://plixora-bot.duckdns.org:3000';
-    const localBot = 'http://localhost:3000';
     const defaultBot = cloudBot;
     const botBase = (savedBotUrl || defaultBot).trim().replace(/\/+$/, '');
 
     window.PLIXORA_CONFIG = {
         BOT_BASE_URL: botBase,
         CLOUD_BOT_URL: cloudBot,
-        LOCAL_BOT_URL: localBot,
         WA_BOT_URL: botBase + '/api/send-message',
         WA_BOT_IMAGE_URL: botBase + '/api/send-image',
         WA_BOT_STATUS_URL: botBase + '/status',

@@ -4,24 +4,21 @@ chcp 65001 >nul
 cd /d "%~dp0"
 
 echo ============================================================
-echo   INICIANDO SISTEMA PLIXORA.BO Y BOT DE WHATSAPP
+echo   ABRIENDO SISTEMA PLIXORA.BO
+echo   Conectado al Bot Virtual 24/7 (Oracle Cloud)
 echo ============================================================
 echo.
 
-REM 1. Iniciar el bot en una ventana dedicada en segundo plano
-echo [1/2] Iniciando bot de WhatsApp en segundo plano...
-start "PLIXORA Bot Server" cmd /k "cd /d ""%~dp0whatsapp-bot"" && call start-bot.bat"
-
-REM 2. Abrir el sistema web en el navegador predeterminado
-echo [2/2] Abriendo sistema PLIXORA.BO en el navegador...
-timeout /t 2 /nobreak >nul
+REM Abrir el sistema web en el navegador predeterminado
+echo Abriendo sistema PLIXORA.BO en tu navegador...
 start "" "%~dp0index.html"
 
 echo.
 echo ============================================================
-echo   SISTEMA Y BOT INICIADOS CORRECTAMENTE
-echo   - Sistema:  index.html
-echo   - Bot / QR: http://localhost:3000/qr
+echo   SISTEMA ACTIVO
+echo   - Plataforma: index.html
+echo   - Bot Virtual: http://plixora-bot.duckdns.org:3000
+echo   - PC Local: Ningun proceso en segundo plano requerido
 echo ============================================================
-timeout /t 4 /nobreak >nul
+timeout /t 2 /nobreak >nul
 exit
