@@ -335,8 +335,10 @@ app.get('/qr', (req, res) => {
                 <div class="info-row"><span class="info-label">Memoria RAM:</span><span id="conn-ram" class="info-val">— MB</span></div>
                 <div class="info-row"><span class="info-label">Cola Anti-colisión:</span><span class="info-val" style="color:var(--accent);">Activa (900ms)</span></div>
             </div>
-            <p style="font-size:0.8rem; color:#64748b; margin-bottom:16px;">Puedes cerrar esta pestaña en cualquier momento.</p>
-            <button onclick="if(confirm('¿Deseas reiniciar la conexión?')) location.href='/api/restart-bot'" style="background:rgba(255,255,255,0.06); color:#f59e0b; border:1px solid rgba(245,158,11,0.3); padding:10px 18px; border-radius:10px; cursor:pointer; font-weight:600; font-size:0.85rem;">↻ Reconectar</button>
+            <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+                <button onclick="if(confirm('¿Deseas reconectar el bot?')) location.href='/api/restart-bot'" style="background:rgba(255,255,255,0.06); color:#f59e0b; border:1px solid rgba(245,158,11,0.3); padding:10px 18px; border-radius:10px; cursor:pointer; font-weight:600; font-size:0.85rem;">↻ Reconectar</button>
+                <button onclick="if(confirm('¿Seguro que deseas desvincular WhatsApp y generar un nuevo código QR limpio?')) location.href='/api/logout'" style="background:rgba(239,68,68,0.12); color:#ef4444; border:1px solid rgba(239,68,68,0.3); padding:10px 18px; border-radius:10px; cursor:pointer; font-weight:600; font-size:0.85rem;">🗑️ Desvincular y Nuevo QR</button>
+            </div>
         </div>
 
         <!-- VISTA: VINCULAR (QR o CÓDIGO) -->
@@ -504,6 +506,66 @@ app.post('/api/pair-code', async (req, res) => {
     } catch (err) {
         console.error('Error al generar pairing code:', err);
         return res.status(500).json({ success: false, error: err.message || 'Error al generar código.' });
+    }
+});
+
+// Endpoint para reiniciar la conexión del bot
+app.all(['/api/restart-bot', '/restart'], async (req, res) => {
+    console.log('🔄 Petición de reinicio manual recibida...');
+    try {
+        if (sock) {
+            try { sock.end(undefined); } catch (e) {}
+        }
+        isClientReady = false;
+        currentQR = null;
+        currentQRImage = null;
+        setTimeout(() => {
+            isConnecting = false;
+            startBaileys();
+        }, 1000);
+        if (req.accepts('html') && !req.xhr) {
+            return res.redirect('/qr');
+        }
+        return res.json({ success: true, message: 'Bot reiniciándose...' });
+    } catch (e) {
+        return res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+// Endpoint para cerrar sesión y generar nuevo QR limpio
+app.all(['/api/logout', '/logout'], async (req, res) => {
+    console.log('🗑️ Petición de cierre de sesión y reseteo de credenciales recibida...');
+    try {
+        isClientReady = false;
+        currentQR = null;
+        currentQRImage = null;
+        connectedPhone = null;
+        sentMessagesStore.clear();
+
+        if (sock) {
+            try { await sock.logout(); } catch (e) {}
+            try { sock.end(undefined); } catch (e) {}
+            sock = null;
+        }
+
+        try {
+            fs.rmSync(AUTH_DIR, { recursive: true, force: true });
+            console.log('📁 Carpeta auth_info_baileys eliminada exitosamente.');
+        } catch (e) {
+            console.warn('Advertencia al borrar auth:', e.message);
+        }
+
+        setTimeout(() => {
+            isConnecting = false;
+            startBaileys();
+        }, 1500);
+
+        if (req.accepts('html') && !req.xhr) {
+            return res.redirect('/qr');
+        }
+        return res.json({ success: true, message: 'Sesión eliminada. Generando nuevo código QR.' });
+    } catch (e) {
+        return res.status(500).json({ success: false, error: e.message });
     }
 });
 

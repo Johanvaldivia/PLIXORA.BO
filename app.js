@@ -2781,6 +2781,32 @@ window.formatWhatsappMarkdown = function(text) {
         }, 1200);
     };
 
+    // Reiniciar socket en la nube
+    window.restartVirtualBot = async function() {
+        if (!confirm('¿Deseas reiniciar la conexión del Bot en la nube?')) return;
+        showToast('🔄 Reiniciando Bot en Oracle Cloud...');
+        try {
+            const botBase = window.PLIXORA_CONFIG.BOT_BASE_URL || 'http://plixora-bot.duckdns.org:3000';
+            await fetch(botBase + '/api/restart-bot');
+        } catch (e) {}
+        setTimeout(() => {
+            window.checkWaBotModalStatus(true);
+        }, 1500);
+    };
+
+    // Desvincular y generar nuevo QR
+    window.unlinkVirtualBot = async function() {
+        if (!confirm('¿Estás seguro de desvincular WhatsApp? Se borrará la sesión actual y se generará un código QR nuevo para escanear.')) return;
+        showToast('🗑️ Desvinculando sesión y generando nuevo QR...');
+        try {
+            const botBase = window.PLIXORA_CONFIG.BOT_BASE_URL || 'http://plixora-bot.duckdns.org:3000';
+            await fetch(botBase + '/api/logout');
+        } catch (e) {}
+        setTimeout(() => {
+            window.checkWaBotModalStatus(true);
+        }, 2000);
+    };
+
     // Polling en segundo plano cada 30s al Bot Virtual
     function startWaBotPolling() {
         if (pollIntervalId) clearInterval(pollIntervalId);
