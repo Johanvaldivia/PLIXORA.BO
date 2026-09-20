@@ -25,10 +25,15 @@ const {
     Browsers
 } = require('@whiskeysockets/baileys');
 
+const NodeCache = require('node-cache');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const BOT_TOKEN = process.env.WA_BOT_TOKEN || 'f58v6XkUscoxyIEGVgez7dRuJLHq4Sip';
 const AUTH_DIR = path.join(__dirname, 'auth_info_baileys');
+
+// ── Caches de Reintento y Llaves Signal Persistentes (Cero Bucles E2EE) ───────
+const msgRetryCounterCache = new NodeCache();
+const signalKeyCache = new NodeCache({ stdTTL: 300, useClones: false });
 
 // ── Almacén en Memoria para Reintentos E2EE (Soluciona "Esperando mensaje...") ──
 const sentMessagesStore = new Map();
@@ -112,8 +117,9 @@ async function startBaileys() {
             printQRInTerminal: false,
             auth: {
                 creds: state.creds,
-                keys: makeCacheableSignalKeyStore(state.keys, logger)
+                keys: makeCacheableSignalKeyStore(state.keys, logger, signalKeyCache)
             },
+            msgRetryCounterCache,
             browser: Browsers.ubuntu('Chrome'),
             syncFullHistory: false,
             generateHighQualityLinkPreview: false,
@@ -688,7 +694,8 @@ app.post('/api/send-image', requireToken, async (req, res) => {
         await messageQueue.enqueue(async () => {
             const sent = await sock.sendMessage(jid, {
                 image: imageBuffer,
-                caption: caption || ''
+                caption: caption || '',
+                mimetype: 'image/png'
             });
             if (sent && sent.key && sent.key.id && sent.message) {
                 storeSentMessage(sent.key.id, sent.message);
