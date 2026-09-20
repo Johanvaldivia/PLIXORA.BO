@@ -70,6 +70,14 @@
         }, 3000);
     };
 
+    window.handleLoginNotice = function(msg) {
+        if (typeof window.showToast === 'function') {
+            window.showToast(msg);
+        } else {
+            console.info('[PLIXORA]', msg);
+        }
+    };
+
     // ── Helpers API Bot ────────────────────────────────────────
     window.waBotFetch = async function (url, body, timeoutMs) {
         if (!window.PLIXORA_CONFIG.IS_LOCAL && !savedBotUrl) {

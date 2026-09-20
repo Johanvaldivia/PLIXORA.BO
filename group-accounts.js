@@ -20,6 +20,12 @@
         if (addBtn) addBtn.addEventListener('click', openAddAccountModal);
         window.renderGroupAccounts = renderAll;
 
+        // Load local cache immediately
+        try {
+            gaAccounts = JSON.parse(localStorage.getItem('ga_accounts') || '[]');
+            renderAll();
+        } catch (e) {}
+
         // Observer to re-trigger count-up when group-accounts view becomes active
         const gaSection = document.getElementById('group-accounts');
         if (gaSection && window.MutationObserver) {
@@ -47,6 +53,7 @@
         gaUnsubscribe = gaDB.collection('group_accounts').orderBy('createdAt', 'desc')
             .onSnapshot(snapshot => {
                 gaAccounts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                try { localStorage.setItem('ga_accounts', JSON.stringify(gaAccounts)); } catch(e) {}
                 renderAll();
             }, err => {
                 console.error('GA Firestore error:', err);
@@ -455,7 +462,8 @@
         }
 
         try {
-            await gaDB.collection('group_accounts').add({
+            const newAcc = {
+                id: 'ga_' + Date.now(),
                 serviceName,
                 email,
                 password,
@@ -463,7 +471,14 @@
                 accountCost: parseFloat(accountCost),
                 members: [],
                 createdAt: new Date().toISOString()
-            });
+            };
+            if (gaDB) {
+                await gaDB.collection('group_accounts').add(newAcc);
+            } else {
+                gaAccounts.unshift(newAcc);
+                try { localStorage.setItem('ga_accounts', JSON.stringify(gaAccounts)); } catch(e) {}
+                renderAll();
+            }
             showToast('✅ Cuenta grupal creada exitosamente.');
             window.gaCloseAddAccountModal();
         } catch (e) {
@@ -525,7 +540,13 @@
                 addedAt: new Date().toISOString()
             });
 
-            await gaDB.collection('group_accounts').doc(accountId).update({ members });
+            if (gaDB) {
+                await gaDB.collection('group_accounts').doc(accountId).update({ members });
+            } else {
+                account.members = members;
+                try { localStorage.setItem('ga_accounts', JSON.stringify(gaAccounts)); } catch(e) {}
+                renderAll();
+            }
 
             // Register sale in main sales history
             try {
@@ -542,7 +563,15 @@
                     expireDate: new Date(new Date().getFullYear(), new Date().getMonth() + 1, new Date().getDate()).toISOString(),
                     source: 'group-account'
                 };
-                await gaDB.collection('plixora_sales').doc(saleId).set(saleData);
+                if (gaDB) {
+                    await gaDB.collection('plixora_sales').doc(saleId).set(saleData);
+                } else {
+                    const localSales = JSON.parse(localStorage.getItem('plixora_sales') || '[]');
+                    localSales.unshift(saleData);
+                    try { localStorage.setItem('plixora_sales', JSON.stringify(localSales)); } catch(e) {}
+                    if (window.sales) window.sales = localSales;
+                    if (typeof window.updateDashboard === 'function') window.updateDashboard();
+                }
             } catch (saleErr) {
                 console.error('Error registering sale:', saleErr);
             }
@@ -649,7 +678,13 @@
 
         try {
             members.splice(memberIndex, 1);
-            await gaDB.collection('group_accounts').doc(accountId).update({ members });
+            if (gaDB) {
+                await gaDB.collection('group_accounts').doc(accountId).update({ members });
+            } else {
+                account.members = members;
+                try { localStorage.setItem('ga_accounts', JSON.stringify(gaAccounts)); } catch(e) {}
+                renderAll();
+            }
             showToast('✅ Miembro eliminado.');
         } catch (e) {
             showToast('❌ Error: ' + e.message);
@@ -697,11 +732,19 @@
             if (!account) { showToast('❌ Cuenta no encontrada.'); return; }
 
             // Update credentials and reset expiration date
-            await gaDB.collection('group_accounts').doc(accountId).update({
-                email: newEmail,
-                password: newPassword,
-                createdAt: new Date().toISOString()
-            });
+            if (gaDB) {
+                await gaDB.collection('group_accounts').doc(accountId).update({
+                    email: newEmail,
+                    password: newPassword,
+                    createdAt: new Date().toISOString()
+                });
+            } else {
+                account.email = newEmail;
+                account.password = newPassword;
+                account.createdAt = new Date().toISOString();
+                try { localStorage.setItem('ga_accounts', JSON.stringify(gaAccounts)); } catch(e) {}
+                renderAll();
+            }
 
             const members = account.members || [];
             let sent = 0;
@@ -750,7 +793,13 @@
         });
         if (!confirmed) return;
         try {
-            await gaDB.collection('group_accounts').doc(accountId).delete();
+            if (gaDB) {
+                await gaDB.collection('group_accounts').doc(accountId).delete();
+            } else {
+                gaAccounts = gaAccounts.filter(a => a.id !== accountId);
+                try { localStorage.setItem('ga_accounts', JSON.stringify(gaAccounts)); } catch(e) {}
+                renderAll();
+            }
             showToast('✅ Cuenta grupal eliminada.');
         } catch (e) {
             showToast('❌ Error: ' + e.message);
@@ -779,8 +828,16 @@
             expDateStr = `${exp.getDate()}/${MONTH_NAMES[exp.getMonth()]}/${exp.getFullYear()}`;
         }
 
-        const confirmMsg = `¿Enviar aviso masivo a ${members.length} miembro(s) de "${serviceName}"?\n\nSe les enviará sus credenciales y fecha de vencimiento por WhatsApp.`;
-        if (!confirm(confirmMsg)) return;
+        const confirmed = typeof window.plixoraConfirm === 'function'
+            ? await window.plixoraConfirm({
+                title: 'Aviso Masivo WhatsApp',
+                message: `¿Enviar aviso masivo a ${members.length} miembro(s) de "${serviceName}"?\n\nSe les enviará sus credenciales y fecha de vencimiento por WhatsApp.`,
+                confirmText: 'Sí, enviar a todos',
+                cancelText: 'Cancelar'
+            })
+            : confirm(`¿Enviar aviso masivo a ${members.length} miembro(s) de "${serviceName}"?`);
+
+        if (!confirmed) return;
 
         showToast(`📤 Enviando aviso masivo a ${members.length} miembro(s)...`);
 

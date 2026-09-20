@@ -320,14 +320,22 @@
         const kpiTrendRev = document.getElementById('kpi-trend-rev');
         if (kpiCurr1) kpiCurr1.textContent = currentCurrency;
         if (kpiValRev) kpiValRev.textContent = formatMoney(revBob, false);
-        if (kpiTrendRev) kpiTrendRev.textContent = `${revTrend.str} ${subLabel}`;
+        if (kpiTrendRev) {
+            kpiTrendRev.className = revTrend.isPos ? 'an-var-positive' : 'an-var-negative';
+            kpiTrendRev.innerHTML = `<span class="material-symbols-outlined" style="font-size:14px;">${revTrend.isPos ? 'arrow_upward' : 'arrow_downward'}</span> ${revTrend.str}`;
+        }
+        const kpiSubRev = document.getElementById('kpi-sub-rev');
+        if (kpiSubRev) kpiSubRev.textContent = subLabel;
 
         const kpiValLic = document.getElementById('kpi-val-licenses');
         const kpiSubLic = document.getElementById('kpi-sub-licenses');
         const kpiTrendLic = document.getElementById('kpi-trend-lic');
         if (kpiValLic) kpiValLic.textContent = formatNumber(licenses);
         if (kpiSubLic) kpiSubLic.textContent = `${todayCount} hoy`;
-        if (kpiTrendLic) kpiTrendLic.textContent = `${licTrend.str} ${subLabel}`;
+        if (kpiTrendLic) {
+            kpiTrendLic.className = licTrend.isPos ? 'an-var-positive' : 'an-var-negative';
+            kpiTrendLic.innerHTML = `<span class="material-symbols-outlined" style="font-size:14px;">${licTrend.isPos ? 'trending_up' : 'trending_down'}</span> ${licTrend.str}`;
+        }
 
         const kpiValMargin = document.getElementById('kpi-val-margin');
         const kpiValMarginNet = document.getElementById('kpi-val-margin-net');

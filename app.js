@@ -84,26 +84,15 @@ function toggleTheme() {
 
 function syncThemeButtons(theme) {
     const isDark = theme === "dark";
-    const label = document.getElementById("themeLabel");
-    const thumb = document.getElementById("themeThumb");
     const switchBtn = document.getElementById("themeSwitch");
-    const mobileBtn = document.getElementById("themeSwitchMobile");
-
     if (switchBtn) switchBtn.classList.toggle("active", isDark);
-
-    if (mobileBtn) {
-        mobileBtn.textContent = isDark ? "🌙" : "☀️";
-        mobileBtn.classList.toggle("active", isDark);
-    }
 }
 
 function initTheme() {
     const saved = getSavedTheme();
     applyTheme(saved);
     const switchBtn = document.getElementById("themeSwitch");
-    const mobileBtn = document.getElementById("themeSwitchMobile");
     if (switchBtn) switchBtn.addEventListener("click", toggleTheme);
-    if (mobileBtn) mobileBtn.addEventListener("click", toggleTheme);
 }
 
 // ---- INICIALIZACIÓN ----
@@ -188,7 +177,8 @@ function setupNotificationBell() {
 }
 
 // ---- PERIOD TABS ----
-let currentPeriod = 'today';
+var currentPeriod = window.currentPeriod || 'today';
+window.currentPeriod = currentPeriod;
 const PAGE_TITLES = { dashboard:'Dashboard', catalog:'Catálogo', newsale:'Nueva Venta', history:'Historial', netflix:'Netflix', analytics:'Analíticas', 'group-accounts':'Cuentas Grupales' };
 
 function setupPeriodTabs() {
@@ -197,6 +187,7 @@ function setupPeriodTabs() {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             currentPeriod = btn.dataset.period;
+            window.currentPeriod = currentPeriod;
             updateDashboard();
         });
     });
@@ -1033,14 +1024,11 @@ window.confirmSaleAndSend = function() {
 
 
 // ---- ACCIONES HISTORIAL ----
+var pendingHistNotifyPayload = window.pendingHistNotifyPayload || null;
+window.pendingHistNotifyPayload = pendingHistNotifyPayload;
 
-let pendingHistNotifyPayload = null;
-
-
-
-
-
-let currentEditingSaleId = null;
+var currentEditingSaleId = window.currentEditingSaleId || null;
+window.currentEditingSaleId = currentEditingSaleId;
 
 
 

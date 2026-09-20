@@ -184,18 +184,6 @@ window.updateDashboard = function() {
     animateMetricCounter(mRev, totalRevenue, 1200);
     animateMetricCounter(mProf, totalProfit, 1200);
 
-    // Animate progress bar (profit margin %)
-    const progressBar = document.getElementById('profit-progress');
-    if (progressBar && totalRevenue > 0) {
-        const margin = Math.min(Math.max((totalProfit / totalRevenue) * 100, 0), 100);
-        progressBar.style.width = '0%';
-        requestAnimationFrame(() => {
-            progressBar.style.width = margin + '%';
-        });
-    } else if (progressBar) {
-        progressBar.style.width = '0%';
-    }
-
     const badge = document.getElementById('recent-sales-badge');
     if (badge) badge.textContent = filtered.length + ' registros';
 
@@ -708,12 +696,20 @@ document.addEventListener('click', (e) => {
 });
 
 window.dismissAlert = function(saleId) {
-    if (!db) { showToast('Error: No hay conexión a la base de datos'); return; }
+    if (!db) {
+        const targetSale = (window.sales || []).find(s => s.id === saleId);
+        if (targetSale) {
+            targetSale.alertDismissed = true;
+            try { localStorage.setItem('plixora_sales', JSON.stringify(window.sales)); } catch(e) {}
+            if (typeof window.updateDashboard === 'function') window.updateDashboard();
+            showToast('✅ Alerta descartada (modo local)');
+        }
+        return;
+    }
     
     db.collection('plixora_sales').doc(saleId).update({ alertDismissed: true })
         .then(() => {
             showToast('✅ Alerta descartada en todos los dispositivos');
-            // La actualización local se manejará automáticamente por el onSnapshot
         })
         .catch(err => {
             console.error('Error al descartar alerta:', err);
@@ -721,21 +717,53 @@ window.dismissAlert = function(saleId) {
         });
 };
 
-window.dismissAllAlerts = function() {
-    if (!confirm('¿Descartar todas las alertas de vencimiento actuales?')) return;
-    if (!db) { showToast('Error: No hay conexión'); return; }
+window.dismissAllAlerts = async function() {
+    const confirmed = typeof window.plixoraConfirm === 'function'
+        ? await window.plixoraConfirm({
+            title: 'Descartar Alertas',
+            message: '¿Descartar todas las alertas de vencimiento actuales?',
+            confirmText: 'Sí, descartar',
+            cancelText: 'Cancelar'
+        })
+        : confirm('¿Descartar todas las alertas de vencimiento actuales?');
+
+    if (!confirmed) return;
+
+    const salesList = window.sales || [];
+    const today = typeof nowBolivia === 'function' ? nowBolivia() : new Date();
+    today.setHours(0,0,0,0);
+
+    if (!db) {
+        let count = 0;
+        salesList.forEach(sale => {
+            if (!sale.expireDate) return;
+            const prodName = (sale.productName || '').toLowerCase();
+            if (prodName.includes('netflix')) return;
+            if (!sale.alertDismissed) {
+                const expDate = new Date(sale.expireDate); expDate.setHours(0,0,0,0);
+                const diffDays = Math.ceil((expDate - today) / 86400000);
+                if (diffDays <= 7 && diffDays > -2) {
+                    sale.alertDismissed = true;
+                    count++;
+                }
+            }
+        });
+        try { localStorage.setItem('plixora_sales', JSON.stringify(salesList)); } catch(e) {}
+        if (typeof window.updateDashboard === 'function') window.updateDashboard();
+        showToast(count > 0 ? `✅ ${count} alertas descartadas localmente` : 'ℹ️ No hay alertas para descartar');
+        return;
+    }
 
     const batch = db.batch();
     let count = 0;
 
-    sales.forEach(sale => {
+    salesList.forEach(sale => {
         if (!sale.expireDate) return;
         const prodName = (sale.productName || '').toLowerCase();
         if (prodName.includes('netflix')) return;
         
         // Si no está ya descartada, añadirla al batch
         if (!sale.alertDismissed) {
-            const today = nowBolivia(); today.setHours(0,0,0,0);
             const expDate = new Date(sale.expireDate); expDate.setHours(0,0,0,0);
             const diffDays = Math.ceil((expDate - today) / 86400000);
             
@@ -815,17 +843,10 @@ window.renderIncidentReportCard = function () {
     let displaySeriesRevenue = seriesRevenue;
     let displaySeriesProfit = seriesProfit;
 
-    // Si no hay ventas suficientes en la última semana, usar la muestra visual proporcional
-    if (totalCount7d === 0 && totalRev7d === 0) {
-        displaySeriesSales = [30, 45, 40, 60, 50, 70, 65];
-        displaySeriesProfit = [10, 15, 12, 20, 18, 25, 22];
-        displaySeriesRevenue = [20, 25, 30, 22, 35, 40, 30];
-    }
-
-    // Actualizar métricas inferiores
-    const avgDailyRev = totalRev7d > 0 ? (totalRev7d / 7).toFixed(1) : '45.0';
-    const totalProfitDisplay = totalProf7d > 0 ? (Number.isInteger(totalProf7d) ? totalProf7d : totalProf7d.toFixed(1)) : '120';
-    const profitMargin = (totalRev7d > 0 && totalProf7d > 0) ? Math.round((totalProf7d / totalRev7d) * 100) : 68;
+    // Actualizar métricas inferiores con correlación de datos 100% reales
+    const avgDailyRev = totalRev7d > 0 ? (totalRev7d / 7).toFixed(1) : '0.00';
+    const totalProfitDisplay = totalProf7d > 0 ? (Number.isInteger(totalProf7d) ? totalProf7d : totalProf7d.toFixed(1)) : '0.00';
+    const profitMargin = (totalRev7d > 0 && totalProf7d > 0) ? Math.round((totalProf7d / totalRev7d) * 100) : 0;
 
     const elVal1 = document.getElementById('plx-rep-val-1');
     const elVal2 = document.getElementById('plx-rep-val-2');

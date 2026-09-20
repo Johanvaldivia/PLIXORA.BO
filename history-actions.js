@@ -2,6 +2,9 @@
 // history-actions.js
 // =============================================================
 
+var pendingHistNotifyPayload = window.pendingHistNotifyPayload || null;
+var currentEditingSaleId = window.currentEditingSaleId || null;
+
 window.copySaleDetail = function(id) {
     const sale = sales.find(s => s.id === id);
     if (!sale) return;

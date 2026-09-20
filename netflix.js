@@ -494,7 +494,7 @@
             nfAccounts = nfAccounts.filter(a => a.id !== account.id);
             batchedLSSetItem('nf_accounts', JSON.stringify(nfAccounts));
             window.nfRenderAll();
-            alert('Error al guardar en la nube: ' + e.message);
+            showNFToast('❌ Error al guardar en la nube: ' + e.message);
         }
     };
 
@@ -615,7 +615,7 @@
             showNFToast('🔒 Cuenta cerrada');
         } catch (e) {
             console.error(e);
-            alert('Error al cerrar la cuenta');
+            showNFToast('❌ Error al cerrar la cuenta');
         }
     };
 
@@ -644,7 +644,7 @@
             }
             closeNFDetail();
             showNFToast('🗑️ Cuenta eliminada y ventas asociadas borradas');
-        } catch (e) { alert('Error: ' + e.message); }
+        } catch (e) { showNFToast('❌ Error: ' + e.message); }
     };
 
     // ── BULK NOTIFY (Aviso Masivo) ────────────────────────────────
@@ -663,8 +663,16 @@
             return;
         }
 
-        const confirmMsg = `¿Enviar aviso masivo a ${ocupados.length} perfil(es) ocupado(s) de ${acc.codigo}?\n\nSe les enviará su ticket de vencimiento con credenciales por WhatsApp.`;
-        if (!confirm(confirmMsg)) return;
+        const confirmed = typeof window.plixoraConfirm === 'function'
+            ? await window.plixoraConfirm({
+                title: 'Aviso Masivo WhatsApp',
+                message: `¿Enviar aviso masivo a ${ocupados.length} perfil(es) ocupado(s) de ${acc.codigo}? Se les enviará su ticket de vencimiento con credenciales por WhatsApp.`,
+                confirmText: 'Sí, enviar a todos',
+                cancelText: 'Cancelar'
+            })
+            : confirm(`¿Enviar aviso masivo a ${ocupados.length} perfil(es) ocupado(s) de ${acc.codigo}?`);
+
+        if (!confirmed) return;
 
         showNFToast(`📤 Enviando aviso masivo a ${ocupados.length} perfil(es)...`);
 
@@ -830,7 +838,7 @@
             Object.assign(acc, accSnapshot);
             batchedLSSetItem('nf_accounts', JSON.stringify(nfAccounts));
             window.nfRenderAll();
-            alert('Error al guardar en la nube: ' + e.message);
+            showNFToast('❌ Error al guardar en la nube: ' + e.message);
         }
     };
 
@@ -904,7 +912,7 @@
             Object.assign(acc, accSnapshot);
             batchedLSSetItem('nf_accounts', JSON.stringify(nfAccounts));
             window.nfRenderAll();
-            alert('Error al guardar en la nube: ' + e.message);
+            showNFToast('❌ Error al guardar en la nube: ' + e.message);
             return;
         }
 
@@ -1276,7 +1284,7 @@
             Object.assign(srcAcc, srcAccSnapshot);
             batchedLSSetItem('nf_accounts', JSON.stringify(nfAccounts));
             window.nfRenderAll();
-            alert('Error al transferir: ' + e.message);
+            showNFToast('❌ Error al transferir: ' + e.message);
         }
     };
 
@@ -1638,7 +1646,7 @@
             }
             window.nfRenderDetailModal(accountId);
             showNFToast(`🔓 Perfil ${perfiles[idx].nombre} liberado y venta eliminada`);
-        } catch (e) { alert('Error: ' + e.message); }
+        } catch (e) { showNFToast('❌ Error al liberar perfil: ' + e.message); }
     };
 
     // ── TOAST ────────────────────────────────────────────────
@@ -1647,8 +1655,7 @@
             window.showToast(msg);
             return;
         }
-        const t = document.getElementById('toast');
-        if (t) { t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3500); }
+        console.log('[Netflix]', msg);
     }
     window.showNFToast = showNFToast;
 
