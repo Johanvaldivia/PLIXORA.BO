@@ -12,15 +12,26 @@
 
     // URL base del bot configurable guardada por el usuario en localStorage
     const savedBotUrl = (function() {
-        try { return localStorage.getItem('plixora_bot_url'); } catch(e) { return null; }
+        try {
+            const s = localStorage.getItem('plixora_bot_url');
+            if (s && (s.includes('localhost') || s.includes('127.0.0.1'))) {
+                localStorage.removeItem('plixora_bot_url');
+                return null;
+            }
+            return s;
+        } catch(e) { return null; }
     })();
 
-    // Base URL normalizada (por defecto siempre apunta a http://localhost:3000 si no se configura otra)
-    const defaultBot = 'http://localhost:3000';
+    // Base URL del bot: Nube Oracle Cloud 24/7 (plixora-bot.duckdns.org) con soporte local
+    const cloudBot = 'http://plixora-bot.duckdns.org:3000';
+    const localBot = 'http://localhost:3000';
+    const defaultBot = cloudBot;
     const botBase = (savedBotUrl || defaultBot).trim().replace(/\/+$/, '');
 
     window.PLIXORA_CONFIG = {
         BOT_BASE_URL: botBase,
+        CLOUD_BOT_URL: cloudBot,
+        LOCAL_BOT_URL: localBot,
         WA_BOT_URL: botBase + '/api/send-message',
         WA_BOT_IMAGE_URL: botBase + '/api/send-image',
         WA_BOT_STATUS_URL: botBase + '/status',
@@ -80,16 +91,12 @@
 
     // ── Helpers API Bot ────────────────────────────────────────
     window.waBotFetch = async function (url, body, timeoutMs) {
-        if (!window.PLIXORA_CONFIG.IS_LOCAL && !savedBotUrl) {
-            throw new Error('El bot de WhatsApp funciona en tu PC local. Abre el sistema en tu computadora con INICIAR_SISTEMA.bat o configura una URL de túnel.');
-        }
-
         const headers = { 'Content-Type': 'application/json' };
         if (window.PLIXORA_CONFIG.WA_BOT_TOKEN) {
             headers['Authorization'] = 'Bearer ' + window.PLIXORA_CONFIG.WA_BOT_TOKEN;
         }
         const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), timeoutMs || 15000);
+        const timer = setTimeout(() => controller.abort(), timeoutMs || 5000);
 
         let resp;
         try {
@@ -97,9 +104,9 @@
         } catch (err) {
             clearTimeout(timer);
             if (err.name === 'AbortError') {
-                throw new Error('El bot de WhatsApp tardó demasiado en responder. Verifica que esté abierto en tu PC.');
+                throw new Error('El bot tardó más de 5s en responder.');
             }
-            throw new Error('No se pudo conectar al bot de WhatsApp (' + (window.PLIXORA_CONFIG.BOT_BASE_URL) + '). Asegúrate de haber ejecutado INICIAR_BOT.bat.');
+            throw new Error('No se pudo conectar al bot de WhatsApp (' + (window.PLIXORA_CONFIG.BOT_BASE_URL) + ').');
         } finally {
             clearTimeout(timer);
         }
@@ -109,7 +116,7 @@
         if (!ct.includes('application/json')) {
             const snippet = (await resp.text()).substring(0, 150);
             console.error('Respuesta no-JSON del bot WA:', resp.status, snippet);
-            throw new Error('El bot devolvió un error (HTTP ' + resp.status + '). Abre http://localhost:3000/status para verificarlo.');
+            throw new Error('El bot devolvió un error (HTTP ' + resp.status + '). Abre http://plixora-bot.duckdns.org:3000/status para verificarlo.');
         }
 
         const data = await resp.json();
@@ -120,10 +127,10 @@
         return data;
     };
 
-    // Envío con reintentos automáticos
+    // Envío con reintentos automáticos y fallback tangible inmediato
     window.waBotFetchRetry = async function (url, body, maxRetries, delayMs) {
-        maxRetries = maxRetries || 2;
-        delayMs = delayMs || 1000;
+        maxRetries = maxRetries !== undefined ? maxRetries : 1;
+        delayMs = delayMs || 800;
         let lastErr;
         for (let i = 0; i <= maxRetries; i++) {
             try {
@@ -138,20 +145,25 @@
                 await new Promise(r => setTimeout(r, delayMs * (i + 1)));
             }
         }
+
+        // 🟢 PLAN B TANGIBLE INMEDIATO:
+        // Si el bot falló tras los reintentos, activar el modal de respaldo para que el usuario nunca pierda el envío
+        if (typeof window.openWhatsAppFallbackModal === 'function' && body && (body.phone || body.customer)) {
+            window.openWhatsAppFallbackModal({
+                phone: body.phone || body.customer,
+                message: body.message || '',
+                imageUrl: body.imageUrl || '',
+                caption: body.caption || '',
+                reason: (lastErr && lastErr.message) ? lastErr.message : 'El bot no pudo completar el envío.',
+                onRetry: () => window.waBotFetchRetry(url, body, 1, delayMs)
+            });
+        }
+
         throw lastErr;
     };
 
     // ── Verificar estado del bot ──────────────────────────────
     window.checkWaBotStatus = async function () {
-        // En entorno remoto sin túnel personalizado configurado, no intentamos fetch a localhost
-        if (!window.PLIXORA_CONFIG.IS_LOCAL && !savedBotUrl) {
-            return {
-                ready: false,
-                isRemoteMode: true,
-                status: 'El bot opera de forma local en tu computadora'
-            };
-        }
-
         const url = window.PLIXORA_CONFIG.WA_BOT_STATUS_URL;
         if (!url) return { ready: false, status: 'URL de status no configurada' };
         try {
@@ -169,7 +181,7 @@
         } catch (e) {
             return {
                 ready: false,
-                status: 'Bot apagado o no alcanzable (' + (e.name === 'AbortError' ? 'timeout' : 'sin conexión') + ')'
+                status: 'Bot en la nube no alcanzable (' + (e.name === 'AbortError' ? 'timeout' : 'sin conexión') + ')'
             };
         }
     };

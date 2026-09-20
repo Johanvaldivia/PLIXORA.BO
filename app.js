@@ -1013,6 +1013,24 @@ window.confirmSaleAndSend = function() {
     }
 };
 
+window.confirmSaleAndDirectWa = async function() {
+    const ctx = window.pendingSaleContext;
+    document.getElementById('sale-preview-modal').style.display = 'none';
+    if (ctx) {
+        const sale = ctx.sale;
+        const msgText = ctx.messageText;
+        await executeSaveSale(sale, false);
+        if (typeof window.openWhatsAppFallbackModal === 'function') {
+            window.openWhatsAppFallbackModal({
+                phone: sale.customer,
+                message: msgText,
+                title: 'WhatsApp Directo — Venta Registrada',
+                reason: '✅ Venta registrada correctamente. Abre el chat de WhatsApp o copia el mensaje con un clic:'
+            });
+        }
+    }
+};
+
 // ---- DASHBOARD ----
 
 

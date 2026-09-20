@@ -1,14 +1,15 @@
 @echo off
-title PLIXORA.BO - WhatsApp Bot Server
+title PLIXORA.BO - WhatsApp Bot (Baileys Engine)
 chcp 65001 >nul
 color 0A
 REM =============================================================
-REM PLIXORA.BO - WhatsApp Bot Launcher v2.0
+REM PLIXORA.BO - WhatsApp Bot Launcher v3.0 (Baileys Engine)
 REM =============================================================
 cd /d "%~dp0"
 
 echo ============================================================
-echo   PLIXORA.BO - BOT DE WHATSAPP AUTOMATIZADO
+echo   PLIXORA.BO - BOT DE WHATSAPP (MOTOR BAILEYS v3.0)
+echo   Cero Chrome - 40 MB RAM - Cola Anti-Colisión
 echo ============================================================
 echo.
 
@@ -21,22 +22,14 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-REM Limpiar procesos zombis y bloqueos previos
-powershell -NoProfile -NonInteractive -Command "Get-CimInstance Win32_Process -Filter \"Name = 'chrome.exe' or Name = 'msedge.exe'\" | Where-Object { $_.CommandLine -like '*wwebjs_auth*' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }" >nul 2>&1
-del /f /q "%~dp0.wwebjs_auth\session\lockfile" >nul 2>&1
-del /f /q "%~dp0.wwebjs_auth\session\Singleton*" >nul 2>&1
-del /f /q "%~dp0.wwebjs_auth\session\DevToolsActivePort" >nul 2>&1
-del /f /q "%~dp0.wwebjs_auth\session\Default\LOCK" >nul 2>&1
-del /f /q "%~dp0.wwebjs_auth\session\Default\lockfile" >nul 2>&1
-
-REM Abrir página QR en el navegador tras 3 segundos en segundo plano
-start "" /b cmd /c "timeout /t 3 /nobreak >nul & start http://localhost:3000/qr"
+REM Abrir página QR en el navegador tras 2 segundos en segundo plano
+start "" /b cmd /c "timeout /t 2 /nobreak >nul & start http://localhost:3000/qr"
 
 :loop
-echo [%date% %time%] Iniciando servidor del bot...
+echo [%date% %time%] Iniciando servidor Baileys...
 node server.js
 echo.
 echo [%date% %time%] El servidor se detuvo (código %errorlevel%).
-echo Reiniciando en 5 segundos... (Presiona Ctrl+C para detener)
-timeout /t 5 /nobreak >nul
+echo Reiniciando en 4 segundos... (Presiona Ctrl+C para detener)
+timeout /t 4 /nobreak >nul
 goto loop

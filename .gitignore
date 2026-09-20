@@ -10,6 +10,8 @@ whatsapp-bot/.env
 .wwebjs_cache/
 whatsapp-bot/.wwebjs_auth/
 whatsapp-bot/.wwebjs_cache/
+auth_info_baileys/
+whatsapp-bot/auth_info_baileys/
 whatsapp-bot/*.tar.gz
 whatsapp-bot/*.log
 *.log
