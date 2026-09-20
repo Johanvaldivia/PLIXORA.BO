@@ -13,6 +13,16 @@
 
 // ---- ESTADO ----
 let sales = JSON.parse(localStorage.getItem('plixora_sales')) || [];
+try {
+    Object.defineProperty(window, 'sales', {
+        get: function() { return sales; },
+        set: function(val) { sales = val; },
+        configurable: true
+    });
+} catch(e) {
+    window.sales = sales;
+}
+window.getSales = function() { return sales; };
 let customPlans = JSON.parse(localStorage.getItem('plixora_custom_plans')) || [];
 window.customPlans = customPlans;
 let catalogOverrides = JSON.parse(localStorage.getItem('plixora_catalog_overrides')) || {};
@@ -148,16 +158,21 @@ function setupNotificationBell() {
     // Profile Dropdown Setup
     const profileBtn = document.getElementById('profile-menu-btn');
     const profileDropdown = document.getElementById('profile-dropdown');
+    const profileChevron = document.getElementById('profile-chevron');
     if (profileBtn && profileDropdown) {
         profileBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            profileDropdown.classList.toggle('hidden');
+            const isHidden = profileDropdown.classList.toggle('hidden');
+            if (profileChevron) {
+                profileChevron.classList.toggle('rotated', !isHidden);
+            }
         });
         
         profileDropdown.addEventListener('click', (e) => {
             // Do not stop propagation if clicking a valid action item
             if(e.target.closest('.profile-dropdown-item')) {
                 profileDropdown.classList.add('hidden');
+                if (profileChevron) profileChevron.classList.remove('rotated');
             } else {
                 e.stopPropagation();
             }
@@ -166,6 +181,7 @@ function setupNotificationBell() {
         document.addEventListener('click', () => {
             if (!profileDropdown.classList.contains('hidden')) {
                 profileDropdown.classList.add('hidden');
+                if (profileChevron) profileChevron.classList.remove('rotated');
             }
         });
     }
@@ -1554,6 +1570,13 @@ function navigateTo(target) {
     const titleEl = document.getElementById('page-title');
     if (titleEl && PAGE_TITLES[target]) titleEl.textContent = PAGE_TITLES[target];
 
+    // Toggle obsidian navbar mode for analytics view
+    if (target === 'analytics') {
+        document.body.classList.add('analytics-active');
+    } else {
+        document.body.classList.remove('analytics-active');
+    }
+
     if (target === 'analytics' && typeof window.renderAnalytics === 'function') {
         window.renderAnalytics();
     }
@@ -2556,47 +2579,7 @@ window.formatWhatsappMarkdown = function(text) {
 
 
 
-// TYPEWRITER EFFECT FOR BRAND LOGO
-document.addEventListener('DOMContentLoaded', () => {
-    const typewriterElement = document.getElementById('typewriter-text');
-    if (!typewriterElement) return;
 
-    const phrases = ['PLIXORA.BO', 'PLIXORA.BO'];
-    let currentPhraseIndex = 0;
-    let currentCharIndex = 0;
-    let isDeleting = false;
-    let typingSpeed = 200;
-    
-    function type() {
-        const currentPhrase = phrases[currentPhraseIndex];
-        
-        if (isDeleting) {
-            currentCharIndex--;
-        } else {
-            currentCharIndex++;
-        }
-        
-        typewriterElement.textContent = currentPhrase.substring(0, currentCharIndex);
-        
-        let speed = typingSpeed;
-        if (isDeleting) {
-            speed /= 2;
-        }
-        
-        if (!isDeleting && currentCharIndex === currentPhrase.length) {
-            speed = 2500;
-            isDeleting = true;
-        } else if (isDeleting && currentCharIndex === 0) {
-            isDeleting = false;
-            currentPhraseIndex = (currentPhraseIndex + 1) % phrases.length;
-            speed = 500;
-        }
-        
-        setTimeout(type, speed);
-    }
-    
-    setTimeout(type, 1000);
-});
 
 // =============================================================
 // WHATSAPP BOT STATUS & MODAL CONTROLLER

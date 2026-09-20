@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"surface-tint":"#7adf00","surface-container-high":"#282a2d","on-secondary-fixed":"#191c22","on-primary-fixed-variant":"#285000","on-error":"#690005","outline-variant":"#3f4a34","on-surface":"#e2e2e6","tertiary-fixed":"#90fd32","inverse-surface":"#e2e2e6","surface-variant":"#333538","error":"#ffb4ab","outline":"#89957a","on-error-container":"#ffdad6","on-tertiary-container":"#397200","on-secondary-fixed-variant":"#44474e","secondary-fixed":"#e1e2eb","surface-container-highest":"#333538","inverse-on-surface":"#2f3034","secondary-fixed-dim":"#c4c6cf","on-tertiary-fixed-variant":"#275000","primary":"#ffffff","on-surface-variant":"#becbae","on-background":"#e2e2e6","surface-container-low":"#1a1c1f","tertiary":"#ffffff","inverse-primary":"#376b00","tertiary-fixed-dim":"#76df00","primary-fixed-dim":"#7adf00","on-primary":"#1a3700","on-primary-container":"#3b7100","on-secondary":"#2d3037","on-tertiary-fixed":"#0c2000","surface":"#111317","surface-container-lowest":"#0c0e11","on-primary-fixed":"#0d2000","error-container":"#93000a","secondary":"#c4c6cf","on-tertiary":"#193800","background":"#111317","surface-dim":"#111317","surface-bright":"#37393d","primary-fixed":"#8bfe00","primary-container":"#8bfe00","tertiary-container":"#90fd32","on-secondary-container":"#b3b5bd","surface-container":"#1e2023","secondary-container":"#44474e"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"margin":"2rem","space-xl":"2.5rem","gutter-mobile":"1rem","space-sm":"0.5rem","space-lg":"1.5rem","margin-mobile":"1rem","space-xs":"0.25rem","gutter":"1.5rem","space-md":"1rem"},"fontFamily":{"label-lg":["Inter"],"headline-md":["Plus Jakarta Sans"],"headline-xl":["Plus Jakarta Sans"],"label-sm":["Inter"],"headline-lg":["Plus Jakarta Sans"],"headline-lg-mobile":["Plus Jakarta Sans"],"title-md":["Plus Jakarta Sans"],"body-lg":["Inter"],"label-md":["Inter"],"body-sm":["Inter"],"body-md":["Inter"],"headline-xl-mobile":["Plus Jakarta Sans"],"headline-sm":["Plus Jakarta Sans"]},"fontSize":{"label-lg":["14px",{"lineHeight":"20px","fontWeight":"600"}],"headline-md":["24px",{"lineHeight":"32px","fontWeight":"600"}],"headline-xl":["48px",{"lineHeight":"56px","fontWeight":"700"}],"label-sm":["10px",{"lineHeight":"14px","fontWeight":"600"}],"headline-lg":["36px",{"lineHeight":"44px","fontWeight":"600"}],"headline-lg-mobile":["26px",{"lineHeight":"34px","fontWeight":"600"}],"title-md":["16px",{"lineHeight":"24px","fontWeight":"600"}],"body-lg":["16px",{"lineHeight":"24px","fontWeight":"400"}],"label-md":["12px",{"lineHeight":"16px","fontWeight":"500"}],"body-sm":["12px",{"lineHeight":"18px","fontWeight":"400"}],"body-md":["14px",{"lineHeight":"20px","fontWeight":"400"}],"headline-xl-mobile":["32px",{"lineHeight":"40px","fontWeight":"700"}],"headline-sm":["20px",{"lineHeight":"28px","fontWeight":"600"}]}}}}</script></head><body class="bg-background font-body-md text-on-surface antialiased selection:bg-primary-container selection:text-on-primary-container"><aside class="fixed left-0 top-0 h-full w-72 bg-surface-container-lowest/90 backdrop-blur-2xl z-50 flex flex-col justify-between shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex flex-col"><div class="h-16 px-gutter flex items-center justify-between gap-space-sm bg-surface-container-lowest/50"><div class="flex items-center gap-space-sm"><img alt="Dark Mode presentation of the exact logo. Interlocking P and X emblem with glowing electric lime-green and white paths." class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1VSysa68XXRKm1dLhO0WLcE4Ou9BODm2YYfSPtcPqm0OTIF-F8b0g7a_NAlfiRFxBLGN_D7sdfgIvJ3QIRpkn12xlfEJcmxnmqHRecCPtDe0aLeEnwP5dFPiqIk_gRA4KsJPCoZbmEfhIn7SHmCX_FvqgC6iK9M39_9cxsTRmYibErel6HRmqkdbf4e_KxOpCuyI6G2onl0ppbc-FnK9Q9QES9G749AMgoXi_uG07G6OgPWo2HLdmrmazs"/><div class="flex flex-col"><span class="font-title-md text-title-md tracking-tight text-primary">PLIXORA</span><span class="font-label-sm text-label-sm uppercase tracking-widest text-primary-container">Cloud Ledger</span></div></div><div class="flex items-center gap-space-xs"><span class="h-2 w-2 rounded-full bg-primary-container animate-pulse"></span></div></div><div class="px-gutter pt-space-md pb-space-xs"><span class="font-label-sm text-label-sm tracking-wider uppercase text-on-surface-variant/60">Navegación Principal</span></div><nav class="flex flex-col gap-space-xs px-space-md" data-active-classes="bg-primary-container text-on-primary-container font-semibold rounded-lg shadow-[0_0_16px_rgba(140,255,0,0.25)]"><a class="flex items-center gap-space-md px-space-md py-space-sm rounded-lg font-label-lg text-label-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all duration-200" data-path="dashboard-analiticas" href="#"><span class="material-symbols-outlined text-[20px]">analytics</span><span>Dashboard / Analíticas</span></a><a class="flex items-center gap-space-md px-space-md py-space-sm rounded-lg font-label-lg text-label-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all duration-200" data-path="ventas-de-cuentas-digitales" href="#"><span class="material-symbols-outlined text-[20px]">shopping_bag</span><span>Ventas de Cuentas</span></a><a class="flex items-center gap-space-md px-space-md py-space-sm rounded-lg font-label-lg text-label-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all duration-200" data-path="contabilidad-y-finanzas" href="#"><span class="material-symbols-outlined text-[20px]">account_balance</span><span>Contabilidad y Finanzas</span></a><a class="flex items-center gap-space-md px-space-md py-space-sm rounded-lg font-label-lg text-label-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all duration-200" data-path="clientes-y-suscripciones" href="#"><span class="material-symbols-outlined text-[20px]">group</span><span>Clientes y Suscripciones</span></a><a class="flex items-center gap-space-md px-space-md py-space-sm rounded-lg font-label-lg text-label-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all duration-200" data-path="inventario-digital" href="#"><span class="material-symbols-outlined text-[20px]">inventory_2</span><span>Inventario Digital</span></a><a class="flex items-center gap-space-md px-space-md py-space-sm rounded-lg font-label-lg text-label-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all duration-200" data-path="reportes-de-conciliacion" href="#"><span class="material-symbols-outlined text-[20px]">receipt_long</span><span>Reportes de Conciliación</span></a><a class="flex items-center gap-space-md px-space-md py-space-sm rounded-lg font-label-lg text-label-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all duration-200" data-path="ajustes" href="#"><span class="material-symbols-outlined text-[20px]">settings</span><span>Ajustes</span></a></nav></div><div class="p-space-md m-space-md bg-surface-container-low/70 rounded-xl flex flex-col gap-space-sm shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex items-center justify-between"><span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Soberanía Financiera</span><span class="font-label-sm text-label-sm text-primary-container font-semibold">v2.4.1</span></div><div class="flex items-center gap-space-xs"><span class="h-2 w-2 rounded-full bg-primary-container"></span><span class="font-body-sm text-body-sm text-on-surface">Ledger Criptográfico Activo</span></div></div></aside><div class="pl-72"><header class="fixed top-0 left-72 right-0 h-16 bg-surface/80 backdrop-blur-xl z-40 flex items-center justify-between px-margin shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex items-center gap-gutter flex-1 max-w-xl"><div class="flex items-center gap-space-sm px-space-md py-space-xs rounded-lg bg-surface-container-low/80 w-full"><span class="material-symbols-outlined text-on-surface-variant text-[20px]">search</span><input class="w-full bg-transparent font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none" placeholder="Buscar transacciones, licencias, clientes o hashes..." type="text"/></div></div><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs px-space-sm py-space-xs rounded-full bg-surface-container-low"><span class="h-2 w-2 rounded-full bg-primary-container animate-ping"></span><span class="font-label-sm text-label-sm text-on-surface font-medium">Nodo La Paz - En línea</span></div><div class="flex items-center bg-surface-container-low rounded-lg p-space-xs"><button class="px-space-sm py-0.5 rounded font-label-sm text-label-sm bg-primary-container text-on-primary-container font-semibold transition-all">BOB</button><button class="px-space-sm py-0.5 rounded font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-all">USD</button></div><div class="flex items-center gap-space-xs px-space-sm py-space-xs rounded-lg bg-surface-container-low text-on-surface-variant"><span class="material-symbols-outlined text-[18px]">calendar_today</span><span class="font-label-sm text-label-sm text-on-surface">Últimos 30 días</span><span class="material-symbols-outlined text-[16px]">expand_more</span></div><div class="relative flex items-center justify-center"><button class="h-9 w-9 rounded-lg bg-surface-container-low flex items-center justify-center text-on-surface hover:bg-surface-container transition-colors"><span class="material-symbols-outlined text-[20px]">notifications</span></button><span class="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-primary-container shadow-[0_0_8px_rgba(140,255,0,0.8)]"></span></div><div class="flex items-center gap-space-sm pl-space-sm"><div class="flex flex-col text-right hidden sm:flex"><span class="font-label-md text-label-md text-on-surface font-semibold">Admin Finanzas</span><span class="font-label-sm text-label-sm text-on-surface-variant">admin@plixora.bo</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-16 bg-surface min-h-screen px-margin"><div class="flex flex-col w-full text-on-surface pb-space-xl">
+<!-- Subtle Ambient Glow Orbs behind key sections -->
+<div class="relative w-full overflow-hidden">
+<div class="absolute -top-24 right-10 w-96 h-96 bg-primary-container/5 rounded-full blur-3xl pointer-events-none -z-10"></div>
+<div class="absolute top-96 -left-32 w-80 h-80 bg-primary-container/3 rounded-full blur-3xl pointer-events-none -z-10"></div>
+<!-- Top Breadcrumb & Live Action Bar -->
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md pt-space-md pb-space-lg">
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs font-label-sm text-label-sm text-on-surface-variant">
+<span class="text-primary-container font-semibold">PLIXORA LEDGER</span>
+<span>/</span>
+<span>ANALÍTICA FINANCIERA</span>
+<span>/</span>
+<span class="text-on-surface">BOLIVIA HUB</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-primary tracking-tight mt-1 flex items-center gap-space-sm">
+          Analíticas Avanzadas &amp; Flujo Contable
+          <span class="inline-flex items-center gap-1.5 px-space-sm py-0.5 rounded-full bg-surface-container-high font-label-sm text-label-sm text-primary-container">
+<span class="h-1.5 w-1.5 rounded-full bg-primary-container animate-pulse"></span>
+            Tiempo Real
+          </span>
+</h1>
+</div>
+<div class="flex flex-wrap items-center gap-space-sm">
+<div class="flex items-center bg-surface-container-low p-1 rounded-lg">
+<button class="px-3 py-1.5 rounded-md font-label-sm text-label-sm bg-primary-container text-on-primary-container font-semibold transition-all">7D</button>
+<button class="px-3 py-1.5 rounded-md font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-all">30D</button>
+<button class="px-3 py-1.5 rounded-md font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-all">90D</button>
+<button class="px-3 py-1.5 rounded-md font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-all">1A</button>
+<button class="px-3 py-1.5 rounded-md font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-all">Histórico</button>
+</div>
+<button class="flex items-center gap-space-xs px-space-md py-2 rounded-lg bg-surface-container hover:bg-surface-container-high transition-all text-on-surface font-label-md text-label-md" onclick="conciliarLoteModal()">
+<span class="material-symbols-outlined text-[18px]">sync_alt</span>
+<span>Conciliar Lote QR</span>
+</button>
+<button class="flex items-center gap-space-xs px-space-md py-2 rounded-lg bg-primary-container text-on-primary-container font-label-md text-label-md hover:shadow-[0_0_20px_rgba(140,255,0,0.4)] transition-all" onclick="exportarReporte()">
+<span class="material-symbols-outlined text-[18px]">download</span>
+<span>Descargar Reporte (CSV/PDF)</span>
+</button>
+</div>
+</div>
+<!-- 1. STATS METRIC SUMMARY STRIP (5 High Impact KPI Cards) -->
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-space-md mb-space-lg">
+<!-- KPI 1: Ingresos Totales -->
+<div class="bg-surface-container-low/90 backdrop-blur-xl p-space-md rounded-xl shadow-lg flex flex-col justify-between hover:translate-y-[-2px] transition-all">
+<div class="flex items-center justify-between text-on-surface-variant">
+<span class="font-label-sm text-label-sm uppercase tracking-wider">Ingresos Digitales</span>
+<span class="material-symbols-outlined text-[18px] text-primary-container">payments</span>
+</div>
+<div class="my-space-sm">
+<div class="flex items-baseline gap-1">
+<span class="font-label-sm text-label-sm text-primary-container font-semibold">BOB</span>
+<span class="font-headline-md text-headline-md text-primary tracking-tight font-bold">348,920.00</span>
+</div>
+<div class="flex items-center gap-space-xs mt-1">
+<span class="inline-flex items-center text-primary-container font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-[14px]">arrow_upward</span> +24.6%
+            </span>
+<span class="text-on-surface-variant font-label-sm text-label-sm">vs. mes previo</span>
+</div>
+</div>
+<div class="h-8 w-full pt-1">
+<svg class="w-full h-full text-primary-container" fill="none" preserveaspectratio="none" viewbox="0 0 100 24">
+<path d="M0 18 Q 15 14, 30 16 T 60 8 T 85 11 T 100 2" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+<path d="M0 18 Q 15 14, 30 16 T 60 8 T 85 11 T 100 2 L 100 24 L 0 24 Z" fill="currentColor" fill-opacity="0.12"></path>
+</svg>
+</div>
+</div>
+<!-- KPI 2: Licencias Vendidas -->
+<div class="bg-surface-container-low/90 backdrop-blur-xl p-space-md rounded-xl shadow-lg flex flex-col justify-between hover:translate-y-[-2px] transition-all">
+<div class="flex items-center justify-between text-on-surface-variant">
+<span class="font-label-sm text-label-sm uppercase tracking-wider">Licencias Despachadas</span>
+<span class="material-symbols-outlined text-[18px] text-primary-container">verified</span>
+</div>
+<div class="my-space-sm">
+<div class="flex items-baseline gap-1">
+<span class="font-headline-md text-headline-md text-primary tracking-tight font-bold">14,250</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">unidades</span>
+</div>
+<div class="flex items-center gap-space-xs mt-1">
+<span class="inline-flex items-center text-primary-container font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-[14px]">trending_up</span> +18.2%
+            </span>
+<span class="text-on-surface-variant font-label-sm text-label-sm">342 hoy</span>
+</div>
+</div>
+<div class="w-full bg-surface-container rounded-full h-1.5 mt-2 overflow-hidden">
+<div class="bg-primary-container h-full rounded-full" style="width: 82%;"></div>
+</div>
+</div>
+<!-- KPI 3: Margen Neto -->
+<div class="bg-surface-container-low/90 backdrop-blur-xl p-space-md rounded-xl shadow-lg flex flex-col justify-between hover:translate-y-[-2px] transition-all">
+<div class="flex items-center justify-between text-on-surface-variant">
+<span class="font-label-sm text-label-sm uppercase tracking-wider">Margen Neto Operativo</span>
+<span class="px-1.5 py-0.5 rounded text-[10px] bg-primary-container/10 text-primary-container font-bold uppercase">Excelente</span>
+</div>
+<div class="my-space-sm">
+<div class="flex items-baseline gap-1">
+<span class="font-headline-md text-headline-md text-primary tracking-tight font-bold">68.4%</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">utilidad</span>
+</div>
+<div class="flex items-center gap-space-xs mt-1">
+<span class="text-on-surface font-label-sm text-label-sm">BOB 238,660.00 neto</span>
+</div>
+</div>
+<div class="flex items-center justify-between text-[11px] text-on-surface-variant">
+<span>Costo prov: 27.2%</span>
+<span>Fees: 4.4%</span>
+</div>
+</div>
+<!-- KPI 4: Suscripciones MRR -->
+<div class="bg-surface-container-low/90 backdrop-blur-xl p-space-md rounded-xl shadow-lg flex flex-col justify-between hover:translate-y-[-2px] transition-all">
+<div class="flex items-center justify-between text-on-surface-variant">
+<span class="font-label-sm text-label-sm uppercase tracking-wider">MRR Recurrente</span>
+<span class="material-symbols-outlined text-[18px] text-primary-container">autorenew</span>
+</div>
+<div class="my-space-sm">
+<div class="flex items-baseline gap-1">
+<span class="font-label-sm text-label-sm text-primary-container font-semibold">BOB</span>
+<span class="font-headline-md text-headline-md text-primary tracking-tight font-bold">94,150.00</span>
+</div>
+<div class="flex items-center gap-space-xs mt-1">
+<span class="text-primary-container font-label-sm text-label-sm font-semibold">96.8% retención</span>
+<span class="text-on-surface-variant font-label-sm text-label-sm">(Churn 3.2%)</span>
+</div>
+</div>
+<div class="h-8 w-full pt-1">
+<svg class="w-full h-full text-secondary-fixed-dim" fill="none" preserveaspectratio="none" viewbox="0 0 100 24">
+<path d="M0 20 Q 25 18, 50 12 T 80 8 T 100 4" fill="none" stroke="#8bfe00" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+</div>
+</div>
+<!-- KPI 5: QR Simple Bolivia & Checkout -->
+<div class="bg-surface-container-low/90 backdrop-blur-xl p-space-md rounded-xl shadow-lg flex flex-col justify-between hover:translate-y-[-2px] transition-all">
+<div class="flex items-center justify-between text-on-surface-variant">
+<span class="font-label-sm text-label-sm uppercase tracking-wider">Eficacia QR Simple</span>
+<span class="material-symbols-outlined text-[18px] text-primary-container">qr_code_scanner</span>
+</div>
+<div class="my-space-sm">
+<div class="flex items-baseline gap-1">
+<span class="font-headline-md text-headline-md text-primary tracking-tight font-bold">84.2%</span>
+<span class="font-label-sm text-label-sm text-primary-container font-bold">+5.1%</span>
+</div>
+<div class="flex items-center gap-space-xs mt-1">
+<span class="text-on-surface-variant font-label-sm text-label-sm">Vel. validación: 1.4s</span>
+</div>
+</div>
+<div class="flex items-center gap-1.5 text-[11px] text-primary-container">
+<span class="h-2 w-2 rounded-full bg-primary-container"></span>
+<span>Red ACH &amp; Banco Unión OK</span>
+</div>
+</div>
+</div>
+<!-- MAIN TWO COLUMN GRID FOR HEAVY ANALYTICS -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-space-lg mb-space-lg">
+<!-- 2. CHART 1: Advanced Multi-Layer Area & Line Chart (8 COLS) -->
+<div class="xl:col-span-8 bg-surface-container-low/80 backdrop-blur-2xl rounded-xl p-space-lg shadow-xl flex flex-col justify-between">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm mb-space-md">
+<div>
+<div class="flex items-center gap-space-xs font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">
+<span>Rendimiento Contable</span>
+<span class="h-1 w-1 rounded-full bg-primary-container"></span>
+<span>Auditoría Algorítmica</span>
+</div>
+<h2 class="font-title-md text-title-md text-primary mt-0.5">Flujo de Ingresos vs. Costos de Adquisición y Utilidad</h2>
+</div>
+<div class="flex items-center gap-space-md font-label-sm text-label-sm">
+<div class="flex items-center gap-1.5">
+<span class="h-2.5 w-2.5 rounded-sm bg-primary-container"></span>
+<span class="text-on-surface">Ingreso Bruto (BOB)</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="h-2.5 w-2.5 rounded-sm bg-surface-bright"></span>
+<span class="text-on-surface-variant">Costos Claves</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="h-0.5 w-4 bg-tertiary-fixed-dim"></span>
+<span class="text-on-surface">Margen Neto</span>
+</div>
+</div>
+</div>
+<!-- SVG Interactive Chart Canvas -->
+<div class="relative w-full h-72 my-space-xs">
+<svg class="w-full h-full overflow-visible" fill="none" preserveaspectratio="none" viewbox="0 0 800 240">
+<defs>
+<lineargradient id="areaGradientPrimary" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#8bfe00" stop-opacity="0.35"></stop>
+<stop offset="70%" stop-color="#8bfe00" stop-opacity="0.05"></stop>
+<stop offset="100%" stop-color="#8bfe00" stop-opacity="0"></stop>
+</lineargradient>
+<lineargradient id="areaGradientCost" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#37393d" stop-opacity="0.5"></stop>
+<stop offset="100%" stop-color="#37393d" stop-opacity="0"></stop>
+</lineargradient>
+</defs>
+<!-- Horizontal Grid lines -->
+<line stroke="#282a2d" stroke-dasharray="3 3" stroke-width="1" x1="0" x2="800" y1="20" y2="20"></line>
+<line stroke="#282a2d" stroke-dasharray="3 3" stroke-width="1" x1="0" x2="800" y1="75" y2="75"></line>
+<line stroke="#282a2d" stroke-dasharray="3 3" stroke-width="1" x1="0" x2="800" y1="130" y2="130"></line>
+<line stroke="#282a2d" stroke-dasharray="3 3" stroke-width="1" x1="0" x2="800" y1="185" y2="185"></line>
+<line stroke="#282a2d" stroke-width="1" x1="0" x2="800" y1="230" y2="230"></line>
+<!-- Cost Curve (Bottom layer) -->
+<path d="M0,195 C100,190 180,182 250,178 C330,174 420,165 500,160 C580,155 680,150 800,140 L800,230 L0,230 Z" fill="url(#areaGradientCost)"></path>
+<path d="M0,195 C100,190 180,182 250,178 C330,174 420,165 500,160 C580,155 680,150 800,140" stroke="#44474e" stroke-width="2"></path>
+<!-- Gross Revenue Area (Middle layer) -->
+<path d="M0,140 C90,120 180,80 270,105 C350,125 430,60 520,70 C610,80 700,30 800,25 L800,230 L0,230 Z" fill="url(#areaGradientPrimary)"></path>
+<path d="M0,140 C90,120 180,80 270,105 C350,125 430,60 520,70 C610,80 700,30 800,25" stroke="#8bfe00" stroke-linecap="round" stroke-width="3"></path>
+<!-- Net Margin Highlight Curve -->
+<path d="M0,165 C90,140 180,110 270,130 C350,145 430,95 520,100 C610,115 700,65 800,50" stroke="#ffffff" stroke-dasharray="4 4" stroke-width="1.5"></path>
+<!-- Interactive Cursor & Data Point Marker at day 22 (X=520, Y=70) -->
+<line stroke="#8bfe00" stroke-dasharray="2 2" stroke-opacity="0.4" stroke-width="1.5" x1="520" x2="520" y1="10" y2="230"></line>
+<circle cx="520" cy="70" fill="#8bfe00" r="5" stroke="#0c0e11" stroke-width="2"></circle>
+<circle cx="520" cy="100" fill="#ffffff" r="3.5"></circle>
+<circle cx="520" cy="160" fill="#44474e" r="3.5"></circle>
+</svg>
+<!-- Floating Cyber Data Badge (Point details) -->
+<div class="absolute top-6 left-[58%] -translate-x-1/2 bg-surface-container-high/95 backdrop-blur-md p-3 rounded-lg shadow-2xl pointer-events-none z-10 w-52">
+<div class="flex items-center justify-between font-label-sm text-label-sm text-on-surface-variant pb-1">
+<span>24 Octubre 2024</span>
+<span class="text-primary-container font-semibold">Corte Diario</span>
+</div>
+<div class="flex items-center justify-between text-xs py-0.5">
+<span class="text-on-surface-variant">Ingreso:</span>
+<span class="font-bold text-primary font-mono">BOB 14,890.00</span>
+</div>
+<div class="flex items-center justify-between text-xs py-0.5">
+<span class="text-on-surface-variant">Costo Licencias:</span>
+<span class="text-secondary-fixed-dim font-mono">BOB 3,920.00</span>
+</div>
+<div class="flex items-center justify-between text-xs pt-1 mt-1 bg-surface-container-low px-1.5 py-0.5 rounded">
+<span class="text-primary-container font-semibold">Utilidad Neta:</span>
+<span class="font-bold text-primary-container font-mono">+BOB 10,970.00</span>
+</div>
+</div>
+</div>
+<!-- Chart Timeline X-Axis -->
+<div class="flex justify-between items-center text-on-surface-variant font-label-sm text-label-sm pt-space-xs">
+<span>01 Oct</span>
+<span>05 Oct</span>
+<span>10 Oct</span>
+<span>15 Oct</span>
+<span class="text-primary font-semibold">20 Oct</span>
+<span>25 Oct</span>
+<span>30 Oct</span>
+</div>
+<!-- Quick Summary Micro-Tiles -->
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-space-sm pt-space-md mt-space-sm bg-surface-container-lowest/50 rounded-lg p-space-sm">
+<div>
+<span class="text-on-surface-variant font-label-sm text-label-sm block">Top Servicio:</span>
+<span class="font-title-md text-title-md text-primary font-bold">Netflix 4K (42%)</span>
+</div>
+<div>
+<span class="text-on-surface-variant font-label-sm text-label-sm block">Ticket Promedio:</span>
+<span class="font-title-md text-title-md text-primary font-bold">BOB 58.50</span>
+</div>
+<div>
+<span class="text-on-surface-variant font-label-sm text-label-sm block">Volumen Diario:</span>
+<span class="font-title-md text-title-md text-primary font-bold">475 Órdenes</span>
+</div>
+<div>
+<span class="text-on-surface-variant font-label-sm text-label-sm block">Reembolsos:</span>
+<span class="font-title-md text-title-md text-primary-container font-bold">&lt; 0.18%</span>
+</div>
+</div>
+</div>
+<!-- 3. CHART 2: Donut Breakdown by Digital Service & Category (4 COLS) -->
+<div class="xl:col-span-4 bg-surface-container-low/80 backdrop-blur-2xl rounded-xl p-space-lg shadow-xl flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Mix de Facturación</span>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">more_horiz</span>
+</button>
+</div>
+<h2 class="font-title-md text-title-md text-primary mt-0.5">Ventas por Categoría</h2>
+</div>
+<!-- SVG Donut Chart with glowing slices -->
+<div class="relative flex items-center justify-center my-space-md">
+<svg class="w-48 h-48 -rotate-90 transform" viewbox="0 0 120 120">
+<!-- Background circle -->
+<circle cx="60" cy="60" fill="none" r="48" stroke="#1e2023" stroke-width="14"></circle>
+<!-- Segment 1: Streaming (42%) -> stroke-dasharray = 42% of 301.59 = 126.6, remaining 175 -->
+<circle cx="60" cy="60" fill="none" r="48" stroke="#8bfe00" stroke-dasharray="126.6 301.59" stroke-dashoffset="0" stroke-linecap="round" stroke-width="14"></circle>
+<!-- Segment 2: Software / Productividad (28%) -> 84.4 -->
+<circle cx="60" cy="60" fill="none" r="48" stroke="#ffffff" stroke-dasharray="84.4 301.59" stroke-dashoffset="-132" stroke-linecap="round" stroke-width="14"></circle>
+<!-- Segment 3: Gaming & Keys (18%) -> 54.2 -->
+<circle cx="60" cy="60" fill="none" r="48" stroke="#7adf00" stroke-dasharray="54.2 301.59" stroke-dashoffset="-220" stroke-linecap="round" stroke-width="14"></circle>
+<!-- Segment 4: Infra & VPN (12%) -> 36.1 -->
+<circle cx="60" cy="60" fill="none" r="48" stroke="#333538" stroke-dasharray="36.1 301.59" stroke-dashoffset="-278" stroke-linecap="round" stroke-width="14"></circle>
+</svg>
+<!-- Donut Central Hub -->
+<div class="absolute flex flex-col items-center justify-center text-center">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Total</span>
+<span class="font-headline-md text-headline-md text-primary font-bold">348.9K</span>
+<span class="font-label-sm text-label-sm text-primary-container font-semibold">BOB</span>
+</div>
+</div>
+<!-- Legend breakdown list -->
+<div class="flex flex-col gap-space-xs pt-space-xs">
+<div class="flex items-center justify-between p-2 rounded-lg bg-surface-container/60 hover:bg-surface-container transition-all">
+<div class="flex items-center gap-space-xs">
+<span class="w-2.5 h-2.5 rounded-full bg-primary-container"></span>
+<span class="font-body-sm text-body-sm text-on-surface font-medium">Streaming (Netflix, Spotify, Max)</span>
+</div>
+<div class="text-right">
+<span class="font-label-sm text-label-sm text-primary font-bold">42%</span>
+<span class="block font-label-sm text-[10px] text-on-surface-variant">BOB 146.5K</span>
+</div>
+</div>
+<div class="flex items-center justify-between p-2 rounded-lg bg-surface-container/60 hover:bg-surface-container transition-all">
+<div class="flex items-center gap-space-xs">
+<span class="w-2.5 h-2.5 rounded-full bg-primary"></span>
+<span class="font-body-sm text-body-sm text-on-surface font-medium">Productividad (Canva, Office, AI)</span>
+</div>
+<div class="text-right">
+<span class="font-label-sm text-label-sm text-primary font-bold">28%</span>
+<span class="block font-label-sm text-[10px] text-on-surface-variant">BOB 97.6K</span>
+</div>
+</div>
+<div class="flex items-center justify-between p-2 rounded-lg bg-surface-container/60 hover:bg-surface-container transition-all">
+<div class="flex items-center gap-space-xs">
+<span class="w-2.5 h-2.5 rounded-full bg-primary-fixed-dim"></span>
+<span class="font-body-sm text-body-sm text-on-surface font-medium">Gaming &amp; Keys (Steam, Xbox, PSN)</span>
+</div>
+<div class="text-right">
+<span class="font-label-sm text-label-sm text-primary font-bold">18%</span>
+<span class="block font-label-sm text-[10px] text-on-surface-variant">BOB 62.8K</span>
+</div>
+</div>
+<div class="flex items-center justify-between p-2 rounded-lg bg-surface-container/60 hover:bg-surface-container transition-all">
+<div class="flex items-center gap-space-xs">
+<span class="w-2.5 h-2.5 rounded-full bg-surface-variant"></span>
+<span class="font-body-sm text-body-sm text-on-surface font-medium">Cloud VPS, Hosting &amp; VPNs</span>
+</div>
+<div class="text-right">
+<span class="font-label-sm text-label-sm text-primary font-bold">12%</span>
+<span class="block font-label-sm text-[10px] text-on-surface-variant">BOB 41.8K</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- 4. SECOND ROW OF RICH METRICS & SPECIALIZED BOLIVIAN FINANCIAL VISUALIZERS -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-space-lg mb-space-lg">
+<!-- CHART 3: Acquisition & Payment Gateways in Bolivia (Horizontal Funnel/Bars) -->
+<div class="bg-surface-container-low/80 backdrop-blur-2xl rounded-xl p-space-lg shadow-xl flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Pasarelas &amp; Liquidación</span>
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-primary-container">
+<span class="h-1.5 w-1.5 rounded-full bg-primary-container animate-ping"></span>
+              Enrutamiento Directo
+            </span>
+</div>
+<h2 class="font-title-md text-title-md text-primary mt-0.5">Canales de Pago Bolivia</h2>
+</div>
+<div class="flex flex-col gap-space-md my-space-md">
+<!-- Item 1: QR Simple Interbancario -->
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-center text-xs">
+<span class="font-medium text-on-surface flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-primary-container">qr_code_2</span>
+                QR Simple (BCP, BNB, Banco Unión, Mercantil)
+              </span>
+<span class="font-bold text-primary font-mono">58% <span class="text-on-surface-variant font-normal">| BOB 202.3K</span></span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2 overflow-hidden">
+<div class="bg-primary-container h-full rounded-full" style="width: 58%;"></div>
+</div>
+<div class="flex justify-between text-[10px] text-on-surface-variant">
+<span>Tasa éxito: 99.1%</span>
+<span>Comisión: 0.8%</span>
+</div>
+</div>
+<!-- Item 2: Tarjetas Débito / Crédito -->
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-center text-xs">
+<span class="font-medium text-on-surface flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-primary">credit_card</span>
+                Tarjetas Visa / Mastercard
+              </span>
+<span class="font-bold text-primary font-mono">24% <span class="text-on-surface-variant font-normal">| BOB 83.7K</span></span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2 overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 24%;"></div>
+</div>
+<div class="flex justify-between text-[10px] text-on-surface-variant">
+<span>Tasa éxito: 94.3%</span>
+<span>Comisión: 2.9%</span>
+</div>
+</div>
+<!-- Item 3: Criptoactivos USDT / Binance Pay -->
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-center text-xs">
+<span class="font-medium text-on-surface flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-tertiary-fixed">currency_bitcoin</span>
+                Cripto / USDT P2P &amp; Binance Pay
+              </span>
+<span class="font-bold text-primary font-mono">14% <span class="text-on-surface-variant font-normal">| BOB 48.8K</span></span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2 overflow-hidden">
+<div class="bg-tertiary-fixed h-full rounded-full" style="width: 14%;"></div>
+</div>
+<div class="flex justify-between text-[10px] text-on-surface-variant">
+<span>Tasa éxito: 99.8%</span>
+<span>Comisión: 0.1%</span>
+</div>
+</div>
+<!-- Item 4: Billeteras Móviles / Tigo Money -->
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-center text-xs">
+<span class="font-medium text-on-surface flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-secondary">phone_iphone</span>
+                Tigo Money &amp; PagoExpress
+              </span>
+<span class="font-bold text-primary font-mono">4% <span class="text-on-surface-variant font-normal">| BOB 13.9K</span></span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2 overflow-hidden">
+<div class="bg-secondary h-full rounded-full" style="width: 4%;"></div>
+</div>
+<div class="flex justify-between text-[10px] text-on-surface-variant">
+<span>Tasa éxito: 91.5%</span>
+<span>Comisión: 1.5%</span>
+</div>
+</div>
+</div>
+<div class="p-space-sm bg-surface-container rounded-lg flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary-container text-[20px]">bolt</span>
+<span class="font-label-sm text-label-sm text-on-surface">Conciliación Instantánea:</span>
+</div>
+<span class="font-label-sm text-label-sm font-bold text-primary-container">1.4 segundos prom.</span>
+</div>
+</div>
+<!-- CHART 4: Digital Inventory Turnover & Peak Hour Dispense (Heatmap & Bar Activity) -->
+<div class="bg-surface-container-low/80 backdrop-blur-2xl rounded-xl p-space-lg shadow-xl flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Inventario &amp; Activación</span>
+<span class="px-2 py-0.5 rounded text-[11px] bg-primary-container/10 text-primary-container font-semibold">98.6% Auto</span>
+</div>
+<h2 class="font-title-md text-title-md text-primary mt-0.5">Rotación de Cuentas &amp; Picos</h2>
+</div>
+<!-- Activity Bar Cluster (Ingreso Stock vs Despacho) -->
+<div class="my-space-md">
+<div class="flex items-center justify-between text-[11px] text-on-surface-variant mb-2">
+<span>Actividad por Franja Horaria (BOT Bolivia)</span>
+<span class="text-primary-container font-semibold">Pico: 20:00 - 23:00</span>
+</div>
+<div class="h-32 flex items-end justify-between gap-1.5 pt-2">
+<!-- 00h -->
+<div class="flex-1 flex flex-col items-center gap-1 h-full justify-end">
+<div class="w-full bg-surface-container-highest rounded-t-sm" style="height: 18%;"></div>
+<div class="w-full bg-primary-container/40 rounded-t-sm" style="height: 25%;"></div>
+<span class="text-[9px] text-on-surface-variant">00h</span>
+</div>
+<!-- 04h -->
+<div class="flex-1 flex flex-col items-center gap-1 h-full justify-end">
+<div class="w-full bg-surface-container-highest rounded-t-sm" style="height: 8%;"></div>
+<div class="w-full bg-primary-container/40 rounded-t-sm" style="height: 10%;"></div>
+<span class="text-[9px] text-on-surface-variant">04h</span>
+</div>
+<!-- 08h -->
+<div class="flex-1 flex flex-col items-center gap-1 h-full justify-end">
+<div class="w-full bg-surface-container-highest rounded-t-sm" style="height: 35%;"></div>
+<div class="w-full bg-primary-container rounded-t-sm" style="height: 48%;"></div>
+<span class="text-[9px] text-on-surface-variant">08h</span>
+</div>
+<!-- 12h -->
+<div class="flex-1 flex flex-col items-center gap-1 h-full justify-end">
+<div class="w-full bg-surface-container-highest rounded-t-sm" style="height: 55%;"></div>
+<div class="w-full bg-primary-container rounded-t-sm" style="height: 68%;"></div>
+<span class="text-[9px] text-on-surface-variant">12h</span>
+</div>
+<!-- 16h -->
+<div class="flex-1 flex flex-col items-center gap-1 h-full justify-end">
+<div class="w-full bg-surface-container-highest rounded-t-sm" style="height: 60%;"></div>
+<div class="w-full bg-primary-container rounded-t-sm" style="height: 75%;"></div>
+<span class="text-[9px] text-on-surface-variant">16h</span>
+</div>
+<!-- 20h (PEAK) -->
+<div class="flex-1 flex flex-col items-center gap-1 h-full justify-end">
+<div class="w-full bg-surface-container-highest rounded-t-sm" style="height: 75%;"></div>
+<div class="w-full bg-primary-container rounded-t-sm shadow-[0_0_12px_rgba(140,255,0,0.6)]" style="height: 98%;"></div>
+<span class="text-[9px] text-primary font-bold">20h</span>
+</div>
+<!-- 22h -->
+<div class="flex-1 flex flex-col items-center gap-1 h-full justify-end">
+<div class="w-full bg-surface-container-highest rounded-t-sm" style="height: 65%;"></div>
+<div class="w-full bg-primary-container rounded-t-sm" style="height: 88%;"></div>
+<span class="text-[9px] text-primary font-bold">22h</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-space-xs pt-space-xs border-t border-surface-container/50">
+<div class="p-2 bg-surface-container/40 rounded-lg">
+<span class="text-on-surface-variant font-label-sm text-[11px] block">Stock Disponible:</span>
+<span class="font-title-md text-title-md text-primary font-bold">4,810 claves</span>
+</div>
+<div class="p-2 bg-surface-container/40 rounded-lg">
+<span class="text-on-surface-variant font-label-sm text-[11px] block">Tiempo Entrega:</span>
+<span class="font-title-md text-title-md text-primary-container font-bold">&lt; 8 segundos</span>
+</div>
+</div>
+</div>
+<!-- CHART 5: Subscriber Retention & Cohort Churn Curve (Spline with Projection) -->
+<div class="bg-surface-container-low/80 backdrop-blur-2xl rounded-xl p-space-lg shadow-xl flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Curva de Cohortes</span>
+<span class="text-on-surface font-label-sm text-label-sm">Ciclos M1 a M12</span>
+</div>
+<h2 class="font-title-md text-title-md text-primary mt-0.5">Retención de Suscripciones</h2>
+</div>
+<!-- SVG Line Chart for Cohorts -->
+<div class="relative w-full h-36 my-space-sm">
+<svg class="w-full h-full" fill="none" preserveaspectratio="none" viewbox="0 0 300 120">
+<!-- Reference guides -->
+<line stroke="#282a2d" stroke-dasharray="2 2" x1="0" x2="300" y1="30" y2="30"></line>
+<line stroke="#282a2d" stroke-dasharray="2 2" x1="0" x2="300" y1="70" y2="70"></line>
+<line stroke="#282a2d" x1="0" x2="300" y1="110" y2="110"></line>
+<!-- Historical Renewal Curve (M1 to M9) -->
+<path d="M0,15 C50,18 100,22 150,25 C180,28 200,32 230,34" stroke="#8bfe00" stroke-linecap="round" stroke-width="2.5"></path>
+<!-- Forecast Projection (M9 to M12) -->
+<path d="M230,34 C250,35 280,38 300,40" stroke="#8bfe00" stroke-dasharray="4 4" stroke-width="2"></path>
+<!-- Churn Curve -->
+<path d="M0,105 C60,102 120,98 180,95 C240,92 280,90 300,88" stroke="#ffb4ab" stroke-width="1.5"></path>
+<!-- Forecast Point -->
+<circle cx="230" cy="34" fill="#8bfe00" r="4"></circle>
+<circle cx="300" cy="40" fill="#ffffff" r="3"></circle>
+</svg>
+<div class="absolute right-0 top-1 bg-surface-container-high px-2 py-1 rounded text-[10px] text-primary-container border border-primary-container/20">
+            Proyección Mes Prox: BOB 410K+
+          </div>
+</div>
+<div class="flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
+<span>Mes 1: 100%</span>
+<span>Mes 3: 94.2%</span>
+<span>Mes 6: 91.0%</span>
+<span class="text-primary font-semibold">Mes 12: 87.5%</span>
+</div>
+<div class="mt-space-sm p-space-sm bg-surface-container-lowest rounded-lg flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-error">trending_down</span>
+<span class="text-xs text-on-surface">Tasa de Churn Global:</span>
+</div>
+<span class="font-bold text-xs text-error font-mono">3.2% (Benchmark &lt; 5%)</span>
+</div>
+</div>
+</div>
+<!-- 5. CHART 6 & CONCILIATION WATERFALL: Matriz Financiera de Conciliación y Flujo de Caja Líquido -->
+<div class="bg-surface-container-low/80 backdrop-blur-2xl rounded-xl p-space-lg shadow-xl mb-space-lg">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-sm pb-space-md border-b border-surface-container">
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-primary-container font-semibold">Ledger Cripto-Contable</span>
+<h2 class="font-headline-sm text-headline-sm text-primary">Flujo de Fondos &amp; Conciliación Líquida (Waterfall)</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Desglose transparente desde la recaudación bruta hasta la disponibilidad bancaria en Bolivia.</p>
+</div>
+<div class="flex items-center gap-space-sm">
+<div class="text-right">
+<span class="text-on-surface-variant font-label-sm text-label-sm block">Disponible para Retiro:</span>
+<span class="font-headline-sm text-headline-sm text-primary-container font-bold font-mono">BOB 238,660.00</span>
+</div>
+<button class="px-space-md py-2 rounded-lg bg-primary-container text-on-primary-container font-label-md text-label-md font-semibold hover:shadow-[0_0_16px_rgba(140,255,0,0.3)] transition-all">
+            Transferir a Cuenta Fiscal
+          </button>
+</div>
+</div>
+<!-- Waterfall Stage Visualizer -->
+<div class="grid grid-cols-1 md:grid-cols-5 gap-space-md pt-space-md">
+<!-- Stage 1: Gross -->
+<div class="bg-surface-container/70 p-space-md rounded-xl flex flex-col justify-between">
+<div class="flex items-center justify-between text-on-surface-variant mb-space-xs">
+<span class="font-label-sm text-label-sm uppercase">1. Recaudación Bruta</span>
+<span class="material-symbols-outlined text-[16px]">point_of_sale</span>
+</div>
+<span class="font-title-md text-title-md text-primary font-bold font-mono">BOB 348,920.00</span>
+<div class="w-full bg-surface-container-high h-1.5 rounded-full mt-3">
+<div class="bg-primary h-full rounded-full" style="width: 100%;"></div>
+</div>
+<span class="text-[11px] text-on-surface-variant mt-2">100% Volumen transaccionado</span>
+</div>
+<!-- Stage 2: Licencias Proveedores -->
+<div class="bg-surface-container/70 p-space-md rounded-xl flex flex-col justify-between">
+<div class="flex items-center justify-between text-on-surface-variant mb-space-xs">
+<span class="font-label-sm text-label-sm uppercase">2. Costo Proveedor</span>
+<span class="material-symbols-outlined text-[16px] text-error">remove_circle_outline</span>
+</div>
+<span class="font-title-md text-title-md text-error font-bold font-mono">- BOB 94,905.00</span>
+<div class="w-full bg-surface-container-high h-1.5 rounded-full mt-3">
+<div class="bg-error h-full rounded-full" style="width: 27.2%;"></div>
+</div>
+<span class="text-[11px] text-on-surface-variant mt-2">Mayoristas globales &amp; APIs</span>
+</div>
+<!-- Stage 3: Comisiones Pasarelas -->
+<div class="bg-surface-container/70 p-space-md rounded-xl flex flex-col justify-between">
+<div class="flex items-center justify-between text-on-surface-variant mb-space-xs">
+<span class="font-label-sm text-label-sm uppercase">3. Fees Pasarelas</span>
+<span class="material-symbols-outlined text-[16px] text-secondary">percent</span>
+</div>
+<span class="font-title-md text-title-md text-secondary font-bold font-mono">- BOB 5,230.00</span>
+<div class="w-full bg-surface-container-high h-1.5 rounded-full mt-3">
+<div class="bg-secondary h-full rounded-full" style="width: 1.5%;"></div>
+</div>
+<span class="text-[11px] text-on-surface-variant mt-2">QR Simple &amp; Red Enlace</span>
+</div>
+<!-- Stage 4: Retenciones / Reserva Legal -->
+<div class="bg-surface-container/70 p-space-md rounded-xl flex flex-col justify-between">
+<div class="flex items-center justify-between text-on-surface-variant mb-space-xs">
+<span class="font-label-sm text-label-sm uppercase">4. Impuestos &amp; IVA</span>
+<span class="material-symbols-outlined text-[16px] text-secondary-fixed-dim">account_balance</span>
+</div>
+<span class="font-title-md text-title-md text-secondary-fixed-dim font-bold font-mono">- BOB 10,125.00</span>
+<div class="w-full bg-surface-container-high h-1.5 rounded-full mt-3">
+<div class="bg-secondary-fixed-dim h-full rounded-full" style="width: 2.9%;"></div>
+</div>
+<span class="text-[11px] text-on-surface-variant mt-2">SIN Bolivia Facturación Digital</span>
+</div>
+<!-- Stage 5: Utilidad Neta Líquida -->
+<div class="bg-primary-container/10 p-space-md rounded-xl flex flex-col justify-between shadow-[0_0_20px_rgba(140,255,0,0.15)]">
+<div class="flex items-center justify-between text-primary-container mb-space-xs">
+<span class="font-label-sm text-label-sm uppercase font-bold">5. Utilidad Líquida</span>
+<span class="material-symbols-outlined text-[18px]">verified</span>
+</div>
+<span class="font-title-md text-title-md text-primary-container font-bold font-mono">BOB 238,660.00</span>
+<div class="w-full bg-surface-container-high h-1.5 rounded-full mt-3">
+<div class="bg-primary-container h-full rounded-full" style="width: 68.4%;"></div>
+</div>
+<span class="text-[11px] text-primary-container font-semibold mt-2">68.4% Margen neto disponible</span>
+</div>
+</div>
+</div>
+<!-- 6. TABLA DE TRANSACCIONES Y ÓRDENES RECIENTES DE CUENTAS DIGITALES -->
+<div class="bg-surface-container-low/80 backdrop-blur-2xl rounded-xl p-space-lg shadow-xl flex flex-col">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm pb-space-md border-b border-surface-container">
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Operaciones en Vivo</span>
+<h2 class="font-title-md text-title-md text-primary">Últimas Transacciones de Cuentas y Licencias</h2>
+</div>
+<div class="flex items-center gap-space-sm">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-2.5 top-2 text-[18px] text-on-surface-variant">filter_list</span>
+<input class="bg-surface-container pl-9 pr-3 py-1.5 rounded-lg text-xs text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-1 focus:ring-primary-container w-64" placeholder="Filtrar por orden, email o servicio..." type="text"/>
+</div>
+<button class="p-2 rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high">
+<span class="material-symbols-outlined text-[18px]">tune</span>
+</button>
+</div>
+</div>
+<!-- Live Stream Table -->
+<div class="overflow-x-auto w-full">
+<table class="w-full text-left font-body-sm text-body-sm text-on-surface">
+<thead>
+<tr class="text-on-surface-variant font-label-sm text-label-sm border-b border-surface-container/60">
+<th class="py-3 px-3">ID / FECHA</th>
+<th class="py-3 px-3">CLIENTE</th>
+<th class="py-3 px-3">PRODUCTO / SERVICIO</th>
+<th class="py-3 px-3">MÉTODO DE PAGO</th>
+<th class="py-3 px-3">MONTO (BOB)</th>
+<th class="py-3 px-3">ENTREGA DIGITAL</th>
+<th class="py-3 px-3 text-right">ACCIONES</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container/30">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container/40 transition-colors">
+<td class="py-3 px-3 font-mono text-xs">
+<span class="text-primary font-semibold">#PLX-94821</span>
+<span class="block text-[10px] text-on-surface-variant">Hoy, 19:42:10</span>
+</td>
+<td class="py-3 px-3">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-full bg-surface-container-high flex items-center justify-center font-bold text-xs text-primary-container">
+                    CM
+                  </div>
+<div>
+<span class="font-medium text-on-surface">Carlos Mendoza P.</span>
+<span class="block text-[11px] text-on-surface-variant">carlos.m@gmail.com</span>
+</div>
+</div>
+</td>
+<td class="py-3 px-3">
+<span class="inline-flex items-center gap-1.5 font-medium text-primary">
+<span class="w-2 h-2 rounded-full bg-red-500"></span>
+                  Netflix 4K UltraHD (1 Pantalla / 30D)
+                </span>
+<span class="block text-[11px] text-on-surface-variant">Perfil con PIN personal</span>
+</td>
+<td class="py-3 px-3">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container text-xs">
+<span class="material-symbols-outlined text-[14px] text-primary-container">qr_code_2</span>
+                  QR Simple BNB
+                </span>
+</td>
+<td class="py-3 px-3 font-mono font-bold text-primary">BOB 28.00</td>
+<td class="py-3 px-3">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary-container/10 text-primary-container text-xs font-semibold">
+<span class="h-1.5 w-1.5 rounded-full bg-primary-container"></span>
+                  Entregado Instantáneo (4s)
+                </span>
+</td>
+<td class="py-3 px-3 text-right">
+<button class="p-1 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface">
+<span class="material-symbols-outlined text-[18px]">receipt</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container/40 transition-colors">
+<td class="py-3 px-3 font-mono text-xs">
+<span class="text-primary font-semibold">#PLX-94820</span>
+<span class="block text-[10px] text-on-surface-variant">Hoy, 19:39:55</span>
+</td>
+<td class="py-3 px-3">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-full bg-surface-container-high flex items-center justify-center font-bold text-xs text-primary">
+                    SV
+                  </div>
+<div>
+<span class="font-medium text-on-surface">Studio Creativo Visual</span>
+<span class="block text-[11px] text-on-surface-variant">finanzas@estudiovisual.bo</span>
+</div>
+</div>
+</td>
+<td class="py-3 px-3">
+<span class="inline-flex items-center gap-1.5 font-medium text-primary">
+<span class="w-2 h-2 rounded-full bg-blue-400"></span>
+                  Canva Pro Anual (Licencia Team)
+                </span>
+<span class="block text-[11px] text-on-surface-variant">Acceso Invitación Educativa/Pro</span>
+</td>
+<td class="py-3 px-3">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container text-xs">
+<span class="material-symbols-outlined text-[14px] text-primary">credit_card</span>
+                  Visa BCP Débito
+                </span>
+</td>
+<td class="py-3 px-3 font-mono font-bold text-primary">BOB 195.00</td>
+<td class="py-3 px-3">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary-container/10 text-primary-container text-xs font-semibold">
+<span class="h-1.5 w-1.5 rounded-full bg-primary-container"></span>
+                  Activado por Correo
+                </span>
+</td>
+<td class="py-3 px-3 text-right">
+<button class="p-1 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface">
+<span class="material-symbols-outlined text-[18px]">receipt</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container/40 transition-colors">
+<td class="py-3 px-3 font-mono text-xs">
+<span class="text-primary font-semibold">#PLX-94819</span>
+<span class="block text-[10px] text-on-surface-variant">Hoy, 19:35:12</span>
+</td>
+<td class="py-3 px-3">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-full bg-surface-container-high flex items-center justify-center font-bold text-xs text-secondary-fixed">
+                    AC
+                  </div>
+<div>
+<span class="font-medium text-on-surface">Alejandro Choque</span>
+<span class="block text-[11px] text-on-surface-variant">ale.choque99@hotmail.com</span>
+</div>
+</div>
+</td>
+<td class="py-3 px-3">
+<span class="inline-flex items-center gap-1.5 font-medium text-primary">
+<span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                  ChatGPT Plus 4.0 (Acceso Directo)
+                </span>
+<span class="block text-[11px] text-on-surface-variant">Suscripción Mensual Auto-renovable</span>
+</td>
+<td class="py-3 px-3">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container text-xs">
+<span class="material-symbols-outlined text-[14px] text-tertiary-fixed">currency_bitcoin</span>
+                  Binance Pay USDT
+                </span>
+</td>
+<td class="py-3 px-3 font-mono font-bold text-primary">BOB 145.00</td>
+<td class="py-3 px-3">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary-container/10 text-primary-container text-xs font-semibold">
+<span class="h-1.5 w-1.5 rounded-full bg-primary-container"></span>
+                  Entregado Instantáneo
+                </span>
+</td>
+<td class="py-3 px-3 text-right">
+<button class="p-1 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface">
+<span class="material-symbols-outlined text-[18px]">receipt</span>
+</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container/40 transition-colors">
+<td class="py-3 px-3 font-mono text-xs">
+<span class="text-primary font-semibold">#PLX-94818</span>
+<span class="block text-[10px] text-on-surface-variant">Hoy, 19:31:04</span>
+</td>
+<td class="py-3 px-3">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-full bg-surface-container-high flex items-center justify-center font-bold text-xs text-primary-container">
+                    GT
+                  </div>
+<div>
+<span class="font-medium text-on-surface">Gabriela Torrez L.</span>
+<span class="block text-[11px] text-on-surface-variant">gaby.torrez@outlook.com</span>
+</div>
+</div>
+</td>
+<td class="py-3 px-3">
+<span class="inline-flex items-center gap-1.5 font-medium text-primary">
+<span class="w-2 h-2 rounded-full bg-green-500"></span>
+                  Spotify Familiar (Cupo 3 Meses)
+                </span>
+<span class="block text-[11px] text-on-surface-variant">Link Familiar Bolivia</span>
+</td>
+<td class="py-3 px-3">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container text-xs">
+<span class="material-symbols-outlined text-[14px] text-primary-container">qr_code_2</span>
+                  QR Simple Banco Unión
+                </span>
+</td>
+<td class="py-3 px-3 font-mono font-bold text-primary">BOB 42.00</td>
+<td class="py-3 px-3">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary-container/10 text-primary-container text-xs font-semibold">
+<span class="h-1.5 w-1.5 rounded-full bg-primary-container"></span>
+                  Invitación Enviada
+                </span>
+</td>
+<td class="py-3 px-3 text-right">
+<button class="p-1 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface">
+<span class="material-symbols-outlined text-[18px]">receipt</span>
+</button>
+</td>
+</tr>
+<!-- Row 5 -->
+<tr class="hover:bg-surface-container/40 transition-colors">
+<td class="py-3 px-3 font-mono text-xs">
+<span class="text-primary font-semibold">#PLX-94817</span>
+<span class="block text-[10px] text-on-surface-variant">Hoy, 19:28:40</span>
+</td>
+<td class="py-3 px-3">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-full bg-surface-container-high flex items-center justify-center font-bold text-xs text-on-surface-variant">
+                    RV
+                  </div>
+<div>
+<span class="font-medium text-on-surface">Rodrigo Vargas B.</span>
+<span class="block text-[11px] text-on-surface-variant">rodrigo.tech@vargas.bo</span>
+</div>
+</div>
+</td>
+<td class="py-3 px-3">
+<span class="inline-flex items-center gap-1.5 font-medium text-primary">
+<span class="w-2 h-2 rounded-full bg-purple-400"></span>
+                  VPS Ubuntu 8GB RAM (1 Mes Cloud)
+                </span>
+<span class="block text-[11px] text-on-surface-variant">Root Creds + IP Dedicada</span>
+</td>
+<td class="py-3 px-3">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container text-xs">
+<span class="material-symbols-outlined text-[14px] text-primary-container">qr_code_2</span>
+                  QR Simple Mercantil
+                </span>
+</td>
+<td class="py-3 px-3 font-mono font-bold text-primary">BOB 98.00</td>
+<td class="py-3 px-3">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary-container/10 text-primary-container text-xs font-semibold">
+<span class="h-1.5 w-1.5 rounded-full bg-primary-container"></span>
+                  Desplegado en Servidor
+                </span>
+</td>
+<td class="py-3 px-3 text-right">
+<button class="p-1 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface">
+<span class="material-symbols-outlined text-[18px]">receipt</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Footer / Pagination -->
+<div class="flex flex-col sm:flex-row items-center justify-between gap-space-sm pt-space-md border-t border-surface-container/60 font-label-sm text-label-sm text-on-surface-variant">
+<span>Mostrando 5 de 1,420 órdenes en el ciclo actual</span>
+<div class="flex items-center gap-1">
+<button class="px-2.5 py-1 rounded bg-surface-container text-on-surface disabled:opacity-50">Anterior</button>
+<button class="px-2.5 py-1 rounded bg-primary-container text-on-primary-container font-bold">1</button>
+<button class="px-2.5 py-1 rounded bg-surface-container text-on-surface hover:bg-surface-container-high">2</button>
+<button class="px-2.5 py-1 rounded bg-surface-container text-on-surface hover:bg-surface-container-high">3</button>
+<span class="px-1">...</span>
+<button class="px-2.5 py-1 rounded bg-surface-container text-on-surface hover:bg-surface-container-high">284</button>
+<button class="px-2.5 py-1 rounded bg-surface-container text-on-surface hover:bg-surface-container-high">Siguiente</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Interactive Scripts for Dashboard Micro-interactions -->
+<script>
+    function conciliarLoteModal() {
+      const btn = event.currentTarget;
+      const originalHtml = btn.innerHTML;
+      btn.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-spin">autorenew</span><span>Verificando QR con Red ACH...</span>';
+      setTimeout(() => {
+        btn.innerHTML = '<span class="material-symbols-outlined text-[18px] text-primary-container">check_circle</span><span>¡100% Conciliado!</span>';
+        setTimeout(() => {
+          btn.innerHTML = originalHtml;
+        }, 2500);
+      }, 1200);
+    }
+
+    function exportarReporte() {
+      const btn = event.currentTarget;
+      const original = btn.innerHTML;
+      btn.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-bounce">download_done</span><span>Generando Ledger...</span>';
+      setTimeout(() => {
+        alert("Reporte Contable PLIXORA v2.4 exportado satisfactoriamente en formato Excel y Ledger Criptográfico SHA-256.");
+        btn.innerHTML = original;
+      }, 1000);
+    }
+  </script>
+</div></main></div></body></html>

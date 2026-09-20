@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+
+<html class="" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Plixora Cloud Workspace — Command Bar</title>
+<!-- Tailwind CSS CDN with plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              lime: '#8cff00',
+              limeDark: '#70cc00',
+              orange: '#FF5722',
+              orangeGlow: '#ff7043',
+              dark: '#0c0e12',
+              surface: '#13171f',
+              border: '#232936'
+            }
+          },
+          boxShadow: {
+            'glow-lime': '0 0 25px -4px rgba(140, 255, 0, 0.4)',
+            'glow-orange': '0 0 20px -3px rgba(255, 87, 34, 0.45)',
+            'float-glass': '0 24px 48px -12px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.08)'
+          }
+        }
+      }
+    }
+  </script>
+<!-- BEGIN: Custom Glass & Animation Styles -->
+<style data-purpose="custom-theme-styles">
+    /* Subtle custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.4);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.25);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(140, 255, 0, 0.4);
+    }
+
+    /* Modern interactive glassmorphism */
+    .glass-island {
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    /* Ambient background grid pattern */
+    .ambient-dot-grid {
+      background-size: 28px 28px;
+      background-image: radial-gradient(circle, rgba(140, 255, 0, 0.09) 1.2px, transparent 1.2px);
+      transition: opacity 0.3s ease, background-image 0.3s ease;
+    }
+    html:not(.dark) .ambient-dot-grid {
+      background-image: radial-gradient(circle, rgba(15, 23, 42, 0.12) 1.2px, transparent 1.2px);
+    }
+
+    /* Floating tooltip positioning animation */
+    .nav-tooltip {
+      transform: translateX(-50%) translateY(4px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      pointer-events: none;
+    }
+    .nav-item-btn:hover .nav-tooltip {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+<!-- END: Custom Glass & Animation Styles -->
+</head>
+<body class="min-h-screen font-sans transition-colors duration-300 antialiased selection:bg-brand-lime selection:text-black dark:bg-[#07090c] dark:text-slate-100 bg-[#f8fafc] text-slate-800">
+<!-- BEGIN: Ambient Background Canvas Mockup -->
+<div class="fixed inset-0 pointer-events-none ambient-dot-grid overflow-hidden z-0" data-purpose="background-layer">
+<!-- Neon ambient radial gradient lights -->
+<div class="absolute -top-40 left-1/4 w-[600px] h-[600px] bg-[#8cff00]/10 rounded-full blur-[140px] dark:opacity-60 opacity-25 transition-opacity duration-300"></div>
+<div class="absolute top-1/3 -right-20 w-[500px] h-[500px] bg-[#ff5722]/10 rounded-full blur-[160px] dark:opacity-40 opacity-20 transition-opacity duration-300"></div>
+</div>
+<!-- END: Ambient Background Canvas Mockup -->
+<!-- BEGIN: Floating Navigation Bar -->
+<header class="sticky top-4 z-50 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full transition-all duration-300" data-purpose="primary-navigation-wrapper">
+<nav aria-label="Plixora Executive Bar" class="glass-island relative flex items-center justify-between gap-2 px-3 py-2.5 sm:px-4 sm:py-3 rounded-full bg-white/85 dark:bg-[#11141a]/90 border border-slate-200/80 dark:border-white/10 shadow-lg dark:shadow-float-glass">
+<!-- LEFT: Brand Logo & Workspace Selector -->
+<div class="flex items-center gap-3 shrink-0" data-purpose="brand-container">
+<a class="group flex items-center gap-2.5 pl-1 pr-1.5 focus:outline-none focus:ring-2 focus:ring-brand-lime rounded-full" href="#" title="Plixora Cloud Workspace">
+<!-- Cyber Shield Vector Logo -->
+<div class="relative w-10 h-10 rounded-2xl p-0.5 bg-gradient-to-tr from-brand-lime/30 via-slate-800/40 dark:via-slate-800 to-transparent flex items-center justify-center transition-transform group-hover:scale-105">
+<svg class="w-8 h-8 drop-shadow-[0_0_10px_rgba(140,255,0,0.5)] transition-transform group-hover:rotate-3" fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<!-- Hex / Shield Frame -->
+<path class="fill-slate-900 dark:fill-[#0C1017]" d="M24 4L7 11V22C7 32.8 14.3 42.6 24 45C33.7 42.6 41 32.8 41 22V11L24 4Z" stroke="#8cff00" stroke-linejoin="round" stroke-width="2.6"></path>
+<!-- Inner Cyber 'P' & 'X' monogram -->
+<path d="M18 16H27C29.76 16 32 18.24 32 21C32 23.76 29.76 26 27 26H18V32" stroke="#8cff00" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.6"></path>
+<path d="M25 26L32 33" stroke="#8cff00" stroke-linecap="round" stroke-width="2.6"></path>
+<circle cx="24" cy="24" fill="#8cff00" r="1.5"></circle>
+</svg>
+</div>
+<!-- Brand Typography Label -->
+<div class="hidden xl:flex flex-col text-left">
+<div class="flex items-center gap-1.5 leading-none">
+<span class="font-extrabold tracking-wider text-base font-mono text-slate-900 dark:text-white">PLIXORA</span>
+<span class="px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-widest bg-brand-lime/20 text-lime-600 dark:text-brand-lime border border-brand-lime/30 rounded-md">.BO</span>
+</div>
+<span class="text-[10px] text-slate-500 dark:text-slate-400 font-medium tracking-tight">Cloud Core Engine</span>
+</div>
+</a>
+</div>
+<!-- CENTER: Main Functional Navigation Items -->
+<div class="flex items-center gap-1 sm:gap-1.5 md:gap-2 overflow-x-auto no-scrollbar scroll-smooth" data-purpose="nav-items-row">
+<!-- Nav Item 1: Inicio (Active State) -->
+<div class="relative group">
+<a aria-current="page" class="nav-item-btn flex items-center gap-2 px-3.5 py-2 rounded-full font-semibold text-xs tracking-wide transition-all bg-[#ff5722]/15 text-[#e64a19] dark:text-[#ff7043] border border-[#ff5722]/30 shadow-glow-orange" href="#">
+<svg class="w-4 h-4 stroke-current" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" viewbox="0 0 24 24">
+<path d="M3 10.5L12 3l9 7.5V20a1.5 1.5 0 0 1-1.5 1.5H4.5A1.5 1.5 0 0 1 3 20v-9.5z"></path>
+<path d="M9 21v-6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v6"></path>
+</svg>
+<span class="inline-block">Inicio</span>
+</a>
+</div>
+<!-- Nav Item 2: Catálogo / Digital Warehouse -->
+<div class="relative group">
+<button aria-label="Catálogo e Inventario" class="nav-item-btn p-2 sm:px-2.5 sm:py-2 rounded-full text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 transition-all focus:outline-none" type="button">
+<svg class="w-5 h-5 stroke-current" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewbox="0 0 24 24">
+<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+<polyline points="3.29 7 12 12 20.71 7"></polyline>
+<line x1="12" x2="12" y1="22" y2="12"></line>
+</svg>
+<!-- Tooltip -->
+<span class="nav-tooltip absolute left-1/2 top-full mt-2.5 opacity-0 z-50 px-2.5 py-1 text-[11px] font-medium text-white bg-slate-900 border border-slate-700/80 rounded-lg shadow-xl whitespace-nowrap">
+              Inventario y Licencias
+            </span>
+</button>
+</div>
+<!-- Nav Item 3: Quick Action / Nueva Venta -->
+<div class="relative group">
+<button aria-label="Nueva Operación" class="nav-item-btn p-2 sm:px-2.5 sm:py-2 rounded-full text-slate-500 dark:text-slate-400 hover:text-lime-600 dark:hover:text-brand-lime hover:bg-brand-lime/10 transition-all focus:outline-none" type="button">
+<svg class="w-5 h-5 stroke-current" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewbox="0 0 24 24">
+<circle cx="12" cy="12" r="9"></circle>
+<line x1="12" x2="12" y1="8" y2="16"></line>
+<line x1="8" x2="16" y1="12" y2="12"></line>
+</svg>
+<!-- Tooltip -->
+<span class="nav-tooltip absolute left-1/2 top-full mt-2.5 opacity-0 z-50 px-2.5 py-1 text-[11px] font-medium text-white bg-slate-900 border border-slate-700/80 rounded-lg shadow-xl whitespace-nowrap">
+              Nueva Venta <kbd class="ml-1 text-[10px] bg-slate-800 text-brand-lime px-1 py-0.5 rounded border border-slate-700">⌘N</kbd>
+</span>
+</button>
+</div>
+<!-- Nav Item 4: Historial de Transacciones -->
+<div class="relative group">
+<button aria-label="Historial de Transacciones" class="nav-item-btn p-2 sm:px-2.5 sm:py-2 rounded-full text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 transition-all focus:outline-none" type="button">
+<svg class="w-5 h-5 stroke-current" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewbox="0 0 24 24">
+<circle cx="12" cy="12" r="9"></circle>
+<polyline points="12 7 12 12 15 15"></polyline>
+</svg>
+<!-- Tooltip -->
+<span class="nav-tooltip absolute left-1/2 top-full mt-2.5 opacity-0 z-50 px-2.5 py-1 text-[11px] font-medium text-white bg-slate-900 border border-slate-700/80 rounded-lg shadow-xl whitespace-nowrap">
+              Historial y Auditoría
+            </span>
+</button>
+</div>
+<!-- Nav Item 5: Streaming & Servidores -->
+<div class="relative group">
+<button aria-label="Servidores y Streaming" class="nav-item-btn p-2 sm:px-2.5 sm:py-2 rounded-full text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 transition-all focus:outline-none" type="button">
+<svg class="w-5 h-5 stroke-current" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewbox="0 0 24 24">
+<polygon points="6 4 19 12 6 20 6 4"></polygon>
+</svg>
+<!-- Tooltip -->
+<span class="nav-tooltip absolute left-1/2 top-full mt-2.5 opacity-0 z-50 px-2.5 py-1 text-[11px] font-medium text-white bg-slate-900 border border-slate-700/80 rounded-lg shadow-xl whitespace-nowrap">
+              Streaming &amp; Servidores
+            </span>
+</button>
+</div>
+<!-- Nav Item 6: Analíticas y Flujo Contable -->
+<div class="relative group">
+<button aria-label="Estadísticas Financieras" class="nav-item-btn p-2 sm:px-2.5 sm:py-2 rounded-full text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 transition-all focus:outline-none" type="button">
+<svg class="w-5 h-5 stroke-current" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewbox="0 0 24 24">
+<line x1="18" x2="18" y1="20" y2="10"></line>
+<line x1="12" x2="12" y1="20" y2="4"></line>
+<line x1="6" x2="6" y1="20" y2="14"></line>
+</svg>
+<!-- Tooltip -->
+<span class="nav-tooltip absolute left-1/2 top-full mt-2.5 opacity-0 z-50 px-2.5 py-1 text-[11px] font-medium text-white bg-slate-900 border border-slate-700/80 rounded-lg shadow-xl whitespace-nowrap">
+              Métricas &amp; Flujo Contable
+            </span>
+</button>
+</div>
+<!-- Nav Item 7: Directorio Clientes -->
+<div class="relative group">
+<button aria-label="Directorio de Clientes" class="nav-item-btn p-2 sm:px-2.5 sm:py-2 rounded-full text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 transition-all focus:outline-none" type="button">
+<svg class="w-5 h-5 stroke-current" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewbox="0 0 24 24">
+<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+<circle cx="9" cy="7" r="4"></circle>
+<path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+<path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+</svg>
+<!-- Tooltip -->
+<span class="nav-tooltip absolute left-1/2 top-full mt-2.5 opacity-0 z-50 px-2.5 py-1 text-[11px] font-medium text-white bg-slate-900 border border-slate-700/80 rounded-lg shadow-xl whitespace-nowrap">
+              Clientes y Revendedores
+            </span>
+</button>
+</div>
+</div>
+<!-- RIGHT: Status Badge, Utilities, Theme Toggle & Profile -->
+<div class="flex items-center gap-1.5 sm:gap-2.5 shrink-0" data-purpose="status-and-profile-controls">
+<!-- Live Status Pill: Bot Activo -->
+<div class="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-100 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-500/25 cursor-pointer group" title="Conexión WebSocket Activa: 24ms Bolivia Central Gateway">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+</span>
+<span class="text-xs font-semibold text-emerald-700 dark:text-emerald-400">Bot Activo</span>
+</div>
+<!-- Live Chat / Support Toggle Button -->
+<button aria-label="Soporte y Mensajes" class="p-2 sm:p-2.5 rounded-full text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 transition-colors focus:outline-none border border-transparent hover:border-slate-300 dark:hover:border-white/10" id="messages-btn" type="button">
+<svg class="w-4 h-4 sm:w-[18px] sm:h-[18px] stroke-current" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.9" viewbox="0 0 24 24">
+<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+</svg>
+</button>
+<!-- Notification Bell with Interactive Dropdown Trigger & Badge -->
+<div class="relative" id="notifications-wrapper">
+<button aria-expanded="false" aria-label="4 Notificaciones pendientes" class="relative p-2 sm:p-2.5 rounded-full text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 transition-colors focus:outline-none border border-transparent hover:border-slate-300 dark:hover:border-white/10" id="notif-btn" type="button">
+<svg class="w-4 h-4 sm:w-[18px] sm:h-[18px] stroke-current" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.9" viewbox="0 0 24 24">
+<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+<path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+</svg>
+<!-- Badge 4 Counter -->
+<span class="absolute -top-0.5 -right-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-brand-orange px-1 text-[10px] font-black text-white shadow-sm ring-2 ring-white dark:ring-[#11141a]">
+              4
+            </span>
+</button>
+<!-- Notification Dropdown Popover -->
+<div class="absolute right-0 mt-3 w-80 rounded-2xl bg-white/95 dark:bg-[#141822]/95 border border-slate-200 dark:border-white/10 shadow-2xl p-3 z-50 backdrop-blur-xl hidden" id="notif-dropdown">
+<div class="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-white/10 px-1">
+<span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Notificaciones</span>
+<span class="text-[10px] font-semibold text-lime-600 dark:text-brand-lime cursor-pointer hover:underline">Marcar leídas</span>
+</div>
+<div class="space-y-2 mt-2 max-h-64 overflow-y-auto">
+<div class="p-2 rounded-xl bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 transition-colors cursor-pointer text-left">
+<div class="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+<span class="text-emerald-600 dark:text-emerald-400 font-semibold">Renovación exitosa</span>
+<span class="">hace 3m</span>
+</div>
+<p class="text-xs text-slate-700 dark:text-slate-200 mt-0.5">Cliente @marcelo_bo acreditó 120 USD (Binance Pay).</p>
+</div>
+<div class="p-2 rounded-xl bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 transition-colors cursor-pointer text-left">
+<div class="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+<span class="text-amber-600 dark:text-amber-400 font-semibold">Stock bajo</span>
+<span class="">hace 18m</span>
+</div>
+<p class="text-xs text-slate-700 dark:text-slate-200 mt-0.5">Licencias de Plex Pro quedan solo 3 llaves disponibles.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Light / Dark Adaptive Sliding Theme Switcher -->
+<button aria-label="Cambiar tema día/noche" class="relative flex items-center h-8 w-16 px-1 rounded-full bg-slate-200 dark:bg-[#1a202c] border border-slate-300 dark:border-white/15 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-brand-lime/40 cursor-pointer select-none group" id="theme-toggle" title="Alternar Modo Claro / Oscuro" type="button">
+<!-- Static background helper icons positioned at each track slot -->
+<div class="w-full flex items-center justify-between px-1 pointer-events-none text-xs">
+<!-- Sun slot -->
+<span class="flex items-center justify-center w-5 h-5 text-amber-500 transition-opacity duration-300 dark:opacity-40 opacity-100">
+<svg class="w-3.5 h-3.5 fill-current stroke-current" stroke-width="0.5" viewbox="0 0 24 24">
+<circle cx="12" cy="12" r="4"></circle>
+<path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" stroke-linecap="round" stroke-width="2.2"></path>
+</svg>
+</span>
+<!-- Moon slot -->
+<span class="flex items-center justify-center w-5 h-5 text-brand-lime transition-opacity duration-300 dark:opacity-100 opacity-40">
+<svg class="w-3.5 h-3.5 fill-current" viewbox="0 0 24 24">
+<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+</svg>
+</span>
+</div>
+<!-- Sliding Pill Knob Indicator -->
+<div class="absolute left-1 top-1 flex items-center justify-center w-6 h-6 rounded-full bg-white dark:bg-[#0c1017] shadow-md border border-slate-200/80 dark:border-brand-lime/40 transform transition-transform duration-300 ease-in-out" id="theme-thumb">
+<!-- Active Icon inside Thumb -->
+<svg class="w-3.5 h-3.5 text-amber-500 transition-all duration-300" fill="none" id="thumb-sun-icon" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<circle cx="12" cy="12" r="4"></circle>
+<line x1="12" x2="12" y1="2" y2="4"></line>
+<line x1="12" x2="12" y1="20" y2="22"></line>
+<line x1="4.93" x2="6.34" y1="4.93" y2="6.34"></line>
+<line x1="17.66" x2="19.07" y1="17.66" y2="19.07"></line>
+<line x1="2" x2="4" y1="12" y2="12"></line>
+<line x1="20" x2="22" y1="12" y2="12"></line>
+<line x1="4.93" x2="6.34" y1="19.07" y2="17.66"></line>
+<line x1="17.66" x2="19.07" y1="6.34" y2="4.93"></line>
+</svg>
+<svg class="w-3.5 h-3.5 text-brand-lime transition-all duration-300 hidden" fill="currentColor" id="thumb-moon-icon" viewbox="0 0 24 24">
+<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+</svg>
+</div>
+</button>
+<!-- Divider Line -->
+<div class="h-6 w-px bg-slate-300 dark:bg-white/15 mx-0.5 sm:mx-1 hidden sm:block"></div>
+<!-- User Profile Island Button with Dropdown -->
+<div class="relative" id="user-profile-wrapper">
+<button aria-expanded="false" aria-haspopup="true" class="flex items-center gap-2.5 p-1 sm:pr-2.5 rounded-full hover:bg-slate-100 dark:hover:bg-white/5 transition-all border border-transparent hover:border-slate-300 dark:hover:border-white/10 focus:outline-none focus:ring-2 focus:ring-brand-lime/40" id="profile-menu-button" type="button">
+<!-- Monogram Avatar Badge 'JV' (Orange Radiant) with Active Pulse Status -->
+<div class="relative flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-[#ff5722] via-[#f4511e] to-[#e64a19] text-white font-black text-xs sm:text-sm tracking-tighter shadow-glow-orange shrink-0">
+              JV
+              <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-brand-lime border-2 border-white dark:border-[#11141a] rounded-full"></span>
+</div>
+<!-- Profile Name & Role -->
+<div class="hidden sm:flex flex-col text-left leading-tight">
+<span class="text-xs font-bold text-slate-800 dark:text-slate-100 tracking-tight">Johan Valdivia</span>
+<span class="text-[10px] text-slate-500 dark:text-slate-400 font-medium">admin@plixora.co</span>
+</div>
+<!-- Chevron Indicator -->
+<svg class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200" fill="none" id="profile-chevron" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24">
+<polyline points="6 9 12 15 18 9"></polyline>
+</svg>
+</button>
+<!-- Rich Executive Profile Popover Dropdown -->
+<div class="absolute right-0 mt-3 w-64 rounded-2xl bg-white/95 dark:bg-[#131720]/95 border border-slate-200 dark:border-white/10 shadow-2xl p-2 z-50 backdrop-blur-2xl hidden" id="profile-dropdown">
+<div class="px-3 py-2.5 border-b border-slate-100 dark:border-white/10 flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-brand-orange flex items-center justify-center font-bold text-white text-sm shadow">JV</div>
+<div class="flex flex-col overflow-hidden text-left">
+<span class="text-xs font-extrabold text-slate-900 dark:text-white truncate">Johan Valdivia</span>
+<span class="text-[10px] text-lime-600 dark:text-brand-lime font-mono">Super Administrador</span>
+<span class="text-[10px] text-slate-500 dark:text-slate-400 truncate">admin@plixora.co</span>
+</div>
+</div>
+<div class="py-1.5 space-y-0.5 text-xs text-slate-700 dark:text-slate-300">
+<a class="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-white/10 transition-colors" href="#">
+<svg class="w-4 h-4 text-lime-600 dark:text-brand-lime" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+</svg>
+<span>Mi Cuenta Financiera</span>
+</a>
+<a class="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-white/10 transition-colors" href="#">
+<svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<rect height="11" rx="2" ry="2" width="18" x="3" y="11"></rect>
+<path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+</svg>
+<span>Configuración de Seguridad</span>
+</a>
+<a class="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-white/10 transition-colors" href="#">
+<svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+<polyline points="14 2 14 8 20 8"></polyline>
+<line x1="16" x2="8" y1="13" y2="13"></line>
+<line x1="16" x2="8" y1="17" y2="17"></line>
+<polyline points="10 9 9 9 8 9"></polyline>
+</svg>
+<span>Licencias y Facturación</span>
+</a>
+</div>
+<div class="pt-1.5 mt-1 border-t border-slate-100 dark:border-white/10">
+<button class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-rose-500 dark:text-rose-400 hover:bg-rose-500/10 transition-colors font-medium text-xs text-left" id="signout-btn" type="button">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+<polyline points="16 17 21 12 16 7"></polyline>
+<line x1="21" x2="9" y1="12" y2="12"></line>
+</svg>
+<span>Cerrar Sesión</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</nav>
+</header>
+<!-- END: Floating Navigation Bar -->
+<!-- BEGIN: Interactive Toast Notification -->
+<div class="fixed bottom-6 right-6 z-50 transform translate-y-16 opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/95 dark:bg-[#141822]/95 border border-slate-200 dark:border-brand-lime/30 text-slate-800 dark:text-white shadow-2xl backdrop-blur-xl" id="message-toast">
+<span class="w-2 h-2 rounded-full bg-brand-lime animate-pulse"></span>
+<span class="text-xs font-semibold" id="toast-text">Mensaje rápido copiado al portapapeles!</span>
+</div>
+<!-- BEGIN: Interactive Logout Confirmation Modal -->
+<div class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/60 dark:bg-black/75 backdrop-blur-sm transition-opacity" id="logout-modal">
+<div class="bg-white dark:bg-[#11141a] border border-slate-200 dark:border-white/10 rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl">
+<div class="flex items-center gap-3 mb-3">
+<div class="w-10 h-10 rounded-full bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-500 dark:text-rose-400">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+<polyline points="16 17 21 12 16 7"></polyline>
+<line x1="21" x2="9" y1="12" y2="12"></line>
+</svg>
+</div>
+<div>
+<h3 class="text-sm font-bold text-slate-900 dark:text-white">Cerrar Sesión</h3>
+<p class="text-xs text-slate-500 dark:text-slate-400">Plixora Cloud Security</p>
+</div>
+</div>
+<p class="text-xs text-slate-600 dark:text-slate-300 mb-6">¿Estás seguro de que deseas cerrar sesión en este dispositivo?</p>
+<div class="flex items-center justify-end gap-2.5">
+<button class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 transition-colors" id="modal-cancel-btn" type="button">Cancelar</button>
+<button class="px-4 py-2 rounded-xl text-xs font-semibold bg-brand-orange hover:bg-brand-orange/90 text-white shadow-glow-orange transition-all active:scale-95" id="modal-confirm-btn" type="button">Confirmar salida</button>
+</div>
+</div>
+</div>
+<!-- BEGIN: Interactive Navigation & Theme Scripts -->
+<script data-purpose="interactive-navigation-logic">
+  document.addEventListener('DOMContentLoaded', () => {
+    const htmlElement = document.documentElement;
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    const themeThumb = document.getElementById('theme-thumb');
+    const thumbSunIcon = document.getElementById('thumb-sun-icon');
+    const thumbMoonIcon = document.getElementById('thumb-moon-icon');
+
+    // Synchronize toggle UI state with html class
+    function updateThemeUI(isDark) {
+      if (isDark) {
+        htmlElement.classList.add('dark');
+        themeThumb.classList.add('translate-x-8');
+        themeThumb.classList.remove('translate-x-0');
+        thumbSunIcon.classList.add('hidden');
+        thumbMoonIcon.classList.remove('hidden');
+        themeToggleBtn.setAttribute('title', 'Cambiar a Modo Día (Sol)');
+      } else {
+        htmlElement.classList.remove('dark');
+        themeThumb.classList.remove('translate-x-8');
+        themeThumb.classList.add('translate-x-0');
+        thumbSunIcon.classList.remove('hidden');
+        thumbMoonIcon.classList.add('hidden');
+        themeToggleBtn.setAttribute('title', 'Cambiar a Modo Noche (Luna)');
+      }
+    }
+
+    // Initial state setup (source defaults to dark)
+    const initialIsDark = htmlElement.classList.contains('dark');
+    updateThemeUI(initialIsDark);
+
+    // Toggle theme click listener
+    themeToggleBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const currentlyDark = htmlElement.classList.contains('dark');
+      const newDarkState = !currentlyDark;
+      updateThemeUI(newDarkState);
+      showToast(newDarkState ? '🌙 Modo Oscuro Activado' : '☀️ Modo Claro Activado');
+    });
+
+    // Profile Popover Dropdown
+    const profileBtn = document.getElementById('profile-menu-button');
+    const profileDropdown = document.getElementById('profile-dropdown');
+    const profileChevron = document.getElementById('profile-chevron');
+
+    profileBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = !profileDropdown.classList.contains('hidden');
+      closeAllDropdowns();
+      if (!isOpen) {
+        profileDropdown.classList.remove('hidden');
+        profileChevron.classList.add('rotate-180');
+        profileBtn.setAttribute('aria-expanded', 'true');
+      }
+    });
+
+    // Notifications Dropdown
+    const notifBtn = document.getElementById('notif-btn');
+    const notifDropdown = document.getElementById('notif-dropdown');
+
+    notifBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = !notifDropdown.classList.contains('hidden');
+      closeAllDropdowns();
+      if (!isOpen) {
+        notifDropdown.classList.remove('hidden');
+        notifBtn.setAttribute('aria-expanded', 'true');
+      }
+    });
+
+    // Close Dropdowns on Click Outside
+    window.addEventListener('click', () => {
+      closeAllDropdowns();
+    });
+
+    function closeAllDropdowns() {
+      if (profileDropdown) profileDropdown.classList.add('hidden');
+      if (notifDropdown) notifDropdown.classList.add('hidden');
+      if (profileChevron) profileChevron.classList.remove('rotate-180');
+      if (profileBtn) profileBtn.setAttribute('aria-expanded', 'false');
+      if (notifBtn) notifBtn.setAttribute('aria-expanded', 'false');
+    }
+
+    // Messages button toast trigger
+    const messagesBtn = document.getElementById('messages-btn');
+    const toast = document.getElementById('message-toast');
+    const toastText = document.getElementById('toast-text');
+    let toastTimeout;
+
+    function showToast(message) {
+      clearTimeout(toastTimeout);
+      if (toastText) toastText.textContent = message;
+      toast.classList.remove('translate-y-16', 'opacity-0', 'pointer-events-none');
+      toast.classList.add('translate-y-0', 'opacity-100');
+      toastTimeout = setTimeout(() => {
+        toast.classList.add('translate-y-16', 'opacity-0', 'pointer-events-none');
+        toast.classList.remove('translate-y-0', 'opacity-100');
+      }, 2600);
+    }
+
+    if (messagesBtn) {
+      messagesBtn.addEventListener('click', () => {
+        showToast('Canal de soporte y mensajes de Plixora conectado.');
+      });
+    }
+
+    // Sign out modal handling
+    const signoutBtn = document.getElementById('signout-btn');
+    const logoutModal = document.getElementById('logout-modal');
+    const modalCancelBtn = document.getElementById('modal-cancel-btn');
+    const modalConfirmBtn = document.getElementById('modal-confirm-btn');
+
+    if (signoutBtn) {
+      signoutBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeAllDropdowns();
+        logoutModal.classList.remove('hidden');
+      });
+    }
+
+    if (modalCancelBtn) {
+      modalCancelBtn.addEventListener('click', () => {
+        logoutModal.classList.add('hidden');
+      });
+    }
+
+    if (modalConfirmBtn) {
+      modalConfirmBtn.addEventListener('click', () => {
+        logoutModal.classList.add('hidden');
+        showToast('Sesión finalizada de forma segura.');
+      });
+    }
+
+    logoutModal.addEventListener('click', (e) => {
+      if (e.target === logoutModal) {
+        logoutModal.classList.add('hidden');
+      }
+    });
+
+    // Keyboard shortcut (⌘K / Ctrl+K)
+    window.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        showToast('Buscador global: comando rápido activado (⌘K)');
+      }
+    });
+  });
+</script>
+<!-- END: Interactive Navigation & Theme Scripts -->
+</body></html>

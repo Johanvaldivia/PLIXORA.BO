@@ -32,5 +32,6 @@ secrets.env
 Thumbs.db
 .DS_Store
 
-# ── Deploy ──
+# ── Deploy & Scratch ──
 deploy-netlify/
+scratch/

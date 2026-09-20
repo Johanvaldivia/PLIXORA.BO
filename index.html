@@ -6,9 +6,10 @@
     <title>PLIXORA.BO - Sistema de Ventas</title>
     <link rel="icon" href="MODO%20DIA.png">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
     <link rel="stylesheet" href="style.css?v=4.3">
-    <link rel="stylesheet" href="login.css?v=4.0">
-    <link rel="stylesheet" href="analytics.css?v=3.2">
+    <link rel="stylesheet" href="login.css?v=5.0">
+    <link rel="stylesheet" href="analytics.css?v=5.0">
     <link rel="stylesheet" href="group-accounts.css?v=4.0">
     <script>
         (function () {
@@ -24,152 +25,271 @@
 <body>
 
     <!-- ========================
-         LOGIN SCREEN
+         LOGIN SCREEN (DIMENSION GATE ONLINE)
          ======================== -->
     <div id="login-screen" class="login-screen">
-        <!-- Floating Theme Toggle (Sol / Luna) -->
-        <button type="button" class="login-theme-toggle" id="login-theme-toggle" title="Alternar Modo Día / Noche">
-            <!-- Icono Luna (visible en modo día) -->
-            <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
-            </svg>
-            <!-- Icono Sol (visible en modo noche) -->
-            <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="4"></circle>
-                <path d="M12 2v2"></path>
-                <path d="M12 20v2"></path>
-                <path d="m4.93 4.93 1.41 1.41"></path>
-                <path d="m17.66 17.66 1.41 1.41"></path>
-                <path d="M2 12h2"></path>
-                <path d="M20 12h2"></path>
-                <path d="m6.34 17.66-1.41 1.41"></path>
-                <path d="m19.07 4.93-1.41 1.41"></path>
-            </svg>
-        </button>
-
-        <!-- Ambient Background Orbs -->
-        <div aria-hidden="true" class="login-ambient-orbs">
-            <div class="ambient-orb-1"></div>
-            <div class="ambient-orb-2"></div>
-            <div class="ambient-orb-3"></div>
+        <!-- BACKGROUND LAYER: Fullscreen Neon Portal -->
+        <div class="login-bg-layer" aria-hidden="true">
+            <img alt="Atmospheric Space Portal" class="login-bg-img" src="fondo%20de%20pantalla%20de%20inicio%20de%20secion.png" />
+            <!-- Deep Obsidian Vignette & Scrim -->
+            <div class="login-vignette-horiz"></div>
+            <div class="login-vignette-vert"></div>
+            <!-- Ambient Reactive Glow on the Portal Side -->
+            <div class="login-ambient-glow"></div>
         </div>
 
-        <!-- Main Card Container -->
-        <main class="login-card-container">
-            <div class="login-auth-card animate-cascade delay-card" id="login-auth-card">
-                <div aria-hidden="true" class="login-card-halo"></div>
+        <!-- FLOATING CANVAS PARTICLES (Atmospheric effect) -->
+        <canvas class="login-particles-canvas" id="portal-particles"></canvas>
 
-                <!-- Brand Header -->
-                <header class="login-brand-header">
-                    <div class="login-logo-emblem-wrap animate-cascade delay-logo" title="plixora.bo">
-                        <div class="login-logo-emblem">
-                            <img src="MODO%20NOCHE.png" alt="PLIXORA Logo" class="login-emblem-img theme-logo-dark">
-                            <img src="MODO%20DIA.png" alt="PLIXORA Logo" class="login-emblem-img theme-logo-light">
-                        </div>
-                    </div>
-                    <div class="animate-cascade delay-title">
-                        <h1 class="login-title">Bienvenido a plixora.bo</h1>
-                        <p class="login-subtitle">Inicia sesión para continuar en tu cuenta</p>
-                    </div>
-                </header>
+        <!-- TOP BRAND STATUS BAR -->
+        <header class="login-top-bar">
+            <div class="login-top-brand">
+                <div class="login-ping-dot"></div>
+                <span class="login-brand-title">PLIXORA<span class="login-brand-accent">.BO</span></span>
+                <span class="login-enterprise-tag">Enterprise V4.19</span>
+            </div>
+            <div class="login-top-telemetry">
+                <span class="login-tls-badge">
+                    <span class="material-symbols-outlined login-shield-icon">shield</span>
+                    Encriptación TLS 1.3
+                </span>
+                <span class="login-node-pill">
+                    <span class="login-node-dot"></span>
+                    Nodo La Paz: Activo
+                </span>
+            </div>
+        </header>
 
-                <!-- Login Form -->
-                <form class="login-form-stack" id="login-form" novalidate onsubmit="event.preventDefault();">
-                    <!-- Campo: Correo o Teléfono -->
-                    <div class="login-field-group animate-cascade delay-field-1">
-                        <label class="login-field-label" for="login-email">Correo electrónico o teléfono</label>
-                        <div class="login-input-wrap">
-                            <input class="login-input" id="login-email" name="identifier" type="text" placeholder="Ingresa tu correo o teléfono" value="admin@plixora.bo" autocomplete="username" required>
+        <!-- MAIN VIEWPORT CONTAINER (Split Portal & High-Definition Login Card) -->
+        <div class="login-split-container">
+            <!-- LEFT COLUMN: The Iconic Ultra-Clean White Card -->
+            <div class="login-left-column" id="login-card-container">
+                <!-- Pristine White Authentication Vault Card -->
+                <div class="login-auth-card" id="login-auth-card">
+                    <!-- Top Lime Shimmer Micro Accent -->
+                    <div class="login-card-lime-shimmer"></div>
+
+                    <!-- CARD HEADER: Official Logo with Cyber Floating Effect -->
+                    <div class="login-card-header">
+                        <div class="login-logo-glow-wrap" title="plixora.bo">
+                            <!-- Concentric Pulse Rings -->
+                            <div class="login-logo-concentric-pulse"></div>
+                            <!-- Circular Badge Container -->
+                            <div class="login-logo-badge">
+                                <img src="MODO%20NOCHE.png" alt="PLIXORA Logo" class="login-logo-img">
+                            </div>
                         </div>
+
+                        <!-- Typography Hierarchy -->
+                        <h1 class="login-card-title">Bienvenido a plixora.bo</h1>
+                        <p class="login-card-subtitle">Inicia sesión para continuar en tu cuenta</p>
                     </div>
 
-                    <!-- Campo: Contraseña -->
-                    <div class="login-field-group animate-cascade delay-field-2">
-                        <div class="login-field-header-row">
-                            <label class="login-field-label" for="login-password">Contraseña</label>
-                            <a href="#" class="login-link-forgot" onclick="event.preventDefault(); if (typeof window.showToast === 'function') window.showToast('Contraseña de administrador gestionada en Firebase.'); else alert('Contraseña gestionada en Firebase Console.');">¿Olvidaste tu contraseña?</a>
+                    <!-- AUTHENTICATION FORM -->
+                    <form class="login-form-stack" id="login-form" novalidate onsubmit="event.preventDefault();">
+                        <!-- Field 1: Email or Phone -->
+                        <div class="login-field-group">
+                            <label class="login-field-label" for="login-email">Correo electrónico o teléfono</label>
+                            <div class="login-input-wrap">
+                                <input autocomplete="username" class="login-input" id="login-email" name="identifier" placeholder="admin@plixora.bo" required="" type="text" value="admin@plixora.bo" />
+                                <span class="login-input-icon">
+                                    <span class="material-symbols-outlined">person</span>
+                                </span>
+                            </div>
                         </div>
-                        <div class="login-input-wrap">
-                            <input class="login-input login-input-pw" id="login-password" name="password" type="password" placeholder="••••••••" autocomplete="current-password" required>
-                            <button type="button" class="login-toggle-pw-btn" id="toggle-password" aria-label="Mostrar contraseña">Mostrar</button>
+
+                        <!-- Field 2: Password with Reveal Action -->
+                        <div class="login-field-group">
+                            <div class="login-field-header-row">
+                                <label class="login-field-label" for="login-password">Contraseña</label>
+                                <a class="login-link-forgot" href="#" onclick="event.preventDefault(); if (typeof window.showToast === 'function') window.showToast('Contraseña de administrador gestionada en Firebase.'); else alert('Contraseña gestionada en Firebase Console.');">¿Olvidaste tu contraseña?</a>
+                            </div>
+                            <div class="login-input-wrap">
+                                <input autocomplete="current-password" class="login-input login-input-pw" id="login-password" name="password" placeholder="••••••••" required="" type="password" />
+                                <div class="login-input-action">
+                                    <button class="login-toggle-pw-btn" id="toggle-password" type="button">Mostrar</button>
+                                </div>
+                            </div>
                         </div>
+
+                        <!-- Primary Submit Button -->
+                        <div class="login-submit-wrap">
+                            <button class="login-btn-submit" id="login-submit" type="submit">
+                                <span class="login-btn-text" id="btn-text">Iniciar Sesión</span>
+                                <span class="login-spinner" id="btn-loader"></span>
+                                <span class="material-symbols-outlined login-btn-icon" id="btn-icon">arrow_forward</span>
+                            </button>
+                        </div>
+
+                        <!-- Error Message Container -->
+                        <div id="login-error" class="login-error-msg"></div>
+                    </form>
+
+                    <!-- Divider -->
+                    <div class="login-social-divider">
+                        <span>o continuar con</span>
                     </div>
 
-                    <!-- Botón Iniciar Sesión -->
-                    <div class="animate-cascade delay-btn" style="padding-top: 0.25rem;">
-                        <button type="submit" id="login-submit" class="login-btn-submit btn-shimmer">
-                            <span class="login-btn-text">Iniciar Sesión</span>
-                            <div class="login-spinner"></div>
+                    <!-- Social Sign-in Grid: Google & GitHub -->
+                    <div class="login-social-grid">
+                        <button class="login-social-btn" type="button" onclick="if (typeof window.showToast === 'function') window.showToast('Acceso exclusivo para administradores con correo');">
+                            <svg class="login-social-icon" viewBox="0 0 24 24">
+                                <path d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z" fill="#4285F4"></path>
+                                <path d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z" fill="#34A853"></path>
+                                <path d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z" fill="#FBBC05"></path>
+                                <path d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z" fill="#EA4335"></path>
+                            </svg>
+                            <span>Google</span>
+                        </button>
+                        <button class="login-social-btn" type="button" onclick="if (typeof window.showToast === 'function') window.showToast('Acceso exclusivo para administradores con correo');">
+                            <svg class="login-social-icon" viewBox="0 0 24 24" fill="currentColor">
+                                <path clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" fill-rule="evenodd"></path>
+                            </svg>
+                            <span>GitHub</span>
                         </button>
                     </div>
 
-                    <!-- Contenedor de Error -->
-                    <div id="login-error" class="login-error-msg"></div>
-                </form>
-
-                <!-- Divisor Social -->
-                <div class="login-social-divider animate-cascade delay-divider">
-                    <span>o continuar con</span>
+                    <!-- Footer Call-to-action inside card -->
+                    <div class="login-card-footer">
+                        <p class="login-register-prompt">
+                            ¿No tienes una cuenta? 
+                            <a class="login-register-link" href="#" onclick="event.preventDefault(); if (typeof window.showToast === 'function') window.showToast('Acceso exclusivo para administradores');">Regístrate</a>
+                        </p>
+                    </div>
                 </div>
 
-                <!-- Botones Sociales (Google y GitHub) -->
-                <div class="login-social-grid animate-cascade delay-social">
-                    <button type="button" class="login-social-btn" onclick="if (typeof window.showToast === 'function') window.showToast('Acceso exclusivo para administradores con correo');">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z" fill="#4285F4"></path>
-                            <path d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.26v3.15C3.25 21.36 7.33 24 12 24z" fill="#34A853"></path>
-                            <path d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.14-1.55.38-2.27V6.58H1.26C.46 8.16 0 9.94 0 12s.46 3.84 1.26 5.42l4.02-3.15z" fill="#FBBC05"></path>
-                            <path d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.25 2.64 1.26 6.58l4.02 3.15c.95-2.83 3.6-4.98 6.72-4.98z" fill="#EA4335"></path>
-                        </svg>
-                        <span>Google</span>
-                    </button>
-                    <button type="button" class="login-social-btn" onclick="if (typeof window.showToast === 'function') window.showToast('Acceso exclusivo para administradores con correo');">
-                        <svg fill="currentColor" viewBox="0 0 24 24">
-                            <path clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" fill-rule="evenodd"></path>
-                        </svg>
-                        <span>GitHub</span>
-                    </button>
+                <!-- Quick Trust Badges below Card -->
+                <div class="login-trust-badges">
+                    <span class="login-trust-item">
+                        <span class="material-symbols-outlined login-trust-icon">verified_user</span>
+                        Acceso Biométrico Activo
+                    </span>
+                    <span class="login-trust-dot">•</span>
+                    <span class="login-trust-link" onclick="if (typeof window.showToast === 'function') window.showToast('Términos Legales: Uso interno corporativo');">Términos Legales</span>
+                    <span class="login-trust-dot">•</span>
+                    <span class="login-trust-link" onclick="if (typeof window.showToast === 'function') window.showToast('Soporte: admin@plixora.bo');">Soporte 24/7</span>
                 </div>
-
-                <!-- Footer Registro -->
-                <footer class="login-footer-prompt animate-cascade delay-footer">
-                    ¿No tienes una cuenta? <a href="#" onclick="event.preventDefault(); if (typeof window.showToast === 'function') window.showToast('Acceso exclusivo para administradores');">Regístrate</a>
-                </footer>
             </div>
 
-            <!-- Watermark -->
-            <aside class="login-watermark animate-cascade delay-domain">
-                plixora.bo • Acceso Seguro
-            </aside>
-        </main>
+            <!-- RIGHT COLUMN: Spatial Dimension Indicator & Atmosphere Visual Framing -->
+            <div class="login-right-column">
+                <div class="login-dimension-pill">
+                    <span class="login-dimension-ping-dot"></span>
+                    <span class="login-dimension-text">DIMENSION GATE ONLINE</span>
+                </div>
+                <h2 class="login-hero-headline">
+                    PLIXORA<span class="login-hero-gradient">.BO</span>
+                </h2>
+                <!-- Live metrics telemetry card (Frosted Obsidian) -->
+                <div class="login-telemetry-card">
+                    <div class="login-telemetry-item">
+                        <div class="login-telemetry-label">Latencia Red</div>
+                        <div class="login-telemetry-val-lime">1.8 ms</div>
+                    </div>
+                    <div class="login-telemetry-divider"></div>
+                    <div class="login-telemetry-item">
+                        <div class="login-telemetry-label">Estado Núcleo</div>
+                        <div class="login-telemetry-val-white">
+                            <span>99.99%</span>
+                            <span class="material-symbols-outlined login-check-icon">check_circle</span>
+                        </div>
+                    </div>
+                    <div class="login-telemetry-divider"></div>
+                    <div class="login-telemetry-item">
+                        <div class="login-telemetry-label">Cifrado</div>
+                        <div class="login-telemetry-val-white">AES-GCM</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOTTOM FOOTER STRIP -->
+        <footer class="login-bottom-footer">
+            <div class="login-footer-copy">
+                <span>© 2025 Plixora Technologies Bolivia S.R.L.</span>
+                <span>•</span>
+                <span>Todos los derechos reservados.</span>
+            </div>
+            <div class="login-footer-links">
+                <a href="#" onclick="event.preventDefault(); if (typeof window.showToast === 'function') window.showToast('Políticas de Privacidad cifradas');">Políticas de Privacidad</a>
+                <a href="#" onclick="event.preventDefault(); if (typeof window.showToast === 'function') window.showToast('Seguridad de Datos TLS 1.3');">Seguridad de Datos</a>
+                <a href="#" onclick="event.preventDefault(); if (typeof window.showToast === 'function') window.showToast('Cumplimiento ASFI activo');">Cumplimiento ASFI</a>
+            </div>
+        </footer>
     </div>
 
     <script>
-        // Interactive Handlers: Theme Toggle, Password Visibility, 3D Card Tilt
+        // Interactive Handlers: Canvas Particles & 3D Card Tilt
         document.addEventListener('DOMContentLoaded', () => {
-            const themeBtn = document.getElementById('login-theme-toggle');
-            if (themeBtn) {
-                themeBtn.addEventListener('click', () => {
-                    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
-                    const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
-                    document.documentElement.setAttribute('data-theme', nextTheme);
-                    try { localStorage.setItem('theme', nextTheme); } catch (e) {}
+            // Particle Animation Canvas
+            (function initPortalCanvas() {
+                const canvas = document.getElementById('portal-particles');
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                let width = canvas.width = window.innerWidth;
+                let height = canvas.height = window.innerHeight;
+
+                window.addEventListener('resize', () => {
+                    width = canvas.width = window.innerWidth;
+                    height = canvas.height = window.innerHeight;
                 });
-            }
 
+                const particles = [];
+                const particleCount = 48;
 
-            // 3D Card Tilt in Dark Mode on Pointer Devices
+                for (let i = 0; i < particleCount; i++) {
+                    particles.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        radius: Math.random() * 1.8 + 0.6,
+                        vx: (Math.random() - 0.5) * 0.4 + 0.2,
+                        vy: (Math.random() - 0.5) * 0.4 - 0.3,
+                        alpha: Math.random() * 0.7 + 0.2,
+                        color: Math.random() > 0.4 ? '#8CFF00' : '#ffffff'
+                    });
+                }
+
+                function render() {
+                    const screen = document.getElementById('login-screen');
+                    if (screen && (screen.style.display === 'none' || screen.classList.contains('hidden-login'))) {
+                        return; // pause when authenticated
+                    }
+
+                    ctx.clearRect(0, 0, width, height);
+                    for (let i = 0; i < particles.length; i++) {
+                        const p = particles[i];
+                        p.x += p.vx;
+                        p.y += p.vy;
+
+                        if (p.x < 0) p.x = width;
+                        if (p.x > width) p.x = 0;
+                        if (p.y < 0) p.y = height;
+                        if (p.y > height) p.y = 0;
+
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                        ctx.fillStyle = p.color;
+                        ctx.globalAlpha = p.alpha;
+                        ctx.shadowBlur = 8;
+                        ctx.shadowColor = p.color;
+                        ctx.fill();
+                    }
+                    requestAnimationFrame(render);
+                }
+                render();
+            })();
+
+            // Subtle 3D Card Tilt on Pointer Devices
             const authCard = document.getElementById('login-auth-card');
             if (authCard && window.matchMedia('(pointer: fine)').matches && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
                 authCard.addEventListener('mousemove', (e) => {
-                    if (document.documentElement.getAttribute('data-theme') !== 'dark') return;
                     const rect = authCard.getBoundingClientRect();
                     const x = e.clientX - rect.left;
                     const y = e.clientY - rect.top;
                     const centerX = rect.width / 2;
                     const centerY = rect.height / 2;
-                    const rotateX = ((y - centerY) / centerY) * -3.5;
-                    const rotateY = ((x - centerX) / centerX) * 3.5;
+                    const rotateX = ((y - centerY) / centerY) * -3;
+                    const rotateY = ((x - centerX) / centerX) * 3;
                     authCard.style.transform = `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg)`;
                 });
                 authCard.addEventListener('mouseleave', () => {
@@ -198,7 +318,11 @@
                     <img src="MODO%20DIA.png" alt="PLIXORA Logo" class="theme-logo-light">
                 </div>
                 <div class="brand-text">
-                    <h1 id="typewriter-text">PLIXORA.BO</h1>
+                    <div class="brand-title-row">
+                        <span class="brand-name">PLIXORA</span>
+                        <span class="brand-badge-bo">.BO</span>
+                    </div>
+                    <span class="brand-subtitle">Cloud Core Engine</span>
                 </div>
             </div>
 
@@ -281,12 +405,19 @@
                     </span>
                 </div>
                 
-                <div class="profile-wrapper" style="position: relative; margin-left: 0.5rem;">
-                    <div class="owner-badge top-nav-profile" id="profile-menu-btn" title="Perfil" style="cursor: pointer;">
-                        <div class="owner-avatar">JV</div>
-                        <div class="owner-info">
-                            <span class="owner-name">Johan V.</span>
+                <div class="top-nav-divider"></div>
+
+                <div class="profile-wrapper" style="position: relative;">
+                    <div class="owner-badge top-nav-profile" id="profile-menu-btn" title="Perfil de Johan Valdivia" style="cursor: pointer;">
+                        <div class="profile-avatar-wrap">
+                            <div class="owner-avatar">JV</div>
+                            <span class="profile-online-dot"></span>
                         </div>
+                        <div class="owner-info">
+                            <span class="owner-name">Johan Valdivia</span>
+                            <span class="owner-email">admin@plixora.co</span>
+                        </div>
+                        <svg class="profile-chevron" id="profile-chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
                     </div>
                     <!-- Profile Dropdown -->
                     <div id="profile-dropdown" class="profile-dropdown hidden">
@@ -900,95 +1031,719 @@
             </section>
 
             <!-- ========================
-                 ANALYTICS
+                 ANALYTICS (ADVANCED FINANCIAL LEDGER)
                  ======================== -->
             <section id="analytics" class="view">
-                <!-- Header -->
-                <div class="nf-view-header">
-                    <div>
-                        <h2>📊 Analíticas de Ventas</h2>
-                        <p class="subtitle">Análisis completo de tu rendimiento comercial</p>
+                <!-- Ambient Glow Orbs -->
+                <div class="an-glow-orb-1" aria-hidden="true"></div>
+                <div class="an-glow-orb-2" aria-hidden="true"></div>
+
+                <!-- Top Breadcrumb & Live Action Bar -->
+                <div class="an-top-bar">
+                    <div class="an-header-info">
+                        <div class="an-breadcrumb-row">
+                            <span class="an-breadcrumb-accent">PLIXORA.BO</span>
+                            <span>/</span>
+                            <span>ANALÍTICA FINANCIERA</span>
+                        </div>
+                        <h1 class="an-main-title">
+                            Análisis Avanzado
+                            <span class="an-live-badge">
+                                <span class="an-pulse-dot"></span>
+                                Tiempo Real
+                            </span>
+                        </h1>
                     </div>
-                    <div style="display:flex;align-items:center;gap:0.75rem;">
-                        <select id="an-month-select" class="an-month-select">
-                            <!-- Populated by JS -->
-                        </select>
+                    <div class="an-action-group">
+                        <!-- Binance P2P Live Rate Badge -->
+                        <div class="an-rate-pill" id="an-live-rate-pill" title="Cotización en tiempo real Binance P2P Bolivia">
+                            <span class="an-pulse-dot" style="background:#8bfe00; width:6px; height:6px;"></span>
+                            <span id="an-live-rate-text">USDT P2P: 11.97 BOB</span>
+                        </div>
+
+                        <!-- Currency Toggle (BOB / USDT) -->
+                        <div class="an-currency-toggle" title="Alternar Moneda de Visualización">
+                            <button class="an-curr-btn active" id="an-curr-bob" type="button" onclick="window.setAnalyticsCurrency && window.setAnalyticsCurrency('BOB')">BOB</button>
+                            <button class="an-curr-btn" id="an-curr-usd" type="button" onclick="window.setAnalyticsCurrency && window.setAnalyticsCurrency('USD')">USDT</button>
+                        </div>
+
+                        <!-- Timeframe Selector -->
+                        <div class="an-time-pills">
+                            <button class="an-time-btn" data-time="7D" type="button" onclick="window.setAnalyticsTimeframe && window.setAnalyticsTimeframe('7D')">7D</button>
+                            <button class="an-time-btn active" data-time="30D" type="button" onclick="window.setAnalyticsTimeframe && window.setAnalyticsTimeframe('30D')">30D</button>
+                            <button class="an-time-btn" data-time="90D" type="button" onclick="window.setAnalyticsTimeframe && window.setAnalyticsTimeframe('90D')">90D</button>
+                            <button class="an-time-btn" data-time="1A" type="button" onclick="window.setAnalyticsTimeframe && window.setAnalyticsTimeframe('1A')">1A</button>
+                            <button class="an-time-btn" data-time="ALL" type="button" onclick="window.setAnalyticsTimeframe && window.setAnalyticsTimeframe('ALL')">Histórico</button>
+                        </div>
+
+                        <button class="an-btn-secondary" id="an-btn-conciliar" type="button" onclick="window.conciliarLoteModal && window.conciliarLoteModal()">
+                            <span class="material-symbols-outlined" style="font-size:18px;">sync_alt</span>
+                            <span>Conciliar Lote QR</span>
+                        </button>
+                        <button class="an-btn-primary" id="an-btn-exportar" type="button" onclick="window.exportarReporte && window.exportarReporte()">
+                            <span class="material-symbols-outlined" style="font-size:18px;">download</span>
+                            <span>Descargar Reporte (CSV/PDF)</span>
+                        </button>
                     </div>
                 </div>
 
-                <!-- Summary Cards -->
-                <div class="an-summary-grid">
-                    <div class="an-summary-card">
-                        <div class="an-card-icon" style="background:rgba(254,91,41,0.12);">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="#FE5B29"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/></svg>
+                <!-- 1. STATS METRIC SUMMARY STRIP (5 High Impact KPI Cards) -->
+                <div class="an-kpi-grid">
+                    <!-- KPI 1: Ingresos Digitales -->
+                    <div class="an-kpi-card">
+                        <div class="an-kpi-header">
+                            <span>Ingresos Digitales</span>
+                            <span class="material-symbols-outlined an-kpi-icon">payments</span>
                         </div>
-                        <div>
-                            <p class="an-card-label">Ventas del Mes</p>
-                            <p class="an-card-value" id="an-total-sales">0</p>
+                        <div class="an-kpi-body">
+                            <div class="an-kpi-value-row">
+                                <span class="an-kpi-curr" id="kpi-curr-1">BOB</span>
+                                <span class="an-kpi-num" id="kpi-val-revenue">348,920.00</span>
+                            </div>
+                            <div class="an-kpi-variation">
+                                <span class="an-var-positive">
+                                    <span class="material-symbols-outlined" style="font-size:14px;">arrow_upward</span> +24.6%
+                                </span>
+                                <span class="an-var-sub">vs. mes previo</span>
+                            </div>
                         </div>
-                    </div>
-                    <div class="an-summary-card">
-                        <div class="an-card-icon" style="background:rgba(59,130,246,0.12);">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="#3b82f6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        </div>
-                        <div>
-                            <p class="an-card-label">Ingresos (Bs)</p>
-                            <p class="an-card-value" id="an-total-revenue">0</p>
-                        </div>
-                    </div>
-                    <div class="an-summary-card">
-                        <div class="an-card-icon" style="background:rgba(16,185,129,0.12);">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="#10b981"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941"/></svg>
-                        </div>
-                        <div>
-                            <p class="an-card-label">Ganancia (Bs)</p>
-                            <p class="an-card-value" id="an-total-profit">0</p>
+                        <div style="height:32px; width:100%; padding-top:4px;">
+                            <svg style="width:100%; height:100%; color:var(--an-lime);" fill="none" preserveAspectRatio="none" viewBox="0 0 100 24">
+                                <path d="M0 18 Q 15 14, 30 16 T 60 8 T 85 11 T 100 2" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+                                <path d="M0 18 Q 15 14, 30 16 T 60 8 T 85 11 T 100 2 L 100 24 L 0 24 Z" fill="currentColor" fill-opacity="0.12"></path>
+                            </svg>
                         </div>
                     </div>
-                    <div class="an-summary-card">
-                        <div class="an-card-icon" style="background:rgba(139,92,246,0.12);">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="#8b5cf6"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z"/></svg>
+
+                    <!-- KPI 2: Licencias Despachadas -->
+                    <div class="an-kpi-card">
+                        <div class="an-kpi-header">
+                            <span>Licencias Despachadas</span>
+                            <span class="material-symbols-outlined an-kpi-icon">verified</span>
                         </div>
-                        <div>
-                            <p class="an-card-label">Promedio/Venta</p>
-                            <p class="an-card-value" id="an-avg-sale">0 Bs</p>
+                        <div class="an-kpi-body">
+                            <div class="an-kpi-value-row">
+                                <span class="an-kpi-num" id="kpi-val-licenses">14,250</span>
+                                <span class="an-kpi-unit">unidades</span>
+                            </div>
+                            <div class="an-kpi-variation">
+                                <span class="an-var-positive">
+                                    <span class="material-symbols-outlined" style="font-size:14px;">trending_up</span> +18.2%
+                                </span>
+                                <span class="an-var-sub" id="kpi-sub-licenses">342 hoy</span>
+                            </div>
+                        </div>
+                        <div class="an-progress-bar">
+                            <div class="an-progress-fill" id="kpi-bar-licenses" style="width: 82%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- KPI 3: Margen Neto Operativo -->
+                    <div class="an-kpi-card">
+                        <div class="an-kpi-header">
+                            <span>Margen Neto Operativo</span>
+                            <span class="an-kpi-badge-pill">Excelente</span>
+                        </div>
+                        <div class="an-kpi-body">
+                            <div class="an-kpi-value-row">
+                                <span class="an-kpi-num" id="kpi-val-margin">68.4%</span>
+                                <span class="an-kpi-unit">utilidad</span>
+                            </div>
+                            <div class="an-kpi-variation">
+                                <span style="color:var(--an-text-on-surface); font-size:11.5px;" id="kpi-val-margin-net">BOB 238,660.00 neto</span>
+                            </div>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; font-size:10.5px; color:var(--an-text-variant); margin-top:0.4rem;">
+                            <span>Costo prov: 27.2%</span>
+                            <span>Fees: 4.4%</span>
+                        </div>
+                    </div>
+
+                    <!-- KPI 4: Suscripciones MRR -->
+                    <div class="an-kpi-card">
+                        <div class="an-kpi-header">
+                            <span>MRR Recurrente</span>
+                            <span class="material-symbols-outlined an-kpi-icon">autorenew</span>
+                        </div>
+                        <div class="an-kpi-body">
+                            <div class="an-kpi-value-row">
+                                <span class="an-kpi-curr" id="kpi-curr-4">BOB</span>
+                                <span class="an-kpi-num" id="kpi-val-mrr">94,150.00</span>
+                            </div>
+                            <div class="an-kpi-variation">
+                                <span class="an-var-positive">96.8% retención</span>
+                                <span class="an-var-sub">(Churn 3.2%)</span>
+                            </div>
+                        </div>
+                        <div style="height:32px; width:100%; padding-top:4px;">
+                            <svg style="width:100%; height:100%;" fill="none" preserveAspectRatio="none" viewBox="0 0 100 24">
+                                <path d="M0 20 Q 25 18, 50 12 T 80 8 T 100 4" fill="none" stroke="#8bfe00" stroke-linecap="round" stroke-width="2"></path>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- KPI 5: Eficacia QR Simple -->
+                    <div class="an-kpi-card">
+                        <div class="an-kpi-header">
+                            <span>Eficacia QR Simple</span>
+                            <span class="material-symbols-outlined an-kpi-icon">qr_code_scanner</span>
+                        </div>
+                        <div class="an-kpi-body">
+                            <div class="an-kpi-value-row">
+                                <span class="an-kpi-num" id="kpi-val-qr-rate">84.2%</span>
+                                <span style="color:var(--an-lime); font-size:12px; font-weight:700;">+5.1%</span>
+                            </div>
+                            <div class="an-kpi-variation">
+                                <span class="an-var-sub">Vel. validación: 1.4s</span>
+                            </div>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:6px; font-size:11px; color:var(--an-lime); margin-top:0.4rem;">
+                            <span style="width:7px; height:7px; border-radius:50%; background:var(--an-lime); display:inline-block;"></span>
+                            <span>Red ACH &amp; Banco Unión OK</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Charts Row 1 -->
-                <div class="an-charts-row">
-                    <div class="an-chart-card an-chart-wide">
-                        <h3>Ventas por Día</h3>
-                        <div class="an-chart-wrap"><canvas id="chart-daily"></canvas></div>
+                <!-- 2. MAIN TWO COLUMN GRID: ÁREA MULTICAPA & DONUT CATEGORÍAS -->
+                <div class="an-main-charts-grid">
+                    <!-- CHART 1: Flujo de Ingresos vs. Costos vs. Utilidad -->
+                    <div class="an-glass-card">
+                        <div style="display:flex; flex-direction:row; justify-content:space-between; align-items:flex-start; gap:1rem; flex-wrap:wrap;">
+                            <div>
+                                <div class="an-card-subtitle-tag">
+                                    <span>Rendimiento Contable</span>
+                                    <span class="an-card-subtitle-dot"></span>
+                                    <span>Auditoría Algorítmica</span>
+                                </div>
+                                <h2 class="an-card-title">Flujo de Ingresos vs. Costos de Adquisición y Utilidad</h2>
+                            </div>
+                            <div class="an-legend-pills">
+                                <div class="an-legend-item">
+                                    <span class="an-legend-color-lime"></span>
+                                    <span id="legend-rev-label">Ingreso Bruto (BOB)</span>
+                                </div>
+                                <div class="an-legend-item">
+                                    <span class="an-legend-color-gray"></span>
+                                    <span>Costos Claves</span>
+                                </div>
+                                <div class="an-legend-item">
+                                    <span class="an-legend-line-white"></span>
+                                    <span>Margen Neto</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- SVG Interactive Chart Canvas -->
+                        <div class="an-area-canvas-wrap">
+                            <svg class="an-area-svg" style="width:100%; height:100%; overflow:visible;" fill="none" preserveAspectRatio="none" viewBox="0 0 800 240">
+                                <defs>
+                                    <linearGradient id="anAreaGradientPrimary" x1="0" x2="0" y1="0" y2="1">
+                                        <stop offset="0%" stop-color="#8bfe00" stop-opacity="0.38"></stop>
+                                        <stop offset="70%" stop-color="#8bfe00" stop-opacity="0.06"></stop>
+                                        <stop offset="100%" stop-color="#8bfe00" stop-opacity="0"></stop>
+                                    </linearGradient>
+                                    <linearGradient id="anAreaGradientCost" x1="0" x2="0" y1="0" y2="1">
+                                        <stop offset="0%" stop-color="#37393d" stop-opacity="0.55"></stop>
+                                        <stop offset="100%" stop-color="#37393d" stop-opacity="0"></stop>
+                                    </linearGradient>
+                                </defs>
+                                <!-- Horizontal Grid lines -->
+                                <line stroke="#282a2d" stroke-dasharray="3 3" stroke-width="1" x1="0" x2="800" y1="20" y2="20"></line>
+                                <line stroke="#282a2d" stroke-dasharray="3 3" stroke-width="1" x1="0" x2="800" y1="75" y2="75"></line>
+                                <line stroke="#282a2d" stroke-dasharray="3 3" stroke-width="1" x1="0" x2="800" y1="130" y2="130"></line>
+                                <line stroke="#282a2d" stroke-dasharray="3 3" stroke-width="1" x1="0" x2="800" y1="185" y2="185"></line>
+                                <line stroke="#282a2d" stroke-width="1" x1="0" x2="800" y1="230" y2="230"></line>
+                                <!-- Cost Curve (Bottom layer) -->
+                                <path d="M0,195 C100,190 180,182 250,178 C330,174 420,165 500,160 C580,155 680,150 800,140 L800,230 L0,230 Z" fill="url(#anAreaGradientCost)"></path>
+                                <path d="M0,195 C100,190 180,182 250,178 C330,174 420,165 500,160 C580,155 680,150 800,140" stroke="#44474e" stroke-width="2"></path>
+                                <!-- Gross Revenue Area (Middle layer) -->
+                                <path d="M0,140 C90,120 180,80 270,105 C350,125 430,60 520,70 C610,80 700,30 800,25 L800,230 L0,230 Z" fill="url(#anAreaGradientPrimary)"></path>
+                                <path d="M0,140 C90,120 180,80 270,105 C350,125 430,60 520,70 C610,80 700,30 800,25" stroke="#8bfe00" stroke-linecap="round" stroke-width="3"></path>
+                                <!-- Net Margin Highlight Curve -->
+                                <path d="M0,165 C90,140 180,110 270,130 C350,145 430,95 520,100 C610,115 700,65 800,50" stroke="#ffffff" stroke-dasharray="4 4" stroke-width="1.5"></path>
+                                <!-- Interactive Cursor & Data Point Marker at day 24 (X=520, Y=70) -->
+                                <line stroke="#8bfe00" stroke-dasharray="2 2" stroke-opacity="0.5" stroke-width="1.5" x1="520" x2="520" y1="10" y2="230"></line>
+                                <circle cx="520" cy="70" fill="#8bfe00" r="5" stroke="#0c0e11" stroke-width="2"></circle>
+                                <circle cx="520" cy="100" fill="#ffffff" r="3.5"></circle>
+                                <circle cx="520" cy="160" fill="#44474e" r="3.5"></circle>
+                            </svg>
+
+                            <!-- Floating Cyber Data Badge (Point details) -->
+                            <div class="an-floating-tooltip">
+                                <div class="an-tt-header">
+                                    <span id="tt-date">24 Octubre 2024</span>
+                                    <span style="color:var(--an-lime); font-weight:700;">Corte Diario</span>
+                                </div>
+                                <div class="an-tt-row">
+                                    <span style="color:var(--an-text-variant);">Ingreso:</span>
+                                    <span class="an-tt-val" id="tt-revenue">BOB 14,890.00</span>
+                                </div>
+                                <div class="an-tt-row">
+                                    <span style="color:var(--an-text-variant);">Costo Licencias:</span>
+                                    <span class="an-tt-val" style="color:var(--an-text-secondary);" id="tt-cost">BOB 3,920.00</span>
+                                </div>
+                                <div class="an-tt-net">
+                                    <span style="color:var(--an-lime); font-weight:700;">Utilidad Neta:</span>
+                                    <span class="an-tt-net-val" id="tt-profit">+BOB 10,970.00</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chart Timeline X-Axis -->
+                        <div class="an-timeline-axis">
+                            <span>01 Oct</span>
+                            <span>05 Oct</span>
+                            <span>10 Oct</span>
+                            <span>15 Oct</span>
+                            <span style="color:var(--an-text-primary); font-weight:700;">20 Oct</span>
+                            <span>25 Oct</span>
+                            <span>30 Oct</span>
+                        </div>
+
+                        <!-- Quick Summary Micro-Tiles -->
+                        <div class="an-micro-tiles">
+                            <div>
+                                <span class="an-micro-tile-label">Top Servicio:</span>
+                                <span class="an-micro-tile-val">Netflix 4K (42%)</span>
+                            </div>
+                            <div>
+                                <span class="an-micro-tile-label">Ticket Promedio:</span>
+                                <span class="an-micro-tile-val" id="an-micro-ticket">BOB 58.50</span>
+                            </div>
+                            <div>
+                                <span class="an-micro-tile-label">Volumen Diario:</span>
+                                <span class="an-micro-tile-val">475 Órdenes</span>
+                            </div>
+                            <div>
+                                <span class="an-micro-tile-label">Reembolsos:</span>
+                                <span class="an-micro-tile-val" style="color:var(--an-lime);">&lt; 0.18%</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="an-chart-card">
-                        <h3>Productos Más Vendidos</h3>
-                        <div class="an-chart-wrap"><canvas id="chart-products"></canvas></div>
+
+                    <!-- CHART 2: Donut Breakdown by Category -->
+                    <div class="an-glass-card">
+                        <div>
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span style="font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--an-text-variant); font-weight:600;">Mix de Facturación</span>
+                                <span class="material-symbols-outlined" style="color:var(--an-text-variant); font-size:18px;">pie_chart</span>
+                            </div>
+                            <h2 class="an-card-title">Ventas por Categoría</h2>
+                        </div>
+
+                        <!-- Donut SVG with center hub -->
+                        <div class="an-donut-wrap">
+                            <svg class="an-donut-svg" style="width:12.5rem; height:12.5rem; transform: rotate(-90deg);" viewBox="0 0 120 120">
+                                <circle cx="60" cy="60" fill="none" r="48" stroke="#1e2023" stroke-width="14"></circle>
+                                <!-- Segment 1: Streaming 42% -->
+                                <circle cx="60" cy="60" fill="none" r="48" stroke="#8bfe00" stroke-dasharray="126.6 301.59" stroke-dashoffset="0" stroke-linecap="round" stroke-width="14"></circle>
+                                <!-- Segment 2: Productividad 28% -->
+                                <circle cx="60" cy="60" fill="none" r="48" stroke="#ffffff" stroke-dasharray="84.4 301.59" stroke-dashoffset="-132" stroke-linecap="round" stroke-width="14"></circle>
+                                <!-- Segment 3: Gaming 18% -->
+                                <circle cx="60" cy="60" fill="none" r="48" stroke="#7adf00" stroke-dasharray="54.2 301.59" stroke-dashoffset="-220" stroke-linecap="round" stroke-width="14"></circle>
+                                <!-- Segment 4: Cloud/VPN 12% -->
+                                <circle cx="60" cy="60" fill="none" r="48" stroke="#333538" stroke-dasharray="36.1 301.59" stroke-dashoffset="-278" stroke-linecap="round" stroke-width="14"></circle>
+                            </svg>
+                            <div class="an-donut-hub">
+                                <span class="an-donut-hub-label">Total</span>
+                                <span class="an-donut-hub-val" id="an-donut-total">348.9K</span>
+                                <span class="an-donut-hub-curr" id="an-donut-curr">BOB</span>
+                            </div>
+                        </div>
+
+                        <!-- Legend breakdown list -->
+                        <div class="an-category-list">
+                            <div class="an-cat-row">
+                                <div class="an-cat-left">
+                                    <span class="an-cat-dot" style="background-color:#8bfe00;"></span>
+                                    <span>Streaming (Netflix, Spotify, Max)</span>
+                                </div>
+                                <div class="an-cat-right">
+                                    <span class="an-cat-pct">42%</span>
+                                    <span class="an-cat-amount" id="cat-val-streaming">BOB 146.5K</span>
+                                </div>
+                            </div>
+                            <div class="an-cat-row">
+                                <div class="an-cat-left">
+                                    <span class="an-cat-dot" style="background-color:#ffffff;"></span>
+                                    <span>Productividad (Canva, Office, AI)</span>
+                                </div>
+                                <div class="an-cat-right">
+                                    <span class="an-cat-pct">28%</span>
+                                    <span class="an-cat-amount" id="cat-val-prod">BOB 97.6K</span>
+                                </div>
+                            </div>
+                            <div class="an-cat-row">
+                                <div class="an-cat-left">
+                                    <span class="an-cat-dot" style="background-color:#7adf00;"></span>
+                                    <span>Gaming &amp; Keys (Steam, Xbox, PSN)</span>
+                                </div>
+                                <div class="an-cat-right">
+                                    <span class="an-cat-pct">18%</span>
+                                    <span class="an-cat-amount" id="cat-val-gaming">BOB 62.8K</span>
+                                </div>
+                            </div>
+                            <div class="an-cat-row">
+                                <div class="an-cat-left">
+                                    <span class="an-cat-dot" style="background-color:#333538;"></span>
+                                    <span>Cloud VPS, Hosting &amp; VPNs</span>
+                                </div>
+                                <div class="an-cat-right">
+                                    <span class="an-cat-pct">12%</span>
+                                    <span class="an-cat-amount" id="cat-val-cloud">BOB 41.8K</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Charts Row 2 -->
-                <div class="an-charts-row">
-                    <div class="an-chart-card">
-                        <h3>Ingresos Semanales (Bs)</h3>
-                        <div class="an-chart-wrap"><canvas id="chart-weekly"></canvas></div>
+                <!-- 3. TRIPLE GRID: PASARELAS, ROTACIÓN & COHORTES -->
+                <div class="an-triple-grid">
+                    <!-- Card 1: Canales de Pago Bolivia -->
+                    <div class="an-glass-card">
+                        <div>
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span style="font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--an-text-variant); font-weight:600;">Pasarelas &amp; Liquidación</span>
+                                <span style="display:inline-flex; align-items:center; gap:4px; font-size:11px; color:var(--an-lime); font-weight:600;">
+                                    <span style="width:6px; height:6px; border-radius:50%; background:var(--an-lime); display:inline-block;"></span>
+                                    Enrutamiento Directo
+                                </span>
+                            </div>
+                            <h2 class="an-card-title">Canales de Pago Bolivia</h2>
+                        </div>
+
+                        <div class="an-gateway-list">
+                            <!-- QR Simple -->
+                            <div class="an-gw-item">
+                                <div class="an-gw-meta">
+                                    <span class="an-gw-name">
+                                        <span class="material-symbols-outlined" style="font-size:16px; color:var(--an-lime);">qr_code_2</span>
+                                        QR Simple (BCP, BNB, Banco Unión)
+                                    </span>
+                                    <span class="an-gw-stats">58% <span style="color:var(--an-text-variant); font-weight:normal;" id="gw-val-qr">| BOB 202.3K</span></span>
+                                </div>
+                                <div class="an-progress-bar" style="margin-top:0.25rem;">
+                                    <div class="an-progress-fill" style="width:58%;"></div>
+                                </div>
+                                <div class="an-gw-details">
+                                    <span>Tasa éxito: 99.1%</span>
+                                    <span>Comisión: 0.8%</span>
+                                </div>
+                            </div>
+
+                            <!-- Tarjetas -->
+                            <div class="an-gw-item">
+                                <div class="an-gw-meta">
+                                    <span class="an-gw-name">
+                                        <span class="material-symbols-outlined" style="font-size:16px; color:#ffffff;">credit_card</span>
+                                        Tarjetas Visa / Mastercard
+                                    </span>
+                                    <span class="an-gw-stats">24% <span style="color:var(--an-text-variant); font-weight:normal;" id="gw-val-card">| BOB 83.7K</span></span>
+                                </div>
+                                <div class="an-progress-bar" style="margin-top:0.25rem;">
+                                    <div class="an-progress-fill" style="width:24%; background:#ffffff; box-shadow:0 0 10px rgba(255,255,255,0.4);"></div>
+                                </div>
+                                <div class="an-gw-details">
+                                    <span>Tasa éxito: 94.3%</span>
+                                    <span>Comisión: 2.9%</span>
+                                </div>
+                            </div>
+
+                            <!-- USDT / Binance Pay -->
+                            <div class="an-gw-item">
+                                <div class="an-gw-meta">
+                                    <span class="an-gw-name">
+                                        <span class="material-symbols-outlined" style="font-size:16px; color:var(--an-lime);">currency_bitcoin</span>
+                                        Cripto / USDT P2P &amp; Binance Pay
+                                    </span>
+                                    <span class="an-gw-stats">14% <span style="color:var(--an-text-variant); font-weight:normal;" id="gw-val-crypto">| BOB 48.8K</span></span>
+                                </div>
+                                <div class="an-progress-bar" style="margin-top:0.25rem;">
+                                    <div class="an-progress-fill" style="width:14%; background:#90fd32;"></div>
+                                </div>
+                                <div class="an-gw-details">
+                                    <span>Tasa éxito: 99.8%</span>
+                                    <span>Comisión: 0.1%</span>
+                                </div>
+                            </div>
+
+                            <!-- Tigo Money -->
+                            <div class="an-gw-item">
+                                <div class="an-gw-meta">
+                                    <span class="an-gw-name">
+                                        <span class="material-symbols-outlined" style="font-size:16px; color:var(--an-text-secondary);">phone_iphone</span>
+                                        Tigo Money &amp; PagoExpress
+                                    </span>
+                                    <span class="an-gw-stats">4% <span style="color:var(--an-text-variant); font-weight:normal;" id="gw-val-tigo">| BOB 13.9K</span></span>
+                                </div>
+                                <div class="an-progress-bar" style="margin-top:0.25rem;">
+                                    <div class="an-progress-fill" style="width:4%; background:var(--an-text-secondary);"></div>
+                                </div>
+                                <div class="an-gw-details">
+                                    <span>Tasa éxito: 91.5%</span>
+                                    <span>Comisión: 1.5%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="padding:0.75rem; background:var(--an-surface); border-radius:10px; display:flex; align-items:center; justify-content:space-between; border:1px solid rgba(255,255,255,0.05);">
+                            <div style="display:flex; align-items:center; gap:6px;">
+                                <span class="material-symbols-outlined" style="color:var(--an-lime); font-size:18px;">bolt</span>
+                                <span style="font-size:11.5px; color:var(--an-text-on-surface); font-weight:500;">Conciliación Instantánea:</span>
+                            </div>
+                            <span style="font-size:11.5px; font-weight:700; color:var(--an-lime);">1.4 segundos prom.</span>
+                        </div>
                     </div>
-                    <div class="an-chart-card an-chart-wide">
-                        <h3>Tendencia Últimos 6 Meses</h3>
-                        <div class="an-chart-wrap"><canvas id="chart-trend"></canvas></div>
+
+                    <!-- Card 2: Rotación de Cuentas & Picos de Venta -->
+                    <div class="an-glass-card">
+                        <div>
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span style="font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--an-text-variant); font-weight:600;">Inventario &amp; Activación</span>
+                                <span style="padding:2px 8px; border-radius:6px; font-size:10px; background:rgba(139,254,0,0.12); color:var(--an-lime); font-weight:700;">98.6% Auto</span>
+                            </div>
+                            <h2 class="an-card-title">Rotación de Cuentas &amp; Picos</h2>
+                        </div>
+
+                        <!-- Activity Bars (BOT Bolivia) -->
+                        <div style="margin: 1rem 0;">
+                            <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--an-text-variant); margin-bottom:0.5rem;">
+                                <span>Actividad por Franja Horaria (BOT Bolivia)</span>
+                                <span style="color:var(--an-lime); font-weight:700;">Pico: 20:00 - 23:00</span>
+                            </div>
+                            <div class="an-heatmap-bars">
+                                <div class="an-hm-col">
+                                    <div class="an-hm-bar-fill" style="height:25%;"></div>
+                                    <span class="an-hm-hour">00h</span>
+                                </div>
+                                <div class="an-hm-col">
+                                    <div class="an-hm-bar-fill" style="height:10%;"></div>
+                                    <span class="an-hm-hour">04h</span>
+                                </div>
+                                <div class="an-hm-col">
+                                    <div class="an-hm-bar-fill" style="height:48%;"></div>
+                                    <span class="an-hm-hour">08h</span>
+                                </div>
+                                <div class="an-hm-col">
+                                    <div class="an-hm-bar-fill" style="height:68%;"></div>
+                                    <span class="an-hm-hour">12h</span>
+                                </div>
+                                <div class="an-hm-col">
+                                    <div class="an-hm-bar-fill" style="height:75%;"></div>
+                                    <span class="an-hm-hour">16h</span>
+                                </div>
+                                <div class="an-hm-col peak">
+                                    <div class="an-hm-bar-fill" style="height:98%;"></div>
+                                    <span class="an-hm-hour">20h</span>
+                                </div>
+                                <div class="an-hm-col peak">
+                                    <div class="an-hm-bar-fill" style="height:88%;"></div>
+                                    <span class="an-hm-hour">22h</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; padding-top:0.5rem; border-top:1px solid rgba(255,255,255,0.06);">
+                            <div style="padding:0.5rem; background:rgba(30,32,35,0.5); border-radius:8px;">
+                                <span style="font-size:10.5px; color:var(--an-text-variant); display:block;">Stock Disponible:</span>
+                                <span style="font-size:14px; font-weight:800; color:var(--an-text-primary);">4,810 claves</span>
+                            </div>
+                            <div style="padding:0.5rem; background:rgba(30,32,35,0.5); border-radius:8px;">
+                                <span style="font-size:10.5px; color:var(--an-text-variant); display:block;">Tiempo Entrega:</span>
+                                <span style="font-size:14px; font-weight:800; color:var(--an-lime);">&lt; 8 segundos</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Retención de Suscripciones & Cohortes -->
+                    <div class="an-glass-card">
+                        <div>
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span style="font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--an-text-variant); font-weight:600;">Curva de Cohortes</span>
+                                <span style="font-size:11px; color:var(--an-text-on-surface);">Ciclos M1 a M12</span>
+                            </div>
+                            <h2 class="an-card-title">Retención de Suscripciones</h2>
+                        </div>
+
+                        <div class="an-cohort-svg-wrap">
+                            <svg style="width:100%; height:100%;" fill="none" preserveAspectRatio="none" viewBox="0 0 300 120">
+                                <line stroke="#282a2d" stroke-dasharray="2 2" x1="0" x2="300" y1="30" y2="30"></line>
+                                <line stroke="#282a2d" stroke-dasharray="2 2" x1="0" x2="300" y1="70" y2="70"></line>
+                                <line stroke="#282a2d" x1="0" x2="300" y1="110" y2="110"></line>
+                                <!-- Historical Renewal Curve (M1 to M9) -->
+                                <path d="M0,15 C50,18 100,22 150,25 C180,28 200,32 230,34" stroke="#8bfe00" stroke-linecap="round" stroke-width="2.5"></path>
+                                <!-- Forecast Projection (M9 to M12) -->
+                                <path d="M230,34 C250,35 280,38 300,40" stroke="#8bfe00" stroke-dasharray="4 4" stroke-width="2"></path>
+                                <!-- Churn Curve -->
+                                <path d="M0,105 C60,102 120,98 180,95 C240,92 280,90 300,88" stroke="#ffb4ab" stroke-width="1.5"></path>
+                                <!-- Circles -->
+                                <circle cx="230" cy="34" fill="#8bfe00" r="4"></circle>
+                                <circle cx="300" cy="40" fill="#ffffff" r="3"></circle>
+                            </svg>
+                            <div class="an-forecast-badge">
+                                Proyección Mes Prox: BOB 410K+
+                            </div>
+                        </div>
+
+                        <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--an-text-variant);">
+                            <span>Mes 1: 100%</span>
+                            <span>Mes 3: 94.2%</span>
+                            <span>Mes 6: 91.0%</span>
+                            <span style="color:var(--an-text-primary); font-weight:700;">Mes 12: 87.5%</span>
+                        </div>
+
+                        <div style="margin-top:0.75rem; padding:0.65rem 0.85rem; background:var(--an-surface-lowest); border-radius:10px; display:flex; align-items:center; justify-content:space-between; border:1px solid rgba(255,255,255,0.04);">
+                            <div style="display:flex; align-items:center; gap:6px;">
+                                <span class="material-symbols-outlined" style="font-size:16px; color:var(--an-error);">trending_down</span>
+                                <span style="font-size:11.5px; color:var(--an-text-on-surface);">Tasa de Churn Global:</span>
+                            </div>
+                            <span style="font-size:12px; font-weight:800; color:var(--an-error); font-family:monospace;">3.2% (Benchmark &lt; 5%)</span>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Bottom Row: Top Clients + Best Day -->
-                <div class="an-charts-row">
-                    <div class="an-chart-card">
-                        <h3>🏆 Top 5 Clientes</h3>
-                        <div id="an-top-clients" class="an-top-clients"><!-- Rendered by JS --></div>
+                <!-- 4. WATERFALL CONTABLE: CONCILIACIÓN LÍQUIDA DE FONDOS -->
+                <div class="an-waterfall-card">
+                    <div class="an-wf-top">
+                        <div>
+                            <span style="font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--an-lime); font-weight:700;">Ledger Cripto-Contable</span>
+                            <h2 class="an-main-title" style="font-size:1.35rem; margin-top:0.25rem;">Flujo de Fondos &amp; Conciliación Líquida (Waterfall)</h2>
+                            <p style="margin:0.25rem 0 0; font-size:12.5px; color:var(--an-text-variant);">Desglose transparente desde la recaudación bruta hasta la disponibilidad bancaria en Bolivia.</p>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:1.25rem; flex-wrap:wrap;">
+                            <div style="text-align:right;">
+                                <span style="font-size:11px; color:var(--an-text-variant); display:block;">Disponible para Retiro:</span>
+                                <span style="font-size:1.35rem; font-weight:800; color:var(--an-lime); font-family:monospace;" id="wf-val-disponible">BOB 238,660.00</span>
+                            </div>
+                            <button class="an-btn-primary" type="button" onclick="window.transferirCuentaFiscal && window.transferirCuentaFiscal()">
+                                Transferir a Cuenta Fiscal
+                            </button>
+                        </div>
                     </div>
-                    <div class="an-chart-card">
-                        <h3>📅 Mejor Día de Ventas</h3>
-                        <div id="an-best-day" class="an-best-day"><!-- Rendered by JS --></div>
+
+                    <!-- 5 Etapas del Waterfall -->
+                    <div class="an-wf-grid">
+                        <!-- Stage 1 -->
+                        <div class="an-wf-stage">
+                            <div class="an-wf-stage-header">
+                                <span>1. Recaudación Bruta</span>
+                                <span class="material-symbols-outlined" style="font-size:16px;">point_of_sale</span>
+                            </div>
+                            <span class="an-wf-stage-val" id="wf-val-gross">BOB 348,920.00</span>
+                            <div class="an-progress-bar">
+                                <div class="an-progress-fill" style="width:100%; background:#ffffff; box-shadow:none;"></div>
+                            </div>
+                            <span class="an-wf-stage-note">100% Volumen transaccionado</span>
+                        </div>
+
+                        <!-- Stage 2 -->
+                        <div class="an-wf-stage cost">
+                            <div class="an-wf-stage-header">
+                                <span>2. Costo Proveedor</span>
+                                <span class="material-symbols-outlined" style="font-size:16px; color:var(--an-error);">remove_circle_outline</span>
+                            </div>
+                            <span class="an-wf-stage-val" id="wf-val-cost">- BOB 94,905.00</span>
+                            <div class="an-progress-bar">
+                                <div class="an-progress-fill" style="width:27.2%; background:var(--an-error); box-shadow:none;"></div>
+                            </div>
+                            <span class="an-wf-stage-note">Mayoristas globales &amp; APIs (27.2%)</span>
+                        </div>
+
+                        <!-- Stage 3 -->
+                        <div class="an-wf-stage fees">
+                            <div class="an-wf-stage-header">
+                                <span>3. Fees Pasarelas</span>
+                                <span class="material-symbols-outlined" style="font-size:16px; color:var(--an-text-secondary);">percent</span>
+                            </div>
+                            <span class="an-wf-stage-val" id="wf-val-fees">- BOB 5,230.00</span>
+                            <div class="an-progress-bar">
+                                <div class="an-progress-fill" style="width:1.5%; background:var(--an-text-secondary); box-shadow:none;"></div>
+                            </div>
+                            <span class="an-wf-stage-note">QR Simple &amp; Red Enlace (1.5%)</span>
+                        </div>
+
+                        <!-- Stage 4 -->
+                        <div class="an-wf-stage fees">
+                            <div class="an-wf-stage-header">
+                                <span>4. Impuestos &amp; IVA</span>
+                                <span class="material-symbols-outlined" style="font-size:16px; color:var(--an-text-secondary);">account_balance</span>
+                            </div>
+                            <span class="an-wf-stage-val" id="wf-val-tax">- BOB 10,125.00</span>
+                            <div class="an-progress-bar">
+                                <div class="an-progress-fill" style="width:2.9%; background:var(--an-text-secondary); box-shadow:none;"></div>
+                            </div>
+                            <span class="an-wf-stage-note">SIN Facturación Digital (2.9%)</span>
+                        </div>
+
+                        <!-- Stage 5 -->
+                        <div class="an-wf-stage highlight">
+                            <div class="an-wf-stage-header">
+                                <span style="color:var(--an-lime); font-weight:800;">5. Utilidad Líquida</span>
+                                <span class="material-symbols-outlined" style="font-size:18px; color:var(--an-lime);">verified</span>
+                            </div>
+                            <span class="an-wf-stage-val" id="wf-val-net">BOB 238,660.00</span>
+                            <div class="an-progress-bar">
+                                <div class="an-progress-fill" style="width:68.4%;"></div>
+                            </div>
+                            <span class="an-wf-stage-note" style="color:var(--an-lime); font-weight:700;">68.4% Margen neto disponible</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. TABLA DE AUDITORÍA Y TRANSACCIONES EN VIVO -->
+                <div class="an-table-card">
+                    <div class="an-table-top">
+                        <div>
+                            <span style="font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--an-text-variant); font-weight:600;">Operaciones en Vivo</span>
+                            <h2 class="an-card-title">Últimas Transacciones de Cuentas y Licencias</h2>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:0.65rem;">
+                            <div class="an-search-wrap">
+                                <span class="material-symbols-outlined an-search-icon">filter_list</span>
+                                <input class="an-search-input" id="an-table-search" placeholder="Filtrar por orden, email o servicio..." type="text" oninput="window.filterAnalyticsTable && window.filterAnalyticsTable(this.value)" />
+                            </div>
+                            <button class="an-action-btn" type="button" title="Filtros avanzados" onclick="if(typeof window.showToast==='function') window.showToast('Filtro de auditoría en tiempo real activo');">
+                                <span class="material-symbols-outlined" style="font-size:18px;">tune</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="an-table-scroll">
+                        <table class="an-orders-table">
+                            <thead>
+                                <tr>
+                                    <th>ID / FECHA</th>
+                                    <th>CLIENTE</th>
+                                    <th>PRODUCTO / SERVICIO</th>
+                                    <th>MÉTODO DE PAGO</th>
+                                    <th>MONTO (<span class="tbl-curr-label">BOB</span>)</th>
+                                    <th>ENTREGA DIGITAL</th>
+                                    <th style="text-align:right;">ACCIONES</th>
+                                </tr>
+                            </thead>
+                            <tbody id="an-table-body">
+                                <tr>
+                                    <td colspan="7" style="text-align:center; padding:3rem 1rem; color:var(--an-text-variant);">
+                                        <span class="material-symbols-outlined" style="font-size:36px; display:block; margin:0 auto 0.5rem; opacity:0.4;">receipt_long</span>
+                                        <div style="font-weight:600; font-size:13px; color:var(--an-text-on-surface);">Cargando transacciones en tiempo real...</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="an-pagination-row">
+                        <span id="an-table-info">Sincronizando órdenes con base contable...</span>
+                        <div class="an-page-btns">
+                            <button class="an-page-btn" type="button" disabled>Anterior</button>
+                            <button class="an-page-btn active" type="button">1</button>
+                            <button class="an-page-btn" type="button">2</button>
+                            <button class="an-page-btn" type="button">3</button>
+                            <span style="padding:0 4px; color:var(--an-text-variant);">...</span>
+                            <button class="an-page-btn" type="button">284</button>
+                            <button class="an-page-btn" type="button">Siguiente</button>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -2151,7 +2906,7 @@
     <script src="replace-account.js?v=3.2"></script>
     <script src="app.js?v=4.1"></script>
     <script src="netflix.js?v=4.1"></script>
-    <script src="analytics.js?v=3.2"></script>
+    <script src="analytics.js?v=5.0"></script>
     <script src="group-accounts.js?v=4.0"></script>
     <script src="shader-bg.js?v=3.2"></script>
 </body>
