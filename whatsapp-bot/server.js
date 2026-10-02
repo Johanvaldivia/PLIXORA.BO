@@ -1,11 +1,13 @@
 // =============================================================
-// PLIXORA.BO — WHATSAPP BOT API (server.js) v5.0 (Baileys Engine)
-// Motor 100% Baileys Puro (WebSocket Nativo sin Navegador)
-// - Cero Chromium / Cero Puppeteer (Apto para VM de 1 GB RAM)
-// - Consumo de RAM ultra-bajo: 35 - 50 MB
-// - Autenticación Multi-Archivo: useMultiFileAuthState (auth_info_baileys)
-// - Emparejamiento por Código de 8 Dígitos o Código QR
-// - Cola serializada Anti-Colisión (FIFO MessageQueue)
+// PLIXORA.BO — WHATSAPP BOT API (server.js) v6.0 (E2EE Signal Blindado)
+// Motor 100% Baileys Puro (WebSocket Directo sin Chromium)
+// - Cero Navegador / Cero Puppeteer (Apto para VM de 1 GB RAM)
+// - Consumo de RAM: ~35 - 45 MB
+// - Almacén de Pre-Claves en RAM: makeCacheableSignalKeyStore
+// - Gestor de Reintentos Criptográficos: msgRetryCounterCache (NodeCache)
+// - Almacén de Mensajes en RAM de 5 min: getMessage callback (NodeCache)
+// - Eliminación definitiva del error: "Esperando mensaje. Esto puede tomar tiempo"
+// - Vinculación de Confianza: Pairing Code de 8 Dígitos de Meta
 // =============================================================
 
 require('dotenv').config();
@@ -13,36 +15,43 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const readline = require('readline');
 const QRCode = require('qrcode');
 const {
     default: makeWASocket,
     useMultiFileAuthState,
     DisconnectReason,
     fetchLatestBaileysVersion,
-    makeCacheableSignalKeyStore
+    makeCacheableSignalKeyStore,
+    proto
 } = require('@whiskeysockets/baileys');
 const NodeCache = require('node-cache');
 const pino = require('pino');
-
-// Caché para resolver reintentos de mensajes y claves de cifrado (Anti "Esperando mensaje...")
-const msgRetryCounterCache = new NodeCache();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const BOT_TOKEN = process.env.WA_BOT_TOKEN || 'f58v6XkUscoxyIEGVgez7dRuJLHq4Sip';
 const AUTH_DIR = path.join(__dirname, 'auth_info_baileys');
 
+// ── 1. Cachés Criptográficas Signal en Memoria ───────────────
+// msgRetryCounterCache: Administra los contadores de reintentos de llaves
+const msgRetryCounterCache = new NodeCache();
+
+// messageStoreCache: Guarda mensajes por 5 minutos (stdTTL: 300s)
+// Permite que getMessage devuelva la carga útil cuando el receptor envía retry-receipt
+const messageStoreCache = new NodeCache({ stdTTL: 300, checkperiod: 60 });
+
 // ── Estado del bot ────────────────────────────────────────────
 let sock = null;
 let currentQR = null;
 let currentQRImage = null;
 let currentPairingCode = null;
-let pairingCodePhone = null;
+let pairingCodePhone = process.env.PAIR_PHONE || '59173651440';
 let pairingCodeGeneratedAt = 0;
 let isGeneratingPairCode = false;
 let isClientReady = false;
 let isStarting = false;
-let statusMsg = 'Iniciando Baileys Puro (WebSocket)...';
+let statusMsg = 'Iniciando Baileys E2EE Blindado...';
 let startTime = Date.now();
 
 // ── Cola de Envíos Serializada (FIFO MessageQueue) ─────────────
@@ -94,7 +103,7 @@ async function safeDestroyClient() {
     }
 }
 
-// ── Iniciar cliente Baileys con ciclo de vida seguro ──────────
+// ── Iniciar cliente Baileys Blindado ──────────────────────────
 async function startClient() {
     if (isStarting) return;
     isStarting = true;
@@ -103,59 +112,97 @@ async function startClient() {
         await safeDestroyClient();
 
         isClientReady = false;
-        statusMsg = 'Iniciando Baileys WebSocket...';
+        statusMsg = 'Iniciando conexión WebSocket Baileys...';
         console.log(`\n🚀 [${new Date().toLocaleTimeString()}] ${statusMsg}`);
 
         if (!fs.existsSync(AUTH_DIR)) {
             fs.mkdirSync(AUTH_DIR, { recursive: true });
         }
 
+        // 1. Autenticación multi-archivo
         const { state, saveCreds } = await useMultiFileAuthState(AUTH_DIR);
-        const { version, isLatest } = await fetchLatestBaileysVersion().catch(() => ({ version: [2, 3000, 1043857760], isLatest: true }));
-        console.log(`📡 Conectando con versión oficial WhatsApp Web: ${version.join('.')} (Última versión: ${isLatest})`);
 
+        // 2. Última versión oficial de WhatsApp Web Meta
+        const { version, isLatest } = await fetchLatestBaileysVersion().catch(() => ({ version: [2, 3000, 1043857760], isLatest: true }));
+        console.log(`📡 [WHATSAPP] Protocolo Web v${version.join('.')} (Última versión oficial: ${isLatest})`);
+
+        // 3. Inicialización del socket con soporte criptográfico en memoria
         sock = makeWASocket({
             version,
             logger: pino({ level: 'silent' }),
-            printQRInTerminal: false,
+            printQRInTerminal: false, // Desactivado para priorizar Pairing Code seguro
             auth: {
                 creds: state.creds,
+                // Almacén de claves en RAM envuelto para evitar latencia de disco
                 keys: makeCacheableSignalKeyStore(state.keys, pino({ level: 'silent' }))
             },
+            // Caché de reintentos para responder al teléfono del receptor
             msgRetryCounterCache,
+            // Emulación de navegador limpio y legítimo
             browser: ['Ubuntu', 'Chrome', '120.0.0.0'],
-            syncFullHistory: false, // Crítico: Evita cargar historiales pesados a memoria
+            syncFullHistory: false, // Crítico para VPS de 1 GB RAM: no descarga historiales pesados
             generateHighQualityLinkPreview: false,
             markOnlineOnConnect: true,
             connectTimeoutMs: 60000,
             defaultQueryTimeoutMs: 60000,
             keepAliveIntervalMs: 30000,
+
+            // ── CALLBACK getMessage (Crítico para solucionar "Esperando mensaje...") ──
+            // Cuando el teléfono del destinatario no puede descifrar el paquete inicial,
+            // envía un retry-receipt. WhatsApp llama a getMessage para volver a enviar
+            // el contenido original cifrado con las nuevas claves sincronizadas.
             getMessage: async (key) => {
-                // Responde a los retos de reintento de descifrado para evitar "Esperando mensaje"
-                return { conversation: 'PLIXORA' };
+                if (key?.id) {
+                    const cachedMsg = messageStoreCache.get(key.id);
+                    if (cachedMsg) {
+                        console.log(`🔄 [E2EE] Respondiendo reintento de descifrado para mensaje ID: ${key.id}`);
+                        return cachedMsg;
+                    }
+                }
+                return proto.Message.fromObject({});
             }
         });
 
-        // Manejador crítico: si el receptor pide re-descifrar el mensaje, este callback lo entrega
+        // Callback requerido por Baileys para eventos de mensajes entrantes/reintentos
         sock.ev.on('messages.upsert', async () => {});
 
+        // Guardar credenciales de forma persistente
         sock.ev.on('creds.update', saveCreds);
 
-        // VINCULACIÓN SEGURA POR CÓDIGO (Pairing Code) AUTOMÁTICA
+        // ── VINCULACIÓN POR CÓDIGO (Pairing Code de 8 dígitos) ───
         if (!state.creds.registered) {
             setTimeout(async () => {
                 try {
-                    const phoneToPair = pairingCodePhone || process.env.PAIR_PHONE || '59173651440';
-                    const cleanPhone = String(phoneToPair).replace(/[^0-9]/g, '');
-                    console.log('\n=========================================');
-                    console.log('  VINCULACIÓN SEGURA POR CÓDIGO (ANTI-BLOQUEO)');
-                    console.log('=========================================');
-                    const rawCode = await sock.requestPairingCode(cleanPhone);
+                    let phoneToPair = pairingCodePhone || process.env.PAIR_PHONE || '59173651440';
+
+                    // Si hay terminal interactiva TTY disponible, permitir ingresar número
+                    if (process.stdin.isTTY && !process.env.PAIR_PHONE) {
+                        try {
+                            const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+                            const question = (q) => new Promise((res) => rl.question(q, res));
+                            const userNumber = await question('Ingresa tu número de WhatsApp con código de país (Ej: 59173651440): ');
+                            if (userNumber && userNumber.trim()) {
+                                phoneToPair = userNumber.trim();
+                            }
+                            rl.close();
+                        } catch (e) {}
+                    }
+
+                    const clean = String(phoneToPair).replace(/[^0-9]/g, '');
+                    console.log('\n======================================================');
+                    console.log('   🔑 VINCULACIÓN SEGURA POR PAIRING CODE (ANTI-BLOQUEO)');
+                    console.log('======================================================');
+                    const rawCode = await sock.requestPairingCode(clean);
                     currentPairingCode = rawCode;
+                    pairingCodePhone = clean;
                     pairingCodeGeneratedAt = Date.now();
+
                     const fmt = (rawCode && rawCode.length === 8) ? `${rawCode.slice(0, 4)}-${rawCode.slice(4)}` : rawCode;
-                    console.log(`🔑 TU CÓDIGO DE VINCULACIÓN ES:  ${fmt}`);
-                    console.log('👉 Ve a tu celular: Ajustes > Dispositivos vinculados > Vincular un dispositivo > Vincular con el número de teléfono.\n');
+                    statusMsg = `Código activo: ${fmt}`;
+                    console.log(`  Teléfono: +${clean}`);
+                    console.log(`  CÓDIGO DE 8 DÍGITOS:  ${fmt}`);
+                    console.log('  👉 En tu celular: Ajustes > Dispositivos vinculados > Vincular un dispositivo > Vincular con el número de teléfono.');
+                    console.log('======================================================\n');
                 } catch (err) {
                     console.warn('Nota en auto-generación de código:', err.message);
                 }
@@ -166,12 +213,13 @@ async function startClient() {
             statusMsg = 'Restaurando sesión guardada...';
         }
 
+        // Manejo de eventos de conexión
         sock.ev.on('connection.update', async (update) => {
             const { connection, lastDisconnect, qr } = update;
 
+            // Mantener QR disponible en background para el endpoint web /qr
             if (qr) {
                 currentQR = qr;
-                statusMsg = 'PENDIENTE: Escanea el código QR o vincula con código de 8 dígitos';
                 try {
                     currentQRImage = await QRCode.toDataURL(qr, { width: 340, margin: 2 });
                     const buf = await QRCode.toBuffer(qr, { width: 340, margin: 2 });
@@ -179,17 +227,6 @@ async function startClient() {
                 } catch (e) {
                     currentQRImage = null;
                 }
-
-                console.log('\n===================================================');
-                console.log('📱 VINCULACIÓN DISPONIBLE (QR o CÓDIGO 8 DÍGITOS):');
-                console.log(`   Abre en tu navegador: http://localhost:${PORT}/qr`);
-                console.log(`   Imagen directa:      http://localhost:${PORT}/api/qr-image`);
-                console.log('===================================================\n');
-
-                try {
-                    const QRCodeTerminal = require('qrcode-terminal');
-                    QRCodeTerminal.generate(qr, { small: true });
-                } catch (e) {}
             }
 
             if (connection === 'connecting') {
@@ -209,9 +246,9 @@ async function startClient() {
 
                 const ramMB = Math.round(process.memoryUsage().rss / 1024 / 1024);
                 console.log(`\n🎉 ===================================================`);
-                console.log(`🎉 WHATSAPP OFICIAL CONECTADO Y OPERATIVO (BAILEYS)!`);
+                console.log(`🎉 [SISTEMA CONECTADO] WhatsApp listo y sincronizado!`);
                 console.log(`📱 Teléfono: +${myNumber}`);
-                console.log(`⚡ Consumo RAM: ~${ramMB} MB (Ultra Ligero, Cero Chromium)`);
+                console.log(`⚡ Consumo RAM: ~${ramMB} MB (Cero Chromium, Blindaje E2EE Activo)`);
                 console.log(`=====================================================\n`);
             }
 
@@ -272,12 +309,12 @@ function formatJid(phone) {
     return `${clean}@s.whatsapp.net`;
 }
 
-// ── Rutas Web ─────────────────────────────────────────────────
+// ── Rutas Web y API ───────────────────────────────────────────
 app.get('/', (req, res) => {
     res.redirect('/qr');
 });
 
-// Página Reactiva en Tiempo Real /qr (Soporta Código de 8 Dígitos y QR)
+// Página Reactiva /qr (con opción de código de 8 dígitos y QR)
 app.get('/qr', (req, res) => {
     res.send(`<!DOCTYPE html>
 <html lang="es">
@@ -303,13 +340,7 @@ app.get('/qr', (req, res) => {
         h1 { font-size: 1.45rem; margin: 14px 0 6px; color: var(--text); }
         p { color: var(--muted); font-size: 0.88rem; line-height: 1.45; margin: 0; }
         
-        /* Pestañas */
-        .tabs { display: flex; gap: 8px; background: #0c0e14; padding: 5px; border-radius: 14px; margin: 20px 0 16px; border: 1px solid var(--border); }
-        .tab-btn { flex: 1; padding: 10px 14px; border: none; background: transparent; color: var(--muted); font-weight: 600; font-size: 0.85rem; border-radius: 10px; cursor: pointer; transition: all 0.2s; }
-        .tab-btn.active { background: #1e2433; color: #fff; box-shadow: 0 3px 10px rgba(0,0,0,0.3); }
-
-        /* Contenedor Código de 8 Dígitos */
-        .code-panel { margin: 12px 0; }
+        .code-panel { margin: 16px 0; }
         .input-group { display: flex; gap: 8px; margin: 15px 0 12px; }
         .input-prefix { background: #0c0e14; border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; color: #cbd5e1; font-weight: 600; font-size: 0.95rem; }
         .phone-input { flex: 1; background: #0c0e14; border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; color: #fff; font-size: 0.95rem; font-weight: 600; outline: none; }
@@ -321,13 +352,6 @@ app.get('/qr', (req, res) => {
         .code-box { display: none; background: #0c0e14; border: 2px dashed rgba(37, 211, 102, 0.4); border-radius: 16px; padding: 22px; margin: 18px 0; }
         .code-display { font-family: 'SF Mono', Monaco, Consolas, monospace; font-size: 2.1rem; font-weight: 800; letter-spacing: 5px; color: var(--accent); user-select: all; cursor: pointer; }
         .copy-hint { color: var(--muted); font-size: 0.8rem; margin-top: 8px; }
-
-        /* Contenedor QR */
-        .qr-box { background: #fff; display: inline-block; border-radius: 18px; padding: 14px; box-shadow: 0 10px 35px rgba(0,0,0,0.5); margin: 16px 0; min-height: 270px; min-width: 270px; position: relative; }
-        .qr-box img { display: block; width: 250px; height: 250px; border-radius: 8px; }
-        .qr-loading { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 250px; width: 250px; color: #111; gap: 12px; font-size: 0.85rem; font-weight: 600; }
-        .spinner { width: 34px; height: 34px; border: 3px solid rgba(37,211,102,0.25); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.9s linear infinite; margin: 0 auto; }
-        @keyframes spin { to { transform: rotate(360deg); } }
 
         .steps { background: #0e1017; border-radius: 12px; padding: 14px 16px; text-align: left; font-size: 0.82rem; color: #cbd5e1; line-height: 1.6; border: 1px solid #1f2430; margin: 16px 0 12px; }
         .steps strong { color: #fff; }
@@ -343,14 +367,14 @@ app.get('/qr', (req, res) => {
     <div class="card">
         <!-- VISTA: YA CONECTADO -->
         <div id="view-connected" class="connected-card">
-            <div class="badge"><span class="dot"></span> MOTOR BAILEYS ACTIVO</div>
+            <div class="badge"><span class="dot"></span> MOTOR BAILEYS E2EE ONLINE</div>
             <h1 style="color:var(--accent);">¡WhatsApp Conectado!</h1>
-            <p style="margin-bottom:20px;">Tu bot de PLIXORA.BO está en línea con conexión directa por WebSocket.</p>
+            <p style="margin-bottom:20px;">Tu bot de PLIXORA.BO está en línea con cifrado Signal blindado.</p>
             <div style="background:#0e1017; border-radius:12px; padding:16px; text-align:left; border:1px solid var(--border); margin-bottom:20px;">
                 <div class="info-row"><span class="info-label">Teléfono:</span><span id="conn-phone" class="info-val" style="color:var(--accent);">+591 —</span></div>
-                <div class="info-row"><span class="info-label">Motor:</span><span class="info-val">Baileys WebSocket (Cero Navegador)</span></div>
+                <div class="info-row"><span class="info-label">Motor:</span><span class="info-val">Baileys WebSocket Puro</span></div>
+                <div class="info-row"><span class="info-label">Blindaje E2EE:</span><span class="info-val" style="color:#10b981;">NodeCache Activo (Anti-Espera)</span></div>
                 <div class="info-row"><span class="info-label">Memoria RAM:</span><span id="conn-ram" class="info-val" style="color:#10b981;">— MB</span></div>
-                <div class="info-row"><span class="info-label">Protocolo:</span><span class="info-val">WebSocket Seguro Nativo</span></div>
             </div>
             <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
                 <button onclick="if(confirm('¿Deseas reconectar el bot?')) location.href='/api/restart-bot'" style="background:rgba(255,255,255,0.06); color:#f59e0b; border:1px solid rgba(245,158,11,0.3); padding:10px 18px; border-radius:10px; cursor:pointer; font-weight:600; font-size:0.85rem;">↻ Reconectar</button>
@@ -358,20 +382,13 @@ app.get('/qr', (req, res) => {
             </div>
         </div>
 
-        <!-- VISTA: VINCULACIÓN -->
+        <!-- VISTA: VINCULACIÓN POR CÓDIGO -->
         <div id="view-linking">
-            <div class="badge"><span class="dot"></span> BAILEYS ULTRA-LIGHT ENGINE</div>
+            <div class="badge"><span class="dot"></span> VINCULACIÓN POR PAIRING CODE</div>
             <h1>Vincular Bot de WhatsApp</h1>
-            <p>Conexión directa por WebSocket (Consumo inferior a 50 MB RAM):</p>
+            <p>Conexión segura oficial de Meta (sin carteles de espera):</p>
 
-            <!-- Pestañas -->
-            <div class="tabs">
-                <button id="tab-btn-code" class="tab-btn active" onclick="switchTab('code')">🔢 Código de 8 Dígitos</button>
-                <button id="tab-btn-qr" class="tab-btn" onclick="switchTab('qr')">📷 Código QR</button>
-            </div>
-
-            <!-- PANEL 1: CÓDIGO DE 8 DÍGITOS -->
-            <div id="panel-code" class="code-panel">
+            <div class="code-panel">
                 <div class="input-group">
                     <div class="input-prefix">+591</div>
                     <input id="input-phone" type="tel" class="phone-input" value="73651440" placeholder="Número de celular" maxlength="12" />
@@ -395,41 +412,15 @@ app.get('/qr', (req, res) => {
                 </div>
             </div>
 
-            <!-- PANEL 2: CÓDIGO QR -->
-            <div id="panel-qr" style="display:none;">
-                <div class="qr-box">
-                    <div id="qr-loading" class="qr-loading">
-                        <div class="spinner"></div>
-                        <span id="qr-loading-txt">Generando código QR seguro...</span>
-                    </div>
-                    <img id="qr-img" style="display:none;" alt="QR Code"/>
-                </div>
-
-                <div class="steps">
-                    1. Abre <strong>WhatsApp Business</strong> en tu celular.<br>
-                    2. Toca <strong>Dispositivos vinculados</strong> ➔ <strong>Vincular un dispositivo</strong>.<br>
-                    3. Apunta tu cámara a este código QR.
-                </div>
-            </div>
-
             <div style="font-size:0.78rem; color:#10b981; display:flex; align-items:center; justify-content:center; gap:6px;">
                 <span style="width:7px; height:7px; background:#10b981; border-radius:50%; display:inline-block;"></span>
-                <span id="qr-live-status">Servidor WebSocket activo</span>
+                <span>Servidor WebSocket activo con NodeCache</span>
             </div>
         </div>
     </div>
 
     <script>
-        let currentTab = 'code';
         let isRequestingCode = false;
-
-        function switchTab(tab) {
-            currentTab = tab;
-            document.getElementById('tab-btn-code').classList.toggle('active', tab === 'code');
-            document.getElementById('tab-btn-qr').classList.toggle('active', tab === 'qr');
-            document.getElementById('panel-code').style.display = (tab === 'code') ? 'block' : 'none';
-            document.getElementById('panel-qr').style.display = (tab === 'qr') ? 'block' : 'none';
-        }
 
         async function solicitarCodigo() {
             if (isRequestingCode) return;
@@ -441,7 +432,7 @@ app.get('/qr', (req, res) => {
 
             const btn = document.getElementById('btn-get-code');
             btn.disabled = true;
-            btn.innerHTML = '<span class="spinner" style="width:18px;height:18px;border-width:2px;display:inline-block;margin:0;"></span> Conectando con Meta...';
+            btn.innerHTML = 'Conectando con Meta...';
             isRequestingCode = true;
 
             try {
@@ -454,7 +445,7 @@ app.get('/qr', (req, res) => {
                 if (data.success && data.code) {
                     mostrarCodigo(data.formatted || data.code);
                 } else {
-                    alert('Aviso: ' + (data.error || data.message || 'No se pudo generar el código. Intenta con QR o reintenta en 5 segundos.'));
+                    alert('Aviso: ' + (data.error || data.message || 'No se pudo generar el código. Reintenta en 5 segundos.'));
                 }
             } catch (err) {
                 alert('Error al conectar con el servidor: ' + err.message);
@@ -484,7 +475,6 @@ app.get('/qr', (req, res) => {
                 const res = await fetch('/status');
                 if (res.ok) {
                     const data = await res.json();
-                    
                     if (data.ready) {
                         document.getElementById('view-linking').style.display = 'none';
                         document.getElementById('view-connected').style.display = 'block';
@@ -492,27 +482,15 @@ app.get('/qr', (req, res) => {
                         document.getElementById('conn-ram').textContent = (data.memoryMB || 35) + ' MB';
                         return;
                     }
-
                     if (data.pairingCode) {
                         const formatted = data.pairingCode.length === 8 
                             ? data.pairingCode.slice(0, 4) + '-' + data.pairingCode.slice(4)
                             : data.pairingCode;
                         mostrarCodigo(formatted);
                     }
-
-                    if (data.hasQR && data.qrImage) {
-                        const qrImg = document.getElementById('qr-img');
-                        const qrLoading = document.getElementById('qr-loading');
-                        qrImg.src = data.qrImage;
-                        qrImg.style.display = 'block';
-                        qrLoading.style.display = 'none';
-                    } else if (data.status) {
-                        const loadingTxt = document.getElementById('qr-loading-txt');
-                        if (loadingTxt) loadingTxt.textContent = data.status;
-                    }
                 }
             } catch(e) {}
-            setTimeout(pollStatus, 1800);
+            setTimeout(pollStatus, 2000);
         }
 
         pollStatus();
@@ -541,7 +519,8 @@ app.get('/status', (req, res) => {
         pairingCodePhone: pairingCodePhone,
         phone: phone,
         loadingPercent: isClientReady ? 100 : 0,
-        engine: 'Baileys Pure WebSocket (Sin Navegador)',
+        engine: 'Baileys Pure WebSocket (E2EE Blindado con NodeCache)',
+        cachedMessages: messageStoreCache.getStats().keys,
         memoryMB: memoryMB,
         uptime: `${h}h ${m}m`,
         uptimeSeconds: uptimeS
@@ -609,7 +588,7 @@ app.all(['/api/pair-code', '/pair-code'], async (req, res) => {
         isGeneratingPairCode = true;
         pairingCodePhone = clean;
         statusMsg = `Generando código de 8 dígitos para +${clean}...`;
-        console.log(`🔢 Solicitando código de emparejamiento a Meta para +${clean}...`);
+        console.log(`🔢 Solicitando pairing code a Meta para +${clean}...`);
 
         const rawCode = await sock.requestPairingCode(clean);
         currentPairingCode = rawCode;
@@ -620,7 +599,7 @@ app.all(['/api/pair-code', '/pair-code'], async (req, res) => {
             : rawCode;
 
         statusMsg = `Código activo: ${formatted}`;
-        console.log(`✅ Código de vinculación generado exitosamente: ${formatted}`);
+        console.log(`✅ Código de vinculación generado: ${formatted}`);
 
         return res.json({
             success: true,
@@ -641,7 +620,7 @@ app.all(['/api/pair-code', '/pair-code'], async (req, res) => {
     }
 });
 
-// ── Endpoint para Servir Imagen QR ────────────────────────────
+// ── Endpoint para Servir Imagen QR (Opcional) ─────────────────
 app.get('/api/qr-image', async (req, res) => {
     if (!currentQRImage && !currentQR) {
         return res.status(404).send('No hay código QR pendiente.');
@@ -707,7 +686,7 @@ app.all(['/api/logout', '/logout'], async (req, res) => {
     }
 });
 
-// ── API: Enviar Mensaje de Texto (Con Cola Serializada) ───────
+// ── API: Enviar Mensaje de Texto (Blindado con Caché E2EE) ────
 app.post('/api/send-message', requireToken, async (req, res) => {
     try {
         if (!isClientReady || !sock) {
@@ -725,16 +704,27 @@ app.post('/api/send-message', requireToken, async (req, res) => {
         }
 
         const jid = formatJid(phone);
+
         const result = await messageQueue.enqueue(async () => {
+            // 1. Simular presencia (escribiendo...) para validar actividad humana legítima
             try {
                 await sock.sendPresenceUpdate('composing', jid);
                 await new Promise((r) => setTimeout(r, 800));
                 await sock.sendPresenceUpdate('paused', jid);
             } catch (e) {}
-            return await sock.sendMessage(jid, { text: String(message) });
+
+            // 2. Enviar el mensaje
+            const sent = await sock.sendMessage(jid, { text: String(message) });
+
+            // 3. Guardar en messageStoreCache por 5 minutos para responder a reintentos (retry-receipt)
+            if (sent?.key?.id && sent?.message) {
+                messageStoreCache.set(sent.key.id, sent.message);
+            }
+
+            return sent;
         });
 
-        console.log(`💬 Mensaje enviado con éxito a ${jid}`);
+        console.log(`💬 Mensaje entregado con éxito a ${jid} (ID: ${result?.key?.id})`);
         return res.status(200).json({ success: true, message: 'Mensaje enviado correctamente.', result });
     } catch (error) {
         console.error('❌ Error al enviar mensaje:', error.message || error);
@@ -742,7 +732,7 @@ app.post('/api/send-message', requireToken, async (req, res) => {
     }
 });
 
-// ── API: Enviar Imagen con Texto (Con Cola Serializada) ────────
+// ── API: Enviar Imagen con Texto (Blindado con Caché E2EE) ─────
 app.post('/api/send-image', requireToken, async (req, res) => {
     try {
         if (!isClientReady || !sock) {
@@ -797,18 +787,28 @@ app.post('/api/send-image', requireToken, async (req, res) => {
         }
 
         const result = await messageQueue.enqueue(async () => {
+            // 1. Simular presencia (escribiendo...)
             try {
                 await sock.sendPresenceUpdate('composing', jid);
                 await new Promise((r) => setTimeout(r, 800));
                 await sock.sendPresenceUpdate('paused', jid);
             } catch (e) {}
-            return await sock.sendMessage(jid, {
+
+            // 2. Enviar la imagen
+            const sent = await sock.sendMessage(jid, {
                 image: imagePayload,
                 caption: caption ? String(caption) : ''
             });
+
+            // 3. Guardar en messageStoreCache por 5 minutos para reintentos E2EE
+            if (sent?.key?.id && sent?.message) {
+                messageStoreCache.set(sent.key.id, sent.message);
+            }
+
+            return sent;
         });
 
-        console.log(`🖼️ Imagen enviada con éxito a ${jid}`);
+        console.log(`🖼️ Imagen entregada con éxito a ${jid} (ID: ${result?.key?.id})`);
         return res.status(200).json({ success: true, message: 'Imagen enviada correctamente.', result });
     } catch (error) {
         console.error('❌ Error al enviar imagen:', error.message || error);
@@ -820,9 +820,9 @@ app.post('/api/send-image', requireToken, async (req, res) => {
 app.listen(PORT, '0.0.0.0', () => {
     console.log('\n============================================================');
     console.log(`🚀 SERVIDOR PLIXORA BOT (BAILEYS WEBSOCKET) ACTIVO EN PUERTO ${PORT}`);
-    console.log(`📱 Código QR / Vinculación: http://localhost:${PORT}/qr`);
+    console.log(`📱 Código de Vinculación:   http://localhost:${PORT}/qr`);
     console.log(`📊 Estado en JSON:          http://localhost:${PORT}/status`);
-    console.log(`⚡ Motor:                  @whiskeysockets/baileys puro (Sin Chromium)`);
+    console.log(`⚡ Motor:                  @whiskeysockets/baileys (E2EE Signal Blindado)`);
     console.log(`💡 Memoria Objetivo:       < 50 MB RAM`);
     console.log('============================================================\n');
 
