@@ -12,6 +12,9 @@ whatsapp-bot/.wwebjs_auth/
 whatsapp-bot/.wwebjs_cache/
 auth_info_baileys/
 whatsapp-bot/auth_info_baileys/
+baileys_auth/
+whatsapp-bot/baileys_auth/
+whatsapp-bot/latest_qr.png
 whatsapp-bot/*.tar.gz
 whatsapp-bot/*.log
 *.log
