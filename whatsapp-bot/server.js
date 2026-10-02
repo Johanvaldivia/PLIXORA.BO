@@ -107,8 +107,8 @@ async function startClient() {
             fs.mkdirSync(AUTH_DIR, { recursive: true });
         }
 
-        const { state, saveCreds } = await useMultiFileAuthState(AUTH_DIR);
-        const { version } = await fetchLatestBaileysVersion().catch(() => ({ version: [2, 3000, 1015901307] }));
+        const { version, isLatest } = await fetchLatestBaileysVersion().catch(() => ({ version: [2, 3000, 1043857760], isLatest: true }));
+        console.log(`📡 Conectando con versión oficial WhatsApp Web: ${version.join('.')} (Última versión: ${isLatest})`);
 
         sock = makeWASocket({
             version,
@@ -118,7 +118,7 @@ async function startClient() {
                 creds: state.creds,
                 keys: makeCacheableSignalKeyStore(state.keys, pino({ level: 'silent' }))
             },
-            browser: Browsers.macOS('Desktop'),
+            browser: Browsers.ubuntu('Chrome'),
             syncFullHistory: false, // Crítico: Evita cargar historiales pesados a memoria
             generateHighQualityLinkPreview: false,
             markOnlineOnConnect: true,
