@@ -107,6 +107,7 @@ async function startClient() {
             fs.mkdirSync(AUTH_DIR, { recursive: true });
         }
 
+        const { state, saveCreds } = await useMultiFileAuthState(AUTH_DIR);
         const { version, isLatest } = await fetchLatestBaileysVersion().catch(() => ({ version: [2, 3000, 1043857760], isLatest: true }));
         console.log(`📡 Conectando con versión oficial WhatsApp Web: ${version.join('.')} (Última versión: ${isLatest})`);
 
