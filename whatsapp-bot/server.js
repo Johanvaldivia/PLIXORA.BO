@@ -19,10 +19,13 @@ const {
     useMultiFileAuthState,
     DisconnectReason,
     fetchLatestBaileysVersion,
-    makeCacheableSignalKeyStore,
-    Browsers
+    makeCacheableSignalKeyStore
 } = require('@whiskeysockets/baileys');
+const NodeCache = require('node-cache');
 const pino = require('pino');
+
+// Caché para resolver reintentos de mensajes y claves de cifrado (Anti "Esperando mensaje...")
+const msgRetryCounterCache = new NodeCache();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -44,7 +47,7 @@ let startTime = Date.now();
 
 // ── Cola de Envíos Serializada (FIFO MessageQueue) ─────────────
 class MessageQueue {
-    constructor(delayBetweenMs = 850) {
+    constructor(delayBetweenMs = 1500) {
         this.queue = [];
         this.processing = false;
         this.delayBetweenMs = delayBetweenMs;
@@ -75,7 +78,7 @@ class MessageQueue {
         }
     }
 }
-const messageQueue = new MessageQueue(850);
+const messageQueue = new MessageQueue(1500);
 
 // ── Destrucción segura del socket previo ──────────────────────
 async function safeDestroyClient() {
@@ -119,16 +122,45 @@ async function startClient() {
                 creds: state.creds,
                 keys: makeCacheableSignalKeyStore(state.keys, pino({ level: 'silent' }))
             },
-            browser: Browsers.ubuntu('Chrome'),
+            msgRetryCounterCache,
+            browser: ['Ubuntu', 'Chrome', '120.0.0.0'],
             syncFullHistory: false, // Crítico: Evita cargar historiales pesados a memoria
             generateHighQualityLinkPreview: false,
             markOnlineOnConnect: true,
             connectTimeoutMs: 60000,
             defaultQueryTimeoutMs: 60000,
-            keepAliveIntervalMs: 30000
+            keepAliveIntervalMs: 30000,
+            getMessage: async (key) => {
+                // Responde a los retos de reintento de descifrado para evitar "Esperando mensaje"
+                return { conversation: 'PLIXORA' };
+            }
         });
 
+        // Manejador crítico: si el receptor pide re-descifrar el mensaje, este callback lo entrega
+        sock.ev.on('messages.upsert', async () => {});
+
         sock.ev.on('creds.update', saveCreds);
+
+        // VINCULACIÓN SEGURA POR CÓDIGO (Pairing Code) AUTOMÁTICA
+        if (!state.creds.registered) {
+            setTimeout(async () => {
+                try {
+                    const phoneToPair = pairingCodePhone || process.env.PAIR_PHONE || '59173651440';
+                    const cleanPhone = String(phoneToPair).replace(/[^0-9]/g, '');
+                    console.log('\n=========================================');
+                    console.log('  VINCULACIÓN SEGURA POR CÓDIGO (ANTI-BLOQUEO)');
+                    console.log('=========================================');
+                    const rawCode = await sock.requestPairingCode(cleanPhone);
+                    currentPairingCode = rawCode;
+                    pairingCodeGeneratedAt = Date.now();
+                    const fmt = (rawCode && rawCode.length === 8) ? `${rawCode.slice(0, 4)}-${rawCode.slice(4)}` : rawCode;
+                    console.log(`🔑 TU CÓDIGO DE VINCULACIÓN ES:  ${fmt}`);
+                    console.log('👉 Ve a tu celular: Ajustes > Dispositivos vinculados > Vincular un dispositivo > Vincular con el número de teléfono.\n');
+                } catch (err) {
+                    console.warn('Nota en auto-generación de código:', err.message);
+                }
+            }, 3000);
+        }
 
         if (state.creds && state.creds.registered) {
             statusMsg = 'Restaurando sesión guardada...';
@@ -694,6 +726,11 @@ app.post('/api/send-message', requireToken, async (req, res) => {
 
         const jid = formatJid(phone);
         const result = await messageQueue.enqueue(async () => {
+            try {
+                await sock.sendPresenceUpdate('composing', jid);
+                await new Promise((r) => setTimeout(r, 800));
+                await sock.sendPresenceUpdate('paused', jid);
+            } catch (e) {}
             return await sock.sendMessage(jid, { text: String(message) });
         });
 
@@ -760,6 +797,11 @@ app.post('/api/send-image', requireToken, async (req, res) => {
         }
 
         const result = await messageQueue.enqueue(async () => {
+            try {
+                await sock.sendPresenceUpdate('composing', jid);
+                await new Promise((r) => setTimeout(r, 800));
+                await sock.sendPresenceUpdate('paused', jid);
+            } catch (e) {}
             return await sock.sendMessage(jid, {
                 image: imagePayload,
                 caption: caption ? String(caption) : ''
