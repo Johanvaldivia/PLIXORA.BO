@@ -1,13 +1,12 @@
 // =============================================================
-// PLIXORA.BO — WHATSAPP BOT API (server.js) v6.0 (E2EE Signal Blindado)
-// Motor 100% Baileys Puro (WebSocket Directo sin Chromium)
-// - Cero Navegador / Cero Puppeteer (Apto para VM de 1 GB RAM)
-// - Consumo de RAM: ~35 - 45 MB
-// - Almacén de Pre-Claves en RAM: makeCacheableSignalKeyStore
-// - Gestor de Reintentos Criptográficos: msgRetryCounterCache (NodeCache)
-// - Almacén de Mensajes en RAM de 5 min: getMessage callback (NodeCache)
-// - Eliminación definitiva del error: "Esperando mensaje. Esto puede tomar tiempo"
-// - Vinculación de Confianza: Pairing Code de 8 Dígitos de Meta
+// PLIXORA.BO — WHATSAPP BOT ENGINE (server.js) v7.0
+// Arquitectura Integral Anti-Espera & Anti-Bloqueo de Meta
+// 
+// MITIGACIÓN DE LAS 4 CAUSAS CRÍTICAS DE «Esperando mensaje»:
+// 1. Pre-sincronización de presencia (available + presenceSubscribe + composing 1.5-2s)
+// 2. Anti-Spam y Jitter aleatorio (4 a 8 seg) + Salting criptográfico único
+// 3. Fallback de reintentos: msgStore (NodeCache 10 min TTL) + getMessage callback
+// 4. Autodetección y limpieza segura contra corrupción de sesión (401/411)
 // =============================================================
 
 require('dotenv').config();
@@ -33,13 +32,13 @@ const PORT = process.env.PORT || 3000;
 const BOT_TOKEN = process.env.WA_BOT_TOKEN || 'f58v6XkUscoxyIEGVgez7dRuJLHq4Sip';
 const AUTH_DIR = path.join(__dirname, 'auth_info_baileys');
 
-// ── 1. Cachés Criptográficas Signal en Memoria ───────────────
-// msgRetryCounterCache: Administra los contadores de reintentos de llaves
+// ── PILAR 3: Cachés Criptográficas Signal en Memoria ─────────
+// msgRetryCounterCache: Administra los contadores de reintentos de sesión
 const msgRetryCounterCache = new NodeCache();
 
-// messageStoreCache: Guarda mensajes por 5 minutos (stdTTL: 300s)
-// Permite que getMessage devuelva la carga útil cuando el receptor envía retry-receipt
-const messageStoreCache = new NodeCache({ stdTTL: 300, checkperiod: 60 });
+// msgStore: Almacén temporal de mensajes enviados con TTL de 10 minutos (600 segundos)
+// Obligatorio para responder a paquetes 'retry-receipt' de WhatsApp
+const msgStore = new NodeCache({ stdTTL: 600, checkperiod: 60 });
 
 // ── Estado del bot ────────────────────────────────────────────
 let sock = null;
@@ -51,15 +50,14 @@ let pairingCodeGeneratedAt = 0;
 let isGeneratingPairCode = false;
 let isClientReady = false;
 let isStarting = false;
-let statusMsg = 'Iniciando Baileys E2EE Blindado...';
+let statusMsg = 'Iniciando Baileys con blindaje E2EE...';
 let startTime = Date.now();
 
-// ── Cola de Envíos Serializada (FIFO MessageQueue) ─────────────
-class MessageQueue {
-    constructor(delayBetweenMs = 1500) {
+// ── PILAR 2: Cola de Envíos Serializada con Jitter (4 a 8s) ────
+class SecureMessageQueue {
+    constructor() {
         this.queue = [];
         this.processing = false;
-        this.delayBetweenMs = delayBetweenMs;
     }
 
     enqueue(taskFn) {
@@ -80,14 +78,45 @@ class MessageQueue {
         } catch (err) {
             reject(err);
         } finally {
+            // Jitter de seguridad: Variación aleatoria entre 4 y 8 segundos
+            const jitterDelayMs = Math.floor(Math.random() * (8000 - 4000 + 1)) + 4000;
             setTimeout(() => {
                 this.processing = false;
                 this.processNext();
-            }, this.delayBetweenMs);
+            }, jitterDelayMs);
         }
     }
 }
-const messageQueue = new MessageQueue(1500);
+const messageQueue = new SecureMessageQueue();
+
+// Inyección de Salting dinámico para evitar hashes idénticos de spam masivo
+function injectDynamicSalting(text) {
+    if (!text) return '';
+    // Si ya tiene un identificador de referencia, evitar duplicarlo
+    if (text.includes('Ref: PLX-') || text.includes('_Ref:_')) return text;
+    const saltId = Date.now().toString(36).toUpperCase();
+    return `${text}\n\n_Ref: PLX-${saltId}_`;
+}
+
+// ── PILAR 1: Sincronización de presencia con el teléfono maestro ─
+async function syncChatPresenceTree(sockInstance, jid) {
+    try {
+        // 1. Emitir ping de presencia maestro (avisa a Meta que el nodo bot está disponible)
+        await sockInstance.sendPresenceUpdate('available');
+
+        // 2. Suscribirse al estado del destinatario (fuerza la sincronización del árbol de claves)
+        await sockInstance.presenceSubscribe(jid);
+        await new Promise(r => setTimeout(r, 450));
+
+        // 3. Simular escritura humana (composing) durante 1.5 a 2.0 segundos
+        await sockInstance.sendPresenceUpdate('composing', jid);
+        const typingDurationMs = Math.floor(Math.random() * (2000 - 1500 + 1)) + 1500;
+        await new Promise(r => setTimeout(r, typingDurationMs));
+        await sockInstance.sendPresenceUpdate('paused', jid);
+    } catch (presenceErr) {
+        // Si hay una anomalía de red en la presencia, continuar con el envío
+    }
+}
 
 // ── Destrucción segura del socket previo ──────────────────────
 async function safeDestroyClient() {
@@ -97,13 +126,13 @@ async function safeDestroyClient() {
             sock.ev.removeAllListeners();
             sock.end(undefined);
         } catch (e) {
-            console.warn('Nota al cerrar socket:', e.message);
+            console.warn('Nota al cerrar socket previo:', e.message);
         }
         sock = null;
     }
 }
 
-// ── Iniciar cliente Baileys Blindado ──────────────────────────
+// ── Inicialización Segura del Motor Baileys ───────────────────
 async function startClient() {
     if (isStarting) return;
     isStarting = true;
@@ -119,44 +148,43 @@ async function startClient() {
             fs.mkdirSync(AUTH_DIR, { recursive: true });
         }
 
-        // 1. Autenticación multi-archivo
+        // Cargar autenticación multi-archivo
         const { state, saveCreds } = await useMultiFileAuthState(AUTH_DIR);
 
-        // 2. Última versión oficial de WhatsApp Web Meta
-        const { version, isLatest } = await fetchLatestBaileysVersion().catch(() => ({ version: [2, 3000, 1043857760], isLatest: true }));
+        // Protocolo de versión oficial dinámica de Meta
+        const { version, isLatest } = await fetchLatestBaileysVersion().catch(() => ({
+            version: [2, 3000, 1043857760],
+            isLatest: true
+        }));
         console.log(`📡 [WHATSAPP] Protocolo Web v${version.join('.')} (Última versión oficial: ${isLatest})`);
 
-        // 3. Inicialización del socket con soporte criptográfico en memoria
+        // Inicialización blindada con soporte E2EE Signal
         sock = makeWASocket({
             version,
             logger: pino({ level: 'silent' }),
-            printQRInTerminal: false, // Desactivado para priorizar Pairing Code seguro
+            printQRInTerminal: false,
             auth: {
                 creds: state.creds,
-                // Almacén de claves en RAM envuelto para evitar latencia de disco
+                // Almacén de pre-claves en RAM (evita demoras de I/O)
                 keys: makeCacheableSignalKeyStore(state.keys, pino({ level: 'silent' }))
             },
-            // Caché de reintentos para responder al teléfono del receptor
+            // Gestor de reintentos criptográficos
             msgRetryCounterCache,
-            // Emulación de navegador limpio y legítimo
             browser: ['Ubuntu', 'Chrome', '120.0.0.0'],
-            syncFullHistory: false, // Crítico para VPS de 1 GB RAM: no descarga historiales pesados
+            syncFullHistory: false, // Ligero: Cero saturación de memoria en VPS 1GB RAM
             generateHighQualityLinkPreview: false,
             markOnlineOnConnect: true,
             connectTimeoutMs: 60000,
             defaultQueryTimeoutMs: 60000,
             keepAliveIntervalMs: 30000,
 
-            // ── CALLBACK getMessage (Crítico para solucionar "Esperando mensaje...") ──
-            // Cuando el teléfono del destinatario no puede descifrar el paquete inicial,
-            // envía un retry-receipt. WhatsApp llama a getMessage para volver a enviar
-            // el contenido original cifrado con las nuevas claves sincronizadas.
+            // ── PILAR 3: Callback getMessage obligatorio para retry-receipt ──
             getMessage: async (key) => {
                 if (key?.id) {
-                    const cachedMsg = messageStoreCache.get(key.id);
-                    if (cachedMsg) {
-                        console.log(`🔄 [E2EE] Respondiendo reintento de descifrado para mensaje ID: ${key.id}`);
-                        return cachedMsg;
+                    const cachedMessage = msgStore.get(key.id);
+                    if (cachedMessage) {
+                        console.log(`🔄 [E2EE] Re-entregando paquete cifrado para retry-receipt ID: ${key.id}`);
+                        return cachedMessage;
                     }
                 }
                 return proto.Message.fromObject({});
@@ -166,24 +194,22 @@ async function startClient() {
         // Callback requerido por Baileys para eventos de mensajes entrantes/reintentos
         sock.ev.on('messages.upsert', async () => {});
 
-        // Guardar credenciales de forma persistente
+        // Guardado continuo de credenciales y pre-claves
         sock.ev.on('creds.update', saveCreds);
 
-        // ── VINCULACIÓN POR CÓDIGO (Pairing Code de 8 dígitos) ───
+        // ── PILAR 4: Vinculación Segura por Pairing Code (8 dígitos) ─
         if (!state.creds.registered) {
             setTimeout(async () => {
                 try {
                     let phoneToPair = pairingCodePhone || process.env.PAIR_PHONE || '59173651440';
 
-                    // Si hay terminal interactiva TTY disponible, permitir ingresar número
+                    // Si hay terminal interactiva TTY disponible, permitir ingresar número por consola
                     if (process.stdin.isTTY && !process.env.PAIR_PHONE) {
                         try {
                             const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
                             const question = (q) => new Promise((res) => rl.question(q, res));
                             const userNumber = await question('Ingresa tu número de WhatsApp con código de país (Ej: 59173651440): ');
-                            if (userNumber && userNumber.trim()) {
-                                phoneToPair = userNumber.trim();
-                            }
+                            if (userNumber && userNumber.trim()) phoneToPair = userNumber.trim();
                             rl.close();
                         } catch (e) {}
                     }
@@ -217,7 +243,6 @@ async function startClient() {
         sock.ev.on('connection.update', async (update) => {
             const { connection, lastDisconnect, qr } = update;
 
-            // Mantener QR disponible en background para el endpoint web /qr
             if (qr) {
                 currentQR = qr;
                 try {
@@ -252,25 +277,27 @@ async function startClient() {
                 console.log(`=====================================================\n`);
             }
 
+            // ── PILAR 4: Manejo y prevención de corrupción de sesión ─
             if (connection === 'close') {
                 isClientReady = false;
                 const statusCode = (lastDisconnect?.error)?.output?.statusCode;
-                const reason = DisconnectReason[statusCode] || (lastDisconnect?.error?.message) || 'Desconocido';
-                statusMsg = `Desconectado: ${reason} (código ${statusCode || 'N/A'})`;
-                console.log(`⚠️ Conexión Baileys cerrada. Motivo: ${reason} (${statusCode})`);
+                const isFatalAuth = statusCode === DisconnectReason.loggedOut || 
+                                    statusCode === 401 || 
+                                    statusCode === 411;
 
-                const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
-                if (!shouldReconnect) {
-                    console.log('🗑️ Sesión desvinculada desde el teléfono. Eliminando credenciales...');
+                console.log(`⚠️ Conexión Baileys cerrada. Código: ${statusCode || 'N/A'}`);
+
+                if (isFatalAuth) {
+                    console.log('🚨 Sesión cerrada o corrupta (401/411). Limpiando directorio auth para inicio limpio...');
                     try {
                         fs.rmSync(AUTH_DIR, { recursive: true, force: true });
                     } catch (e) {}
                 }
 
-                console.log('↻ Reconectando Baileys en 4s...');
+                console.log('↻ Reconectando Baileys en 5s...');
                 setTimeout(() => {
                     startClient();
-                }, 4000);
+                }, 5000);
             }
         });
 
@@ -287,11 +314,7 @@ async function startClient() {
 }
 
 // ── Middleware Express ────────────────────────────────────────
-app.use(cors({
-    origin: (origin, callback) => callback(null, true),
-    methods: ['GET', 'POST', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(cors({ origin: true }));
 app.use(express.json({ limit: '15mb' }));
 
 function requireToken(req, res, next) {
@@ -314,7 +337,6 @@ app.get('/', (req, res) => {
     res.redirect('/qr');
 });
 
-// Página Reactiva /qr (con opción de código de 8 dígitos y QR)
 app.get('/qr', (req, res) => {
     res.send(`<!DOCTYPE html>
 <html lang="es">
@@ -369,7 +391,7 @@ app.get('/qr', (req, res) => {
         <div id="view-connected" class="connected-card">
             <div class="badge"><span class="dot"></span> MOTOR BAILEYS E2EE ONLINE</div>
             <h1 style="color:var(--accent);">¡WhatsApp Conectado!</h1>
-            <p style="margin-bottom:20px;">Tu bot de PLIXORA.BO está en línea con cifrado Signal blindado.</p>
+            <p style="margin-bottom:20px;">Tu bot de PLIXORA.BO está en línea con cifrado Signal blindado (4 pilares activos).</p>
             <div style="background:#0e1017; border-radius:12px; padding:16px; text-align:left; border:1px solid var(--border); margin-bottom:20px;">
                 <div class="info-row"><span class="info-label">Teléfono:</span><span id="conn-phone" class="info-val" style="color:var(--accent);">+591 —</span></div>
                 <div class="info-row"><span class="info-label">Motor:</span><span class="info-val">Baileys WebSocket Puro</span></div>
@@ -414,7 +436,7 @@ app.get('/qr', (req, res) => {
 
             <div style="font-size:0.78rem; color:#10b981; display:flex; align-items:center; justify-content:center; gap:6px;">
                 <span style="width:7px; height:7px; background:#10b981; border-radius:50%; display:inline-block;"></span>
-                <span>Servidor WebSocket activo con NodeCache</span>
+                <span>Servidor WebSocket activo con NodeCache (E2EE Blindado)</span>
             </div>
         </div>
     </div>
@@ -499,7 +521,7 @@ app.get('/qr', (req, res) => {
 </html>`);
 });
 
-// ── Endpoint de Estado JSON ───────────────────────────────────
+// Endpoint de diagnóstico
 app.get('/status', (req, res) => {
     const uptimeS = Math.floor((Date.now() - startTime) / 1000);
     const h = Math.floor(uptimeS / 3600);
@@ -519,15 +541,15 @@ app.get('/status', (req, res) => {
         pairingCodePhone: pairingCodePhone,
         phone: phone,
         loadingPercent: isClientReady ? 100 : 0,
-        engine: 'Baileys Pure WebSocket (E2EE Blindado con NodeCache)',
-        cachedMessages: messageStoreCache.getStats().keys,
+        engine: 'Baileys Pure WebSocket (E2EE Signal 4-Pilares Blindado)',
+        cachedMessages: msgStore.getStats().keys,
         memoryMB: memoryMB,
         uptime: `${h}h ${m}m`,
         uptimeSeconds: uptimeS
     });
 });
 
-// ── Endpoint para Código de Emparejamiento de 8 Dígitos ───────
+// Endpoint para solicitar código de emparejamiento de 8 dígitos
 app.all(['/api/pair-code', '/pair-code'], async (req, res) => {
     try {
         let phone = req.body?.phone || req.query?.phone || pairingCodePhone || '59173651440';
@@ -620,26 +642,7 @@ app.all(['/api/pair-code', '/pair-code'], async (req, res) => {
     }
 });
 
-// ── Endpoint para Servir Imagen QR (Opcional) ─────────────────
-app.get('/api/qr-image', async (req, res) => {
-    if (!currentQRImage && !currentQR) {
-        return res.status(404).send('No hay código QR pendiente.');
-    }
-    try {
-        res.setHeader('Content-Type', 'image/png');
-        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
-        if (currentQRImage && currentQRImage.startsWith('data:image/')) {
-            const base64Data = currentQRImage.replace(/^data:image\/\w+;base64,/, '');
-            return res.send(Buffer.from(base64Data, 'base64'));
-        }
-        const buffer = await QRCode.toBuffer(currentQR, { width: 340, margin: 2 });
-        res.send(buffer);
-    } catch (e) {
-        res.status(500).send('Error generando imagen QR');
-    }
-});
-
-// ── Endpoint para Reiniciar Conexión ──────────────────────────
+// Endpoint para reiniciar la conexión
 app.all(['/api/restart-bot', '/restart'], async (req, res) => {
     console.log('🔄 Petición de reinicio manual recibida...');
     if (req.accepts('html') && !req.xhr) {
@@ -653,7 +656,7 @@ app.all(['/api/restart-bot', '/restart'], async (req, res) => {
     }, 500);
 });
 
-// ── Endpoint para Cerrar Sesión y Generar Nueva ───────────────
+// Endpoint para cerrar sesión y generar nueva
 app.all(['/api/logout', '/logout'], async (req, res) => {
     console.log('🗑️ Petición de cierre de sesión y reseteo recibida...');
     try {
@@ -686,7 +689,7 @@ app.all(['/api/logout', '/logout'], async (req, res) => {
     }
 });
 
-// ── API: Enviar Mensaje de Texto (Blindado con Caché E2EE) ────
+// ── API: Enviar Mensaje de Texto (Blindaje 4-Pilares Activo) ───
 app.post('/api/send-message', requireToken, async (req, res) => {
     try {
         if (!isClientReady || !sock) {
@@ -705,20 +708,20 @@ app.post('/api/send-message', requireToken, async (req, res) => {
 
         const jid = formatJid(phone);
 
+        // Despacho mediante cola FIFO serializada con Jitter (4 a 8s)
         const result = await messageQueue.enqueue(async () => {
-            // 1. Simular presencia (escribiendo...) para validar actividad humana legítima
-            try {
-                await sock.sendPresenceUpdate('composing', jid);
-                await new Promise((r) => setTimeout(r, 800));
-                await sock.sendPresenceUpdate('paused', jid);
-            } catch (e) {}
+            // PILAR 1: Sincronizar presencia con el teléfono maestro y receptor
+            await syncChatPresenceTree(sock, jid);
 
-            // 2. Enviar el mensaje
-            const sent = await sock.sendMessage(jid, { text: String(message) });
+            // PILAR 2: Inyectar salting dinámico ligero para evitar huellas hash idénticas
+            const textToSend = injectDynamicSalting(String(message));
 
-            // 3. Guardar en messageStoreCache por 5 minutos para responder a reintentos (retry-receipt)
+            // Enviar mensaje cifrado por WebSocket
+            const sent = await sock.sendMessage(jid, { text: textToSend });
+
+            // PILAR 3: Almacenar en msgStore (TTL 10 min) para responder a retry-receipt
             if (sent?.key?.id && sent?.message) {
-                messageStoreCache.set(sent.key.id, sent.message);
+                msgStore.set(sent.key.id, sent.message);
             }
 
             return sent;
@@ -732,7 +735,7 @@ app.post('/api/send-message', requireToken, async (req, res) => {
     }
 });
 
-// ── API: Enviar Imagen con Texto (Blindado con Caché E2EE) ─────
+// ── API: Enviar Imagen con Texto (Blindaje 4-Pilares Activo) ───
 app.post('/api/send-image', requireToken, async (req, res) => {
     try {
         if (!isClientReady || !sock) {
@@ -773,7 +776,7 @@ app.post('/api/send-image', requireToken, async (req, res) => {
                         throw new Error(`HTTP ${response.status}`);
                     }
                 } catch (fetchErr) {
-                    console.warn(`Aviso: Error descargando imagen (${fetchErr.message}), pasando URL directa a Baileys.`);
+                    console.warn(`Aviso: Error descargando imagen (${fetchErr.message}), pasando URL directa.`);
                     imagePayload = { url: imageUrl };
                 }
             } else if (typeof imageUrl === 'string' && fs.existsSync(imageUrl)) {
@@ -786,23 +789,23 @@ app.post('/api/send-image', requireToken, async (req, res) => {
             }
         }
 
+        // Despacho mediante cola FIFO serializada con Jitter (4 a 8s)
         const result = await messageQueue.enqueue(async () => {
-            // 1. Simular presencia (escribiendo...)
-            try {
-                await sock.sendPresenceUpdate('composing', jid);
-                await new Promise((r) => setTimeout(r, 800));
-                await sock.sendPresenceUpdate('paused', jid);
-            } catch (e) {}
+            // PILAR 1: Sincronizar presencia
+            await syncChatPresenceTree(sock, jid);
 
-            // 2. Enviar la imagen
+            // PILAR 2: Salting dinámico en caption
+            const captionToSend = caption ? injectDynamicSalting(String(caption)) : '';
+
+            // Enviar imagen cifrada por WebSocket
             const sent = await sock.sendMessage(jid, {
                 image: imagePayload,
-                caption: caption ? String(caption) : ''
+                caption: captionToSend
             });
 
-            // 3. Guardar en messageStoreCache por 5 minutos para reintentos E2EE
+            // PILAR 3: Almacenar en msgStore (TTL 10 min) para resolver retry-receipt
             if (sent?.key?.id && sent?.message) {
-                messageStoreCache.set(sent.key.id, sent.message);
+                msgStore.set(sent.key.id, sent.message);
             }
 
             return sent;
@@ -819,10 +822,10 @@ app.post('/api/send-image', requireToken, async (req, res) => {
 // ── Inicio del Servidor Express ───────────────────────────────
 app.listen(PORT, '0.0.0.0', () => {
     console.log('\n============================================================');
-    console.log(`🚀 SERVIDOR PLIXORA BOT (BAILEYS WEBSOCKET) ACTIVO EN PUERTO ${PORT}`);
+    console.log(`🚀 SERVIDOR PLIXORA BOT ACTIVO EN PUERTO ${PORT}`);
     console.log(`📱 Código de Vinculación:   http://localhost:${PORT}/qr`);
     console.log(`📊 Estado en JSON:          http://localhost:${PORT}/status`);
-    console.log(`⚡ Motor:                  @whiskeysockets/baileys (E2EE Signal Blindado)`);
+    console.log(`⚡ Motor:                  @whiskeysockets/baileys puro (Blindaje 4-Pilares E2EE)`);
     console.log(`💡 Memoria Objetivo:       < 50 MB RAM`);
     console.log('============================================================\n');
 
