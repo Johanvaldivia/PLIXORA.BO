@@ -319,8 +319,10 @@ app.use(express.json({ limit: '15mb' }));
 
 function requireToken(req, res, next) {
     if (!BOT_TOKEN) return next();
-    const auth = req.headers.authorization || '';
-    if (auth === 'Bearer ' + BOT_TOKEN) return next();
+    const authHeader = req.headers.authorization || '';
+    const bearerToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : null;
+    const token = bearerToken || req.headers['x-bot-token'] || req.query.token || req.body?.token;
+    if (token === BOT_TOKEN) return next();
     return res.status(401).json({ success: false, error: 'Token de seguridad inválido o faltante.' });
 }
 

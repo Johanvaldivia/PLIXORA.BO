@@ -94,7 +94,7 @@
             headers['Authorization'] = 'Bearer ' + window.PLIXORA_CONFIG.WA_BOT_TOKEN;
         }
         const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), timeoutMs || 5000);
+        const timer = setTimeout(() => controller.abort(), timeoutMs || 15000);
 
         let resp;
         try {
@@ -102,7 +102,7 @@
         } catch (err) {
             clearTimeout(timer);
             if (err.name === 'AbortError') {
-                throw new Error('El bot tardó más de 5s en responder.');
+                throw new Error('El bot tardó en responder (tiempo de espera agotado).');
             }
             throw new Error('No se pudo conectar al bot de WhatsApp (' + (window.PLIXORA_CONFIG.BOT_BASE_URL) + ').');
         } finally {
